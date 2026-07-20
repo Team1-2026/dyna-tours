@@ -1,0 +1,43 @@
+/vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Laravel 4 specific
+bootstrap/compiled.php
+app/storage/
+
+# Laravel 5 & Lumen specific
+public/storage
+public/hot
+
+# Laravel 5 & Lumen specific - allow include to public/build/
+public/build/*
+!public/build/assets
+!public/build/manifest.json
+
+storage/*.key
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.DS_Store
+.idea
+*.sublime-workspace
+*.sublime-project
+.vscode/
+
+# SQLite
+database/*.sqlite
+database/*.sqlite3
+
+# Log files
+storage/logs/*.log
+*.log
+
+# Caching
+bootstrap/cache/
