@@ -17,3 +17,4 @@ Route::post('/pay/{payment}/process', function (Payment $payment) {
     $payment->update(['status' => 'paid']);
     return redirect("/pay/{$payment->id}");
 });
+

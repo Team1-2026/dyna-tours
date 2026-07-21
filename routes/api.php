@@ -49,6 +49,7 @@ Route::post('/chat/identify', [PublicChatController::class, 'identify']);
 Route::post('/google-chat/webhook', GoogleChatWebhookController::class)
     ->middleware('verify.google.chat');
 
+    
 // Protected admin routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/conversations/start', [ConversationalAgentController::class, 'startConversation']);

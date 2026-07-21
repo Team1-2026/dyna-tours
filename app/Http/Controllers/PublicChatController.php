@@ -102,6 +102,7 @@ class PublicChatController extends Controller
         ]);
     }
 
+    
 
     public function start(Request $request): JsonResponse
     {
@@ -109,7 +110,7 @@ class PublicChatController extends Controller
             'visitor_id' => ['required', 'uuid'],
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:40'],
+            'phone' => ['nullable', 'string', 'max:40'],
             'message' => ['required', 'string', 'max:1000'],
         ]);
 

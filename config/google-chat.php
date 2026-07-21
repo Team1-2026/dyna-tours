@@ -49,6 +49,7 @@ return [
     |
     */
 
+    
     'service_account_credentials' => env('GOOGLE_CHAT_SERVICE_ACCOUNT_JSON')
         ? json_decode((string) env('GOOGLE_CHAT_SERVICE_ACCOUNT_JSON'), true)
         : (env('GOOGLE_CHAT_SERVICE_ACCOUNT_PATH') && is_readable(env('GOOGLE_CHAT_SERVICE_ACCOUNT_PATH'))

@@ -12,6 +12,7 @@ use App\Ai\Tools\GeneratePaymentLinkTool;
 use App\Ai\Tools\CheckPaymentStatusTool;
 use Laravel\Ai\Concerns\RemembersConversations;
 
+
 class ChatAgent implements Agent, Conversational, HasTools
 {
     use Promptable, RemembersConversations;

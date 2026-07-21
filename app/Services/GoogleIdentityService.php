@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
+
+
 class GoogleIdentityService
 {
     /**

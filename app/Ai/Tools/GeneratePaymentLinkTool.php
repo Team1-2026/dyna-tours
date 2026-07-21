@@ -42,6 +42,7 @@ class GeneratePaymentLinkTool implements Tool
             'status' => 'pending'
         ]);
 
+        
         $paymentUrl = config('app.url') . "/pay/" . $payment->id;
 
         return "Payment link generated successfully. VERY IMPORTANT: You must output this exact link to the customer. Do NOT add asterisks (**), periods, or parentheses around the link, because it will break the URL. Put the link on a new line by itself. Link: \n" . $paymentUrl;

@@ -144,4 +144,6 @@ class GoogleChatWebhookController extends Controller
             'text' => "✅ Delivered to {$name} on the website chat.",
         ]);
     }
+
+    
 }

@@ -13,3 +13,5 @@ foreach($response->getSpaces() as $space) {
     ];
 }
 echo json_encode($foundSpaces, JSON_PRETTY_PRINT);
+
+

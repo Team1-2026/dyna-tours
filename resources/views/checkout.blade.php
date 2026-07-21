@@ -14,6 +14,7 @@
             --accent: #3b82f6;
             --accent-hover: #2563eb;
             --success: #10b981;
+            
         }
 
         * {

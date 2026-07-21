@@ -17,4 +17,5 @@ class Payment extends Model
         'description',
         'status',
     ];
+    
 }
