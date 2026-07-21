@@ -1,0 +1,393 @@
+/* ==========================================
+   DYNA TOURS - TOURS LISTING STYLES
+   ========================================== */
+
+.pageHeader {
+  background-color: var(--color-secondary-navy);
+  color: #ffffff;
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.pageHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(231, 40, 43, 0.15), transparent 50%);
+  pointer-events: none;
+}
+
+.pageTitle {
+  color: #ffffff;
+  font-size: 2.75rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Layout container */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2.5rem;
+  padding: 4rem 0;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Sidebar filter panel */
+.sidebar {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  z-index: 10;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: relative;
+    top: 0;
+    z-index: 1;
+  }
+}
+
+.sidebarTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.75rem;
+}
+
+.clearAllBtn {
+  background: none;
+  border: none;
+  color: var(--color-primary-red);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clearAllBtn:hover {
+  text-decoration: underline;
+}
+
+/* Filter Blocks */
+.filterBlock {
+  margin-bottom: 2rem;
+}
+
+.filterBlock:last-child {
+  margin-bottom: 0;
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-secondary-navy);
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.searchInputWrapper {
+  position: relative;
+}
+
+.searchInputWrapper svg {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+
+.searchInput {
+  padding-left: 2.25rem;
+  font-size: 0.9rem;
+}
+
+/* Checkbox & Radio lists */
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.checkboxInput,
+.radioInput {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+}
+
+.radioInput {
+  border-radius: var(--radius-full);
+}
+
+.optionItem:hover {
+  color: var(--color-text-primary);
+}
+
+/* Content side */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.resultsMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resultsCount {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.resultsCount strong {
+  color: var(--color-secondary-navy);
+  font-weight: 700;
+}
+
+/* Tours Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* No Results Panel */
+.noResults {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.noResultsIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-secondary-navy-light);
+  color: var(--color-secondary-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noResultsTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-secondary-navy);
+}
+
+.noResultsText {
+  color: var(--color-text-secondary);
+  max-width: 450px;
+  line-height: 1.6;
+}
+
+/* New Holidays Page Styles */
+.heroBanner {
+  position: relative;
+  background-image: url('/images/kerala.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 8rem 0 6rem;
+  text-align: center;
+  color: white;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.heroTitle {
+  font-family: var(--font-manrope);
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.heroSubtitle {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.9;
+}
+
+/* Filter Bar */
+.filterBar {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1.5rem;
+  margin-top: -3rem;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 992px) {
+  .filterBar {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.filterInputs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  flex: 1;
+}
+
+@media (min-width: 576px) {
+  .filterInputs {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 992px) {
+  .filterInputs {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterGroup label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.filterInput,
+.filterSelect {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-manrope);
+  font-size: 1rem;
+  background: var(--color-bg-light);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.filterInput:focus,
+.filterSelect:focus {
+  border-color: var(--color-primary-red);
+}
+
+.filterActions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Category Tabs */
+.categoryTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 3rem 0;
+  justify-content: center;
+}
+
+.tabBtn {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 50px;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tabBtn:hover {
+  background: var(--color-secondary-navy-light);
+  color: var(--color-secondary-navy);
+  border-color: var(--color-secondary-navy);
+}
+
+.activeTab {
+  background: var(--color-primary-red);
+  color: white;
+  border-color: var(--color-primary-red);
+}
+
+.activeTab:hover {
+  background: #cc2525;
+  color: white;
+}

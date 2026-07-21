@@ -1,0 +1,111 @@
+/* ==========================================
+   DYNA TOURS - ADMIN LOGIN STYLES
+   ========================================== */
+
+.loginContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  background-color: var(--color-bg-body);
+  padding: 2rem 0;
+}
+
+.loginCard {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 3rem 2.5rem;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+
+.cardHeader {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 850;
+  color: var(--color-secondary-navy);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.formInput {
+  background: var(--color-secondary-navy-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.15rem;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  width: 100%;
+  transition: all var(--transition-fast);
+}
+
+.formInput:focus {
+  background: #ffffff;
+  border-color: var(--color-primary-red);
+  box-shadow: 0 0 0 3px rgba(231, 40, 43, 0.15);
+}
+
+.errorAlert {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: var(--color-primary-red);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(231, 40, 43, 0.25);
+}
+
+.submitBtn:hover {
+  background: var(--color-primary-red-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(231, 40, 43, 0.4);
+}
+
+.submitBtn:disabled {
+  background: var(--color-text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

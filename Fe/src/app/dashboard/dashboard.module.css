@@ -1,0 +1,305 @@
+/* ==========================================
+   DYNA TOURS - BOOKING DASHBOARD STYLES
+   ========================================== */
+
+.pageWrapper {
+  padding: 4rem 0 6rem 0;
+  background-color: var(--color-bg-body);
+}
+
+.dashboardTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-secondary-navy);
+  margin-bottom: 2rem;
+}
+
+/* Dashboard grid layout */
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Profile Card */
+.profileCard {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-secondary-navy-light);
+  color: var(--color-secondary-navy);
+  font-size: 2.25rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--color-primary-red);
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+.username {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-secondary-navy);
+  margin-bottom: 0.25rem;
+}
+
+.userEmail {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.loyaltyBadge {
+  background: linear-gradient(135deg, var(--color-secondary-navy) 0%, #163b66 100%);
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: inline-block;
+  box-shadow: var(--shadow-sm);
+}
+
+.profileStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.5rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statVal {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-primary-red);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Bookings Area */
+.bookingsArea {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionHeader {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-secondary-navy);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Individual Booking Card */
+.bookingCard {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  transition: all var(--transition-normal);
+}
+
+.bookingCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(12, 39, 69, 0.1);
+}
+
+@media (max-width: 640px) {
+  .bookingCard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.image {
+  background-size: cover;
+  background-position: center;
+  height: 100%;
+  min-height: 180px;
+}
+
+.content {
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tourTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-secondary-navy);
+  line-height: 1.3;
+}
+
+.tourTitle a:hover {
+  color: var(--color-primary-red);
+}
+
+.refNum {
+  font-family: monospace;
+  font-size: 0.85rem;
+  background-color: var(--color-secondary-navy-light);
+  color: var(--color-secondary-navy);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .details {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.detailVal {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.priceVal {
+  color: var(--color-primary-red);
+}
+
+/* Status Badge styling */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+}
+
+.statusConfirmed {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+/* Actions footer */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+}
+
+.cancelBtn {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.cancelBtn:hover {
+  color: var(--color-primary-red);
+}
+
+/* Empty State Styling */
+.emptyState {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: 5rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.emptyIcon {
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-red-light);
+  color: var(--color-primary-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-secondary-navy);
+}
+
+.emptyText {
+  color: var(--color-text-secondary);
+  max-width: 400px;
+  line-height: 1.6;
+}

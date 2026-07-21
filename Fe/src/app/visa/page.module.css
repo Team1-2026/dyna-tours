@@ -1,0 +1,1007 @@
+/* Hero Section */
+.heroSection {
+  position: relative;
+  min-height: 30vh;
+  padding: 2rem 0;
+  background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  color: white;
+  overflow: visible; /* allow overlapping elements */
+}
+
+.heroSection::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to bottom, rgba(12, 39, 69, 0.7) 0%, rgba(12, 39, 69, 0.9) 100%);
+  z-index: 1;
+}
+
+.heroContainer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.heroContent {
+  max-width: 800px;
+  margin-bottom: 3rem;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: white;
+  line-height: 1.1;
+}
+
+.heroText {
+  font-size: 1.25rem;
+  color: #e2e8f0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.searchCard {
+  background: white;
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  transform: translateY(80px); /* Creates the overlap effect */
+}
+
+/* Wave Divider */
+.waveDivider {
+  position: absolute;
+  bottom: -1px; /* prevents 1px gap */
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg); /* if SVG is top-aligned, flip it to point down to the next section */
+  z-index: 5;
+}
+
+.waveDivider svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 90px;
+}
+
+.waveDivider .wavePath {
+  fill: var(--color-bg-body, #f8fafc);
+}
+
+.searchForm {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1;
+}
+
+.inputLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-secondary-navy);
+  margin-bottom: 0.5rem;
+}
+
+.selectInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  background-color: #f8fafc;
+  color: var(--color-text-primary);
+  transition: all var(--transition-fast);
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: var(--color-primary-red);
+  box-shadow: 0 0 0 3px var(--color-primary-red-light);
+}
+
+.searchBtn {
+  padding: 0.75rem 2rem;
+  height: 48px;
+}
+
+.secureText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 6rem 0;
+  }
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+  .searchForm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .searchBtn {
+    width: 100%;
+  }
+}
+
+/* Intro Section */
+.introSection {
+  padding-top: 8rem;
+  text-align: center;
+}
+
+/* E-Visa Grid */
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.visaCard {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  border: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+  gap: 1.25rem;
+}
+
+.visaCard:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-premium);
+  border-color: var(--color-border-focus);
+}
+
+.flagIcon {
+  font-size: 3.5rem;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-normal);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+}
+
+.visaCardContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.visaCard:hover .flagIcon {
+  transform: scale(1.1);
+}
+
+.countryName {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+  color: var(--color-secondary-navy);
+}
+
+.visaPrice {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.visaPrice strong {
+  color: var(--color-primary-red);
+  font-size: 1rem;
+}
+
+.learnMore {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-primary-red);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: gap var(--transition-fast);
+}
+
+.visaCard:hover .learnMore {
+  gap: 0.75rem;
+}
+
+/* Stamped Visa Section */
+.stampedContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.stampedCard {
+  background: var(--color-bg-body);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+}
+
+.stampedHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stampedHeader h3 {
+  font-size: 1.5rem;
+}
+
+.stampedRegion {
+  background: var(--color-primary-red-light);
+  color: var(--color-primary-red);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stampedList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  list-style: none;
+}
+
+.stampedList li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.stampedList li svg {
+  color: var(--color-primary-red);
+}
+
+@media (max-width: 768px) {
+  .stampedContainer {
+    grid-template-columns: 1fr;
+  }
+  .stampedList {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Visa Process */
+.processIntro {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 1.125rem;
+}
+
+.processTimeline {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  max-width: 1200px;
+  margin: 4rem auto 2rem;
+  padding: 0;
+  height: 480px;
+}
+
+.zigzagWrapper {
+  position: absolute;
+  top: 25px; /* Align with center of top icon */
+  bottom: 25px; /* Align with center of bottom icon */
+  left: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.zigzagSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Airplane at the end of the zigzag */
+.processTimeline::after {
+  content: '✈️';
+  position: absolute;
+  top: 25px;
+  left: 108.32%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  font-size: 2.5rem;
+  z-index: 10;
+}
+
+.processStep {
+  flex: 1;
+  position: relative;
+  margin-left: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  transition: all var(--transition-fast);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+  z-index: 2;
+}
+
+.processStep:nth-child(odd) {
+  text-align: center;
+  justify-content: flex-start; /* Box goes to top */
+  padding-top: 70px; /* Space for top icon */
+}
+
+.processStep:nth-child(even) {
+  text-align: center;
+  justify-content: flex-end; /* Box goes to bottom */
+  padding-bottom: 70px; /* Space for bottom icon */
+}
+
+.processStep:last-child {
+  padding-right: 40px; /* Prevent the last box from touching the V-shape line */
+}
+
+.processStep:hover {
+  transform: translateY(-4px);
+}
+
+.stepNumber {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
+  background: var(--color-primary-red);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 1.25rem;
+  box-shadow: 0 0 0 6px var(--color-bg-light), 0 4px 10px rgba(231, 40, 43, 0.3);
+  z-index: 10;
+}
+
+.processStep:nth-child(odd) .stepNumber {
+  top: 0;
+}
+
+.processStep:nth-child(even) .stepNumber {
+  bottom: 0;
+}
+
+.stepContent {
+  background: white;
+  padding: 0.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  position: relative;
+  transition: all var(--transition-fast);
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.processStep:hover .stepContent {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-red-light);
+}
+
+.stepContent::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-style: solid;
+  border-width: 10px;
+}
+
+.processStep:nth-child(odd) .stepContent::after {
+  top: -20px;
+  bottom: auto;
+  border-color: transparent transparent white transparent;
+}
+
+.processStep:nth-child(even) .stepContent::after {
+  bottom: -20px;
+  top: auto;
+  border-color: white transparent transparent transparent;
+}
+
+@media (max-width: 992px) {
+  .processTimeline {
+    flex-direction: column;
+    height: auto;
+    padding: 2rem 0 0;
+    margin: 4rem auto 0;
+  }
+  .zigzagWrapper {
+    display: none; /* Hide SVG on mobile */
+  }
+  .processTimeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 25px;
+    right: auto;
+    width: 4px;
+    height: auto;
+    background-image: linear-gradient(to bottom, var(--color-primary-red) 50%, transparent 50%);
+    background-size: 4px 20px;
+    transform: none;
+  }
+  .processTimeline::after {
+    bottom: -20px;
+    top: auto;
+    left: 11px;
+    right: auto;
+    transform: rotate(180deg);
+  }
+  .processStep {
+    width: 100%;
+    height: auto;
+    padding: 0 0 0 60px;
+    margin-bottom: 2rem;
+  }
+  .processStep:nth-child(odd),
+  .processStep:nth-child(even) {
+    text-align: left;
+    justify-content: flex-start;
+  }
+  .stepNumber, 
+  .processStep:nth-child(odd) .stepNumber,
+  .processStep:nth-child(even) .stepNumber {
+    top: 20px;
+    bottom: auto;
+    left: 25px;
+    transform: translateX(-50%);
+  }
+  .stepContent {
+    position: relative;
+    height: auto;
+  }
+  .processStep:nth-child(odd) .stepContent::after,
+  .processStep:nth-child(even) .stepContent::after {
+    left: -20px;
+    top: 25px;
+    bottom: auto;
+    transform: none;
+    border-color: transparent white transparent transparent;
+  }
+}
+
+.stepSubtitle {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.stepTitle {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.stepDesc {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}
+
+/* Features Grid */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.featureCard {
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  background: white;
+  border: 1px solid var(--color-border);
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.featureCard:hover {
+  background: white;
+  box-shadow: var(--shadow-md);
+}
+
+.featureIconWrapper {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  background: var(--color-primary-red-light);
+  color: var(--color-primary-red);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featureTitle {
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.3;
+}
+
+.featureDescription {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+/* FAQ */
+.faqContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.faqItem {
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.faqItemOpen {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--shadow-sm);
+}
+
+.faqQuestion {
+  width: 100%;
+  text-align: left;
+  padding: 1.25rem 1.5rem;
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+
+.faqQuestion svg {
+  transition: transform var(--transition-fast);
+}
+
+.faqQuestion[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.faqAnswer {
+  transition: all var(--transition-normal);
+}
+
+.faqAnswer p {
+  padding-bottom: 1.5rem;
+  color: var(--color-text-secondary);
+}
+
+/* Enquiry Form */
+.enquiryWrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  background: var(--color-secondary-navy);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  margin-top: 2rem;
+}
+
+.enquiryText {
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Override global title colors for the dark background */
+.enquiryText :global(.section-subtitle) {
+  color: #ffb3b4; /* Light red/pink for contrast */
+}
+
+.enquiryText :global(.section-title) {
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.enquiryDesc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.125rem;
+  margin: 0 0 2rem;
+  line-height: 1.6;
+}
+
+.secureBadge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: white;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.secureBadge svg {
+  color: var(--color-primary-red);
+}
+
+.enquiryFormCard {
+  background: white;
+  padding: 4rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.inputGroupFull {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroupHalf {
+  grid-column: span 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.formGrid label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-secondary-navy);
+}
+
+.submitBtn {
+  margin-top: 1rem;
+  height: 54px;
+}
+
+.successMessage {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.successMessage svg {
+  margin-bottom: 1.5rem;
+}
+
+.successMessage h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-secondary-navy);
+}
+
+.successMessage p {
+  color: var(--color-text-secondary);
+  margin-bottom: 2rem;
+}
+
+.errorMessage {
+  grid-column: span 2;
+  padding: 1rem;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-weight: 500;
+}
+
+@media (max-width: 992px) {
+  .enquiryWrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .enquiryText {
+    padding-right: 0;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+  .inputGroupHalf {
+    grid-column: span 1;
+  }
+  .enquiryFormCard {
+    padding: 1.5rem;
+  }
+}
+
+/* Floating Action Button (Mobile) */
+.floatingCTA {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .floatingCTA {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #25D366; /* WhatsApp green */
+    color: white;
+    border-radius: var(--radius-full);
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+    transition: transform var(--transition-fast);
+  }
+  .floatingCTA:active {
+    transform: scale(0.95);
+  }
+}
+
+@media (max-width: 992px) {
+  .featuresGrid, .gridContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .processStep::after {
+    display: none;
+  }
+  .enquiryWrapper {
+    grid-template-columns: 1fr;
+  }
+  .enquiryText {
+    padding: 3rem 2rem;
+  }
+  .enquiryFormCard {
+    padding: 3rem 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .featuresGrid, .gridContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* New Journey Process Design */
+.journeyWrapper {
+  position: relative;
+  width: 100%;
+  margin: 4rem auto 2rem;
+}
+
+.journeySvgContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.journeySvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.journeyDot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--color-secondary-navy);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.middlePlaneNode {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-bg-light, #f8fafc);
+  padding: 8px;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.planeDashedCircle {
+  width: 44px;
+  height: 44px;
+  border: 2px dashed var(--color-secondary-navy);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.endPlaneNode {
+  position: absolute;
+  top: 60%;
+  right: -10px;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.journeyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr;
+  row-gap: 0;
+  column-gap: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.journeyCardWrapper {
+  padding: 3.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.journeyCard {
+  background: white;
+  border-radius: 20px;
+  padding: 3.5rem 1.5rem 1.5rem;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  border: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  transition: all var(--transition-fast);
+}
+
+.journeyCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-primary-red-light);
+}
+
+.journeyCardNumber {
+  position: absolute;
+  top: -15px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  background: var(--color-primary-red);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(231, 40, 43, 0.3);
+  z-index: 10;
+}
+
+.journeyCardIconWrapper {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  color: var(--color-secondary-navy);
+  border: 1px solid rgba(0,0,0,0.02);
+  z-index: 10;
+}
+
+.journeyCardIconWrapper svg {
+  width: 28px;
+  height: 28px;
+}
+
+.journeyCardTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-secondary-navy);
+  margin-bottom: 0.75rem;
+}
+
+.journeyCardDesc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+@media (max-width: 992px) {
+  .journeyGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    row-gap: 2rem;
+  }
+  .journeyCardWrapper {
+    padding: 2rem 0;
+  }
+  .journeySvgContainer {
+    display: none;
+  }
+}

@@ -1,0 +1,129 @@
+/* Country Page Layout */
+.countryHeader {
+  background-color: var(--color-secondary-navy);
+  color: white;
+  padding: 2rem 0 1rem;
+}
+
+.countryHeaderContent {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 0;
+}
+
+.countryFlagLarge {
+  font-size: 5.5rem;
+}
+
+.countryHeaderTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+}
+
+.countryTypeBadge {
+  display: inline-block;
+  background: var(--color-primary-red);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.keyInfoGrid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  justify-content: flex-start;
+}
+
+.keyInfoItem {
+  min-width: 180px;
+  max-width: 250px;
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid #cbd5e1;
+  border-top: 3px solid var(--color-primary-red);
+}
+
+.keyInfoLabel {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.keyInfoValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-secondary-navy);
+}
+
+.detailsContent {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  padding: 0;
+}
+
+.detailsMain section {
+  margin-bottom: 1.5rem;
+}
+
+.detailsMain h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detailsList {
+  list-style: none;
+}
+
+.detailsList li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+.detailsList li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-primary-red);
+  font-weight: bold;
+  font-size: 1.5rem;
+  line-height: 1;
+  top: -2px;
+}
+
+.sidebarCard {
+  background: white;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 100px;
+}
+
+@media (max-width: 992px) {
+  .detailsContent {
+    grid-template-columns: 1fr;
+  }
+  .sidebarCard {
+    position: static;
+  }
+}

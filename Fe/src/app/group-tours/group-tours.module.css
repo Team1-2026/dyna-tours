@@ -1,0 +1,396 @@
+.pageContainer {
+  font-family: var(--font-manrope), sans-serif;
+  color: #333;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  height: 60vh;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.8));
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  color: white;
+  max-width: 800px;
+  padding: 0 20px;
+  animation: fadeInDown 1s ease-out;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  letter-spacing: -1px;
+}
+
+.heroTagline {
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.ctaButton {
+  display: inline-block;
+  background: #ff6b6b;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+}
+
+/* Search Section */
+.searchSection {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  margin: -40px auto 40px;
+  max-width: 900px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.searchInputGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.searchInputGroup label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #666;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.searchSelect {
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fafafa;
+  transition: border-color 0.3s ease;
+}
+
+.searchSelect:focus {
+  outline: none;
+  border-color: #ff6b6b;
+}
+
+/* Overview Section */
+.overviewSection {
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.overviewContent h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+}
+
+.overviewText {
+  color: #555;
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+
+.readMoreBtn {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.overviewImage {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* Tour Packages */
+.packagesSection {
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
+}
+
+.sectionTitle {
+  font-size: 2.2rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 40px;
+  color: #1a1a1a;
+}
+
+.packagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.tourCard {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.tourCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+}
+
+.tourCardImage {
+  height: 220px;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+
+.statusBadge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: white;
+  backdrop-filter: blur(4px);
+}
+
+.statusAvailable { background: rgba(46, 204, 113, 0.9); }
+.statusFilling { background: rgba(241, 196, 15, 0.9); }
+.statusLimited { background: rgba(230, 126, 34, 0.9); }
+.statusSoldOut { background: rgba(231, 76, 60, 0.9); }
+
+.tourCardContent {
+  padding: 25px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tourTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  color: #1a1a1a;
+}
+
+.tourMeta {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #777;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.tourMetaItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tourPrice {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.priceLabel {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.priceValue {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #2c3e50;
+}
+
+/* Featured Carousel */
+.featuredSection {
+  background: #1a1a1a;
+  padding: 80px 20px;
+  margin-bottom: 60px;
+  color: white;
+}
+
+.featuredSection .sectionTitle {
+  color: white;
+}
+
+.carouselContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 20px;
+  padding-bottom: 20px;
+}
+
+.carouselContainer::-webkit-scrollbar {
+  height: 8px;
+}
+.carouselContainer::-webkit-scrollbar-track {
+  background: #333;
+  border-radius: 4px;
+}
+.carouselContainer::-webkit-scrollbar-thumb {
+  background: #ff6b6b;
+  border-radius: 4px;
+}
+
+.carouselItem {
+  flex: 0 0 350px;
+  scroll-snap-align: center;
+}
+
+/* Enquiry Form */
+.enquirySection {
+  max-width: 600px;
+  margin: 0 auto 80px;
+  padding: 0 20px;
+}
+
+.enquiryForm {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.formControl {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.formControl:focus {
+  outline: none;
+  border-color: #ff6b6b;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 15px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submitBtn:hover {
+  background: #ff5252;
+}
+
+.submitBtn:disabled {
+  background: #ffb3b3;
+  cursor: not-allowed;
+}
+
+.successMessage {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 700;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .overviewSection {
+    grid-template-columns: 1fr;
+  }
+  .searchSection {
+    flex-direction: column;
+    margin-top: -20px;
+  }
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+}
