@@ -42,7 +42,6 @@ storage/logs/*.log
 
 # Caching
 bootstrap/cache/
-
 # Ignore frontend images
 Fe/public/images/
 

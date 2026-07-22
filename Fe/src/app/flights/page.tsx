@@ -15,9 +15,11 @@ export const metadata: Metadata = {
   }
 };
 
+import { getBaseUrl } from '@/lib/api';
+
 async function getFlightPageData() {
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/flights/page', { cache: 'no-store' });
+    const res = await fetch(`${getBaseUrl()}/flights/page`, { cache: 'no-store' });
     if (!res.ok) return null;
     return res.json();
   } catch (error) {
