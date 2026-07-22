@@ -76,10 +76,12 @@ export default function Footer() {
         <div className={styles.linksCol}>
           <h3 className={styles.colTitle}>Travel Information</h3>
           <ul className={styles.linksList}>
+            <li><Link href="/about">About Us</Link></li>
+            <li><Link href="/contact-us">Contact Us</Link></li>
             <li><Link href="/tours">All Tour Packages</Link></li>
             <li><Link href="/dashboard">Track My Booking</Link></li>
             <li><Link href="/visa">Visa</Link></li>
-            <li><Link href="/#about-us">Why Choose Us</Link></li>
+            <li><Link href="/about#services">Why Choose Us</Link></li>
             <li><Link href="/#testimonials">Client Reviews</Link></li>
             <li><Link href="/#faq">FAQs & Help</Link></li>
           </ul>
@@ -116,7 +118,7 @@ export default function Footer() {
       <div className={styles.footerBottom}>
         <div className={`${styles.bottomContainer} container`}>
           <p className={styles.copyright}>
-            © {new Date().getFullYear()} Dyna Tours. All rights reserved. Designed for premium travel experiences.
+            © {new Date().getFullYear()} Dyna Tours. All rights reserved. Developed by <a href="https://www.logiclabz.co.in" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>LogicLabz</a>.
           </p>
           <div className={styles.bottomLinks}>
             <Link href="/privacy-policy">Privacy Policy</Link>

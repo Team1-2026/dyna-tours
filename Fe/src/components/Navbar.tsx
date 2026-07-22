@@ -152,6 +152,16 @@ export default function Navbar() {
                 Group Tours
               </Link>
             </li>
+            <li>
+              <Link href="/about" className={`${styles.navLink} ${pathname.startsWith('/about') ? styles.active : ''}`}>
+                About Us
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact-us" className={`${styles.navLink} ${pathname.startsWith('/contact-us') ? styles.active : ''}`}>
+                Contact Us
+              </Link>
+            </li>
           </ul>
         </nav>
 

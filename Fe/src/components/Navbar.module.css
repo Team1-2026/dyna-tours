@@ -51,12 +51,13 @@
 /* Navigation List */
 .desktopNav {
   display: block;
+  margin-left: auto;
 }
 
 .navList {
   display: flex;
   list-style: none;
-  gap: 2.25rem;
+  gap: 1.5rem;
   align-items: center;
 }
 
@@ -175,6 +176,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  margin-left: 1.75rem;
 }
 
 .menuButton {

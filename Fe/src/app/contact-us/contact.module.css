@@ -1,0 +1,774 @@
+/* Contact Us Page Premium Styling */
+
+.pageWrapper {
+  width: 100%;
+  overflow-x: hidden;
+  color: #1e293b;
+  font-family: inherit;
+  background-color: #f8fafc;
+}
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* 1. Hero Section */
+.heroSection {
+  position: relative;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #ffffff;
+  text-align: center;
+  padding: 8rem 1.5rem 6rem;
+  overflow: hidden;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.85) 0%,
+    rgba(15, 23, 42, 0.7) 50%,
+    rgba(15, 23, 42, 0.95) 100%
+  );
+  z-index: 1;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 3;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fde68a;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.heroTitle {
+  font-size: 3.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: #cbd5e1;
+  margin-bottom: 2.5rem;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2.25rem;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  box-shadow: 0 10px 25px rgba(220, 38, 38, 0.35);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btnPrimary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(220, 38, 38, 0.5);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2.25rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btnSecondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+}
+
+.scrollIndicator {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Common Section Headers */
+.sectionHeader {
+  text-align: center;
+  max-width: 750px;
+  margin: 0 auto 3.5rem;
+}
+
+.sectionTag {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #dc2626;
+  margin-bottom: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+  margin-bottom: 1rem;
+}
+
+.sectionSubtitle {
+  font-size: 1.125rem;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+/* 2. Enquiry Section (Form + Brand Card) */
+.enquirySection {
+  padding: 5rem 0;
+  background: #ffffff;
+}
+
+.enquiryGrid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 3rem;
+  align-items: stretch;
+}
+
+.formCard {
+  background: #ffffff;
+  border-radius: 1.75rem;
+  padding: 3rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+}
+
+.formTitle {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.formSub {
+  font-size: 0.975rem;
+  color: #64748b;
+  margin-bottom: 2rem;
+}
+
+.formGroupGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.formField {
+  margin-bottom: 1.25rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.5rem;
+}
+
+.label span {
+  color: #dc2626;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.85rem;
+  font-size: 0.975rem;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  background: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 1.1rem;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.submitBtn:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 15px 30px rgba(220, 38, 38, 0.45);
+  transform: translateY(-2px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.toastSuccess {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Brand Card (Right Column) */
+.brandCard {
+  position: relative;
+  background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 1.75rem;
+  padding: 3.5rem 2.5rem;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brandPattern {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(220, 38, 38, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.brandLogoWrapper {
+  margin-bottom: 2rem;
+}
+
+.brandLogo {
+  height: 55px;
+  width: auto;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  padding: 0.35rem 0.75rem;
+}
+
+.brandTagline {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fde68a;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.brandDesc {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #cbd5e1;
+  margin-bottom: 2.5rem;
+}
+
+.socialHeader {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.socialRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.socialBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.socialBtn:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.4);
+}
+
+/* 3. Contact Information Strip */
+.infoStripSection {
+  padding: 4rem 0;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+  align-items: stretch;
+}
+
+.infoCol {
+  background: #ffffff;
+  padding: 2.5rem 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+  transition: all 0.35s ease;
+  position: relative;
+}
+
+.infoCol:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.infoIcon {
+  width: 54px;
+  height: 54px;
+  border-radius: 1rem;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.infoTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 1rem;
+}
+
+.infoBody {
+  font-size: 0.975rem;
+  color: #475569;
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+.phoneList,
+.emailList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.phoneLink,
+.emailLink {
+  color: #0f172a;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.phoneLink:hover,
+.emailLink:hover {
+  color: #dc2626;
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.copyBtn:hover {
+  background: #e0f2fe;
+}
+
+/* 4. Quick Contact Cards */
+.quickSection {
+  padding: 5rem 0;
+  background: #ffffff;
+}
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.quickCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  transition: all 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quickCard:hover {
+  background: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 20px 40px rgba(220, 38, 38, 0.08);
+  transform: translateY(-6px);
+}
+
+.quickIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.25);
+}
+
+.quickTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.quickDesc {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+}
+
+.quickActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.quickActionBtn:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35);
+}
+
+/* 5. Business Hours Section */
+.hoursSection {
+  padding: 4rem 0 5rem;
+  background: #f8fafc;
+}
+
+.hoursCard {
+  background: #ffffff;
+  border-radius: 1.75rem;
+  padding: 3rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.hoursIconBox {
+  width: 90px;
+  height: 90px;
+  border-radius: 1.5rem;
+  background: #fef2f2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hoursContent {
+  flex-grow: 1;
+}
+
+.hoursTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 1.25rem;
+}
+
+.hoursGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.hoursItem {
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.hoursDay {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #dc2626;
+  margin-bottom: 0.25rem;
+}
+
+.hoursTime {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* 6. Why Contact Dyna Tours (Services Grid) */
+.whyContactSection {
+  padding: 5rem 0;
+  background: #ffffff;
+}
+
+.whyContactGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.whyContactCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.5rem;
+  padding: 2rem 1.5rem;
+  transition: all 0.35s ease;
+}
+
+.whyContactCard:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06);
+  transform: translateY(-5px);
+}
+
+.whyContactIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.85rem;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.whyContactTitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.whyContactDesc {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* 7. Google Maps Section */
+.mapSection {
+  padding: 5rem 0;
+  background: #f8fafc;
+}
+
+.mapWrapper {
+  border-radius: 2rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e2e8f0;
+  position: relative;
+}
+
+.mapIframe {
+  width: 100%;
+  height: 480px;
+  border: none;
+  display: block;
+}
+
+/* Media Queries */
+@media (max-width: 1024px) {
+  .heroTitle {
+    font-size: 2.85rem;
+  }
+  .enquiryGrid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .infoGrid,
+  .quickGrid,
+  .whyContactGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .heroTitle {
+    font-size: 2.25rem;
+  }
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+  .sectionTitle {
+    font-size: 1.85rem;
+  }
+  .formCard,
+  .brandCard {
+    padding: 2rem 1.5rem;
+  }
+  .formGroupGrid {
+    grid-template-columns: 1fr;
+  }
+  .infoGrid,
+  .quickGrid,
+  .whyContactGrid,
+  .hoursGrid {
+    grid-template-columns: 1fr;
+  }
+  .hoursCard {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+    padding: 2rem 1.5rem;
+  }
+  .mapIframe {
+    height: 380px;
+  }
+}

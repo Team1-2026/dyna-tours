@@ -15,8 +15,10 @@ import FlightsAdmin from './FlightsAdmin';
 import GroupToursAdmin from './GroupToursAdmin';
 import GroupTourPageAdmin from './GroupTourPageAdmin';
 import GroupTourEnquiriesAdmin from './GroupTourEnquiriesAdmin';
+import AboutAdmin from './AboutAdmin';
+import ContactAdmin from './ContactAdmin';
 
-type TabType = 'dashboard' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries';
+type TabType = 'dashboard' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage';
 
 // Hierarchical location data
 const COUNTRIES_DATA: Record<string, { states: string[]; cities: Record<string, string[]> }> = {
@@ -1139,6 +1141,26 @@ export default function AdminDashboard() {
             </div>
           </div>
 
+          <div 
+            className={`${styles.menuItem} ${activeTab === 'aboutPage' ? styles.menuItemActive : ''}`}
+            onClick={() => { setActiveTab('aboutPage'); }}
+          >
+            <div className={styles.menuItemLabel}>
+              <span>ℹ️</span>
+              <span>About Us Page</span>
+            </div>
+          </div>
+
+          <div 
+            className={`${styles.menuItem} ${activeTab === 'contactPage' ? styles.menuItemActive : ''}`}
+            onClick={() => { setActiveTab('contactPage'); }}
+          >
+            <div className={styles.menuItemLabel}>
+              <span>📞</span>
+              <span>Contact Us Page</span>
+            </div>
+          </div>
+
           <div className={styles.menuSectionHeader}>Settings</div>
           
           <div 
@@ -1175,6 +1197,8 @@ export default function AdminDashboard() {
               {activeTab === 'dashboard' && 'Dashboard Overview'}
               {activeTab === 'packages' && 'Packages Management'}
               {activeTab === 'flights' && 'Flight Page Settings'}
+              {activeTab === 'aboutPage' && 'About Us Page Settings'}
+              {activeTab === 'contactPage' && 'Contact Us Page Settings'}
               {activeTab === 'enquiries' && 'Enquiries Management'}
               {activeTab === 'crm' && 'Chat CRM'}
               {activeTab === 'groupTours' && 'Group Tours Management'}
@@ -2871,6 +2895,8 @@ export default function AdminDashboard() {
           {activeTab === 'groupTours' && <GroupToursAdmin />}
           {activeTab === 'groupTourPage' && <GroupTourPageAdmin />}
           {activeTab === 'groupTourEnquiries' && <GroupTourEnquiriesAdmin />}
+          {activeTab === 'aboutPage' && <AboutAdmin />}
+          {activeTab === 'contactPage' && <ContactAdmin />}
 
         </main>
       </div>

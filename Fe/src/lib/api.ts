@@ -920,3 +920,174 @@ export const groupToursApi = {
   },
 };
 
+// --- About Us Page ---
+export interface WhyChooseCard {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface ServiceItem {
+  title: string;
+  description: string;
+  icon: string;
+  link: string;
+}
+
+export interface TrustBadge {
+  title: string;
+  icon: string;
+}
+
+export interface AchievementCounter {
+  number: number;
+  suffix?: string;
+  label: string;
+  icon: string;
+}
+
+export interface CertificationLogo {
+  name: string;
+  code: string;
+  description?: string;
+  image?: string;
+}
+
+export interface AboutPage {
+  id?: number;
+  hero_title: string;
+  hero_subtitle: string;
+  hero_bg_image: string;
+  overview_title: string;
+  overview_description: string;
+  overview_image_1: string;
+  overview_image_2: string;
+  years_experience: number;
+  founder_name: string;
+  founder_title: string;
+  founder_image: string;
+  founder_message: string;
+  founder_quote: string;
+  founder_signature: string;
+  mission_title: string;
+  mission_text: string;
+  vision_title: string;
+  vision_text: string;
+  why_choose_title: string;
+  why_choose_cards: WhyChooseCard[];
+  services_title: string;
+  services_list: ServiceItem[];
+  trusted_partner_title: string;
+  trusted_partner_description: string;
+  trusted_partner_bg_image: string;
+  trust_badges: TrustBadge[];
+  achievements_title: string;
+  achievements_bg_image: string;
+  achievement_counters: AchievementCounter[];
+  certifications_title: string;
+  certification_logos: CertificationLogo[];
+  cta_title: string;
+  cta_description: string;
+  cta_bg_image: string;
+  cta_primary_btn_text: string;
+  cta_primary_btn_url: string;
+  cta_secondary_btn_text: string;
+  cta_secondary_btn_url: string;
+}
+
+export const aboutPageApi = {
+  getPage: async (): Promise<AboutPage> => {
+    return await apiFetch<AboutPage>('/about-page');
+  },
+  updatePage: async (data: Partial<AboutPage>): Promise<{ message: string; page: AboutPage }> => {
+    return await apiFetch<{ message: string; page: AboutPage }>('/about-page', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+// --- Contact Us Page ---
+export interface PhoneNumberItem {
+  label: string;
+  number: string;
+}
+
+export interface EmailAddressItem {
+  label: string;
+  email: string;
+}
+
+export interface SocialLinkItem {
+  platform: string;
+  url: string;
+  icon: string;
+}
+
+export interface QuickContactCardItem {
+  title: string;
+  description: string;
+  action_text: string;
+  action_url: string;
+  icon: string;
+}
+
+export interface WhyContactCardItem {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface ContactPage {
+  id?: number;
+  hero_title: string;
+  hero_subtitle: string;
+  hero_bg_image: string;
+  hero_cta_primary_text: string;
+  hero_cta_primary_url: string;
+  hero_cta_secondary_text: string;
+  hero_cta_secondary_url: string;
+  office_name: string;
+  office_address: string;
+  google_maps_url: string;
+  phone_numbers: PhoneNumberItem[];
+  email_addresses: EmailAddressItem[];
+  business_hours_weekday: string;
+  business_hours_weekend: string;
+  brand_tagline: string;
+  brand_description: string;
+  social_links: SocialLinkItem[];
+  quick_contact_cards: QuickContactCardItem[];
+  why_contact_cards: WhyContactCardItem[];
+  map_embed_url: string;
+}
+
+export interface ContactSubmitPayload {
+  name: string;
+  phone: string;
+  email: string;
+  num_people?: number;
+  travel_date?: string;
+  message: string;
+}
+
+export const contactPageApi = {
+  getPage: async (): Promise<ContactPage> => {
+    return await apiFetch<ContactPage>('/contact-page');
+  },
+  updatePage: async (data: Partial<ContactPage>): Promise<{ message: string; page: ContactPage }> => {
+    return await apiFetch<{ message: string; page: ContactPage }>('/contact-page', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  submitContactEnquiry: async (payload: ContactSubmitPayload): Promise<{ message: string }> => {
+    return await apiFetch<{ message: string }>('/contact/submit', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+
+

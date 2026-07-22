@@ -11,7 +11,13 @@ use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\GoogleChatWebhookController;
 use App\Http\Controllers\PublicChatController;
 use App\Http\Controllers\CrmChatController;
+use App\Http\Controllers\FlightPageController;
 use App\Http\Controllers\API\VisaController;
+use App\Http\Controllers\API\GroupTourController;
+use App\Http\Controllers\API\GroupTourPageController;
+use App\Http\Controllers\API\GroupTourEnquiryController;
+use App\Http\Controllers\API\AboutPageController;
+use App\Http\Controllers\API\ContactPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +38,16 @@ Route::get('/destinations/{id}', [DestinationController::class, 'show']);
 
 Route::get('/visas', [VisaController::class, 'index']);
 Route::get('/visas/{id}', [VisaController::class, 'show']);
+
+Route::get('/group-tours/page', [GroupTourPageController::class, 'show']);
+Route::get('/group-tours', [GroupTourController::class, 'index']);
+Route::get('/group-tours/{id}', [GroupTourController::class, 'show']);
+Route::post('/group-tours/enquiries', [GroupTourEnquiryController::class, 'store']);
+
+Route::get('/flights/page', [FlightPageController::class, 'get']);
+Route::get('/about-page', [AboutPageController::class, 'show']);
+Route::get('/contact-page', [ContactPageController::class, 'show']);
+Route::post('/contact/submit', [ContactPageController::class, 'submit']);
 
 Route::get('/hotels', [HotelController::class, 'index']);
 Route::get('/hotels/{id}', [HotelController::class, 'show']);
@@ -82,4 +98,24 @@ Route::middleware('auth:sanctum')->group(function () {
         ->whereIn('source', ['website', 'google_chat']);
     Route::delete('/crm/chats/{source}/{id}', [CrmChatController::class, 'destroy'])
         ->whereIn('source', ['website', 'google_chat']);
+
+    // Group Tours Admin Routes
+    Route::post('/group-tours/page', [GroupTourPageController::class, 'update']);
+    Route::post('/group-tours', [GroupTourController::class, 'store']);
+    Route::put('/group-tours/{id}', [GroupTourController::class, 'update']);
+    Route::delete('/group-tours/{id}', [GroupTourController::class, 'destroy']);
+    Route::get('/group-tours/enquiries', [GroupTourEnquiryController::class, 'index']);
+    Route::put('/group-tours/enquiries/{id}', [GroupTourEnquiryController::class, 'update']);
+
+    // Flight Page Admin Routes
+    Route::post('/flights/page', [FlightPageController::class, 'update']);
+    Route::put('/flights/page', [FlightPageController::class, 'update']);
+
+    // About Us Page Admin Routes
+    Route::post('/about-page', [AboutPageController::class, 'update']);
+    Route::put('/about-page', [AboutPageController::class, 'update']);
+
+    // Contact Us Page Admin Routes
+    Route::post('/contact-page', [ContactPageController::class, 'update']);
+    Route::put('/contact-page', [ContactPageController::class, 'update']);
 });
