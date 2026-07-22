@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './admin.module.css';
 import { api, CrmChatLead, CrmChatLeadDetail, CrmChatSource, CrmChatStatus } from '@/lib/api';
+import { renderMessageWithLinks } from '@/lib/formatMessage';
 
 const STATUS_OPTIONS: { value: CrmChatStatus; label: string }[] = [
   { value: 'new', label: 'New' },
@@ -377,7 +378,10 @@ export default function CrmAdmin() {
                           : 'AI'}{' '}
                       · {new Date(msg.created_at).toLocaleString()}
                     </div>
-                    {msg.content}
+                    {renderMessageWithLinks(
+                      msg.content,
+                      msg.role === 'user' ? styles.userChatLink : styles.adminChatLink
+                    )}
                   </div>
                 ))
               )}

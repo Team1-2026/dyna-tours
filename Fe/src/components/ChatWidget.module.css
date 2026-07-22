@@ -158,6 +158,33 @@
   margin-bottom: 0.25rem;
 }
 
+.chatLink,
+.bubble a {
+  color: #1d4ed8;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+  transition: color var(--transition-fast);
+}
+
+.chatLink:hover,
+.bubble a:hover {
+  color: #1e40af;
+  text-decoration: underline;
+}
+
+.user .chatLink,
+.user .bubble a {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+.user .chatLink:hover,
+.user .bubble a:hover {
+  color: #ffffff;
+}
+
 .typing {
   display: inline-flex;
   align-items: center;

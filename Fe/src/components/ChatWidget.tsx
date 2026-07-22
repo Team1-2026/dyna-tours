@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { chatApi } from '@/lib/api';
 import { useGoogleIdentity } from '@/hooks/useGoogleIdentity';
+import { renderMessageWithLinks } from '@/lib/formatMessage';
 import styles from './ChatWidget.module.css';
 
 type ChatRole = 'user' | 'assistant' | 'staff';
@@ -424,7 +425,7 @@ export default function ChatWidget() {
             <>
               <div className={styles.messages}>
                 <div className={`${styles.message} ${styles.assistant}`}>
-                  <div className={styles.bubble}>{WELCOME_MESSAGE}</div>
+                  <div className={styles.bubble}>{renderMessageWithLinks(WELCOME_MESSAGE, styles.chatLink)}</div>
                 </div>
 
                 {messages.map((message) => (
@@ -442,7 +443,7 @@ export default function ChatWidget() {
                       {message.role === 'staff' && (
                         <span className={styles.staffLabel}>Travel team</span>
                       )}
-                      {message.content}
+                      {renderMessageWithLinks(message.content, styles.chatLink)}
                     </div>
                   </div>
                 ))}

@@ -1224,3 +1224,27 @@ input:checked + .slider:before {
 .btnPublish:hover {
   background: #1d4ed8;
 }
+
+.adminChatLink {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+
+.adminChatLink:hover {
+  color: #1e40af;
+}
+
+.userChatLink {
+  color: #93c5fd;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+
+.userChatLink:hover {
+  color: #ffffff;
+}

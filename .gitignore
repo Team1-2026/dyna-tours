@@ -13,6 +13,7 @@ public/hot
 
 # Laravel 5 & Lumen specific - allow include to public/build/
 public/build/*
+
 !public/build/assets
 !public/build/manifest.json
 
@@ -41,3 +42,35 @@ storage/logs/*.log
 
 # Caching
 bootstrap/cache/
+
+# Ignore frontend images
+Fe/public/images/
+
+# Ignore lock files
+package-lock.json
+Fe/package-lock.json
+
+# Ignore Laravel build folder completely
+public/build/
+
+# User requested test and config files
+Fe/eslint.config.mjs
+Fe/next.config.ts
+Fe/package.json
+Fe/patch.php
+Fe/patch2.php
+Fe/public/file.svg
+Fe/public/globe.svg
+Fe/public/next.svg
+Fe/public/vercel.svg
+Fe/public/window.svg
+Fe/replace_currency.js
+Fe/test_api.js
+Fe/test_getembed.js
+Fe/test_puppeteer.js
+Fe/test_regex.js
+Fe/tsconfig.json
+
+# Service Account Credentials
+*service-account*.json
+*service_account*.json

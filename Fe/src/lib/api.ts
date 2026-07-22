@@ -159,8 +159,15 @@ export interface Enquiry {
   num_adults?: number;
   num_children?: number;
   children_ages?: string;
-  message?: string;
-  created_at?: string;
+  // Flight fields
+  from?: string;
+  to?: string;
+  trip_type?: string;
+  cabin_class?: string;
+  departure_date?: string;
+  return_date?: string;
+  num_infants?: number;
+  preferred_airline?: string;
 }
 
 // Token helper methods
