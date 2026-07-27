@@ -175,7 +175,7 @@ export default function GroupToursAdmin() {
           </div>
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Thumbnail Image</label>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Thumbnail Image <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 800 × 600 px)</span></label>
             <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'block', marginBottom: '10px' }} />
             {editingTour.image && <img src={editingTour.image} alt="Thumbnail" style={{ height: '100px', borderRadius: '4px', objectFit: 'cover' }} />}
           </div>
@@ -191,45 +191,47 @@ export default function GroupToursAdmin() {
           <button type="submit" className={styles.saveBtn}>Save Tour</button>
         </form>
       ) : (
-        <table className={styles.dataTable}>
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Destination</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Featured</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tours.map(tour => (
-              <tr key={tour.id}>
-                <td>
-                  {tour.image ? <img src={tour.image} alt={tour.name} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} /> : 'No image'}
-                </td>
-                <td style={{ fontWeight: 'bold' }}>{tour.name}</td>
-                <td>{tour.destination}</td>
-                <td>₹{tour.starting_price.toLocaleString('en-IN')}</td>
-                <td>
-                  <span style={{ 
-                    padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem',
-                    background: tour.status === 'Available' ? '#e6ffe6' : tour.status === 'Sold Out' ? '#ffe6e6' : '#fff3e6',
-                    color: tour.status === 'Available' ? '#006600' : tour.status === 'Sold Out' ? '#cc0000' : '#cc6600'
-                  }}>
-                    {tour.status}
-                  </span>
-                </td>
-                <td>{tour.is_featured ? '⭐ Yes' : 'No'}</td>
-                <td>
-                  <button onClick={() => handleEdit(tour)} style={{ background: 'var(--color-primary-blue)', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', marginRight: '8px', cursor: 'pointer' }}>Edit</button>
-                  <button onClick={() => tour.id && handleDelete(tour.id)} style={{ background: 'var(--color-primary-red)', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
-                </td>
+        <div className={styles.tableContainer}>
+          <table className={styles.adminTable}>
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Destination</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Featured</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tours.map(tour => (
+                <tr key={tour.id}>
+                  <td>
+                    {tour.image ? <img src={tour.image} alt={tour.name} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} /> : 'No image'}
+                  </td>
+                  <td style={{ fontWeight: 'bold' }}>{tour.name}</td>
+                  <td>{tour.destination}</td>
+                  <td>₹{tour.starting_price.toLocaleString('en-IN')}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem',
+                      background: tour.status === 'Available' ? '#e6ffe6' : tour.status === 'Sold Out' ? '#ffe6e6' : '#fff3e6',
+                      color: tour.status === 'Available' ? '#006600' : tour.status === 'Sold Out' ? '#cc0000' : '#cc6600'
+                    }}>
+                      {tour.status}
+                    </span>
+                  </td>
+                  <td>{tour.is_featured ? '⭐ Yes' : 'No'}</td>
+                  <td>
+                    <button onClick={() => handleEdit(tour)} style={{ background: 'var(--color-primary-blue)', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', marginRight: '8px', cursor: 'pointer' }}>Edit</button>
+                    <button onClick={() => tour.id && handleDelete(tour.id)} style={{ background: 'var(--color-primary-red)', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

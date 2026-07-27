@@ -79,32 +79,41 @@
 /* Table Design */
 .tableContainer {
   overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.adminTable {
+.adminTable,
+.dataTable {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.925rem;
 }
 
-.adminTable th {
-  background: var(--color-secondary-navy-light);
+.adminTable th,
+.dataTable th {
+  background: #f8fafc;
   color: var(--color-secondary-navy);
   font-weight: 700;
-  padding: 1rem;
-  border-bottom: 2px solid var(--color-border);
+  padding: 0.875rem 1rem;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
 }
 
-.adminTable td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--color-border);
+.adminTable td,
+.dataTable td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
   color: var(--color-text-secondary);
-  vertical-align: top;
+  vertical-align: middle;
 }
 
-.adminTable tr:hover td {
-  background: var(--color-secondary-navy-light);
+.adminTable tr:hover td,
+.dataTable tr:hover td {
+  background: #f8fafc;
 }
 
 .badge {
@@ -226,6 +235,36 @@ input:checked + .slider:before {
 
 .saveBtn {
   margin-top: 1rem;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--color-primary-red);
+  border: none;
+  border-radius: var(--radius-md, 6px);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.saveBtn:hover {
+  background-color: var(--color-primary-red-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 40, 43, 0.3);
+}
+
+.saveBtn:active {
+  transform: translateY(0);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Image Manager Styles */

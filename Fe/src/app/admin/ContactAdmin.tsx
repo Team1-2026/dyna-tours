@@ -80,7 +80,9 @@ export default function ContactAdmin() {
           <textarea name="hero_subtitle" value={pageData.hero_subtitle || ''} onChange={handleChange} rows={2} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
         </div>
         <div style={{ marginBottom: '30px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Hero Background Image URL / Upload</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            Hero Background Image URL / Upload <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 1920 × 460 px)</span>
+          </label>
           <input type="text" name="hero_bg_image" value={pageData.hero_bg_image || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', marginBottom: '8px' }} />
           <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'hero_bg_image')} />
           {pageData.hero_bg_image && <img src={pageData.hero_bg_image} alt="Hero BG" style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', borderRadius: '6px', marginTop: '10px' }} />}
@@ -133,7 +135,7 @@ export default function ContactAdmin() {
         </div>
 
         <button type="submit" className={styles.saveBtn} style={{ padding: '12px 24px', fontSize: '1rem', cursor: 'pointer' }}>
-          Save All Contact Us Page Settings
+          Save
         </button>
       </form>
     </div>

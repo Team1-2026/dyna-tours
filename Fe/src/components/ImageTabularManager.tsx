@@ -292,7 +292,7 @@ export default function ImageTabularManager({ images, onChange }: ImageTabularMa
 
               {/* Upload Local Image File */}
               <div style={styles.formGroup}>
-                <label style={styles.modalLabel}>Upload Local Image File</label>
+                <label style={styles.modalLabel}>Upload Local Image File <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>({SECTION_SIZES[modalForm.section]?.size ? `Recommended size: ${SECTION_SIZES[modalForm.section].size}` : 'Recommended size: 1200 × 800 px'})</span></label>
                  <input 
                    type="file" 
                    accept="image/*"
@@ -369,7 +369,7 @@ const styles = {
     padding: '8px 18px',
     borderRadius: '6px',
     border: 'none',
-    backgroundColor: 'var(--color-secondary-navy)',
+    backgroundColor: 'var(--color-primary-red)',
     color: '#ffffff',
     fontSize: '0.875rem',
     fontWeight: 700,

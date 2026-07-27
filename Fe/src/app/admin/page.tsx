@@ -1806,7 +1806,9 @@ export default function AdminDashboard() {
                       
                       {/* Featured Image Block */}
                       <div className={styles.imageUploadCard}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Featured Image *</label>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
+                          Featured Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 800 × 600 px)</span>
+                        </label>
                         <img 
                           src={getFeaturedImage(isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery) || '/images/default_hotel.png'} 
                           alt="Featured Preview" 
@@ -1834,7 +1836,9 @@ export default function AdminDashboard() {
 
                       {/* Banner Image Block */}
                       <div className={styles.imageUploadCard}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Banner Image *</label>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
+                          Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 1920 × 460 px)</span>
+                        </label>
                         <img 
                           src={getBannerImage(isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery) || '/images/default_hotel.png'} 
                           alt="Banner Preview" 
@@ -1863,7 +1867,9 @@ export default function AdminDashboard() {
 
                       {/* Gallery Images Block */}
                       <div className={styles.imageUploadCard}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Gallery Images</label>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
+                          Gallery Images <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 1200 × 800 px)</span>
+                        </label>
                         <div className={styles.imageGridThumbnails}>
                           {getGalleryImagesOnly(isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery).map((img, idx) => {
                             const url = typeof img === 'string' ? img : img.url;
@@ -2508,7 +2514,9 @@ export default function AdminDashboard() {
                       
                       {/* Banner Image Block */}
                       <div className={styles.imageUploadCard}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Banner Image *</label>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
+                          Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 1920 × 460 px)</span>
+                        </label>
                         <img 
                           src={isCreatingDest ? newDest.banner_image || '/images/default_hotel.png' : selectedDest?.banner_image || '/images/default_hotel.png'} 
                           alt="Banner Preview" 
@@ -2545,7 +2553,9 @@ export default function AdminDashboard() {
 
                       {/* Destination Image Gallery */}
                       <div className={styles.imageUploadCard}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Gallery Images</label>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
+                          Gallery Images <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 1200 × 800 px)</span>
+                        </label>
                         <ImageTabularManager
                           images={(isCreatingDest ? newDest.gallery || [] : selectedDest?.gallery || []) as any}
                           onChange={handleDestGalleryChange}
@@ -3025,7 +3035,9 @@ export default function AdminDashboard() {
 
               {/* Room images picker */}
               <div style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1rem', background: '#f8fafc' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>Room Images Upload</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
+                  Room Images Upload <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 800 × 600 px)</span>
+                </label>
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
                   <input
                     type="text"

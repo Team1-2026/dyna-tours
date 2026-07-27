@@ -342,7 +342,7 @@ export default function VisasAdmin() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Biometric Required?</label>
+                <label>Biometrics/Interview Required?</label>
                 <input 
                   type="text" 
                   value={selectedVisa?.biometric || ''} 

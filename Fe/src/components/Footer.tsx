@@ -1,14 +1,41 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Footer.module.css';
+import { contactPageApi } from '@/lib/api';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [phone, setPhone] = useState('+91 98466 65005');
+  const [contactEmail, setContactEmail] = useState('info@dynatours.com');
+  const [address, setAddress] = useState('First Floor, Marks Square Building, M C Road, Changanassery, Kerala – 686103');
+  const [mapsUrl, setMapsUrl] = useState('https://maps.google.com/?q=Dyna+Tours+India+Changanassery');
+
   const pathname = usePathname();
+
+  useEffect(() => {
+    contactPageApi.getPage().then((data) => {
+      if (data) {
+        if (data.phone_numbers && data.phone_numbers.length > 0) {
+          setPhone(data.phone_numbers[0].number);
+        }
+        if (data.email_addresses && data.email_addresses.length > 0) {
+          setContactEmail(data.email_addresses[0].email);
+        }
+        if (data.office_address) {
+          setAddress(data.office_address);
+        }
+        if (data.google_maps_url) {
+          setMapsUrl(data.google_maps_url);
+        }
+      }
+    }).catch((err) => {
+      console.error('Failed to fetch footer contact details', err);
+    });
+  }, []);
 
   if (pathname && pathname.startsWith('/admin')) {
     return null;
@@ -41,21 +68,21 @@ export default function Footer() {
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
-              <span>+1 (555) 396-2868</span>
+              <a href={`tel:${phone.replace(/\s+/g, '')}`}>{phone}</a>
             </div>
             <div className={styles.contactItem}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
               </svg>
-              <span>explore@dynatours.com</span>
+              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
             </div>
             <div className={styles.contactItem}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <span>742 Evergreen Terrace, Springfield</span>
+              <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{address}</a>
             </div>
           </div>
         </div>

@@ -10,16 +10,20 @@
 /* Hero Section */
 .hero {
   position: relative;
-  height: 80vh;
-  min-height: 600px;
+  height: 460px;
+  min-height: 460px;
+  max-height: 460px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
   background-repeat: no-repeat;
   color: white;
+  padding: 7rem 1.5rem 5rem;
+  overflow: hidden;
 }
 
 .heroOverlay {
@@ -76,7 +80,8 @@
 /* Overview Section */
 .overview {
   padding: 5rem 20px;
-  background-color: white;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  position: relative;
 }
 
 .container {
@@ -84,24 +89,76 @@
   margin: 0 auto;
 }
 
-.overviewHeader {
+.overviewCardWrapper {
+  position: relative;
+  background: #ffffff;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 3.5rem 3rem;
+  border-radius: var(--radius-xl, 24px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.07);
   text-align: center;
-  margin-bottom: 3rem;
+}
+
+.overviewCardWrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border-radius: 4px 4px 0 0;
+}
+
+.badgeWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.overviewBadge {
+  display: inline-block;
+  padding: 0.45rem 1.25rem;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 50px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #2563eb;
 }
 
 .overviewTitle {
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #0f172a;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
 }
 
 .overviewDescription {
-  font-size: 1.1rem;
-  line-height: 1.8;
+  font-size: 1.125rem;
+  line-height: 1.85;
   color: #475569;
-  max-width: 800px;
+  max-width: 840px;
   margin: 0 auto;
+  text-align: left;
+}
+
+.overviewDescription p {
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-left: 1.25rem;
+  border-left: 3px solid rgba(37, 99, 235, 0.3);
+}
+
+.overviewDescription p:last-child {
+  margin-bottom: 0;
 }
 
 /* Gallery Section */
@@ -446,6 +503,12 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .hero {
+    height: 380px;
+    min-height: 380px;
+    max-height: 380px;
+    padding: 6rem 1rem 3rem;
+  }
   .heroHeadline { font-size: 2.5rem; }
   .heroTagline { font-size: 1.1rem; }
   .formGrid { grid-template-columns: 1fr; }

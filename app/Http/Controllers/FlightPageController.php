@@ -19,6 +19,7 @@ class FlightPageController extends Controller
                 'hero_headline' => 'Book Domestic & International Flights at the Best Prices',
                 'hero_tagline' => 'Fast, Secure & Hassle-Free Flight Booking with Dyna Tours India.',
                 'overview_title' => 'Your Trusted Partner for Domestic & International Air Travel',
+                'overview_description' => '<p>At Dyna Tours India, we make air travel simple, affordable, and stress-free. With access to leading domestic and international airlines, we help travellers book the best flight options at competitive prices. Whether you\'re planning a business trip, family vacation, honeymoon, student travel, pilgrimage, or group tour, our experienced travel consultants ensure a smooth booking experience from enquiry to ticket confirmation.</p><p>We offer flight bookings to destinations across India, the Middle East, Asia, Europe, America, Australia, and beyond. Our team also provides assistance with ticket modifications, cancellations, baggage information, seat selection, travel insurance, visa services, and holiday packages, making us your complete travel partner.</p>',
                 'why_book_title' => 'Why Book Your Flight with Dyna Tours?',
                 'cta_heading' => 'Ready to Fly?',
                 'cta_text' => 'Book your domestic and international flights at the best available prices with Dyna Tours India.',

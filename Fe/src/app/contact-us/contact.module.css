@@ -17,7 +17,9 @@
 /* 1. Hero Section */
 .heroSection {
   position: relative;
-  min-height: 70vh;
+  height: 460px;
+  min-height: 460px;
+  max-height: 460px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,7 +28,7 @@
   background-attachment: fixed;
   color: #ffffff;
   text-align: center;
-  padding: 8rem 1.5rem 6rem;
+  padding: 7rem 1.5rem 5rem;
   overflow: hidden;
 }
 

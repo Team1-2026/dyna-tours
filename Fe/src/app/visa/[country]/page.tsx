@@ -109,7 +109,7 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
               <span className={styles.keyInfoValue}>{countryData.validity}</span>
             </div>
             <div className={styles.keyInfoItem}>
-              <span className={styles.keyInfoLabel}>Biometrics</span>
+              <span className={styles.keyInfoLabel}>Biometrics/Interview</span>
               <span className={styles.keyInfoValue}>{countryData.biometric}</span>
             </div>
             {countryData.entryType && (
@@ -211,14 +211,14 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
         </div>
       </section>
 
-      {/* FAQ specific to country */}
-      <VisaFAQ faqs={countryData.faqs} />
-      
       {/* Enquiry Form with country preselected */}
       <VisaEnquiryForm 
         destinations={allVisas} 
         preselectedCountry={countryData.id} 
       />
+
+      {/* FAQ specific to country */}
+      <VisaFAQ faqs={countryData.faqs} />
     </main>
   );
 }

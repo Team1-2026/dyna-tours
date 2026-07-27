@@ -1,63 +1,203 @@
 /* Hero Section */
 .heroSection {
   position: relative;
-  min-height: 30vh;
-  padding: 2rem 0;
+  height: 460px;
+  min-height: 460px;
+  max-height: 460px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop');
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
   background-repeat: no-repeat;
-  background-attachment: scroll;
   color: white;
-  overflow: visible; /* allow overlapping elements */
+  padding: 7rem 1.5rem 5rem;
+  overflow: hidden;
 }
 
-.heroSection::before {
-  content: '';
+.heroOverlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to bottom, rgba(12, 39, 69, 0.7) 0%, rgba(12, 39, 69, 0.9) 100%);
+  background: linear-gradient(180deg, rgba(12, 39, 69, 0.75) 0%, rgba(12, 39, 69, 0.9) 100%);
   z-index: 1;
 }
 
-.heroContainer {
+.heroContent {
   position: relative;
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
   text-align: center;
+  animation: fadeInUp 0.8s ease-out;
 }
 
-.heroContent {
-  max-width: 800px;
-  margin-bottom: 3rem;
+.badge {
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  margin-bottom: 1.25rem;
 }
 
 .heroTitle {
-  font-size: 3.5rem;
+  font-size: 3.25rem;
   font-weight: 800;
   margin-bottom: 1rem;
-  color: white;
-  line-height: 1.1;
+  color: #ffffff;
+  line-height: 1.15;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.heroText {
-  font-size: 1.25rem;
+.heroSubtitle {
+  font-size: 1.2rem;
   color: #e2e8f0;
-  max-width: 600px;
+  max-width: 650px;
   margin: 0 auto;
+  line-height: 1.6;
+  opacity: 0.95;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.searchSection {
+  background-color: #f8fafc;
+  padding: 2.5rem 1rem 3.5rem;
 }
 
 .searchCard {
   background: white;
-  padding: 2.5rem;
+  padding: 2rem 2.5rem;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  transform: translateY(80px); /* Creates the overlap effect */
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.visaIntroBlock {
+  position: relative;
+  text-align: center;
+  max-width: 860px;
+  margin: 3.5rem auto 1rem;
+  padding: 3rem 2.5rem;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  border-radius: var(--radius-xl, 24px);
+  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  transition: all 0.3s ease;
+}
+
+.visaIntroBlock::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary-red, #dc2626), #f87171);
+  border-radius: 4px 4px 0 0;
+}
+
+.introBadgeWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.introBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 50px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary-red, #dc2626);
+}
+
+.introBadge svg {
+  color: var(--color-primary-red, #dc2626);
+}
+
+.introTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-secondary-navy, #0f172a);
+  margin-bottom: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.titleHighlight {
+  background: linear-gradient(135deg, var(--color-primary-red, #dc2626) 0%, #b91c1c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.introText {
+  font-size: 1.125rem;
+  color: #475569;
+  line-height: 1.7;
+  max-width: 720px;
+  margin: 0 auto 2rem;
+  font-weight: 450;
+}
+
+.introFeaturesGrid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 1.5rem;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.introFeatureItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #ffffff;
+  padding: 0.6rem 1.25rem;
+  border-radius: 50px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
+}
+
+.introFeatureItem:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary-red, #dc2626);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.1);
+}
+
+.featureIconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--color-primary-red, #dc2626);
 }
 
 /* Wave Divider */

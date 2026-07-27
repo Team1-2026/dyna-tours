@@ -26,13 +26,24 @@ return new class extends Migration
             $table->string('overview_image_2')->nullable();
             $table->integer('years_experience')->default(16);
             
-            // 3. Founder's Message
+            // 3. Founder's & Directors' Message
             $table->string('founder_name')->nullable();
             $table->string('founder_title')->nullable();
             $table->string('founder_image')->nullable();
             $table->text('founder_message')->nullable();
             $table->text('founder_quote')->nullable();
             $table->string('founder_signature')->nullable();
+            $table->string('director2_name')->nullable();
+            $table->string('director2_title')->nullable();
+            $table->string('director2_image')->nullable();
+            $table->text('director2_message')->nullable();
+            $table->text('director2_quote')->nullable();
+            $table->string('director2_signature')->nullable();
+            $table->string('story_subheading')->nullable();
+            $table->string('services_subtext')->nullable();
+            $table->string('partner_image_1')->nullable();
+            $table->string('partner_image_2')->nullable();
+            $table->string('partner_image_3')->nullable();
             
             // 4. Mission & Vision
             $table->string('mission_title')->nullable();

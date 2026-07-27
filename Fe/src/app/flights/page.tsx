@@ -85,14 +85,31 @@ export default async function FlightPage() {
       {/* Overview Section */}
       <section className={styles.overview}>
         <div className={styles.container}>
-          <div className={styles.overviewHeader}>
-            <h2 className={styles.overviewTitle}>{overview_title}</h2>
-            {overview_description && (
-              <div 
-                className={styles.overviewDescription}
-                dangerouslySetInnerHTML={{ __html: overview_description }}
-              />
-            )}
+          <div className={styles.overviewCardWrapper}>
+            <div className={styles.badgeWrapper}>
+              <span className={styles.overviewBadge}>
+                ✈️ Air Travel Services
+              </span>
+            </div>
+
+            <h2 className={styles.overviewTitle}>
+              {overview_title || 'Your Trusted Partner for Domestic & International Air Travel'}
+            </h2>
+
+            <div className={styles.overviewDescription}>
+              {overview_description ? (
+                <div dangerouslySetInnerHTML={{ __html: overview_description }} />
+              ) : (
+                <>
+                  <p>
+                    At Dyna Tours India, we make air travel simple, affordable, and stress-free. With access to leading domestic and international airlines, we help travellers book the best flight options at competitive prices. Whether you're planning a business trip, family vacation, honeymoon, student travel, pilgrimage, or group tour, our experienced travel consultants ensure a smooth booking experience from enquiry to ticket confirmation.
+                  </p>
+                  <p>
+                    We offer flight bookings to destinations across India, the Middle East, Asia, Europe, America, Australia, and beyond. Our team also provides assistance with ticket modifications, cancellations, baggage information, seat selection, travel insurance, visa services, and holiday packages, making us your complete travel partner.
+                  </p>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>

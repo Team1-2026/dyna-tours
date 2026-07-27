@@ -353,7 +353,7 @@ export default function PackagesAdmin() {
               <input type="number" className={styles.formInput} value={formData.durationNights || 0} onChange={e => setFormData({...formData, durationNights: Number(e.target.value)})} />
             </div>
             <div>
-              <label>Upload Featured Image <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 'normal' }}>(Max size: 2MB)</span></label>
+              <label>Upload Featured Image / Banner <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 'normal' }}>(Recommended size: 1920 × 460 px)</span></label>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <input type="text" className={styles.formInput} value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} placeholder="Image URL or upload below" style={{ flex: 1 }} />
                 <input 
@@ -487,7 +487,7 @@ export default function PackagesAdmin() {
                   </div>
                   <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                      <label>Main Day Image URL <span style={{ fontSize: '0.8rem', color: '#666' }}>(Upload or URL)</span></label>
+                      <label>Main Day Image URL <span style={{ fontSize: '0.8rem', color: '#666' }}>(Recommended size: 800 × 600 px)</span></label>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <input className={styles.formInput} value={day.image || ''} onChange={e => updateItineraryDay(idx, 'image', e.target.value)} style={{ flex: 1 }} />
                         {day.image && (
@@ -524,7 +524,7 @@ export default function PackagesAdmin() {
                       </div>
                     </div>
                     <div>
-                      <label>Gallery Images <span style={{ fontSize: '0.8rem', color: '#666' }}>(Multiple Upload)</span></label>
+                      <label>Gallery Images <span style={{ fontSize: '0.8rem', color: '#666' }}>(Recommended size: 1200 × 800 px)</span></label>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {(day.gallery || []).map((imgUrl: string, imgIdx: number) => (
                           <div key={imgIdx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>

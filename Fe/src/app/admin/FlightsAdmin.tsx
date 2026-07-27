@@ -65,7 +65,7 @@ export default function FlightsAdmin() {
     <div className={styles.adminSection}>
       <div className={styles.sectionHeader}>
         <h2>Flight Page Settings</h2>
-        <button className={styles.primaryButton} onClick={handleSave} disabled={saving}>
+        <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
@@ -83,7 +83,7 @@ export default function FlightsAdmin() {
             <input type="text" value={pageData.hero_tagline || ''} onChange={(e) => handleChange('hero_tagline', e.target.value)} className={styles.input} />
           </div>
           <div className={styles.formGroup}>
-            <label>Hero Image URL</label>
+            <label>Hero Image URL <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 1920 × 460 px)</span></label>
             <input type="text" value={pageData.hero_image || ''} onChange={(e) => handleChange('hero_image', e.target.value)} className={styles.input} />
           </div>
         </div>
@@ -131,6 +131,13 @@ export default function FlightsAdmin() {
           images={pageData.gallery_images || []}
           onChange={(imgs) => handleChange('gallery_images', imgs)}
         />
+      </div>
+
+      {/* Bottom Save Changes button */}
+      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
+        <button className={styles.saveBtn} onClick={handleSave} disabled={saving} style={{ padding: '0.875rem 2.5rem', fontSize: '1rem' }}>
+          {saving ? 'Saving...' : 'Save Changes'}
+        </button>
       </div>
 
     </div>

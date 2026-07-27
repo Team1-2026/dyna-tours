@@ -282,12 +282,12 @@ export const api = {
     try {
       return await apiFetch<Destination>(`/destinations/${id}`);
     } catch {
-      const found = mockDestinations.find(d => d.id === id);
+      const found = mockDestinations.find(d => d.id === id || String(d.id) === String(id));
       if (!found) throw new Error('Destination not found');
       return {
         ...found,
-        sub_destinations: mockDestinations.filter(d => d.parent_id === id),
-        hotels: mockHotels.filter(h => h.destination_id === id).sort((a, b) => {
+        sub_destinations: mockDestinations.filter(d => d.parent_id === id || String(d.parent_id) === String(id)),
+        hotels: mockHotels.filter(h => h.destination_id === id || String(h.destination_id) === String(id)).sort((a, b) => {
           const orderA = a.order_no ?? Infinity;
           const orderB = b.order_no ?? Infinity;
           return orderA - orderB;
@@ -350,7 +350,7 @@ export const api = {
     try {
       return await apiFetch<Hotel>(`/hotels/${id}`);
     } catch {
-      const found = mockHotels.find(h => h.id === id);
+      const found = mockHotels.find(h => h.id === id || String(h.id) === String(id));
       if (!found) throw new Error('Hotel not found');
       return found;
     }
@@ -969,6 +969,17 @@ export interface AboutPage {
   founder_message: string;
   founder_quote: string;
   founder_signature: string;
+  director2_name?: string;
+  director2_title?: string;
+  director2_image?: string;
+  director2_message?: string;
+  director2_quote?: string;
+  director2_signature?: string;
+  story_subheading?: string;
+  services_subtext?: string;
+  partner_image_1?: string;
+  partner_image_2?: string;
+  partner_image_3?: string;
   mission_title: string;
   mission_text: string;
   vision_title: string;

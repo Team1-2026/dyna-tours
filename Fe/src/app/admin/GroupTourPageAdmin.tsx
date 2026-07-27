@@ -76,7 +76,9 @@ export default function GroupTourPageAdmin() {
           <input type="text" name="tagline" value={pageData.tagline || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
         </div>
         <div style={{ marginBottom: '30px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Hero Banner Image</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            Hero Banner Image <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 1920 × 460 px)</span>
+          </label>
           <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner_image')} style={{ display: 'block', marginBottom: '10px' }} />
           {pageData.banner_image && <img src={pageData.banner_image} alt="Banner" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '4px' }} />}
         </div>
@@ -94,7 +96,7 @@ export default function GroupTourPageAdmin() {
           />
         </div>
         <div style={{ marginBottom: '30px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Overview Side Image</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Overview Side Image <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 800 × 600 px)</span></label>
           <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'overview_image')} style={{ display: 'block', marginBottom: '10px' }} />
           {pageData.overview_image && <img src={pageData.overview_image} alt="Overview" style={{ height: '150px', objectFit: 'cover', borderRadius: '4px' }} />}
         </div>

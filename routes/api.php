@@ -25,7 +25,7 @@ use App\Http\Controllers\API\ContactPageController;
 |--------------------------------------------------------------------------
 */
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -41,7 +41,7 @@ Route::get('/visas/{id}', [VisaController::class, 'show']);
 
 Route::get('/group-tours/page', [GroupTourPageController::class, 'show']);
 Route::get('/group-tours', [GroupTourController::class, 'index']);
-Route::get('/group-tours/{id}', [GroupTourController::class, 'show']);
+Route::get('/group-tours/{id}', [GroupTourController::class, 'show'])->whereNumber('id');
 Route::post('/group-tours/enquiries', [GroupTourEnquiryController::class, 'store']);
 
 Route::get('/flights/page', [FlightPageController::class, 'get']);
@@ -84,14 +84,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/hotels/{id}', [HotelController::class, 'destroy']);
 
     Route::post('/facilities', [FacilityController::class, 'store']);
-    Route::put('/facilities/{id}', [FacilityController::class, 'update']);
-    Route::delete('/facilities/{id}', [FacilityController::class, 'destroy']);
+    Route::put('/facilities/{id}', [FacilityController::class, 'update'])->whereNumber('id');
+    Route::delete('/facilities/{id}', [FacilityController::class, 'destroy'])->whereNumber('id');
 
     Route::get('/enquiries', [EnquiryController::class, 'index']);
-    Route::delete('/enquiries/{id}', [EnquiryController::class, 'destroy']);
-    Route::put('/enquiries/{id}/status', [EnquiryController::class, 'updateStatus']);
+    Route::delete('/enquiries/{id}', [EnquiryController::class, 'destroy'])->whereNumber('id');
+    Route::put('/enquiries/{id}/status', [EnquiryController::class, 'updateStatus'])->whereNumber('id');
 
-    Route::get('/crm/chats', [CrmChatController::class, 'index']);
+    Route::get('/crm/chats', [CrmChatController::class, 'index']);  
     Route::get('/crm/chats/{source}/{id}', [CrmChatController::class, 'show'])
         ->whereIn('source', ['website', 'google_chat']);
     Route::put('/crm/chats/{source}/{id}', [CrmChatController::class, 'update'])
@@ -100,12 +100,12 @@ Route::middleware('auth:sanctum')->group(function () {
         ->whereIn('source', ['website', 'google_chat']);
 
     // Group Tours Admin Routes
+    Route::get('/group-tours/enquiries', [GroupTourEnquiryController::class, 'index']);
+    Route::put('/group-tours/enquiries/{id}', [GroupTourEnquiryController::class, 'update'])->whereNumber('id');
     Route::post('/group-tours/page', [GroupTourPageController::class, 'update']);
     Route::post('/group-tours', [GroupTourController::class, 'store']);
-    Route::put('/group-tours/{id}', [GroupTourController::class, 'update']);
-    Route::delete('/group-tours/{id}', [GroupTourController::class, 'destroy']);
-    Route::get('/group-tours/enquiries', [GroupTourEnquiryController::class, 'index']);
-    Route::put('/group-tours/enquiries/{id}', [GroupTourEnquiryController::class, 'update']);
+    Route::put('/group-tours/{id}', [GroupTourController::class, 'update'])->whereNumber('id');
+    Route::delete('/group-tours/{id}', [GroupTourController::class, 'destroy'])->whereNumber('id');
 
     // Flight Page Admin Routes
     Route::post('/flights/page', [FlightPageController::class, 'update']);
