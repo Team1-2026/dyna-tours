@@ -7,10 +7,10 @@ export const getBaseUrl = () => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      if (hostname.endsWith('logiclabz.in')) {
+      if (hostname.endsWith('logiclabz.in') || hostname.endsWith('prds.in.net')) {
         return 'https://backdyna.logiclabz.in/api';
       }
-      return `${window.location.origin}/api`;
+      return 'https://backdyna.logiclabz.in/api';
     }
   }
   if (process.env.NODE_ENV === 'production') {
@@ -223,7 +223,23 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
 
     if (!res.ok) {
       const errText = await res.text();
-      throw new Error(`API error ${res.status}: ${errText}`);
+      let errorMessage = `API error ${res.status}`;
+      try {
+        const json = JSON.parse(errText);
+        if (json.message) {
+          errorMessage = json.message;
+        } else if (json.error) {
+          errorMessage = json.error;
+        } else if (json.errors && typeof json.errors === 'object') {
+          const firstErrKey = Object.keys(json.errors)[0];
+          if (firstErrKey && Array.isArray(json.errors[firstErrKey])) {
+            errorMessage = json.errors[firstErrKey][0];
+          }
+        }
+      } catch {
+        if (errText) errorMessage = errText;
+      }
+      throw new Error(errorMessage);
     }
 
     return await res.json() as T;
