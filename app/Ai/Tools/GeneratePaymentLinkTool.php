@@ -8,6 +8,11 @@ use Laravel\Ai\Tools\Request;
 use Stringable;
 use App\Models\Payment;
 use App\Models\WebsiteChatVisitor;
+use App\Models\Order;
+use App\Models\Staff;
+use App\Models\Customer;
+use App\Models\Service;
+use Illuminate\Support\Str;
 
 class GeneratePaymentLinkTool implements Tool
 {
@@ -22,7 +27,7 @@ class GeneratePaymentLinkTool implements Tool
     /**
      * Execute the tool.
      */
-    public function handle(Request $request): Stringable|string
+    public function handle(array|\Laravel\Ai\Tools\Request $request): Stringable|string
     {
         $amount = $request['amount'];
         $description = $request['description'];
@@ -34,12 +39,44 @@ class GeneratePaymentLinkTool implements Tool
         if (!$visitor) {
             return "Error: Could not find visitor to attach payment to.";
         }
+        
+        // 1. Create or find Customer based on visitor
+        $customer = Customer::firstOrCreate(
+            ['email' => $visitor->email ?? 'guest_' . uniqid() . '@example.com'],
+            [
+                'name' => $visitor->name ?? 'Guest User',
+                'phone' => $visitor->phone
+            ]
+        );
+
+        // 2. Create a generic Service for this booking if we don't have one
+        $serviceId = 'custom-' . Str::slug(substr($description, 0, 20)) . '-' . uniqid();
+        Service::create([
+            'id' => $serviceId,
+            'name' => $description,
+            'type' => 'package',
+            'price' => $amount,
+            'status' => 'active'
+        ]);
+
+        $staffId = $visitor->staff_id;
+
+        // 4. Create Order
+        $order = Order::create([
+            'staff_id' => $staffId,
+            'customer_id' => $customer->id,
+            'service_id' => $serviceId,
+            'amount' => $amount,
+            'description' => $description,
+            'status' => 'pending'
+        ]);
 
         $payment = Payment::create([
             'visitor_id' => $visitor->id,
             'amount' => $amount,
             'description' => $description,
-            'status' => 'pending'
+            'status' => 'pending',
+            'order_id' => $order->id
         ]);
 
         
@@ -54,7 +91,7 @@ class GeneratePaymentLinkTool implements Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'amount' => $schema->number()->required()->description('The total cost of the tour package in USD.'),
+            'amount' => $schema->number()->required()->description('The total cost of the tour package in INR (₹).'),
             'description' => $schema->string()->required()->description('A short description of the package being purchased (e.g. "3 Days Goa Package").'),
         ];
     }

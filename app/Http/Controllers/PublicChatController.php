@@ -215,6 +215,14 @@ class PublicChatController extends Controller
         try {
             $visitor = WebsiteChatVisitor::findOrCreateByUuid($visitorId, $lead);
 
+            if (!$visitor->staff_id) {
+                $staff = \App\Models\Staff::inRandomOrder()->first();
+                if ($staff) {
+                    $visitor->staff_id = $staff->id;
+                    $visitor->save();
+                }
+            }
+
             if ($conversationId && ! $visitor->agent_conversation_id) {
                 $visitor->agent_conversation_id = $conversationId;
             }
@@ -222,6 +230,32 @@ class PublicChatController extends Controller
             $response = $this->chatConversationService->prompt($visitor, $message, $conversationId);
             $resolvedConversationId = $response->conversationId ?? $conversationId;
             $agentResponse = (string) $response;
+
+            // Intercept custom tags since AI tools are disabled due to provider compatibility
+            if (preg_match('/\[GENERATE_LINK:\s*([^\|]+?)\s*\|\s*(.+?)\]/', $agentResponse, $matches)) {
+                $amount = floatval(trim($matches[1]));
+                $description = trim($matches[2]);
+                
+                $tool = new \App\Ai\Tools\GeneratePaymentLinkTool();
+                $toolResponse = $tool->handle([
+                    'amount' => $amount,
+                    'description' => $description,
+                    'visitor_id' => $visitor->id
+                ]);
+
+                $agentResponse = preg_replace('/\[GENERATE_LINK:.*?\]/', $toolResponse, $agentResponse);
+            }
+
+            if (preg_match('/\[CHECK_PAYMENT:\s*(.+?)\]/', $agentResponse, $matches)) {
+                $url = trim($matches[1]);
+                
+                $tool = new \App\Ai\Tools\CheckPaymentStatusTool();
+                $toolResponse = $tool->handle([
+                    'payment_url_or_id' => $url
+                ]);
+
+                $agentResponse = preg_replace('/\[CHECK_PAYMENT:.*?\]/', $toolResponse, $agentResponse);
+            }
 
             $updates = [
                 'last_message_at' => now(),

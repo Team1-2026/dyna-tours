@@ -521,6 +521,28 @@ export const api = {
       method: 'DELETE',
     });
   },
+
+  // Staff operations
+  getStaff: async (): Promise<any[]> => {
+    return await apiFetch<any[]>('/staff');
+  },
+  createStaff: async (data: any): Promise<any> => {
+    return await apiFetch<any>('/staff', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  updateStaff: async (id: number, data: any): Promise<any> => {
+    return await apiFetch<any>(`/staff/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  deleteStaff: async (id: number): Promise<void> => {
+    await apiFetch(`/staff/${id}`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 export type CrmChatStatus = 'new' | 'in_progress' | 'contacted' | 'qualified' | 'closed';

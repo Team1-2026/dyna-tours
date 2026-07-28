@@ -71,7 +71,7 @@ Travel Date:   ${new Date(booking.travelDate).toLocaleDateString('en-US', {
     })}
 
 Guests count:  ${booking.travelers} traveler(s)
-Total Paid:    ₹${booking.pricePaid.toLocaleString()}
+Total Paid:    ₹₹{booking.pricePaid.toLocaleString()}
 Payment:       Credit Card (Simulated)
 Status:        SECURED & CONFIRMED
 =========================================

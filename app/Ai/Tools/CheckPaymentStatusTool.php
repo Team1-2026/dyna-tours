@@ -22,7 +22,7 @@ class CheckPaymentStatusTool implements Tool
     /**
      * Execute the tool.
      */
-    public function handle(Request $request): Stringable|string
+    public function handle(array|\Laravel\Ai\Tools\Request $request): Stringable|string
     {
         $paymentUrl = $request['payment_url_or_id'];
         

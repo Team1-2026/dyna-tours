@@ -15,6 +15,7 @@ class ChatConversationService
     public function prompt(object $participant, string $message, ?string $conversationId = null): AgentResponse
     {
         $agent = new ChatAgent;
+        $agent->visitor = $participant;
 
         if ($conversationId) {
             $agent->continue($conversationId, as: $participant);

@@ -13,9 +13,20 @@ class Payment extends Model
 
     protected $fillable = [
         'visitor_id',
+        'order_id',
         'amount',
         'description',
         'status',
     ];
+
+    public function visitor()
+    {
+        return $this->belongsTo(WebsiteChatVisitor::class, 'visitor_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
     
 }

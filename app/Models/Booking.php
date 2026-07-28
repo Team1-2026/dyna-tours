@@ -21,7 +21,7 @@ class Booking extends Model
         'price_paid',
         'status',
         'notes',
-        'user_id',
+        'staff_id',
         'booked_at',
     ];
 
@@ -43,8 +43,8 @@ class Booking extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function user(): BelongsTo
+    public function staff(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Staff::class);
     }
 }

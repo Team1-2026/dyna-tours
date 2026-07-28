@@ -23,6 +23,7 @@ class WebsiteChatVisitor extends Model
         'bridge_thread_key',
         'bridge_thread_name',
         'bridge_space_name',
+        'staff_id',
     ];
 
     protected $casts = [

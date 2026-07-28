@@ -18,6 +18,7 @@ use App\Http\Controllers\API\GroupTourPageController;
 use App\Http\Controllers\API\GroupTourEnquiryController;
 use App\Http\Controllers\API\AboutPageController;
 use App\Http\Controllers\API\ContactPageController;
+use App\Http\Controllers\API\StaffController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,4 +119,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Contact Us Page Admin Routes
     Route::post('/contact-page', [ContactPageController::class, 'update']);
     Route::put('/contact-page', [ContactPageController::class, 'update']);
+    
+    // Staff Admin Routes
+    Route::get('/staff', [StaffController::class, 'index']);
+    Route::post('/staff', [StaffController::class, 'store']);
+    Route::put('/staff/{id}', [StaffController::class, 'update']);
+    Route::delete('/staff/{id}', [StaffController::class, 'destroy']);
 });

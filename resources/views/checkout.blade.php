@@ -157,7 +157,7 @@
             <div class="success-icon">✓</div>
             <h2 style="text-align: center; margin-bottom: 16px;">Payment Successful!</h2>
             <p class="success-text">
-                Your payment of <strong>${{ number_format($payment->amount, 2) }}</strong> has been securely processed.
+                Your payment of <strong>₹{{ number_format($payment->amount, 2) }}</strong> has been securely processed.
                 <br><br>
                 You may now close this window and return to the chat to confirm your booking!
             </p>
@@ -173,13 +173,13 @@
                 </div>
                 <div class="summary-item total">
                     <span>Total Due</span>
-                    <span>${{ number_format($payment->amount, 2) }} USD</span>
+                    <span>₹{{ number_format($payment->amount, 2) }} INR</span>
                 </div>
             </div>
 
             <form method="POST" action="/pay/{{ $payment->id }}/process">
                 @csrf
-                <button type="submit" class="pay-btn">Pay ${{ number_format($payment->amount, 2) }} Now</button>
+                <button type="submit" class="pay-btn">Pay ₹{{ number_format($payment->amount, 2) }} Now</button>
             </form>
             <p style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted);">
                 🔒 Secure 256-bit SSL encrypted payment.
