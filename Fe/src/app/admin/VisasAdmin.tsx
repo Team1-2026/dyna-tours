@@ -272,7 +272,7 @@ export default function VisasAdmin() {
           <form onSubmit={handleSave} className={styles.adminForm}>
             <div className={styles.formGrid}>
               <div className={styles.formGroup}>
-                <label>ID / Slug (e.g., 'cambodia')</label>
+                <label>ID / Slug (e.g., 'cambodia') <span className="required-star">*</span></label>
                 <input 
                   type="text" 
                   value={selectedVisa?.id || ''} 
@@ -282,7 +282,7 @@ export default function VisasAdmin() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Country Name</label>
+                <label>Country Name <span className="required-star">*</span></label>
                 <input 
                   type="text" 
                   value={selectedVisa?.name || ''} 
@@ -291,7 +291,7 @@ export default function VisasAdmin() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Flag Emoji</label>
+                <label>Flag Emoji <span className="required-star">*</span></label>
                 <select 
                   value={selectedVisa?.flag || ''} 
                   onChange={e => setSelectedVisa({...selectedVisa, flag: e.target.value})}
@@ -324,7 +324,7 @@ export default function VisasAdmin() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Processing Time</label>
+                <label>Processing Time <span className="required-star">*</span></label>
                 <input 
                   type="text" 
                   value={selectedVisa?.processingTime || ''} 
@@ -333,7 +333,7 @@ export default function VisasAdmin() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Validity</label>
+                <label>Validity <span className="required-star">*</span></label>
                 <input 
                   type="text" 
                   value={selectedVisa?.validity || ''} 
@@ -342,7 +342,7 @@ export default function VisasAdmin() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Biometrics/Interview Required?</label>
+                <label>Biometrics/Interview Required? <span className="required-star">*</span></label>
                 <input 
                   type="text" 
                   value={selectedVisa?.biometric || ''} 

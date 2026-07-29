@@ -1585,7 +1585,7 @@ export default function AdminDashboard() {
                       
                       <div className={styles.formRow}>
                         <div className="formGroup">
-                          <label htmlFor="hotel_name">Hotel Name *</label>
+                          <label htmlFor="hotel_name">Hotel Name <span className="required-star">*</span></label>
                           <input
                             type="text"
                             name="name"
@@ -1598,7 +1598,7 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="hotel_slug">Hotel Slug / ID (Unique)*</label>
+                          <label htmlFor="hotel_slug">Hotel Slug / ID (Unique) <span className="required-star">*</span></label>
                           <input
                             type="text"
                             name="id"
@@ -1614,7 +1614,7 @@ export default function AdminDashboard() {
 
                       <div className={styles.formRow}>
                         <div className="formGroup">
-                          <label htmlFor="country">Country *</label>
+                          <label htmlFor="country">Country <span className="required-star">*</span></label>
                           <select
                             name="country"
                             id="country"
@@ -1629,7 +1629,7 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="state">State / Country Name *</label>
+                          <label htmlFor="state">State / Country Name <span className="required-star">*</span></label>
                           <select
                             name="state"
                             id="state"
@@ -1661,7 +1661,7 @@ export default function AdminDashboard() {
 
                       <div className={styles.formRow}>
                         <div className="formGroup" style={{ gridColumn: 'span 2' }}>
-                          <label htmlFor="location">Location Address *</label>
+                          <label htmlFor="location">Location Address <span className="required-star">*</span></label>
                           <input
                             type="text"
                             name="location"
@@ -1701,7 +1701,7 @@ export default function AdminDashboard() {
 
                       <div className={styles.formRow}>
                         <div className="formGroup">
-                          <label htmlFor="category">Category *</label>
+                          <label htmlFor="category">Category <span className="required-star">*</span></label>
                           <select
                             name="category"
                             id="category"
@@ -1733,7 +1733,7 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="belongs_dest">Belongs to Destination*</label>
+                          <label htmlFor="belongs_dest">Belongs to Destination <span className="required-star">*</span></label>
                           <select
                             name="destination_id"
                             id="belongs_dest"
@@ -1749,7 +1749,7 @@ export default function AdminDashboard() {
 
                       <div className={styles.formRow}>
                         <div className="formGroup">
-                          <label htmlFor="price">Price Starting From *</label>
+                          <label htmlFor="price">Price Starting From <span className="required-star">*</span></label>
                           <div style={{ display: 'flex', alignItems: 'center' }}>
                             <span style={{ padding: '0.75rem', background: '#f1f5f9', border: '1px solid var(--color-border)', borderRight: 'none', borderRadius: 'var(--radius-md) 0 0 var(--radius-md)', fontWeight: 700 }}>₹</span>
                             <input
@@ -1778,7 +1778,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="formGroup">
-                        <label htmlFor="short_description">Short Description *</label>
+                        <label htmlFor="short_description">Short Description <span className="required-star">*</span></label>
                         <textarea
                           name="short_description"
                           id="short_description"
@@ -1961,7 +1961,7 @@ export default function AdminDashboard() {
                       <h4 className={styles.formCardTitle}>SEO Settings</h4>
                       
                       <div className="formGroup">
-                        <label htmlFor="meta_title">Meta Title *</label>
+                        <label htmlFor="meta_title">Meta Title <span className="required-star">*</span></label>
                         <input
                           type="text"
                           name="meta_title"
@@ -1976,7 +1976,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="formGroup">
-                        <label htmlFor="meta_description">Meta Description *</label>
+                        <label htmlFor="meta_description">Meta Description <span className="required-star">*</span></label>
                         <textarea
                           name="meta_description"
                           id="meta_description"
@@ -1991,7 +1991,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="formGroup">
-                        <label htmlFor="url_slug">URL Slug *</label>
+                        <label htmlFor="url_slug">URL Slug <span className="required-star">*</span></label>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                           <span style={{ padding: '0.75rem', background: '#f1f5f9', border: '1px solid var(--color-border)', borderRight: 'none', borderRadius: 'var(--radius-md) 0 0 var(--radius-md)', fontSize: '0.8rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>/hotels/</span>
                           <input
@@ -2052,7 +2052,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-secondary-navy)', textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Select Amenities *</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-secondary-navy)', textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Select Amenities <span className="required-star">*</span></label>
                     <div className={styles.tagChecklist} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
                       {facilities.map((facility) => {
                         const currentFacilities = isCreatingHotel ? newHotel.facilities || [] : selectedHotel?.facilities || [];
@@ -2398,7 +2398,7 @@ export default function AdminDashboard() {
                       
                       <div className={styles.formRow}>
                         <div className="formGroup">
-                          <label htmlFor="dest_name">Destination Name *</label>
+                          <label htmlFor="dest_name">Destination Name <span className="required-star">*</span></label>
                           <input
                             type="text"
                             name="name"
@@ -2411,7 +2411,7 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="dest_slug">Destination ID / Slug (Unique)*</label>
+                          <label htmlFor="dest_slug">Destination ID / Slug (Unique) <span className="required-star">*</span></label>
                           <input
                             type="text"
                             name="id"
@@ -2427,7 +2427,7 @@ export default function AdminDashboard() {
 
                       <div className={styles.formRow}>
                         <div className="formGroup">
-                          <label htmlFor="type">Category Type *</label>
+                          <label htmlFor="type">Category Type <span className="required-star">*</span></label>
                           <select
                             name="type"
                             id="type"
@@ -2713,7 +2713,7 @@ export default function AdminDashboard() {
                       <h4 className={styles.formCardTitle}>SEO & URL Management</h4>
                       
                       <div className="formGroup">
-                        <label htmlFor="meta_title">Meta Title *</label>
+                        <label htmlFor="meta_title">Meta Title <span className="required-star">*</span></label>
                         <input
                           type="text"
                           name="meta_title"
@@ -2725,7 +2725,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="formGroup">
-                        <label htmlFor="meta_description">Meta Description *</label>
+                        <label htmlFor="meta_description">Meta Description <span className="required-star">*</span></label>
                         <textarea
                           name="meta_description"
                           id="meta_description"
@@ -2737,7 +2737,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="formGroup">
-                        <label htmlFor="url_slug">Custom URL Slug *</label>
+                        <label htmlFor="url_slug">Custom URL Slug <span className="required-star">*</span></label>
                         <input
                           type="text"
                           name="url_slug"
@@ -2823,7 +2823,7 @@ export default function AdminDashboard() {
                   <form onSubmit={handleFacilitySave}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                       <div className="formGroup">
-                        <label>Amenity Name*</label>
+                        <label>Amenity Name <span className="required-star">*</span></label>
                         <input
                           type="text"
                           placeholder="e.g. EV Charger, Spa"
@@ -2834,7 +2834,7 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div className="formGroup">
-                        <label>Select Icon*</label>
+                        <label>Select Icon <span className="required-star">*</span></label>
                         <select
                           className="searchSelect"
                           style={{ width: '100%', height: '44px' }}
@@ -3001,7 +3001,7 @@ export default function AdminDashboard() {
             <div className={styles.modalBody}>
               <div className={styles.formRow}>
                 <div className="formGroup">
-                  <label>Room Category Name*</label>
+                  <label>Room Category Name <span className="required-star">*</span></label>
                   <input
                     type="text"
                     placeholder="e.g. Deluxe Suite, Premium Garden Room"
@@ -3036,7 +3036,7 @@ export default function AdminDashboard() {
 
               <div className={styles.formRow}>
                 <div className="formGroup">
-                  <label>Max Occupancy*</label>
+                  <label>Max Occupancy <span className="required-star">*</span></label>
                   <input
                     type="text"
                     placeholder="e.g. 2 Adults"

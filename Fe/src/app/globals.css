@@ -206,6 +206,26 @@ img {
 }
 
 /* Form Styles */
+label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-secondary-navy);
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+/* Red required field asterisk styling */
+.required-star,
+.req-star,
+span.required-star,
+span.requiredStar,
+label span.required {
+  color: #dc2626 !important;
+  font-weight: 700;
+  margin-left: 3px;
+  display: inline-block;
+}
+
 input, select, textarea {
   font-family: inherit;
   font-size: 1rem;

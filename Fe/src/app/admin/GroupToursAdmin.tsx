@@ -126,26 +126,26 @@ export default function GroupToursAdmin() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Tour Name *</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Tour Name <span className="required-star">*</span></label>
               <input type="text" name="name" value={editingTour.name || ''} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Destination *</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Destination <span className="required-star">*</span></label>
               <input type="text" name="destination" value={editingTour.destination || ''} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Type *</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Type <span className="required-star">*</span></label>
               <select name="type" value={editingTour.type} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
                 <option value="domestic">Domestic</option>
                 <option value="international">International</option>
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Duration *</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Duration <span className="required-star">*</span></label>
               <input type="text" name="duration" placeholder="e.g. 5 Days / 4 Nights" value={editingTour.duration || ''} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Starting Price *</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Starting Price <span className="required-star">*</span></label>
               <input type="number" name="starting_price" value={editingTour.starting_price || 0} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
             <div>
@@ -153,7 +153,7 @@ export default function GroupToursAdmin() {
               <input type="date" name="departure_date" value={editingTour.departure_date ? editingTour.departure_date.split('T')[0] : ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Status *</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Status <span className="required-star">*</span></label>
               <select name="status" value={editingTour.status} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
                 <option value="Available">Available</option>
                 <option value="Filling Fast">Filling Fast</option>

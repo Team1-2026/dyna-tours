@@ -92,7 +92,7 @@ export default function StaffAdmin() {
               <form onSubmit={handleSave}>
                 <div className={styles.formRow}>
                   <div className="formGroup">
-                    <label>Name</label>
+                    <label>Name <span className="required-star">*</span></label>
                     <input 
                       type="text" 
                       required 
@@ -102,7 +102,7 @@ export default function StaffAdmin() {
                     />
                   </div>
                   <div className="formGroup">
-                    <label>Email</label>
+                    <label>Email <span className="required-star">*</span></label>
                     <input 
                       type="email" 
                       required 
@@ -114,7 +114,7 @@ export default function StaffAdmin() {
                 </div>
                 <div className={styles.formRow}>
                   <div className="formGroup">
-                    <label>Password {selectedStaff && '(leave blank to keep unchanged)'}</label>
+                    <label>Password {!selectedStaff && <span className="required-star">*</span>} {selectedStaff && '(leave blank to keep unchanged)'}</label>
                     <input 
                       type="password" 
                       required={!selectedStaff} 

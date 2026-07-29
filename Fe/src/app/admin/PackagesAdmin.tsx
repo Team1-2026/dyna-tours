@@ -313,11 +313,11 @@ export default function PackagesAdmin() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
             <div>
-              <label>Title *</label>
+              <label>Title <span className="required-star">*</span></label>
               <input required type="text" className={styles.formInput} value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
             </div>
             <div>
-              <label>Slug (URL) *</label>
+              <label>Slug (URL) <span className="required-star">*</span></label>
               <input required type="text" className={styles.formInput} value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} />
             </div>
             <div>

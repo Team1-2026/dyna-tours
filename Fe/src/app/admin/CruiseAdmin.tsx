@@ -211,7 +211,7 @@ export default function CruiseAdmin() {
                       backgroundColor: selectedCruise?.id === c.id ? '#fef2f2' : '#ffffff',
                       cursor: 'pointer',
                       display: 'flex',
-                      justify: 'space-between',
+                      justifyContent: 'space-between',
                       alignItems: 'center'
                     }}
                   >
@@ -250,7 +250,7 @@ export default function CruiseAdmin() {
               <form onSubmit={handleSaveCruise}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                   <div className="formGroup">
-                    <label>Package ID / Slug *</label>
+                    <label>Package ID / Slug <span className="required-star">*</span></label>
                     <input
                       type="text"
                       required
@@ -261,7 +261,7 @@ export default function CruiseAdmin() {
                   </div>
 
                   <div className="formGroup">
-                    <label>Cruise Name *</label>
+                    <label>Cruise Name <span className="required-star">*</span></label>
                     <input
                       type="text"
                       required
@@ -271,7 +271,7 @@ export default function CruiseAdmin() {
                   </div>
 
                   <div className="formGroup">
-                    <label>Destination *</label>
+                    <label>Destination <span className="required-star">*</span></label>
                     <input
                       type="text"
                       required
@@ -282,7 +282,7 @@ export default function CruiseAdmin() {
                   </div>
 
                   <div className="formGroup">
-                    <label>Duration *</label>
+                    <label>Duration <span className="required-star">*</span></label>
                     <input
                       type="text"
                       required
@@ -313,7 +313,7 @@ export default function CruiseAdmin() {
                 </div>
 
                 <div className="formGroup" style={{ marginBottom: '1rem' }}>
-                  <label>Short Description *</label>
+                  <label>Short Description <span className="required-star">*</span></label>
                   <textarea
                     rows={2}
                     required
@@ -366,7 +366,7 @@ export default function CruiseAdmin() {
               </form>
             </div>
           ) : (
-            <div style={{ padding: '3rem', textContent: 'center', textAlign: 'center', color: '#64748b', background: '#ffffff', borderRadius: '1rem' }}>
+            <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b', background: '#ffffff', borderRadius: '1rem' }}>
               Select a cruise package from the list or click "+ Add New Cruise" to create one.
             </div>
           )}

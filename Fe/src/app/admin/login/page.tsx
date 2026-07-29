@@ -51,7 +51,7 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="email">Email Address <span className="required-star">*</span></label>
             <input
               type="email"
               id="email"
@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Password <span className="required-star">*</span></label>
             <input
               type="password"
               id="password"
