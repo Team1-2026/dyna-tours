@@ -30,10 +30,10 @@ export default function ContactAdmin() {
       await contactPageApi.updatePage(pageData);
       setSaveStatus('Saved successfully!');
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('Error saving page settings');
-      setTimeout(() => setSaveStatus(null), 3000);
+      setSaveStatus(`❌ ${err?.message || 'Error saving page settings'}`);
+      setTimeout(() => setSaveStatus(null), 6000);
     }
   };
 

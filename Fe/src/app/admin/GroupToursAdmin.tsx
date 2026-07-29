@@ -71,10 +71,10 @@ export default function GroupToursAdmin() {
       setTimeout(() => setSaveStatus(null), 3000);
       setEditingTour(null);
       loadTours();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('Error saving tour');
-      setTimeout(() => setSaveStatus(null), 3000);
+      setSaveStatus(`❌ ${err?.message || 'Error saving tour'}`);
+      setTimeout(() => setSaveStatus(null), 6000);
     }
   };
 

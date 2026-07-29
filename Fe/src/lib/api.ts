@@ -291,15 +291,19 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
       let errorMessage = `API error ${res.status}`;
       try {
         const json = JSON.parse(errText);
-        if (json.message) {
+        if (json.errors && typeof json.errors === 'object' && Object.keys(json.errors).length > 0) {
+          const formattedFields = Object.entries(json.errors)
+            .map(([field, msgs]: [string, any]) => {
+              const fieldName = field.replace(/_/g, ' ').toUpperCase();
+              const msg = Array.isArray(msgs) ? msgs.join(', ') : String(msgs);
+              return `[${fieldName}]: ${msg}`;
+            })
+            .join(' | ');
+          errorMessage = `Validation Error: ${formattedFields}`;
+        } else if (json.message) {
           errorMessage = json.message;
         } else if (json.error) {
           errorMessage = json.error;
-        } else if (json.errors && typeof json.errors === 'object') {
-          const firstErrKey = Object.keys(json.errors)[0];
-          if (firstErrKey && Array.isArray(json.errors[firstErrKey])) {
-            errorMessage = json.errors[firstErrKey][0];
-          }
         }
       } catch {
         if (errText) errorMessage = errText;

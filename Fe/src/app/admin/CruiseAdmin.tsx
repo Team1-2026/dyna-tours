@@ -118,10 +118,10 @@ export default function CruiseAdmin() {
       }
       fetchData();
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('❌ Failed to save cruise package.');
-      setTimeout(() => setSaveStatus(null), 4000);
+      setSaveStatus(`❌ ${err?.message || 'Failed to save cruise package.'}`);
+      setTimeout(() => setSaveStatus(null), 6000);
     }
   };
 
@@ -145,10 +145,10 @@ export default function CruiseAdmin() {
       await api.updateCruisePage(pageData);
       setSaveStatus('✓ Landing page settings updated successfully!');
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('❌ Failed to save page settings.');
-      setTimeout(() => setSaveStatus(null), 4000);
+      setSaveStatus(`❌ ${err?.message || 'Failed to save page settings.'}`);
+      setTimeout(() => setSaveStatus(null), 6000);
     }
   };
 

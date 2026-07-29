@@ -120,10 +120,20 @@ class HotelController extends Controller
         \Illuminate\Support\Facades\Log::info("Hotel update payload rooms:", ["rooms" => $request->rooms]);
         // Update rooms if provided
         if ($request->has('rooms') && is_array($request->rooms)) {
-            // Simple approach: delete existing and recreate, or update by ID
             $hotel->rooms()->delete();
             foreach ($request->rooms as $roomData) {
-                $hotel->rooms()->create($roomData);
+                if (is_array($roomData)) {
+                    unset($roomData['id'], $roomData['hotel_id'], $roomData['created_at'], $roomData['updated_at']);
+                    if (isset($roomData['price']) && ($roomData['price'] === '' || $roomData['price'] === null)) {
+                        $roomData['price'] = null;
+                    }
+                    if (isset($roomData['remaining_rooms']) && ($roomData['remaining_rooms'] === '' || $roomData['remaining_rooms'] === null)) {
+                        $roomData['remaining_rooms'] = null;
+                    }
+                    if (!empty($roomData['type'])) {
+                        $hotel->rooms()->create($roomData);
+                    }
+                }
             }
         }
 
@@ -201,7 +211,18 @@ class HotelController extends Controller
         // Update rooms if provided at creation
         if ($request->has('rooms') && is_array($request->rooms)) {
             foreach ($request->rooms as $roomData) {
-                $hotel->rooms()->create($roomData);
+                if (is_array($roomData)) {
+                    unset($roomData['id'], $roomData['hotel_id'], $roomData['created_at'], $roomData['updated_at']);
+                    if (isset($roomData['price']) && ($roomData['price'] === '' || $roomData['price'] === null)) {
+                        $roomData['price'] = null;
+                    }
+                    if (isset($roomData['remaining_rooms']) && ($roomData['remaining_rooms'] === '' || $roomData['remaining_rooms'] === null)) {
+                        $roomData['remaining_rooms'] = null;
+                    }
+                    if (!empty($roomData['type'])) {
+                        $hotel->rooms()->create($roomData);
+                    }
+                }
             }
         }
 

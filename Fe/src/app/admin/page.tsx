@@ -328,6 +328,21 @@ export default function AdminDashboard() {
   const handleLocalImageUploadForSection = (e: React.ChangeEvent<HTMLInputElement>, section: 'banner' | 'featured' | 'gallery') => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      alert(`Invalid image format! Supported formats: PNG, JPG, WEBP, SVG.`);
+      e.target.value = '';
+      return;
+    }
+    const maxSizeMB = 5;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      alert(`Image file size (${fileSizeMB} MB) exceeds maximum limit of ${maxSizeMB} MB.`);
+      e.target.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target?.result) {
@@ -671,6 +686,20 @@ export default function AdminDashboard() {
   const handleRoomLocalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      alert(`Invalid image format! Supported formats: PNG, JPG, WEBP, SVG.`);
+      e.target.value = '';
+      return;
+    }
+    const maxSizeMB = 5;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      alert(`Image file size (${fileSizeMB} MB) exceeds maximum limit of ${maxSizeMB} MB.`);
+      e.target.value = '';
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -2560,6 +2589,21 @@ export default function AdminDashboard() {
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (!file) return;
+
+                                const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
+                                if (!allowedTypes.includes(file.type.toLowerCase())) {
+                                  alert(`Invalid image format! Supported formats: PNG, JPG, WEBP, SVG.`);
+                                  e.target.value = '';
+                                  return;
+                                }
+                                const maxSizeMB = 5;
+                                if (file.size > maxSizeMB * 1024 * 1024) {
+                                  const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                                  alert(`Image file size (${fileSizeMB} MB) exceeds maximum limit of ${maxSizeMB} MB.`);
+                                  e.target.value = '';
+                                  return;
+                                }
+
                                 const reader = new FileReader();
                                 reader.onload = (event) => {
                                   if (event.target?.result) {
