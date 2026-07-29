@@ -60,6 +60,13 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
 
   // Filter hotels matching this destination from Laravel
   const matchedHotels = destination.hotels || [];
+  const [expandedHotels, setExpandedHotels] = useState<string[]>([]);
+
+  const toggleHotelDescription = (id: string) => {
+    setExpandedHotels(prev =>
+      prev.includes(id) ? prev.filter(hId => hId !== id) : [...prev, id]
+    );
+  };
 
   // Handle Enquiry submission
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -468,19 +475,33 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                         </svg>
                         {hotel.location}
                       </div>
-                      <p className={styles.hotelDesc}>
-                        {stripHtml(hotel.short_description).slice(0, 140)}...
-                      </p>
+                      {expandedHotels.includes(hotel.id) && (
+                        <div 
+                          style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '1.25rem' }}
+                          dangerouslySetInnerHTML={{ __html: hotel.short_description }}
+                        />
+                      )}
                       
                       <div className={styles.hotelFooter}>
-                        {hotel.show_price && hotel.price && (
-                          <div className={styles.hotelPriceSection}>
-                            <span className={styles.hotelPriceLabel}>Starting From</span>
-                            <span className={styles.hotelPrice}>₹{hotel.price} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--color-text-secondary)' }}>/ night</span></span>
-                          </div>
-                        )}
+                        <button 
+                          type="button"
+                          onClick={() => toggleHotelDescription(hotel.id)}
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: 'var(--color-primary-red)', 
+                            padding: 0, 
+                            font: 'inherit', 
+                            cursor: 'pointer', 
+                            textDecoration: 'underline', 
+                            fontSize: '0.85rem',
+                            fontWeight: 600 
+                          }}
+                        >
+                          {expandedHotels.includes(hotel.id) ? 'Hide Description' : 'Show Description'}
+                        </button>
                         <Link href={`/hotels/${hotel.id}`} className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>
-                          View Rooms
+                          View Hotel
                         </Link>
                       </div>
                     </div>

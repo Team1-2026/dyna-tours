@@ -18,7 +18,13 @@ export default function Home() {
   const [featuredHotels, setFeaturedHotels] = useState<Hotel[]>([]);
   const [featuredTours, setFeaturedTours] = useState<any[]>([]);
   const [domesticTours, setDomesticTours] = useState<any[]>([]);
-  const [showBlanketDescription, setShowBlanketDescription] = useState(false);
+  const [expandedHotels, setExpandedHotels] = useState<string[]>([]);
+
+  const toggleHotelDescription = (id: string) => {
+    setExpandedHotels(prev =>
+      prev.includes(id) ? prev.filter(hId => hId !== id) : [...prev, id]
+    );
+  };
 
   useEffect(() => {
     api.getHotels({ featured: true })
@@ -294,46 +300,30 @@ export default function Home() {
                       </svg>
                       {hotel.location}
                     </div>
-                    {hotel.id !== 'blanket-hotel-spa-munnar' ? (
-                      <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '1.5rem', flexGrow: 1 }}>
-                        {stripHtml(hotel.short_description).slice(0, 140)}...
-                      </p>
-                    ) : (
-                      showBlanketDescription && (
-                        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                          {stripHtml(hotel.short_description).slice(0, 140)}...
-                        </p>
-                      )
+                    {expandedHotels.includes(hotel.id) && (
+                      <div 
+                        style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '1.5rem' }}
+                        dangerouslySetInnerHTML={{ __html: hotel.short_description }}
+                      />
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-border)', paddingTop: '1rem', marginTop: 'auto' }}>
-                      {hotel.id === 'blanket-hotel-spa-munnar' ? (
-                        <button 
-                          type="button"
-                          onClick={() => setShowBlanketDescription(!showBlanketDescription)}
-                          style={{ 
-                            background: 'none', 
-                            border: 'none', 
-                            color: 'var(--color-primary-red)', 
-                            padding: 0, 
-                            font: 'inherit', 
-                            cursor: 'pointer', 
-                            textDecoration: 'underline', 
-                            fontSize: '0.85rem',
-                            fontWeight: 600 
-                          }}
-                        >
-                          {showBlanketDescription ? 'Hide Description' : 'Show Description'}
-                        </button>
-                      ) : (
-                        hotel.show_price && hotel.price && (
-                          <div>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block', fontWeight: 600 }}>Rate / Night</span>
-                            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary-red)' }}>
-                              ₹{hotel.price}
-                            </span>
-                          </div>
-                        )
-                      )}
+                      <button 
+                        type="button"
+                        onClick={() => toggleHotelDescription(hotel.id)}
+                        style={{ 
+                          background: 'none', 
+                          border: 'none', 
+                          color: 'var(--color-primary-red)', 
+                          padding: 0, 
+                          font: 'inherit', 
+                          cursor: 'pointer', 
+                          textDecoration: 'underline', 
+                          fontSize: '0.85rem',
+                          fontWeight: 600 
+                        }}
+                      >
+                        {expandedHotels.includes(hotel.id) ? 'Hide Description' : 'Show Description'}
+                      </button>
                       <Link href={`/hotels/${hotel.id}`} className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>
                         Book Now
                       </Link>
