@@ -57,6 +57,6 @@ class Destination extends Model
 
     public function hotels()
     {
-        return $this->hasMany(Hotel::class, 'destination_id', 'id')->orderBy('order_no', 'asc');
+        return $this->hasMany(Hotel::class, 'destination_id', 'id')->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC, id ASC');
     }
 }

@@ -18,8 +18,9 @@ import GroupTourEnquiriesAdmin from './GroupTourEnquiriesAdmin';
 import AboutAdmin from './AboutAdmin';
 import ContactAdmin from './ContactAdmin';
 import StaffAdmin from './StaffAdmin';
+import CruiseAdmin from './CruiseAdmin';
 
-type TabType = 'dashboard' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage' | 'staff';
+type TabType = 'dashboard' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage' | 'staff' | 'cruise';
 
 // Hierarchical location data
 const COUNTRIES_DATA: Record<string, { states: string[]; cities: Record<string, string[]> }> = {
@@ -417,7 +418,7 @@ export default function AdminDashboard() {
   // ----------------------------------------------------
   const handleDestTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const parsedValue = name === 'order_no' ? (value === '' ? null : Number(value)) : value;
+    const parsedValue = name === 'order_no' ? (value === '' ? null : Math.max(0, Number(value))) : value;
 
     if (isCreatingDest) {
       setNewDest(prev => {
@@ -529,7 +530,7 @@ export default function AdminDashboard() {
   const handleHotelTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     const isNum = name === 'price' || name === 'order_no';
-    const parsedVal = isNum ? (value !== '' ? Number(value) : null) : value;
+    const parsedVal = isNum ? (value !== '' ? Math.max(0, Number(value)) : null) : value;
 
     if (isCreatingHotel) {
       setNewHotel(prev => {
@@ -1172,6 +1173,16 @@ export default function AdminDashboard() {
             </div>
           </div>
 
+          <div 
+            className={`${styles.menuItem} ${activeTab === 'cruise' ? styles.menuItemActive : ''}`}
+            onClick={() => { setActiveTab('cruise'); }}
+          >
+            <div className={styles.menuItemLabel}>
+              <span>🚢</span>
+              <span>Cruise Holidays</span>
+            </div>
+          </div>
+
           <div className={styles.menuSectionHeader}>Settings</div>
           
           <div 
@@ -1211,6 +1222,7 @@ export default function AdminDashboard() {
               {activeTab === 'aboutPage' && 'About Us Page Settings'}
               {activeTab === 'contactPage' && 'Contact Us Page Settings'}
               {activeTab === 'staff' && 'Staff Details'}
+              {activeTab === 'cruise' && 'Cruise Holidays Management'}
               {activeTab === 'enquiries' && 'Enquiries Management'}
               {activeTab === 'crm' && 'Chat CRM'}
               {activeTab === 'staff' && 'Staff Details'}
@@ -1472,7 +1484,8 @@ export default function AdminDashboard() {
                           .sort((a, b) => {
                             const orderA = a.order_no ?? Infinity;
                             const orderB = b.order_no ?? Infinity;
-                            return orderA - orderB;
+                            if (orderA !== orderB) return orderA - orderB;
+                            return a.name.localeCompare(b.name);
                           })
                           .map((hotel, idx) => (
                             <tr key={hotel.id}>
@@ -1681,6 +1694,7 @@ export default function AdminDashboard() {
                           <label htmlFor="order_no">Order No</label>
                           <input
                             type="number"
+                            min="1"
                             name="order_no"
                             id="order_no"
                             placeholder="Enter display order number (serial position)"
@@ -2419,6 +2433,7 @@ export default function AdminDashboard() {
                           <label htmlFor="order_no">Order No</label>
                           <input
                             type="number"
+                            min="1"
                             name="order_no"
                             id="order_no"
                             placeholder="e.g. 1"
@@ -2921,6 +2936,7 @@ export default function AdminDashboard() {
           {activeTab === 'aboutPage' && <AboutAdmin />}
           {activeTab === 'contactPage' && <ContactAdmin />}
           {activeTab === 'staff' && <StaffAdmin />}
+          {activeTab === 'cruise' && <CruiseAdmin />}
 
         </main>
       </div>

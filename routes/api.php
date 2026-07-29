@@ -19,6 +19,8 @@ use App\Http\Controllers\API\GroupTourEnquiryController;
 use App\Http\Controllers\API\AboutPageController;
 use App\Http\Controllers\API\ContactPageController;
 use App\Http\Controllers\API\StaffController;
+use App\Http\Controllers\API\CruiseController;
+use App\Http\Controllers\API\CruisePageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +48,9 @@ Route::get('/group-tours/{id}', [GroupTourController::class, 'show'])->whereNumb
 Route::post('/group-tours/enquiries', [GroupTourEnquiryController::class, 'store']);
 
 Route::get('/flights/page', [FlightPageController::class, 'get']);
+Route::get('/cruise-page', [CruisePageController::class, 'show']);
+Route::get('/cruises', [CruiseController::class, 'index']);
+Route::get('/cruises/{id}', [CruiseController::class, 'show']);
 Route::get('/about-page', [AboutPageController::class, 'show']);
 Route::get('/contact-page', [ContactPageController::class, 'show']);
 Route::post('/contact/submit', [ContactPageController::class, 'submit']);
@@ -125,4 +130,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/staff', [StaffController::class, 'store']);
     Route::put('/staff/{id}', [StaffController::class, 'update']);
     Route::delete('/staff/{id}', [StaffController::class, 'destroy']);
+
+    // Cruise Admin Routes
+    Route::post('/cruise-page', [CruisePageController::class, 'update']);
+    Route::put('/cruise-page', [CruisePageController::class, 'update']);
+    Route::post('/cruises', [CruiseController::class, 'store']);
+    Route::put('/cruises/{id}', [CruiseController::class, 'update']);
+    Route::delete('/cruises/{id}', [CruiseController::class, 'destroy']);
 });

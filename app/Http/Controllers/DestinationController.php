@@ -68,8 +68,15 @@ class DestinationController extends Controller
             'city' => 'sometimes|string|nullable',
             // Related tours mapping
             'related_tours' => 'sometimes|array|nullable',
-            'order_no' => 'sometimes|integer|nullable',
+            'order_no' => 'sometimes|integer|min:0|nullable',
         ]);
+
+        if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $destination->order_no) {
+            $newOrder = (int) $validated['order_no'];
+            Destination::where('id', '!=', $id)
+                ->where('order_no', '>=', $newOrder)
+                ->increment('order_no');
+        }
 
         $destination->update($validated);
 
@@ -108,8 +115,14 @@ class DestinationController extends Controller
             'city' => 'nullable|string',
             // Related tours mapping
             'related_tours' => 'nullable|array',
-            'order_no' => 'nullable|integer',
+            'order_no' => 'nullable|integer|min:0',
         ]);
+
+        if (isset($validated['order_no']) && $validated['order_no'] !== null) {
+            $newOrder = (int) $validated['order_no'];
+            Destination::where('order_no', '>=', $newOrder)
+                ->increment('order_no');
+        }
 
         $destination = Destination::create($validated);
 

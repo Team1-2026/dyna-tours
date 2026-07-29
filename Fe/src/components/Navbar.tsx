@@ -153,6 +153,11 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
+              <Link href="/cruise" className={`${styles.navLink} ${pathname.startsWith('/cruise') ? styles.active : ''}`}>
+                Cruise
+              </Link>
+            </li>
+            <li>
               <Link href="/about" className={`${styles.navLink} ${pathname.startsWith('/about') ? styles.active : ''}`}>
                 About Us
               </Link>
@@ -277,6 +282,11 @@ export default function Navbar() {
           <li>
             <Link href="/group-tours" className={`${styles.mobileNavLink} ${pathname.startsWith('/group-tours') ? styles.mobileActive : ''}`}>
               Group Tours
+            </Link>
+          </li>
+          <li>
+            <Link href="/cruise" className={`${styles.mobileNavLink} ${pathname.startsWith('/cruise') ? styles.mobileActive : ''}`}>
+              Cruise
             </Link>
           </li>
 

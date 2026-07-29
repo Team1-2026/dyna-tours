@@ -34,7 +34,7 @@ class HotelController extends Controller
             $query->where('featured', filter_var($request->featured, FILTER_VALIDATE_BOOLEAN));
         }
 
-        $hotels = $query->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC')->with(['destination', 'facilities'])->get();
+        $hotels = $query->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC, id ASC')->with(['destination', 'facilities'])->get();
         return response()->json($hotels);
     }
 
@@ -82,7 +82,7 @@ class HotelController extends Controller
             'gallery' => 'sometimes|array',
             'facilities' => 'sometimes|array',
             // Hotel management fields
-            'order_no' => 'sometimes|integer|nullable',
+            'order_no' => 'sometimes|integer|min:0|nullable',
             'status' => 'sometimes|string',
             // SEO fields
             'meta_title' => 'sometimes|string|nullable',
@@ -103,6 +103,13 @@ class HotelController extends Controller
             'related_hotels' => 'sometimes|array|nullable',
             'video_url' => 'sometimes|string|nullable',
         ]);
+
+        if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $hotel->order_no) {
+            $newOrder = (int) $validated['order_no'];
+            Hotel::where('id', '!=', $id)
+                ->where('order_no', '>=', $newOrder)
+                ->increment('order_no');
+        }
 
         $hotel->update($validated);
 
@@ -149,7 +156,7 @@ class HotelController extends Controller
             'price' => 'nullable|numeric',
             'offer_label' => 'nullable|string|max:255',
             // Hotel management fields
-            'order_no' => 'nullable|integer',
+            'order_no' => 'nullable|integer|min:0',
             'status' => 'sometimes|string',
             // SEO fields
             'meta_title' => 'nullable|string',
@@ -176,6 +183,12 @@ class HotelController extends Controller
         }
         if (!isset($validated['facilities'])) {
             $validated['facilities'] = [];
+        }
+
+        if (isset($validated['order_no']) && $validated['order_no'] !== null) {
+            $newOrder = (int) $validated['order_no'];
+            Hotel::where('order_no', '>=', $newOrder)
+                ->increment('order_no');
         }
 
         $hotel = Hotel::create($validated);

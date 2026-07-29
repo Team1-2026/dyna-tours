@@ -170,6 +170,71 @@ export interface Enquiry {
   preferred_airline?: string;
 }
 
+export interface CruiseItineraryDay {
+  day: string;
+  title: string;
+  description: string;
+}
+
+export interface CruiseFaq {
+  question: string;
+  answer: string;
+}
+
+export interface CruiseReview {
+  name: string;
+  rating: number;
+  comment: string;
+}
+
+export interface Cruise {
+  id: string;
+  name: string;
+  destination: string;
+  duration: string;
+  price?: number | null;
+  show_price?: boolean;
+  short_description: string;
+  about?: string | null;
+  banner_image?: string | null;
+  gallery?: string[] | null;
+  highlights?: string[] | null;
+  itinerary?: CruiseItineraryDay[] | null;
+  inclusions?: string[] | null;
+  exclusions?: string[] | null;
+  need_to_know?: string[] | null;
+  faqs?: CruiseFaq[] | null;
+  reviews?: CruiseReview[] | null;
+  featured?: boolean;
+  order_no?: number | null;
+  status?: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  url_slug?: string | null;
+  canonical_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CruisePageData {
+  id?: number;
+  banner_title: string;
+  banner_tagline: string;
+  banner_image?: string | null;
+  overview_heading: string;
+  overview_description?: string | null;
+  overview_image?: string | null;
+  overview_cta_text: string;
+  cta_heading: string;
+  cta_description?: string | null;
+  cta_image?: string | null;
+  cta_button1_text: string;
+  cta_button2_text: string;
+  faqs?: CruiseFaq[] | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+}
+
 // Token helper methods
 const TOKEN_KEY = 'dyna_admin_token';
 
@@ -388,6 +453,54 @@ export const api = {
 
   deleteHotel: async (id: string): Promise<{ message: string }> => {
     return await apiFetch<{ message: string }>(`/hotels/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Cruise operations
+  getCruisePage: async (): Promise<CruisePageData> => {
+    return await apiFetch<CruisePageData>('/cruise-page');
+  },
+
+  updateCruisePage: async (data: Partial<CruisePageData>): Promise<{ message: string; page: CruisePageData }> => {
+    return await apiFetch<{ message: string; page: CruisePageData }>('/cruise-page', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getCruises: async (params?: { featured?: boolean; destination?: string; status?: string }): Promise<Cruise[]> => {
+    let query = '';
+    if (params) {
+      const urlParams = new URLSearchParams();
+      if (params.featured !== undefined) urlParams.append('featured', String(params.featured));
+      if (params.destination) urlParams.append('destination', params.destination);
+      if (params.status) urlParams.append('status', params.status);
+      query = `?${urlParams.toString()}`;
+    }
+    return await apiFetch<Cruise[]>(`/cruises${query}`);
+  },
+
+  getCruise: async (id: string): Promise<Cruise> => {
+    return await apiFetch<Cruise>(`/cruises/${id}`);
+  },
+
+  createCruise: async (data: Partial<Cruise>): Promise<{ message: string; cruise: Cruise }> => {
+    return await apiFetch<{ message: string; cruise: Cruise }>('/cruises', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateCruise: async (id: string, data: Partial<Cruise>): Promise<{ message: string; cruise: Cruise }> => {
+    return await apiFetch<{ message: string; cruise: Cruise }>(`/cruises/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteCruise: async (id: string): Promise<{ message: string }> => {
+    return await apiFetch<{ message: string }>(`/cruises/${id}`, {
       method: 'DELETE',
     });
   },
