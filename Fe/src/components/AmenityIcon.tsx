@@ -82,6 +82,30 @@ export const AmenityIcon: React.FC<AmenityIconProps> = ({ name, size = 20, class
         </svg>
       );
 
+    // Yoga
+    case 'yoga':
+    case 'meditation':
+      return (
+        <svg {...svgProps}>
+          <circle cx="12" cy="4" r="2" />
+          <path d="M12 6v5" />
+          <path d="M6 12l6 2 6-2" />
+          <path d="M5 20l4-6 3 2 3-2 4 6" />
+        </svg>
+      );
+
+    // Car Parking
+    case 'car parking':
+    case 'parking':
+    case 'free parking':
+    case 'car park':
+      return (
+        <svg {...svgProps}>
+          <rect x="3" y="3" width="18" height="18" rx="3" />
+          <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
+        </svg>
+      );
+
     // Restaurant
     case 'restaurant':
     case 'dining':

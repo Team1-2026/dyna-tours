@@ -36,6 +36,7 @@ class ContactPageController extends Controller
                 
                 'phone_numbers' => [
                     ['label' => 'Primary Support', 'number' => '+91 98466 65005'],
+                    ['label' => 'WhatsApp Support', 'number' => '+91 97464 70555'],
                     ['label' => 'Reservations', 'number' => '+91 98461 50005'],
                     ['label' => 'Customer Care', 'number' => '+91 94952 02727']
                 ],
@@ -63,17 +64,10 @@ class ContactPageController extends Controller
                 // Quick Contact Cards
                 'quick_contact_cards' => [
                     [
-                        'title' => 'Call Us Directly',
-                        'description' => 'Speak directly with our dedicated travel consultants for instant guidance.',
-                        'action_text' => 'Call +91 98466 65005',
-                        'action_url' => 'tel:+919846665005',
-                        'icon' => 'PhoneCall'
-                    ],
-                    [
                         'title' => 'WhatsApp Chat',
                         'description' => 'Instant chat assistance for itinerary planning, quotes, and quick queries.',
-                        'action_text' => 'Chat on WhatsApp',
-                        'action_url' => 'https://wa.me/919846665005',
+                        'action_text' => 'Chat on WhatsApp (+91 97464 70555)',
+                        'action_url' => 'https://wa.me/919746470555',
                         'icon' => 'MessageCircle'
                     ],
                     [

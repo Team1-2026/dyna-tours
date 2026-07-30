@@ -38,9 +38,16 @@ export async function generateMetadata({ params }: CountryVisaPageProps): Promis
   }
 }
 
+import { schengenCountries, otherCountries } from '@/data/visaData';
+
 export async function generateStaticParams() {
   const visas = await api.getVisas();
-  return visas.map((country) => ({
+  const list = [
+    ...visas,
+    ...schengenCountries.map(c => ({ id: c.id! })),
+    ...otherCountries.map(c => ({ id: c.id! }))
+  ];
+  return list.map((country) => ({
     country: country.id,
   }));
 }
@@ -133,7 +140,7 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
           </div>
 
           <div className={styles.detailsContent}>
-            
+            {/* Left 8 Columns: Main Details Content */}
             <div className={styles.detailsMain}>
               {countryData.description && (
                 <section>
@@ -143,6 +150,7 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
                   />
                 </section>
               )}
+
               <section>
                 <h2>
                   <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--color-primary-red)" strokeWidth="2">
@@ -192,30 +200,50 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
               </section>
             </div>
 
-            {/* Sidebar form (desktop) */}
-            <aside>
+            {/* Right 4 Columns: Need Assistance Card */}
+            <div>
               <div className={styles.sidebarCard}>
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.25rem', color: 'var(--color-secondary-navy)' }}>
+                <span className="section-subtitle" style={{ display: 'block', marginBottom: '0.5rem' }}>Personalized Support</span>
+                <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '1rem' }}>
                   Need Assistance?
-                </h3>
-                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
-                  Our experts will guide you through the complete {countryData.name} visa application process.
+                </h2>
+                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6', fontSize: '0.95rem' }}>
+                  Our experienced visa specialists will guide you through the complete {countryData.name} tourist visa application process, ensuring document verification and hassle-free processing.
                 </p>
-                <a href="#enquiry" className="btn btn-primary btn-full">
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-secondary-navy)', fontWeight: 600, fontSize: '0.9rem' }}>
+                    <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✓</span>
+                    Official Document Verification
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-secondary-navy)', fontWeight: 600, fontSize: '0.9rem' }}>
+                    <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>⚡</span>
+                    Fast-Track Processing Support
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-secondary-navy)', fontWeight: 600, fontSize: '0.9rem' }}>
+                    <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🛡️</span>
+                    100% Secure & Confidential
+                  </div>
+                </div>
+
+                <a href="#enquiry-form" className="btn btn-primary" style={{ width: '100%', marginTop: '1.75rem', textAlign: 'center', display: 'block' }}>
                   Enquire Now
                 </a>
               </div>
-            </aside>
-            
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Enquiry Form with country preselected */}
-      <VisaEnquiryForm 
-        destinations={allVisas} 
-        preselectedCountry={countryData.id} 
-      />
+      {/* Start Your Visa Enquiry Section */}
+      <section className="section bg-white" id="enquiry-form" style={{ paddingTop: '3.5rem', paddingBottom: '3.5rem', borderTop: '1px solid #e2e8f0' }}>
+        <div className="container">
+          <VisaEnquiryForm 
+            destinations={allVisas} 
+            preselectedCountry={countryData.id} 
+          />
+        </div>
+      </section>
 
       {/* FAQ specific to country */}
       <VisaFAQ faqs={countryData.faqs} />

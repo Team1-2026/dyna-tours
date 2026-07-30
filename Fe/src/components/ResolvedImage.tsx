@@ -1,9 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
-export default function ResolvedImage({ src, alt, className, style, onClick }: { src: string, alt: string, className?: string, style?: React.CSSProperties, onClick?: () => void }) {
+export default function ResolvedImage({ src, alt, className, style, onClick, fill }: { src: string, alt: string, className?: string, style?: React.CSSProperties, onClick?: () => void, fill?: boolean }) {
   const [resolved, setResolved] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+
   
   useEffect(() => {
     setLoading(true);

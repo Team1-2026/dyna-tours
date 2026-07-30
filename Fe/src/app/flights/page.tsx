@@ -82,33 +82,94 @@ export default async function FlightPage() {
         </div>
       </section>
 
-      {/* Overview Section */}
-      <section className={styles.overview}>
+      {/* Overview & Enquiry Form 2-Column Section */}
+      <section className={styles.overviewSection}>
         <div className={styles.container}>
-          <div className={styles.overviewCardWrapper}>
-            <div className={styles.badgeWrapper}>
-              <span className={styles.overviewBadge}>
-                ✈️ Air Travel Services
-              </span>
+          <div className={styles.overviewFormGrid}>
+            {/* Left 6 Columns: Overview Content */}
+            <div className={styles.overviewContent}>
+              <div className={styles.badgeWrapper} style={{ justifyContent: 'flex-start', marginBottom: '0.85rem' }}>
+                <span className={styles.overviewBadge}>
+                  ✈️ Air Travel Services
+                </span>
+              </div>
+
+              <h2 className={styles.overviewTitleLeft}>
+                Your Trusted Partner for <span className={styles.highlightText}>Domestic & International</span> Air Travel
+              </h2>
+
+              {/* Airline Alliance / Service Chips */}
+              <div className={styles.airlinesBadgeStrip}>
+                <span className={styles.airlineChip}>✈️ 100+ Global Airlines</span>
+                <span className={styles.airlineChip}>🛡️ Best Fare Guarantee</span>
+                <span className={styles.airlineChip}>⏱️ 24x7 Support</span>
+              </div>
+
+              <div className={styles.overviewDescription}>
+                {overview_description ? (
+                  <div dangerouslySetInnerHTML={{ __html: overview_description }} />
+                ) : (
+                  <p className={styles.introParagraph}>
+                    At Dyna Tours India, we make air travel simple, affordable, and stress-free. With access to leading domestic and international airlines, we help travellers book the best flight options at competitive prices for business, vacations, honeymoons, or group travel.
+                  </p>
+                )}
+              </div>
+
+              {/* Feature Highlights Grid */}
+              <div className={styles.overviewFeaturesGrid}>
+                <div className={styles.overviewFeatureBox}>
+                  <div className={styles.featureBoxIcon}>🌐</div>
+                  <div>
+                    <h4 className={styles.featureBoxTitle}>Global & Domestic Routes</h4>
+                    <p className={styles.featureBoxSub}>India, Middle East, Europe, USA, Asia & Australia.</p>
+                  </div>
+                </div>
+
+                <div className={styles.overviewFeatureBox}>
+                  <div className={styles.featureBoxIcon}>⚡</div>
+                  <div>
+                    <h4 className={styles.featureBoxTitle}>Instant Ticket Issuance</h4>
+                    <p className={styles.featureBoxSub}>Quick booking turnaround with best price guarantee.</p>
+                  </div>
+                </div>
+
+                <div className={styles.overviewFeatureBox}>
+                  <div className={styles.featureBoxIcon}>🧳</div>
+                  <div>
+                    <h4 className={styles.featureBoxTitle}>Full Booking Support</h4>
+                    <p className={styles.featureBoxSub}>Date modifications, baggage, seats & meal assistance.</p>
+                  </div>
+                </div>
+
+                <div className={styles.overviewFeatureBox}>
+                  <div className={styles.featureBoxIcon}>📄</div>
+                  <div>
+                    <h4 className={styles.featureBoxTitle}>Visas & Packages</h4>
+                    <p className={styles.featureBoxSub}>Complete end-to-end travel solutions under one roof.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Trust Stat Cards */}
+              <div className={styles.trustStatsRow}>
+                <div className={styles.trustStatCard}>
+                  <span className={styles.trustStatNum}>50k+</span>
+                  <span className={styles.trustStatLabel}>Happy Travelers</span>
+                </div>
+                <div className={styles.trustStatCard}>
+                  <span className={styles.trustStatNum}>100+</span>
+                  <span className={styles.trustStatLabel}>Partner Airlines</span>
+                </div>
+                <div className={styles.trustStatCard}>
+                  <span className={styles.trustStatNum}>24x7</span>
+                  <span className={styles.trustStatLabel}>Expert Assistance</span>
+                </div>
+              </div>
             </div>
 
-            <h2 className={styles.overviewTitle}>
-              {overview_title || 'Your Trusted Partner for Domestic & International Air Travel'}
-            </h2>
-
-            <div className={styles.overviewDescription}>
-              {overview_description ? (
-                <div dangerouslySetInnerHTML={{ __html: overview_description }} />
-              ) : (
-                <>
-                  <p>
-                    At Dyna Tours India, we make air travel simple, affordable, and stress-free. With access to leading domestic and international airlines, we help travellers book the best flight options at competitive prices. Whether you're planning a business trip, family vacation, honeymoon, student travel, pilgrimage, or group tour, our experienced travel consultants ensure a smooth booking experience from enquiry to ticket confirmation.
-                  </p>
-                  <p>
-                    We offer flight bookings to destinations across India, the Middle East, Asia, Europe, America, Australia, and beyond. Our team also provides assistance with ticket modifications, cancellations, baggage information, seat selection, travel insurance, visa services, and holiday packages, making us your complete travel partner.
-                  </p>
-                </>
-              )}
+            {/* Right 6 Columns: Book Your Flight Enquiry Form */}
+            <div>
+              <FlightEnquiryForm />
             </div>
           </div>
         </div>
@@ -116,7 +177,7 @@ export default async function FlightPage() {
 
       {/* Gallery Section */}
       {gallery_images && gallery_images.length > 0 && (
-        <section className={styles.gallery}>
+        <section className={`${styles.gallery} dottedSectionBg`}>
           <div className={styles.container}>
             <h2 className={styles.overviewTitle} style={{textAlign: 'center'}}>Travel Inspiration</h2>
             <FlightGallery images={gallery_images} />
@@ -128,7 +189,7 @@ export default async function FlightPage() {
       {why_book_benefits && why_book_benefits.length > 0 && (
         <section className={styles.whyBook}>
           <div className={styles.container}>
-            <h2 className={styles.overviewTitle} style={{textAlign: 'center'}}>{why_book_title}</h2>
+            <h2 className={styles.whyBookTitle}>{why_book_title || 'Why Book Your Flight with Dyna Tours?'}</h2>
             <div className={styles.benefitsGrid}>
               {why_book_benefits.map((benefit: any, index: number) => (
                 <div key={index} className={styles.benefitCard}>
@@ -143,11 +204,6 @@ export default async function FlightPage() {
           </div>
         </section>
       )}
-
-      {/* Flight Enquiry Form Section */}
-      <section className={styles.formSection}>
-        <FlightEnquiryForm />
-      </section>
 
       {/* FAQ Section */}
       {faqs && faqs.length > 0 && (

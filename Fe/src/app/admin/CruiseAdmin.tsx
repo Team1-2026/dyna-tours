@@ -50,6 +50,24 @@ export default function CruiseAdmin() {
     need_to_know: [],
   });
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size exceeds the 5 MB limit. Please select a smaller image.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        callback(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const fetchData = async () => {
     setLoadingCruises(true);
     try {
@@ -110,16 +128,20 @@ export default function CruiseAdmin() {
     setSaveStatus('Saving...');
     try {
       if (isCreatingCruise) {
-        await api.createCruise(cruiseForm);
+        const res = await api.createCruise(cruiseForm);
         setSaveStatus('✓ Cruise package created successfully!');
+        setIsCreatingCruise(false);
+        const createdObj = res?.cruise || { ...cruiseForm };
+        setSelectedCruise(createdObj as Cruise);
       } else if (selectedCruise) {
-        await api.updateCruise(selectedCruise.id, cruiseForm);
+        const res = await api.updateCruise(selectedCruise.id, cruiseForm);
         setSaveStatus('✓ Cruise package updated successfully!');
+        const updatedObj = res?.cruise || { ...selectedCruise, ...cruiseForm };
+        setSelectedCruise(updatedObj as Cruise);
       }
-      fetchData();
-      setTimeout(() => setSaveStatus(null), 3000);
+      await fetchData();
+      setTimeout(() => setSaveStatus(null), 4000);
     } catch (err: any) {
-      console.error(err);
       setSaveStatus(`❌ ${err?.message || 'Failed to save cruise package.'}`);
       setTimeout(() => setSaveStatus(null), 6000);
     }
@@ -131,10 +153,9 @@ export default function CruiseAdmin() {
       await api.deleteCruise(id);
       setSelectedCruise(null);
       setIsCreatingCruise(false);
-      fetchData();
-    } catch (err) {
-      console.error(err);
-      alert('Failed to delete cruise package.');
+      await fetchData();
+    } catch (err: any) {
+      alert(`Failed to delete cruise package: ${err?.message || ''}`);
     }
   };
 
@@ -144,9 +165,8 @@ export default function CruiseAdmin() {
     try {
       await api.updateCruisePage(pageData);
       setSaveStatus('✓ Landing page settings updated successfully!');
-      setTimeout(() => setSaveStatus(null), 3000);
+      setTimeout(() => setSaveStatus(null), 4000);
     } catch (err: any) {
-      console.error(err);
       setSaveStatus(`❌ ${err?.message || 'Failed to save page settings.'}`);
       setTimeout(() => setSaveStatus(null), 6000);
     }
@@ -331,32 +351,98 @@ export default function CruiseAdmin() {
                   />
                 </div>
 
-                <div className="formGroup" style={{ marginBottom: '1rem' }}>
-                  <label>Banner Image URL</label>
-                  <input
-                    type="text"
-                    value={cruiseForm.banner_image || ''}
-                    onChange={e => setCruiseForm({ ...cruiseForm, banner_image: e.target.value })}
-                  />
+                {/* Banner Image Upload */}
+                <div className="formGroup" style={{ marginBottom: '1.25rem' }}>
+                  <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+                    Banner Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
+                  </label>
+
+                  {cruiseForm.banner_image ? (
+                    <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem', width: '100%' }}>
+                      <img
+                        src={cruiseForm.banner_image}
+                        alt="Banner Preview"
+                        style={{
+                          width: '100%',
+                          maxHeight: '140px',
+                          objectFit: 'cover',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setCruiseForm({ ...cruiseForm, banner_image: '' })}
+                        title="Remove Banner Image"
+                        style={{
+                          position: 'absolute',
+                          top: '6px',
+                          right: '6px',
+                          background: '#dc2626',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '26px',
+                          height: '26px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : null}
+
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="cruise-package-banner-upload"
+                      style={{ display: 'none' }}
+                      onChange={(e) => handleImageUpload(e, (url) => setCruiseForm({ ...cruiseForm, banner_image: url }))}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => document.getElementById('cruise-package-banner-upload')?.click()}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    >
+                      📤 Upload Banner Image
+                    </button>
+                    <input
+                      type="text"
+                      placeholder="Or enter image URL..."
+                      value={cruiseForm.banner_image || ''}
+                      onChange={e => setCruiseForm({ ...cruiseForm, banner_image: e.target.value })}
+                      style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                    />
+                  </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', whiteSpace: 'nowrap', margin: 0, fontSize: '0.9rem', color: '#0f172a', fontWeight: 600 }}>
                     <input
                       type="checkbox"
                       checked={!!cruiseForm.show_price}
                       onChange={e => setCruiseForm({ ...cruiseForm, show_price: e.target.checked })}
+                      style={{ width: '18px', height: '18px', margin: 0, cursor: 'pointer', accentColor: '#dc2626' }}
                     />
-                    Show Price
+                    <span>Show Price</span>
                   </label>
 
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', whiteSpace: 'nowrap', margin: 0, fontSize: '0.9rem', color: '#0f172a', fontWeight: 600 }}>
                     <input
                       type="checkbox"
                       checked={!!cruiseForm.featured}
                       onChange={e => setCruiseForm({ ...cruiseForm, featured: e.target.checked })}
+                      style={{ width: '18px', height: '18px', margin: 0, cursor: 'pointer', accentColor: '#dc2626' }}
                     />
-                    Featured on Landing Page
+                    <span>Featured on Landing Page</span>
                   </label>
                 </div>
 
@@ -400,13 +486,77 @@ export default function CruiseAdmin() {
               />
             </div>
 
+            {/* Banner Image Upload */}
             <div className="formGroup" style={{ marginBottom: '1.5rem' }}>
-              <label>Banner Image URL</label>
-              <input
-                type="text"
-                value={pageData.banner_image || ''}
-                onChange={e => setPageData({ ...pageData, banner_image: e.target.value })}
-              />
+              <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+                Banner Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
+              </label>
+
+              {pageData.banner_image ? (
+                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem', width: '100%' }}>
+                  <img
+                    src={pageData.banner_image}
+                    alt="Hero Banner Preview"
+                    style={{
+                      width: '100%',
+                      maxHeight: '140px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPageData({ ...pageData, banner_image: '' })}
+                    title="Remove Banner Image"
+                    style={{
+                      position: 'absolute',
+                      top: '6px',
+                      right: '6px',
+                      background: '#dc2626',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '26px',
+                      height: '26px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : null}
+
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="cruise-page-banner-upload"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleImageUpload(e, (url) => setPageData({ ...pageData, banner_image: url }))}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => document.getElementById('cruise-page-banner-upload')?.click()}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  📤 Upload Banner Image
+                </button>
+                <input
+                  type="text"
+                  placeholder="Or enter image URL..."
+                  value={pageData.banner_image || ''}
+                  onChange={e => setPageData({ ...pageData, banner_image: e.target.value })}
+                  style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                />
+              </div>
             </div>
 
             <h4 style={{ fontSize: '1.05rem', color: '#dc2626', marginBottom: '1rem' }}>2. Cruise Overview Section</h4>
@@ -428,13 +578,77 @@ export default function CruiseAdmin() {
               />
             </div>
 
+            {/* Overview Side Image Upload */}
             <div className="formGroup" style={{ marginBottom: '1.5rem' }}>
-              <label>Overview Side Image URL</label>
-              <input
-                type="text"
-                value={pageData.overview_image || ''}
-                onChange={e => setPageData({ ...pageData, overview_image: e.target.value })}
-              />
+              <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+                Overview Side Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Max 5 MB)</span>
+              </label>
+
+              {pageData.overview_image ? (
+                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem', width: '100%' }}>
+                  <img
+                    src={pageData.overview_image}
+                    alt="Overview Side Preview"
+                    style={{
+                      width: '100%',
+                      maxHeight: '140px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPageData({ ...pageData, overview_image: '' })}
+                    title="Remove Overview Image"
+                    style={{
+                      position: 'absolute',
+                      top: '6px',
+                      right: '6px',
+                      background: '#dc2626',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '26px',
+                      height: '26px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : null}
+
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="cruise-overview-image-upload"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleImageUpload(e, (url) => setPageData({ ...pageData, overview_image: url }))}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => document.getElementById('cruise-overview-image-upload')?.click()}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  📤 Upload Overview Image
+                </button>
+                <input
+                  type="text"
+                  placeholder="Or enter image URL..."
+                  value={pageData.overview_image || ''}
+                  onChange={e => setPageData({ ...pageData, overview_image: e.target.value })}
+                  style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                />
+              </div>
             </div>
 
             <h4 style={{ fontSize: '1.05rem', color: '#dc2626', marginBottom: '1rem' }}>3. CTA Section</h4>
@@ -456,13 +670,77 @@ export default function CruiseAdmin() {
               />
             </div>
 
+            {/* CTA Background Image Upload */}
             <div className="formGroup" style={{ marginBottom: '1.5rem' }}>
-              <label>CTA Background Image URL</label>
-              <input
-                type="text"
-                value={pageData.cta_image || ''}
-                onChange={e => setPageData({ ...pageData, cta_image: e.target.value })}
-              />
+              <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+                CTA Background Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Max 5 MB)</span>
+              </label>
+
+              {pageData.cta_image ? (
+                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem', width: '100%' }}>
+                  <img
+                    src={pageData.cta_image}
+                    alt="CTA Background Preview"
+                    style={{
+                      width: '100%',
+                      maxHeight: '140px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPageData({ ...pageData, cta_image: '' })}
+                    title="Remove CTA Image"
+                    style={{
+                      position: 'absolute',
+                      top: '6px',
+                      right: '6px',
+                      background: '#dc2626',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '26px',
+                      height: '26px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : null}
+
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="cruise-cta-image-upload"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleImageUpload(e, (url) => setPageData({ ...pageData, cta_image: url }))}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => document.getElementById('cruise-cta-image-upload')?.click()}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  📤 Upload CTA Image
+                </button>
+                <input
+                  type="text"
+                  placeholder="Or enter image URL..."
+                  value={pageData.cta_image || ''}
+                  onChange={e => setPageData({ ...pageData, cta_image: e.target.value })}
+                  style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                />
+              </div>
             </div>
 
             <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>

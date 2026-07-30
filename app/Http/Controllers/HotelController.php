@@ -102,6 +102,10 @@ class HotelController extends Controller
             // Related hotels mapping
             'related_hotels' => 'sometimes|array|nullable',
             'video_url' => 'sometimes|string|nullable',
+            'is_visible' => 'sometimes|boolean',
+            'show_details' => 'sometimes|boolean',
+            'banner_heading' => 'sometimes|string|nullable',
+            'banner_tagline' => 'sometimes|string|nullable',
         ]);
 
         if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $hotel->order_no) {
@@ -152,11 +156,11 @@ class HotelController extends Controller
             'id' => 'required|string|unique:hotels,id',
             'name' => 'required|string|max:255',
             'destination_id' => 'required|string|exists:destinations,id',
-            'short_description' => 'required|string',
-            'about' => 'required|string',
-            'location' => 'required|string|max:255',
+            'short_description' => 'nullable|string',
+            'about' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
             'distance_from_attractions' => 'nullable|string|max:255',
-            'category' => 'required|string|max:255',
+            'category' => 'nullable|string|max:255',
             'gallery' => 'nullable|array',
             'facilities' => 'nullable|array',
             'featured' => 'sometimes|boolean',
@@ -186,16 +190,23 @@ class HotelController extends Controller
             // Related hotels mapping
             'related_hotels' => 'nullable|array',
             'video_url' => 'nullable|string',
+            'is_visible' => 'sometimes|boolean',
+            'show_details' => 'sometimes|boolean',
+            'banner_heading' => 'nullable|string',
+            'banner_tagline' => 'nullable|string',
         ]);
 
-        if (!isset($validated['gallery'])) {
-            $validated['gallery'] = [];
-        }
-        if (!isset($validated['facilities'])) {
-            $validated['facilities'] = [];
-        }
+        if (!isset($validated['short_description'])) $validated['short_description'] = '';
+        if (!isset($validated['about'])) $validated['about'] = '';
+        if (!isset($validated['location'])) $validated['location'] = '';
+        if (!isset($validated['category'])) $validated['category'] = '4-Star';
+        if (!isset($validated['gallery'])) $validated['gallery'] = [];
+        if (!isset($validated['facilities'])) $validated['facilities'] = [];
 
-        if (isset($validated['order_no']) && $validated['order_no'] !== null) {
+        if (!isset($validated['order_no']) || $validated['order_no'] === null) {
+            $maxOrder = Hotel::max('order_no');
+            $validated['order_no'] = ($maxOrder !== null) ? $maxOrder + 1 : 1;
+        } else {
             $newOrder = (int) $validated['order_no'];
             Hotel::where('order_no', '>=', $newOrder)
                 ->increment('order_no');

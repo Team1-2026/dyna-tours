@@ -189,55 +189,55 @@
 
 /* 2. Enquiry Section (Form + Brand Card) */
 .enquirySection {
-  padding: 5rem 0;
+  padding: 3.5rem 0;
   background: #ffffff;
 }
 
 .enquiryGrid {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 3rem;
+  grid-template-columns: 1fr 0.85fr;
+  gap: 2rem;
   align-items: stretch;
 }
 
 .formCard {
   background: #ffffff;
-  border-radius: 1.75rem;
-  padding: 3rem;
+  border-radius: 1.25rem;
+  padding: 2.25rem;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
 }
 
 .formTitle {
-  font-size: 1.85rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #0f172a;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .formSub {
-  font-size: 0.975rem;
+  font-size: 0.925rem;
   color: #64748b;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .formGroupGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-  margin-bottom: 1.25rem;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .formField {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #334155;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .label span {
@@ -248,11 +248,11 @@
 .select,
 .textarea {
   width: 100%;
-  padding: 0.9rem 1.25rem;
+  padding: 0.75rem 1rem;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
-  border-radius: 0.85rem;
-  font-size: 0.975rem;
+  border-radius: 0.75rem;
+  font-size: 0.925rem;
   color: #0f172a;
   outline: none;
   transition: all 0.25s ease;
@@ -263,35 +263,35 @@
 .textarea:focus {
   background: #ffffff;
   border-color: #dc2626;
-  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
 }
 
 .textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 100px;
 }
 
 .submitBtn {
   width: 100%;
-  padding: 1.1rem;
+  padding: 0.9rem;
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   color: #ffffff;
-  font-size: 1.05rem;
+  font-size: 0.975rem;
   font-weight: 700;
   border: none;
-  border-radius: 0.85rem;
+  border-radius: 0.75rem;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .submitBtn:hover {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  box-shadow: 0 15px 30px rgba(220, 38, 38, 0.45);
+  box-shadow: 0 12px 25px rgba(220, 38, 38, 0.35);
   transform: translateY(-2px);
 }
 
@@ -304,47 +304,48 @@
   background: #ecfdf5;
   border: 1px solid #a7f3d0;
   color: #065f46;
-  padding: 1rem 1.25rem;
+  padding: 0.85rem 1rem;
   border-radius: 0.75rem;
-  margin-bottom: 1.5rem;
-  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 /* Brand Card (Right Column) */
 .brandCard {
   position: relative;
   background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-  border-radius: 1.75rem;
-  padding: 3.5rem 2.5rem;
+  border-radius: 1.25rem;
+  padding: 2.25rem;
   color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.2);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  height: 100%;
 }
 
 .brandPattern {
   position: absolute;
   top: -50px;
   right: -50px;
-  width: 250px;
-  height: 250px;
+  width: 200px;
+  height: 200px;
   background: radial-gradient(circle, rgba(220, 38, 38, 0.25) 0%, transparent 70%);
   pointer-events: none;
 }
 
 .brandLogoWrapper {
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 .brandLogo {
-  height: 55px;
+  height: 44px;
   width: auto;
   border-radius: 0.5rem;
   background: #ffffff;
@@ -352,39 +353,39 @@
 }
 
 .brandTagline {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: #fde68a;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
   letter-spacing: -0.01em;
 }
 
 .brandDesc {
-  font-size: 1rem;
-  line-height: 1.75;
+  font-size: 0.925rem;
+  line-height: 1.6;
   color: #cbd5e1;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .socialHeader {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #94a3b8;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .socialRow {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
 .socialBtn {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);

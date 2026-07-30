@@ -70,7 +70,11 @@ export default async function VisaPage() {
       
       <VisaProcess />
       
-      <VisaEnquiryForm destinations={allVisas} />
+      <section className="section bg-white" style={{ paddingTop: '2rem' }}>
+        <div className="container">
+          <VisaEnquiryForm destinations={allVisas} />
+        </div>
+      </section>
       
       {/* Mobile Sticky CTA */}
       <a href="#enquiry" className={styles.floatingCTA} aria-label="Enquire Now">

@@ -70,9 +70,10 @@
 
 .detailsContent {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 8fr 4fr;
+  gap: 2.5rem;
   padding: 0;
+  align-items: start;
 }
 
 .detailsMain section {

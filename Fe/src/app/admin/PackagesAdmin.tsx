@@ -279,6 +279,8 @@ export default function PackagesAdmin() {
                 <tr>
                   <th>Package Name</th>
                   <th>Destination</th>
+                  <th>Theme</th>
+                  <th>Rating</th>
                   <th>Duration</th>
                   <th>Price</th>
                   <th>Actions</th>
@@ -289,6 +291,14 @@ export default function PackagesAdmin() {
                   <tr key={pkg.id}>
                     <td><strong>{pkg.title}</strong></td>
                     <td>{pkg.destination}</td>
+                    <td>
+                      <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '0.25rem 0.6rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 700 }}>
+                        {pkg.category || 'Leisure'}
+                      </span>
+                    </td>
+                    <td>
+                      <span style={{ color: '#d97706', fontWeight: 'bold' }}>★ {pkg.rating || 5}</span> <span style={{ fontSize: '0.8rem', color: '#64748b' }}>({pkg.reviewsCount || 0})</span>
+                    </td>
                     <td>{pkg.duration}</td>
                     <td>₹{pkg.price?.toLocaleString()}</td>
                     <td>
@@ -386,6 +396,54 @@ export default function PackagesAdmin() {
                 value={formData.bannerCode || ''} 
                 onChange={e => setFormData({...formData, bannerCode: e.target.value})} 
                 placeholder="Enter embed code for banner (optional)"
+              />
+            </div>
+            <div>
+              <label>Package Theme / Vibe <span className="required-star">*</span></label>
+              <select 
+                className={styles.formInput} 
+                value={formData.category || 'Leisure'} 
+                onChange={e => setFormData({...formData, category: e.target.value})}
+              >
+                <option value="Nature">Nature</option>
+                <option value="Culture">Culture</option>
+                <option value="Leisure">Leisure</option>
+                <option value="Adventure">Adventure</option>
+                <option value="History">History</option>
+                <option value="Religious">Religious</option>
+                <option value="Wildlife">Wildlife</option>
+                <option value="Beach">Beach</option>
+                <option value="Family">Family</option>
+                <option value="Honeymoon">Honeymoon</option>
+                <option value="Luxury">Luxury</option>
+              </select>
+            </div>
+            <div>
+              <label>Star Rating (1.0 to 5.0) <span className="required-star">*</span></label>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  min="1" 
+                  max="5" 
+                  className={styles.formInput} 
+                  value={formData.rating ?? 5} 
+                  onChange={e => setFormData({...formData, rating: parseFloat(e.target.value) || 5})} 
+                  style={{ flex: 1, marginBottom: 0 }} 
+                />
+                <span style={{ fontSize: '1.1rem', color: '#f59e0b', fontWeight: 'bold' }}>
+                  ★ {formData.rating ?? 5}
+                </span>
+              </div>
+            </div>
+            <div>
+              <label>Reviews Count (Display Label)</label>
+              <input 
+                type="number" 
+                min="0" 
+                className={styles.formInput} 
+                value={formData.reviewsCount ?? 0} 
+                onChange={e => setFormData({...formData, reviewsCount: parseInt(e.target.value, 10) || 0})} 
               />
             </div>
             <div>

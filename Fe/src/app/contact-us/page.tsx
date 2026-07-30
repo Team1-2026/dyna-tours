@@ -118,9 +118,6 @@ export default async function ContactUsPage() {
         <div className={styles.heroOverlay} />
         
         <div className={styles.heroContent}>
-          <div className={styles.badge}>
-            <span>📍 Head Office: Changanassery, Kerala</span>
-          </div>
           <h1 className={styles.heroTitle}>{data.hero_title}</h1>
           <p className={styles.heroSubtitle}>{data.hero_subtitle}</p>
           
@@ -143,42 +140,41 @@ export default async function ContactUsPage() {
         </div>
       </section>
 
-      {/* 2. Enquiry Section (Form + Brand Card) */}
+      {/* 2. Enquiry Section (Brand Card with Header + Form + Connect With Us) */}
       <section id="enquiry-form" className={styles.enquirySection}>
-        <div className={styles.container}>
-          <div className={styles.enquiryGrid}>
-            {/* Left Interactive Form Component */}
-            <ContactEnquiryForm />
-
-            {/* Right Brand Card */}
-            <div className={styles.brandCard}>
-              <div className={styles.brandPattern} />
-              
-              <div>
-                <div className={styles.brandLogoWrapper}>
-                  <img src="/images/logo.jpg" alt="Dyna Tours" className={styles.brandLogo} />
-                </div>
-                <h3 className={styles.brandTagline}>{data.brand_tagline}</h3>
-                <p className={styles.brandDesc}>{data.brand_description}</p>
+        <div className={styles.container} style={{ maxWidth: '900px' }}>
+          <div className={styles.brandCard} style={{ padding: '3rem 2.5rem' }}>
+            <div className={styles.brandPattern} />
+            
+            <div style={{ marginBottom: '2rem' }}>
+              <div className={styles.brandLogoWrapper}>
+                <img src="/images/logo.jpg" alt="Dyna Tours" className={styles.brandLogo} />
               </div>
+              <h3 className={styles.brandTagline} style={{ fontSize: '1.85rem', marginBottom: '0.75rem' }}>{data.brand_tagline}</h3>
+              <p className={styles.brandDesc} style={{ fontSize: '1rem', lineHeight: '1.7', marginBottom: '0' }}>{data.brand_description}</p>
+            </div>
 
-              <div>
-                <div className={styles.socialHeader}>Connect With Us</div>
-                <div className={styles.socialRow}>
-                  {data.social_links?.map((s, idx) => (
-                    <a 
-                      key={idx} 
-                      href={s.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className={styles.socialBtn}
-                      title={s.platform}
-                      aria-label={s.platform}
-                    >
-                      {renderIcon(s.icon || 'Instagram')}
-                    </a>
-                  ))}
-                </div>
+            {/* Send Us a Message Enquiry Form - Placed Just Above Connect With Us */}
+            <div style={{ marginBottom: '2.5rem', background: '#ffffff', borderRadius: '1rem', padding: '2rem', color: '#1e293b', boxShadow: '0 10px 25px rgba(0,0,0,0.15)' }}>
+              <ContactEnquiryForm />
+            </div>
+
+            <div>
+              <div className={styles.socialHeader}>Connect With Us</div>
+              <div className={styles.socialRow}>
+                {data.social_links?.map((s, idx) => (
+                  <a 
+                    key={idx} 
+                    href={s.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={styles.socialBtn}
+                    title={s.platform}
+                    aria-label={s.platform}
+                  >
+                    {renderIcon(s.icon || 'Instagram')}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -241,63 +237,6 @@ export default async function ContactUsPage() {
                     </a>
                   </div>
                 ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Quick Contact Cards */}
-      <section className={styles.quickSection}>
-        <div className={styles.container}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTag}>Instant Support</span>
-            <h2 className={styles.sectionTitle}>Need Quick Assistance?</h2>
-            <p className={styles.sectionSubtitle}>Choose your preferred contact method to connect directly with our travel advisors.</p>
-          </div>
-
-          <div className={styles.quickGrid}>
-            {data.quick_contact_cards?.map((card, idx) => (
-              <div key={idx} className={styles.quickCard}>
-                <div>
-                  <div className={styles.quickIcon}>
-                    {renderIcon(card.icon)}
-                  </div>
-                  <h3 className={styles.quickTitle}>{card.title}</h3>
-                  <p className={styles.quickDesc}>{card.description}</p>
-                </div>
-                <a 
-                  href={card.action_url} 
-                  target={card.action_url.startsWith('http') ? '_blank' : '_self'} 
-                  rel="noopener noreferrer" 
-                  className={styles.quickActionBtn}
-                >
-                  {card.action_text}
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Business Hours */}
-      <section className={styles.hoursSection}>
-        <div className={styles.container}>
-          <div className={styles.hoursCard}>
-            <div className={styles.hoursIconBox}>
-              {renderIcon('Clock')}
-            </div>
-            <div className={styles.hoursContent}>
-              <h2 className={styles.hoursTitle}>Working Business Hours</h2>
-              <div className={styles.hoursGrid}>
-                <div className={styles.hoursItem}>
-                  <div className={styles.hoursDay}>Monday – Saturday</div>
-                  <div className={styles.hoursTime}>{data.business_hours_weekday}</div>
-                </div>
-                <div className={styles.hoursItem}>
-                  <div className={styles.hoursDay}>Sunday</div>
-                  <div className={styles.hoursTime}>{data.business_hours_weekend}</div>
-                </div>
               </div>
             </div>
           </div>

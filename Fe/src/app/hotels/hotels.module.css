@@ -118,14 +118,20 @@
 
 .hotelCard {
   background: #ffffff;
-  border-radius: 1.25rem;
-  border-radius: var(--radius-lg);
+  border-radius: 1.25rem !important;
+  -webkit-border-radius: 1.25rem !important;
   overflow: hidden !important;
   box-shadow: var(--shadow-premium);
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hotelCard img {
+  border-top-left-radius: 1.25rem !important;
+  border-top-right-radius: 1.25rem !important;
+  overflow: hidden !important;
 }
 
 .hotelCard:hover {
@@ -136,9 +142,9 @@
 /* Hotel Detail Page Layout */
 .detailGrid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 3rem;
-  padding: 4rem 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.25rem;
+  padding: 2.5rem 0;
   align-items: start;
 }
 
@@ -464,40 +470,42 @@
 .sidebarSticky {
   position: sticky;
   top: 100px;
+  z-index: 10;
 }
 
 .formCard {
   background: var(--color-secondary-navy);
   color: #ffffff;
-  border-radius: var(--radius-lg);
-  padding: 2.25rem;
+  border-radius: var(--radius-lg, 1.25rem);
+  padding: 1.5rem 1.25rem;
   box-shadow: var(--shadow-xl);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .formTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: #ffffff;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .formSubtitle {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   opacity: 0.8;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 .formGroup {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.6rem;
 }
 
 .formGroup label {
   display: block;
   font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
+  font-weight: 700;
+  color: #ffffff !important;
+  margin-bottom: 0.35rem;
+  opacity: 1 !important;
 }
 
 .formInput {

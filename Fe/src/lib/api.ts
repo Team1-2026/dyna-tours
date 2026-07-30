@@ -1,15 +1,22 @@
 // Next.js API Client to communicate with the Laravel Backend
-import { eVisaDestinations as mockVisas, VisaCountry } from '@/data/visaData';
+import { eVisaDestinations as mockVisas, schengenCountries, otherCountries, VisaCountry } from '@/data/visaData';
 export const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      if (hostname.endsWith('logiclabz.in') || hostname.endsWith('prds.in.net')) {
-        return 'https://backdyna.logiclabz.in/api';
-      }
+    if (
+      hostname === 'localhost' || 
+      hostname === '127.0.0.1' || 
+      hostname.startsWith('192.168.') || 
+      hostname.startsWith('10.') || 
+      hostname.startsWith('172.') ||
+      hostname.endsWith('.local')
+    ) {
+      return `http://${hostname}:8000/api`;
+    }
+    if (hostname.endsWith('logiclabz.in') || hostname.endsWith('prds.in.net')) {
       return 'https://backdyna.logiclabz.in/api';
     }
   }
@@ -20,6 +27,18 @@ export const getBaseUrl = () => {
 };
 
 export const BASE_URL = getBaseUrl();
+
+export const formatPrice = (val: any): string => {
+  if (val === null || val === undefined || val === '') return '';
+  let str = String(val).trim();
+  // Strip all leading currency symbols (₹, Rs, Rs., INR)
+  str = str.replace(/^(₹|\s|Rs\.?|INR)+/gi, '').trim();
+  const num = Number(str.replace(/,/g, ''));
+  if (!isNaN(num) && num > 0) {
+    return `₹${num.toLocaleString('en-IN')}`;
+  }
+  return str ? `₹${str}` : '';
+};
 
 export interface GalleryImage {
   url: string;
@@ -58,6 +77,9 @@ export interface Destination {
   country?: string | null;
   state?: string | null;
   city?: string | null;
+  banner_heading?: string | null;
+  banner_tagline?: string | null;
+  status?: string | null;
 
   order_no?: number | null;
 
@@ -139,6 +161,11 @@ export interface Hotel {
   // Related items mapping
   related_hotels?: string[] | null;
   video_url?: string | null;
+  is_visible?: boolean;
+  show_details?: boolean;
+  banner_image?: string | null;
+  banner_heading?: string | null;
+  banner_tagline?: string | null;
 }
 
 export interface Enquiry {
@@ -259,7 +286,7 @@ const authHelper = {
 
 // Helper for fetch wrapper
 async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const url = `${BASE_URL}${endpoint}`;
+  const url = `${getBaseUrl()}${endpoint}`;
   
   // Attach token if present
   const token = authHelper.getToken();
@@ -301,21 +328,23 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
             .join(' | ');
           errorMessage = `Validation Error: ${formattedFields}`;
         } else if (json.message) {
-          errorMessage = json.message;
+          errorMessage = `${json.message} (HTTP ${res.status})`;
         } else if (json.error) {
-          errorMessage = json.error;
+          errorMessage = `${json.error} (HTTP ${res.status})`;
         }
       } catch {
-        if (errText) errorMessage = errText;
+        if (errText) errorMessage = `${errText} (HTTP ${res.status})`;
       }
-      throw new Error(errorMessage);
+      const errObj: any = new Error(errorMessage);
+      errObj.status = res.status;
+      throw errObj;
     }
 
     return await res.json() as T;
   } catch (error: any) {
-    // Suppress console.error for 404s so Next.js doesn't show an overlay for handled fallbacks
-    if (error && !error.message?.includes('API error 404')) {
-      console.error(`Fetch failed for endpoint: ${endpoint}`, error);
+    // Suppress console.error for 404s and handled fallbacks to avoid Next.js dev server error overlays
+    if (error && error.status !== 404 && !error.message?.includes('404')) {
+      console.warn(`[API] Fetch failed for endpoint: ${endpoint}`, error.message || error);
     }
     throw error;
   }
@@ -554,16 +583,122 @@ export const api = {
   },
 
   // Visa operations
+  getFallbackVisa: (id: string): VisaCountry => {
+    const cleanId = (id || '').toLowerCase().trim();
+    const found = mockVisas.find(v => v.id.toLowerCase() === cleanId || v.name.toLowerCase() === cleanId);
+    if (found) return found;
+
+    const schengen = schengenCountries.find(s => s.id?.toLowerCase() === cleanId || s.name?.toLowerCase() === cleanId);
+    if (schengen) {
+      return {
+        id: schengen.id || cleanId,
+        name: schengen.name || cleanId,
+        flag: schengen.flag || '🇪🇺',
+        type: 'stamped',
+        price: schengen.price || '₹7,500',
+        processingTime: '10–15 Working Days',
+        validity: 'Up to 90 Days',
+        biometric: 'Required',
+        requirements: [
+          'Original Passport with minimum 6 months validity from travel date',
+          'Duly filled and signed Schengen visa application form',
+          '2 Recent passport-size photographs (35mm x 45mm, white background)',
+          'Covering letter outlining trip itinerary',
+          'Confirmed round-trip flight tickets & hotel bookings',
+          'Travel Medical Insurance with minimum €30,000 coverage',
+          'Certified bank statements for the last 6 months',
+          'Income Tax Returns (ITR) for the last 3 assessment years'
+        ],
+        importantNotes: [
+          'Biometric enrolment (fingerprints & photo) at VFS application center is required for first-time applicants.',
+          'Visa approval and validity period are granted solely at consular discretion.'
+        ],
+        terms: [
+          'Visa application fees and service charges are non-refundable.',
+          'Additional documents may be requested by consular officers during processing.'
+        ],
+        faqs: [
+          { question: 'Is biometric appointment mandatory?', answer: 'Yes, biometric enrolment at VFS center is required for Schengen visa processing.' },
+          { question: 'How long does processing take?', answer: 'Normal processing time is 10 to 15 working days after submission.' }
+        ]
+      };
+    }
+
+    const other = otherCountries.find(o => o.id?.toLowerCase() === cleanId || o.name?.toLowerCase() === cleanId);
+    if (other) {
+      return {
+        id: other.id || cleanId,
+        name: other.name || cleanId,
+        flag: other.flag || '✈️',
+        type: 'stamped',
+        price: other.price || '₹8,500',
+        processingTime: '7–12 Working Days',
+        validity: 'Up to 180 Days',
+        biometric: 'Required',
+        requirements: [
+          'Original Passport with minimum 6 months validity',
+          'Visa application form duly filled and signed',
+          'Recent color photographs as per specifications',
+          'Confirmed flight & hotel accommodation details',
+          'Bank statements for the last 6 months',
+          'Employment proof / NOC / Leave approval letter'
+        ],
+        importantNotes: [
+          'Document details must match passport records exactly.'
+        ],
+        terms: [
+          'Visa fees are non-refundable once submitted.'
+        ],
+        faqs: [
+          { question: 'How to apply?', answer: 'Contact Dyna Tours India for complete documentation and application assistance.' }
+        ]
+      };
+    }
+
+    const formattedName = cleanId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+    return {
+      id: cleanId,
+      name: formattedName || 'Tourist',
+      flag: '🌍',
+      type: 'e-visa',
+      price: '₹3,500',
+      processingTime: '3–5 Working Days',
+      validity: '30 Days',
+      biometric: 'Not Required',
+      requirements: [
+        'Valid Passport (minimum 6 months validity)',
+        'Recent passport-size photograph',
+        'Confirmed flight and hotel accommodation details'
+      ],
+      importantNotes: [
+        'Visa approval and validity are subject to immigration authority discretion.'
+      ],
+      terms: [
+        'Visa fees are strictly non-refundable.'
+      ],
+      faqs: [
+        { question: 'How do I apply?', answer: `Contact Dyna Tours India for assistance with your ${formattedName} tourist visa.` }
+      ]
+    };
+  },
+
   getVisas: async (): Promise<VisaCountry[]> => {
     try {
       const data = await apiFetch<any[]>('/visas');
-      return data.length > 0 ? data.map(v => ({
-        ...v,
-        processingTime: v.processing_time || v.processingTime,
-        entryType: v.entry_type || v.entryType,
-        stayPeriod: v.stay_period || v.stayPeriod,
-        importantNotes: v.important_notes || v.importantNotes,
-      })) : mockVisas;
+      if (data && data.length > 0) {
+        return data.map(v => ({
+          ...v,
+          processingTime: v.processing_time || v.processingTime || '3–5 Working Days',
+          entryType: v.entry_type || v.entryType,
+          stayPeriod: v.stay_period || v.stayPeriod,
+          importantNotes: v.important_notes || v.importantNotes || [],
+          requirements: v.requirements || [],
+          terms: v.terms || [],
+          faqs: v.faqs || []
+        }));
+      }
+      return mockVisas;
     } catch {
       return mockVisas;
     }
@@ -572,17 +707,21 @@ export const api = {
   getVisa: async (id: string): Promise<VisaCountry> => {
     try {
       const v = await apiFetch<any>(`/visas/${id}`);
-      return {
-        ...v,
-        processingTime: v.processing_time || v.processingTime,
-        entryType: v.entry_type || v.entryType,
-        stayPeriod: v.stay_period || v.stayPeriod,
-        importantNotes: v.important_notes || v.importantNotes,
-      } as VisaCountry;
+      if (v && v.name) {
+        return {
+          ...v,
+          processingTime: v.processing_time || v.processingTime || '3–5 Working Days',
+          entryType: v.entry_type || v.entryType,
+          stayPeriod: v.stay_period || v.stayPeriod,
+          importantNotes: v.important_notes || v.importantNotes || ['Subject to embassy approval'],
+          requirements: v.requirements || ['Passport copy', 'Photograph', 'Flight booking'],
+          terms: v.terms || ['Fees are non-refundable'],
+          faqs: v.faqs || []
+        } as VisaCountry;
+      }
+      return api.getFallbackVisa(id);
     } catch {
-      const found = mockVisas.find(v => v.id === id);
-      if (!found) throw new Error('Visa not found');
-      return found;
+      return api.getFallbackVisa(id);
     }
   },
 
@@ -830,6 +969,146 @@ const mockDestinations: Destination[] = [
     show_hotels: true,
   },
   {
+    id: 'kochi',
+    name: 'Kochi',
+    type: 'domestic',
+    parent_id: 'kerala',
+    overview: 'A vibrant port city blending colonial charm and modern culture.',
+    how_to_reach: 'Cochin International Airport (COK).',
+    best_time_to_visit: 'October to March',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'alleppey',
+    name: 'Alleppey',
+    type: 'domestic',
+    parent_id: 'kerala',
+    overview: 'Venice of the East, famed for houseboats and backwater cruises.',
+    how_to_reach: 'Nearest Airport: Cochin International Airport (85 km).',
+    best_time_to_visit: 'September to March',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'wayanad',
+    name: 'Wayanad',
+    type: 'domestic',
+    parent_id: 'kerala',
+    overview: 'Picturesque hill town with spice plantations and waterfalls.',
+    how_to_reach: 'Nearest Airport: Calicut International Airport (98 km).',
+    best_time_to_visit: 'October to May',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'thekkady',
+    name: 'Thekkady',
+    type: 'domestic',
+    parent_id: 'kerala',
+    overview: 'Home to Periyar Wildlife Sanctuary and elephant safaris.',
+    how_to_reach: 'Nearest Airport: Madurai (140 km) or Cochin (145 km).',
+    best_time_to_visit: 'September to May',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'kovalam',
+    name: 'Kovalam',
+    type: 'domestic',
+    parent_id: 'kerala',
+    overview: 'Famous beach destination with crescent-shaped coastlines.',
+    how_to_reach: 'Trivandrum International Airport (15 km).',
+    best_time_to_visit: 'September to March',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'tamil-nadu',
+    name: 'Tamil Nadu',
+    type: 'domestic',
+    parent_id: null,
+    overview: 'Land of historic temples, hill stations, and cultural heritage.',
+    how_to_reach: 'Chennai or Coimbatore International Airports.',
+    best_time_to_visit: 'October to March',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'karnataka',
+    name: 'Karnataka',
+    type: 'domestic',
+    parent_id: null,
+    overview: 'Blend of tech hubs, ancient ruins, and misty Coorg hills.',
+    how_to_reach: 'Bengaluru International Airport.',
+    best_time_to_visit: 'October to March',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'goa',
+    name: 'Goa',
+    type: 'domestic',
+    parent_id: null,
+    overview: 'India\'s beach capital with nightlife and Portuguese culture.',
+    how_to_reach: 'Goa International Airport (GOI/GOX).',
+    best_time_to_visit: 'November to February',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'delhi',
+    name: 'Delhi',
+    type: 'domestic',
+    parent_id: null,
+    overview: 'Capital city filled with monuments, markets, and history.',
+    how_to_reach: 'Indira Gandhi International Airport (DEL).',
+    best_time_to_visit: 'October to March',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'other-domestic',
+    name: 'Other Domestic Destinations',
+    type: 'domestic',
+    parent_id: null,
+    overview: 'Explore exotic Indian destinations.',
+    how_to_reach: 'Various airports across India.',
+    best_time_to_visit: 'Year-round',
+    banner_image: '/images/kerala_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
     id: 'thailand',
     name: 'Thailand',
     type: 'international',
@@ -837,6 +1116,146 @@ const mockDestinations: Destination[] = [
     overview: 'Thailand, famously known as "The Land of Smiles", is one of the most popular travel destinations in Southeast Asia.',
     how_to_reach: 'Fly to Bangkok (BKK) or Phuket (HKT).',
     best_time_to_visit: 'November to February',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'bangkok',
+    name: 'Bangkok',
+    type: 'international',
+    parent_id: 'thailand',
+    overview: 'Bustling metropolis with Grand Palace and night markets.',
+    how_to_reach: 'Suvarnabhumi (BKK) or Don Mueang (DMK).',
+    best_time_to_visit: 'November to February',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'phuket',
+    name: 'Phuket',
+    type: 'international',
+    parent_id: 'thailand',
+    overview: 'Island paradise with luxury beach resorts.',
+    how_to_reach: 'Phuket International Airport (HKT).',
+    best_time_to_visit: 'November to April',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'krabi',
+    name: 'Krabi',
+    type: 'international',
+    parent_id: 'thailand',
+    overview: 'Stunning limestone cliffs and clear emerald waters.',
+    how_to_reach: 'Krabi International Airport (KBV).',
+    best_time_to_visit: 'November to April',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'pattaya',
+    name: 'Pattaya',
+    type: 'international',
+    parent_id: 'thailand',
+    overview: 'Coastal resort city known for water sports and entertainment.',
+    how_to_reach: '2 hours drive from Bangkok.',
+    best_time_to_visit: 'November to February',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'chiang-mai',
+    name: 'Chiang Mai',
+    type: 'international',
+    parent_id: 'thailand',
+    overview: 'Mountainous city in northern Thailand with ancient temples.',
+    how_to_reach: 'Chiang Mai International Airport (CNX).',
+    best_time_to_visit: 'November to February',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'singapore',
+    name: 'Singapore',
+    type: 'international',
+    parent_id: null,
+    overview: 'Global financial hub with Gardens by the Bay and Sentosa Island.',
+    how_to_reach: 'Changi Airport (SIN).',
+    best_time_to_visit: 'Year-round',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'malaysia',
+    name: 'Malaysia',
+    type: 'international',
+    parent_id: null,
+    overview: 'Kuala Lumpur twin towers, Genting Highlands, and Langkawi.',
+    how_to_reach: 'Kuala Lumpur International Airport (KUL).',
+    best_time_to_visit: 'November to March',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'uae',
+    name: 'UAE',
+    type: 'international',
+    parent_id: null,
+    overview: 'Futuristic Dubai and cultural Abu Dhabi.',
+    how_to_reach: 'Dubai (DXB) or Abu Dhabi (AUH) Airports.',
+    best_time_to_visit: 'October to April',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'europe',
+    name: 'Europe',
+    type: 'international',
+    parent_id: null,
+    overview: 'Discover Paris, Swiss Alps, Rome, and London.',
+    how_to_reach: 'Major European hub airports.',
+    best_time_to_visit: 'April to October',
+    banner_image: '/images/thailand_banner.png',
+    gallery: [],
+    top_attractions: [],
+    show_packages: true,
+    show_hotels: true,
+  },
+  {
+    id: 'other-international',
+    name: 'Other International Destinations',
+    type: 'international',
+    parent_id: null,
+    overview: 'Explore global destinations worldwide.',
+    how_to_reach: 'International flights.',
+    best_time_to_visit: 'Year-round',
     banner_image: '/images/thailand_banner.png',
     gallery: [],
     top_attractions: [],
@@ -876,7 +1295,45 @@ const mockHotels: Hotel[] = [
     offer_label: 'Special 15% Off',
     order_no: 1,
     rooms: [
-      { id: 1, hotel_id: 'blanket-hotel-spa-munnar', type: 'Blanket Camelia', size: '320 sq.ft', view: 'Garden View', bed_type: 'Queen Bed', breakfast: 'Included', occupancy: '2 Adults', image: '/images/blanket_camelia.jpg' }
+      {
+        id: 1,
+        hotel_id: 'blanket-hotel-spa-munnar',
+        type: 'Blanket Camelia Room',
+        size: '320 sq.ft',
+        view: 'Garden & Tea Garden View',
+        bed_type: 'King Bed',
+        breakfast: 'Complimentary Buffet Breakfast Included',
+        occupancy: '2 Adults',
+        description: 'Elegantly furnished luxury room with modern amenities, wooden flooring, and private balcony overlooking the tea gardens.',
+        price: 180,
+        image: '/images/blanket_hotel_room1.jpg'
+      },
+      {
+        id: 2,
+        hotel_id: 'blanket-hotel-spa-munnar',
+        type: 'Executive Valley View Suite',
+        size: '450 sq.ft',
+        view: 'Panoramic Waterfall & Valley View',
+        bed_type: 'King Bed',
+        breakfast: 'Complimentary Buffet Breakfast Included',
+        occupancy: '2 Adults + 1 Child',
+        description: 'Spacious suite featuring floor-to-ceiling glass windows offering breathtaking views of Attukad Waterfalls and the valley.',
+        price: 240,
+        image: '/images/blanket_hotel_room2.jpg'
+      },
+      {
+        id: 3,
+        hotel_id: 'blanket-hotel-spa-munnar',
+        type: 'Presidential Honeymoon Suite',
+        size: '600 sq.ft',
+        view: 'Misty Mountain & Sunset View',
+        bed_type: 'Super King Bed',
+        breakfast: 'Complimentary Breakfast & Spa Voucher',
+        occupancy: '2 Adults',
+        description: 'Ultra-luxury suite featuring a private Jacuzzi, living area, and romantic balcony view for an unforgettable getaway.',
+        price: 320,
+        image: '/images/blanket_hotel_mist.jpg'
+      }
     ]
   }
 ];
@@ -885,14 +1342,18 @@ const mockFacilities: Facility[] = [
   { id: 1, name: 'Breakfast', icon: 'breakfast', description: 'Delicious fresh hot breakfast options served daily' },
   { id: 2, name: 'Wifi', icon: 'wifi', description: 'High-speed wireless internet connection throughout the property' },
   { id: 3, name: 'Gym', icon: 'gym', description: 'Fully equipped modern fitness center' },
-  { id: 4, name: 'Spa', icon: 'spa', description: 'Rejuvenating wellness spa offering body massages and therapies' },
-  { id: 5, name: 'Pool', icon: 'pool', description: 'Scenic outdoor infinity swimming pool' },
-  { id: 6, name: 'Restaurant', icon: 'restaurant', description: 'Fine-dining restaurant serving local and international cuisines' },
-  { id: 7, name: 'Bar', icon: 'bar', description: 'Elegant lounge bar with premium drinks and cocktails' },
-  { id: 8, name: 'Indoor games', icon: 'indoor games', description: 'Recreation room with board games, table tennis, and billiards' },
-  { id: 9, name: 'Activity', icon: 'activity', description: 'Adventure activities, nature treks, and cycling tours' },
-  { id: 10, name: 'Airport Transport', icon: 'airport transport', description: 'Complimentary airport shuttle and local transit arrangements' },
-  { id: 11, name: 'sight seeing', icon: 'sight seeing', description: 'Guided local sightseeing tours and scenic viewpoint excursions' }
+  { id: 4, name: 'Yoga', icon: 'yoga', description: 'Guided morning yoga, meditation, and wellness sessions' },
+  { id: 5, name: 'Air conditioning', icon: 'air conditioning', description: 'Climate-controlled air conditioning in rooms and common areas' },
+  { id: 6, name: 'Car parking', icon: 'car parking', description: 'Secure, private, complimentary valet and self-parking space' },
+  { id: 7, name: 'Jacuzzi', icon: 'jacuzzi', description: 'Relaxing hydrotherapy jacuzzi and heated whirlpool' },
+  { id: 8, name: 'Spa', icon: 'spa', description: 'Rejuvenating wellness spa offering body massages and therapies' },
+  { id: 9, name: 'Pool', icon: 'pool', description: 'Scenic outdoor infinity swimming pool' },
+  { id: 10, name: 'Restaurant', icon: 'restaurant', description: 'Fine-dining restaurant serving local and international cuisines' },
+  { id: 11, name: 'Bar', icon: 'bar', description: 'Elegant lounge bar with premium drinks and cocktails' },
+  { id: 12, name: 'Indoor games', icon: 'indoor games', description: 'Recreation room with board games, table tennis, and billiards' },
+  { id: 13, name: 'Activity', icon: 'activity', description: 'Adventure activities, nature treks, and cycling tours' },
+  { id: 14, name: 'Airport Transport', icon: 'airport transport', description: 'Complimentary airport shuttle and local transit arrangements' },
+  { id: 15, name: 'sight seeing', icon: 'sight seeing', description: 'Guided local sightseeing tours and scenic viewpoint excursions' }
 ];
 
 const mockEnquiries: Enquiry[] = [];
@@ -1159,6 +1620,8 @@ export interface AboutPage {
   cta_primary_btn_url: string;
   cta_secondary_btn_text: string;
   cta_secondary_btn_url: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
 }
 
 export const aboutPageApi = {
@@ -1254,6 +1717,18 @@ export const contactPageApi = {
     });
   },
 };
+
+// --- Home Page CMS API ---
+export const homePageApi = {
+  getHomePageData: async (): Promise<any> => {
+    try {
+      return await apiFetch<any>('/home-page');
+    } catch {
+      return null;
+    }
+  },
+};
+
 
 
 

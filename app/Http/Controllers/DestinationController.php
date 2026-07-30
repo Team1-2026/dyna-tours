@@ -69,6 +69,9 @@ class DestinationController extends Controller
             // Related tours mapping
             'related_tours' => 'sometimes|array|nullable',
             'order_no' => 'sometimes|integer|min:0|nullable',
+            'banner_heading' => 'sometimes|string|nullable',
+            'banner_tagline' => 'sometimes|string|nullable',
+            'status' => 'sometimes|string|nullable',
         ]);
 
         if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $destination->order_no) {
@@ -96,7 +99,7 @@ class DestinationController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|string|in:domestic,international',
             'parent_id' => 'nullable|string|exists:destinations,id',
-            'overview' => 'required|string',
+            'overview' => 'nullable|string',
             'how_to_reach' => 'nullable|string',
             'best_time_to_visit' => 'nullable|string',
             'banner_image' => 'nullable|string',
@@ -116,9 +119,18 @@ class DestinationController extends Controller
             // Related tours mapping
             'related_tours' => 'nullable|array',
             'order_no' => 'nullable|integer|min:0',
+            'banner_heading' => 'nullable|string',
+            'banner_tagline' => 'nullable|string',
+            'status' => 'nullable|string',
         ]);
 
-        if (isset($validated['order_no']) && $validated['order_no'] !== null) {
+        if (!isset($validated['overview'])) $validated['overview'] = '';
+        if (!isset($validated['status'])) $validated['status'] = 'Active';
+
+        if (!isset($validated['order_no']) || $validated['order_no'] === null) {
+            $maxOrder = Destination::max('order_no');
+            $validated['order_no'] = ($maxOrder !== null) ? $maxOrder + 1 : 1;
+        } else {
             $newOrder = (int) $validated['order_no'];
             Destination::where('order_no', '>=', $newOrder)
                 ->increment('order_no');

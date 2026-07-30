@@ -26,7 +26,16 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
       <section className={styles.heroBanner} style={{ backgroundImage: `url('${bgImage}')` }}>
         <div className={styles.heroOverlay}></div>
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <h1 className={styles.heroTitle}>{categoryName}</h1>
+          <h1 className={styles.heroTitle}>
+            {categoryName.includes('Honeymoon') ? (
+              <>
+                <span>Popular Honeymoon </span>
+                <span style={{ color: 'var(--color-primary-red)' }}>Tour Packages</span>
+              </>
+            ) : (
+              categoryName
+            )}
+          </h1>
           <p className={styles.heroSubtitle}>
             Explore our handpicked {categoryName.toLowerCase()} covering the most beautiful destinations.
           </p>

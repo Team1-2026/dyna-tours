@@ -19,8 +19,9 @@ import AboutAdmin from './AboutAdmin';
 import ContactAdmin from './ContactAdmin';
 import StaffAdmin from './StaffAdmin';
 import CruiseAdmin from './CruiseAdmin';
+import HomePageAdmin from './HomePageAdmin';
 
-type TabType = 'dashboard' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage' | 'staff' | 'cruise';
+type TabType = 'dashboard' | 'homePage' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage' | 'staff' | 'cruise';
 
 // Hierarchical location data
 const COUNTRIES_DATA: Record<string, { states: string[]; cities: Record<string, string[]> }> = {
@@ -284,6 +285,14 @@ export default function AdminDashboard() {
   };
 
   const handleBannerImageUpdate = (url: string) => {
+    if (activeTab === 'destinations') {
+      if (isCreatingDest) {
+        setNewDest(prev => ({ ...prev, banner_image: url }));
+      } else {
+        setSelectedDest(prev => prev ? { ...prev, banner_image: url } : null);
+      }
+      return;
+    }
     const currentGallery = isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery;
     const updated = updateImageInSection(currentGallery, url, 'banner');
     if (isCreatingHotel) {
@@ -294,6 +303,22 @@ export default function AdminDashboard() {
   };
 
   const handleAddGalleryImage = (url: string) => {
+    if (activeTab === 'destinations') {
+      const currentGallery = isCreatingDest ? newDest.gallery : selectedDest?.gallery;
+      const currentList: GalleryImage[] = (currentGallery || []).map(img => {
+        if (typeof img === 'string') return { url: img, section: 'gallery' };
+        return { url: img.url || '', section: img.section || 'gallery' };
+      });
+      if (url) {
+        currentList.push({ url, section: 'gallery' });
+      }
+      if (isCreatingDest) {
+        setNewDest(prev => ({ ...prev, gallery: currentList }));
+      } else {
+        setSelectedDest(prev => prev ? { ...prev, gallery: currentList } : null);
+      }
+      return;
+    }
     const currentGallery = isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery;
     const currentList: GalleryImage[] = (currentGallery || []).map(img => {
       if (typeof img === 'string') return { url: img, section: 'gallery' };
@@ -310,6 +335,22 @@ export default function AdminDashboard() {
   };
 
   const handleRemoveGalleryImage = (url: string) => {
+    if (activeTab === 'destinations') {
+      const currentGallery = isCreatingDest ? newDest.gallery : selectedDest?.gallery;
+      const updated = (currentGallery || []).filter(img => {
+        const imgUrl = typeof img === 'string' ? img : img.url;
+        return imgUrl !== url;
+      }).map(img => {
+        if (typeof img === 'string') return { url: img, section: 'gallery' as const };
+        return img;
+      });
+      if (isCreatingDest) {
+        setNewDest(prev => ({ ...prev, gallery: updated }));
+      } else {
+        setSelectedDest(prev => prev ? { ...prev, gallery: updated } : null);
+      }
+      return;
+    }
     const currentGallery = isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery;
     const updated = (currentGallery || []).filter(img => {
       const imgUrl = typeof img === 'string' ? img : img.url;
@@ -758,7 +799,7 @@ export default function AdminDashboard() {
       }
       setIsCreatingFacility(false);
       setEditingFacilityId(null);
-      setFacilityForm({ name: '', icon: 'wifi', description: '' });
+      setFacilityForm({ name: '', icon: 'wifi' });
     } catch (err) {
       console.error(err);
       alert('Failed to save amenity details.');
@@ -769,8 +810,7 @@ export default function AdminDashboard() {
     setEditingFacilityId(facility.id);
     setFacilityForm({
       name: facility.name,
-      icon: facility.icon,
-      description: facility.description || ''
+      icon: facility.icon
     });
     setIsCreatingFacility(true);
   };
@@ -939,6 +979,16 @@ export default function AdminDashboard() {
             <div className={styles.menuItemLabel}>
               <span>📊</span>
               <span>Dashboard</span>
+            </div>
+          </div>
+
+          <div 
+            className={`${styles.menuItem} ${activeTab === 'homePage' ? styles.menuItemActive : ''}`}
+            onClick={() => { setActiveTab('homePage'); setIsCreatingDest(false); setIsCreatingHotel(false); setSelectedDestId(''); setSelectedHotelId(''); }}
+          >
+            <div className={styles.menuItemLabel}>
+              <span>🏠</span>
+              <span>Home Page CMS</span>
             </div>
           </div>
 
@@ -1330,6 +1380,11 @@ export default function AdminDashboard() {
           )}
 
           {/* ==========================================
+             HOME PAGE CMS TAB
+             ========================================== */}
+          {activeTab === 'homePage' && <HomePageAdmin />}
+
+          {/* ==========================================
              ENQUIRIES TAB (TABLE VIEW)
              ========================================== */}
           {activeTab === 'enquiries' && (
@@ -1702,21 +1757,15 @@ export default function AdminDashboard() {
                       <div className={styles.formRow}>
                         <div className="formGroup">
                           <label htmlFor="category">Category <span className="required-star">*</span></label>
-                          <select
+                          <input
+                            type="text"
                             name="category"
                             id="category"
+                            placeholder="Type category (e.g. 5-Star, Luxury Resort, Boutique, Heritage)"
                             value={isCreatingHotel ? newHotel.category || '' : selectedHotel?.category || ''}
                             onChange={handleHotelTextChange}
-                          >
-                            <option value="" disabled>Select category...</option>
-                            <option value="5-Star">5-Star</option>
-                            <option value="4-Star">4-Star</option>
-                            <option value="3-Star">3-Star</option>
-                            <option value="Resort">Resort</option>
-                            <option value="Boutique">Boutique</option>
-                            <option value="Luxury">Luxury</option>
-                            <option value="Budget">Budget</option>
-                          </select>
+                            required
+                          />
                         </div>
 
                         <div className="formGroup">
@@ -1733,15 +1782,16 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="belongs_dest">Belongs to Destination <span className="required-star">*</span></label>
+                          <label htmlFor="belongs_dest">Belongs to Destination / Place <span className="required-star">*</span></label>
                           <select
                             name="destination_id"
                             id="belongs_dest"
                             value={isCreatingHotel ? newHotel.destination_id || '' : selectedHotel?.destination_id || ''}
                             onChange={handleHotelTextChange}
                           >
+                            <option value="" disabled>Select destination or place...</option>
                             {destinations.map(d => (
-                              <option key={d.id} value={d.id}>{d.name}</option>
+                              <option key={d.id} value={d.id}>{d.name} ({d.type === 'international' ? 'International' : 'Domestic'})</option>
                             ))}
                           </select>
                         </div>
@@ -1829,6 +1879,20 @@ export default function AdminDashboard() {
                             />
                             <span>Show Offer Label</span>
                           </label>
+                          <label className={styles.checklistItem}>
+                            <input
+                              type="checkbox"
+                              checked={isCreatingHotel ? newHotel.show_details !== false : selectedHotel?.show_details !== false}
+                              onChange={() => {
+                                if (isCreatingHotel) {
+                                  setNewHotel(prev => ({ ...prev, show_details: !prev.show_details }));
+                                } else {
+                                  setSelectedHotel(prev => prev ? { ...prev, show_details: !prev.show_details } : null);
+                                }
+                              }}
+                            />
+                            <span>Show Hotel Details on Frontend</span>
+                          </label>
                         </div>
                       </div>
                     </div>
@@ -1863,7 +1927,7 @@ export default function AdminDashboard() {
                       {/* Featured Image Block */}
                       <div className={styles.imageUploadCard}>
                         <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
-                          Featured Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 800 × 600 px)</span>
+                          Featured Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 800 × 600 px, Max 5 MB)</span>
                         </label>
                         <img 
                           src={getFeaturedImage(isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery) || '/images/default_hotel.png'} 
@@ -1890,10 +1954,10 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      {/* Banner Image Block */}
+                      {/* Banner Image Block (Task 29 & Task 41) */}
                       <div className={styles.imageUploadCard}>
                         <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
-                          Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 1920 × 460 px)</span>
+                          Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
                         </label>
                         <img 
                           src={getBannerImage(isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery) || '/images/default_hotel.png'} 
@@ -1911,13 +1975,32 @@ export default function AdminDashboard() {
                               onChange={(e) => handleLocalImageUploadForSection(e, 'banner')}
                             />
                           </label>
-                          <input 
-                            type="text" 
-                            placeholder="Banner Image Alt Text"
-                            defaultValue="Hotel Banner View"
-                            className="formInput"
-                            style={{ padding: '0.5rem', fontSize: '0.8rem', marginBottom: 0 }}
-                          />
+                          <div style={{ marginTop: '0.5rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                            <input 
+                              type="text" 
+                              placeholder="Banner Heading (Title)"
+                              value={isCreatingHotel ? newHotel.banner_heading || '' : selectedHotel?.banner_heading || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (isCreatingHotel) setNewHotel(prev => ({ ...prev, banner_heading: val }));
+                                else setSelectedHotel(prev => prev ? { ...prev, banner_heading: val } : null);
+                              }}
+                              className="formInput"
+                              style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                            />
+                            <input 
+                              type="text" 
+                              placeholder="Banner Tagline (Subtitle)"
+                              value={isCreatingHotel ? newHotel.banner_tagline || '' : selectedHotel?.banner_tagline || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (isCreatingHotel) setNewHotel(prev => ({ ...prev, banner_tagline: val }));
+                                else setSelectedHotel(prev => prev ? { ...prev, banner_tagline: val } : null);
+                              }}
+                              className="formInput"
+                              style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -2031,22 +2114,13 @@ export default function AdminDashboard() {
                   <div className={styles.formCard}>
                     <h4 className={styles.formCardTitle}>Amenities</h4>
                     
-                    <div className={styles.formRow}>
-                      <div className="formGroup">
+                    <div className={styles.formRow} style={{ marginBottom: '1rem' }}>
+                      <div className="formGroup" style={{ gridColumn: 'span 3' }}>
                         <label>Section Headline</label>
                         <input 
                           type="text" 
                           placeholder="Hotel Provides Following Amenities" 
                           defaultValue="Hotel Provides Following Amenities"
-                          disabled
-                        />
-                      </div>
-                      <div className="formGroup" style={{ gridColumn: 'span 2' }}>
-                        <label>Description</label>
-                        <input 
-                          type="text" 
-                          placeholder="Guests can enjoy modern amenities and comfortable services during their stay." 
-                          defaultValue="Guests can enjoy modern amenities and comfortable services during their stay."
                           disabled
                         />
                       </div>
@@ -2296,12 +2370,13 @@ export default function AdminDashboard() {
                     <button 
                       className="btn btn-primary"
                       onClick={() => {
+                        const nextOrder = destinations.length > 0 ? Math.max(...destinations.map(d => d.order_no || 0)) + 1 : 1;
                         setIsCreatingDest(true);
                         setNewDest({
                           id: '', name: '', type: 'domestic', parent_id: null, overview: '',
                           show_packages: true, show_hotels: true, country: 'India', state: 'Kerala', city: '',
                           meta_title: '', meta_description: '', url_slug: '', canonical_url: '',
-                          gallery: [], top_attractions: [], related_tours: []
+                          gallery: [], top_attractions: [], related_tours: [], order_no: nextOrder, status: 'Active'
                         });
                       }}
                     >
@@ -2317,7 +2392,7 @@ export default function AdminDashboard() {
                           <th>Destination Name</th>
                           <th>Type</th>
                           <th>Country</th>
-                          <th>State</th>
+                          <th>Status</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -2339,7 +2414,11 @@ export default function AdminDashboard() {
                                 </span>
                               </td>
                               <td>{dest.country || 'India'}</td>
-                              <td>{dest.state || '—'}</td>
+                              <td>
+                                <span className={`${styles.statusPill} ${dest.status !== 'Inactive' ? styles.statusActive : styles.statusDraft}`}>
+                                  {dest.status || 'Active'}
+                                </span>
+                              </td>
                               <td>
                                 <a 
                                   href={`/destinations/${dest.url_slug || dest.id}`} 
@@ -2470,6 +2549,19 @@ export default function AdminDashboard() {
                             onChange={handleDestTextChange}
                           />
                         </div>
+
+                        <div className="formGroup">
+                          <label htmlFor="dest_status">Status</label>
+                          <select
+                            name="status"
+                            id="dest_status"
+                            value={isCreatingDest ? newDest.status || 'Active' : selectedDest?.status || 'Active'}
+                            onChange={handleDestTextChange}
+                          >
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                          </select>
+                        </div>
                       </div>
 
                       <div className={styles.formRow}>
@@ -2571,9 +2663,24 @@ export default function AdminDashboard() {
                       
                       {/* Banner Image Block */}
                       <div className={styles.imageUploadCard}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
-                          Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 1920 × 460 px)</span>
-                        </label>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', textTransform: 'uppercase', margin: 0 }}>
+                            Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
+                          </label>
+                          {(isCreatingDest ? newDest.banner_image : selectedDest?.banner_image) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_image: null }));
+                                else setSelectedDest(prev => prev ? { ...prev, banner_image: null } : null);
+                              }}
+                              style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '22px', height: '22px', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                              title="Remove/Replace Banner Image"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
                         <img 
                           src={isCreatingDest ? newDest.banner_image || '/images/default_hotel.png' : selectedDest?.banner_image || '/images/default_hotel.png'} 
                           alt="Banner Preview" 
@@ -2620,6 +2727,32 @@ export default function AdminDashboard() {
                               }}
                             />
                           </label>
+                          <div style={{ marginTop: '0.5rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                            <input 
+                              type="text" 
+                              placeholder="Banner Heading (Title)"
+                              value={isCreatingDest ? newDest.banner_heading || '' : selectedDest?.banner_heading || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_heading: val }));
+                                else setSelectedDest(prev => prev ? { ...prev, banner_heading: val } : null);
+                              }}
+                              className="formInput"
+                              style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                            />
+                            <input 
+                              type="text" 
+                              placeholder="Banner Tagline (Subtitle)"
+                              value={isCreatingDest ? newDest.banner_tagline || '' : selectedDest?.banner_tagline || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_tagline: val }));
+                                else setSelectedDest(prev => prev ? { ...prev, banner_tagline: val } : null);
+                              }}
+                              className="formInput"
+                              style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -2845,6 +2978,10 @@ export default function AdminDashboard() {
                           <option value="breakfast">Breakfast</option>
                           <option value="pool">Pool / Swimming Pool</option>
                           <option value="gym">Gym / Fitness</option>
+                          <option value="yoga">Yoga / Meditation</option>
+                          <option value="air conditioning">Air Conditioning / AC</option>
+                          <option value="car parking">Car Parking / Parking</option>
+                          <option value="jacuzzi">Jacuzzi / Hot Tub</option>
                           <option value="spa">Spa / Wellness</option>
                           <option value="restaurant">Restaurant / Dining</option>
                           <option value="bar">Bar / Lounge</option>
@@ -2852,20 +2989,15 @@ export default function AdminDashboard() {
                           <option value="activity">Activity / Compass</option>
                           <option value="airport transport">Airport Transport / Car</option>
                           <option value="sight seeing">Sightseeing / Camera</option>
+                          <option value="tv">TV / Television</option>
+                          <option value="balcony">Balcony / Terrace</option>
+                          <option value="safe">Safe / Locker</option>
+                          <option value="room service">Room Service</option>
+                          <option value="tea maker">Coffee / Tea Maker</option>
                         </select>
                       </div>
                     </div>
-                    <div className="formGroup" style={{ marginBottom: '1.5rem' }}>
-                      <label>Description (Hover Tooltip text)</label>
-                      <textarea
-                        placeholder="Provide a brief description of what this amenity offers to guest stay..."
-                        className="formInput"
-                        rows={3}
-                        value={facilityForm.description || ''}
-                        onChange={(e) => setFacilityForm(prev => ({ ...prev, description: e.target.value }))}
-                      ></textarea>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
                       <button type="submit" className="btn btn-primary">Save Amenity</button>
                       <button 
                         type="button" 
@@ -2896,7 +3028,7 @@ export default function AdminDashboard() {
                       position: 'relative'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                       <div style={{ 
                         width: '36px', 
                         height: '36px', 
@@ -2911,15 +3043,6 @@ export default function AdminDashboard() {
                       </div>
                       <strong style={{ fontSize: '0.95rem', color: 'var(--color-secondary-navy)' }}>{fac.name}</strong>
                     </div>
-                    {fac.description ? (
-                      <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: '0 0 1.25rem 0', flexGrow: 1, lineHeight: '1.4' }}>
-                        {fac.description}
-                      </p>
-                    ) : (
-                      <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontStyle: 'italic', margin: '0 0 1.25rem 0', flexGrow: 1 }}>
-                        No description provided.
-                      </p>
-                    )}
                     <div style={{ display: 'flex', gap: '0.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.75rem' }}>
                       <button 
                         type="button" 

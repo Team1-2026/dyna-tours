@@ -147,117 +147,154 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
 
   const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
 
+  const topBannerUrl = hotel.banner_image || (typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : hotel.gallery?.[0]?.url) || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80';
+
   return (
     <div className={styles.pageContainer}>
-      {/* 1. Header Banner */}
-      <section className={styles.pageIntroSection} style={{ background: 'var(--color-secondary-navy-light)', borderBottom: '1px solid var(--color-border)' }}>
+      {/* 1. Header Top Banner Image (Task 45 & Task 29) */}
+      <section 
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.7)), url(${topBannerUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          padding: '4.5rem 0',
+          color: '#ffffff',
+          textAlign: 'center',
+          marginBottom: '2rem'
+        }}
+      >
         <div className="container">
-          <h1 className={styles.pageTitle}>{hotel.name}</h1>
-          <p className={styles.pageSubtitle}>
-            {hotel.location} • {hotel.category} Luxury Experience
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.5rem', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+            {hotel.banner_heading || hotel.name}
+          </h1>
+          <p style={{ fontSize: '1.15rem', opacity: 0.95, textShadow: '0 1px 4px rgba(0,0,0,0.5)', maxWidth: '800px', margin: '0 auto' }}>
+            {hotel.banner_tagline || `${hotel.location} • ${hotel.category} Luxury Experience`}
           </p>
         </div>
       </section>
 
       <div className="container">
-        <div className={styles.detailGrid}>
-          
-          {/* Left Side: Details */}
-          <div>
-            {/* Gallery Images */}
-            {hotel.gallery && hotel.gallery.length > 0 && (
-              <div className={styles.imageGallery}>
-                <div className={styles.galleryGrid}>
+        {/* Full-width Top Gallery Images (Excludes main banner) */}
+        {hotel.gallery && hotel.gallery.length > 0 && (
+          <div className={styles.imageGallery}>
+            <div className={styles.galleryGrid}>
+              <div 
+                className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  setZoomedIndex(0);
+                  setIsZoomOpen(true);
+                }}
+              >
+                <img 
+                  src={typeof hotel.gallery[0] === 'string' ? hotel.gallery[0] : hotel.gallery[0]?.url || ''} 
+                  alt={`${hotel.name} featured view`} 
+                  className={styles.galleryImg} 
+                />
+              </div>
+              {hotel.gallery.slice(1, 3).map((img, idx) => {
+                const imgUrl = typeof img === 'string' ? img : img?.url || '';
+                if (!imgUrl) return null;
+                return (
                   <div 
-                    className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
+                    key={idx} 
+                    className={styles.galleryItem}
                     style={{ cursor: 'pointer' }}
                     onClick={() => {
-                      setZoomedIndex(0);
+                      setZoomedIndex(idx + 1);
                       setIsZoomOpen(true);
                     }}
                   >
-                    <img 
-                      src={typeof hotel.gallery[0] === 'string' ? hotel.gallery[0] : hotel.gallery[0]?.url || ''} 
-                      alt={`${hotel.name} featured view`} 
-                      className={styles.galleryImg} 
-                    />
+                    <img src={imgUrl} alt={`${hotel.name} view ${idx + 2}`} className={styles.galleryImg} />
                   </div>
-                  {hotel.gallery.slice(1, 3).map((img, idx) => {
-                    const imgUrl = typeof img === 'string' ? img : img?.url || '';
-                    if (!imgUrl) return null;
-                    return (
-                      <div 
-                        key={idx} 
-                        className={styles.galleryItem}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => {
-                          setZoomedIndex(idx + 1);
-                          setIsZoomOpen(true);
-                        }}
-                      >
-                        <img src={imgUrl} alt={`${hotel.name} view ${idx + 2}`} className={styles.galleryImg} />
-                      </div>
-                    );
-                  })}
-                  {hotel.gallery[3] && (
-                    <div 
-                      className={styles.galleryItem} 
-                      style={{ gridColumn: 'span 2', cursor: 'pointer' }}
-                      onClick={() => {
-                        setZoomedIndex(3);
-                        setIsZoomOpen(true);
-                      }}
-                    >
-                      <img 
-                        src={typeof hotel.gallery[3] === 'string' ? hotel.gallery[3] : hotel.gallery[3]?.url || ''} 
-                        alt={`${hotel.name} view 4`} 
-                        className={styles.galleryImg} 
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Meta Row: Location, Distance, Category */}
-            <div className={styles.metaRow}>
-              <div className={styles.metaItem}>
-                <svg className={styles.metaIcon} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span>{hotel.location}</span>
-              </div>
-              {hotel.distance_from_attractions && (
-                <div className={styles.metaItem}>
-                  <svg className={styles.metaIcon} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-                  </svg>
-                  <span>{hotel.distance_from_attractions}</span>
+                );
+              })}
+              {hotel.gallery[3] && (
+                <div 
+                  className={styles.galleryItem} 
+                  style={{ gridColumn: 'span 2', cursor: 'pointer' }}
+                  onClick={() => {
+                    setZoomedIndex(3);
+                    setIsZoomOpen(true);
+                  }}
+                >
+                  <img 
+                    src={typeof hotel.gallery[3] === 'string' ? hotel.gallery[3] : hotel.gallery[3]?.url || ''} 
+                    alt={`${hotel.name} view 4`} 
+                    className={styles.galleryImg} 
+                  />
                 </div>
               )}
-              <div className={styles.metaItem}>
-                <svg className={styles.metaIcon} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-                <span>{hotel.category}</span>
-              </div>
             </div>
+          </div>
+        )}
 
-            {/* About / Hotel Description Section */}
-            <div style={{ background: '#ffffff', padding: '2.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-premium)', marginBottom: '2.5rem', border: '1px solid var(--color-border)' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '1.25rem' }}>
-                About the Hotel
-              </h2>
-              {showAboutDescription ? (
-                <div>
-                  <div 
-                    style={{ color: 'var(--color-text-secondary)', lineHeight: '1.8', fontSize: '1rem' }}
-                    dangerouslySetInnerHTML={{ __html: hotel.about }}
-                  />
+        {/* Meta Row: Location, Distance, Category */}
+        <div className={styles.metaRow}>
+          <div className={styles.metaItem}>
+            <svg className={styles.metaIcon} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>{hotel.location}</span>
+          </div>
+          {hotel.distance_from_attractions && (
+            <div className={styles.metaItem}>
+              <svg className={styles.metaIcon} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+              <span>{hotel.distance_from_attractions}</span>
+            </div>
+          )}
+          <div className={styles.metaItem}>
+            <svg className={styles.metaIcon} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <span>{hotel.category}</span>
+          </div>
+        </div>
+
+        {/* 2-Column Grid Row Below Gallery */}
+        <div className={styles.detailGrid} style={{ paddingTop: '1rem' }}>
+          
+          {/* Left Side: Details */}
+          <div>
+
+            {/* SECTION 1: About the Hotel Details (Task 30 & Task 51) */}
+            {hotel.show_details !== false && hotel.about && (
+              <div style={{ background: '#ffffff', padding: '2rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-premium)', marginBottom: '2rem', border: '1px solid var(--color-border)' }}>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '1rem' }}>
+                  About the Hotel
+                </h2>
+                {showAboutDescription ? (
+                  <div>
+                    <div 
+                      style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', fontSize: '0.95rem' }}
+                      dangerouslySetInnerHTML={{ __html: hotel.about }}
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowAboutDescription(false)}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: 'var(--color-primary-red)', 
+                        padding: 0, 
+                        font: 'inherit', 
+                        cursor: 'pointer', 
+                        textDecoration: 'underline', 
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        marginTop: '1rem' 
+                      }}
+                    >
+                      Hide Description
+                    </button>
+                  </div>
+                ) : (
                   <button 
                     type="button"
-                    onClick={() => setShowAboutDescription(false)}
+                    onClick={() => setShowAboutDescription(true)}
                     style={{ 
                       background: 'none', 
                       border: 'none', 
@@ -266,34 +303,15 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                       font: 'inherit', 
                       cursor: 'pointer', 
                       textDecoration: 'underline', 
-                      fontSize: '0.9rem',
-                      fontWeight: 700,
-                      marginTop: '1.25rem' 
+                      fontSize: '0.85rem',
+                      fontWeight: 700 
                     }}
                   >
-                    Hide Description
+                    Show Description
                   </button>
-                </div>
-              ) : (
-                <button 
-                  type="button"
-                  onClick={() => setShowAboutDescription(true)}
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    color: 'var(--color-primary-red)', 
-                    padding: 0, 
-                    font: 'inherit', 
-                    cursor: 'pointer', 
-                    textDecoration: 'underline', 
-                    fontSize: '0.9rem',
-                    fontWeight: 700 
-                  }}
-                >
-                  Show Description
-                </button>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Hotel Video Tour */}
             {hotel.video_url && (
@@ -321,60 +339,10 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
               </div>
             )}
 
-            {/* Inclusions & Exclusions Section */}
-            {((hotel.inclusions && hotel.inclusions !== '<ul></ul>') || (hotel.exclusions && hotel.exclusions !== '<ul></ul>')) && (
-              <div className={styles.inclusionsExclusionsGrid}>
-                {hotel.inclusions && hotel.inclusions !== '<ul></ul>' && (
-                  <div className={styles.inclusionsBlock}>
-                    <h3>
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20,6 9,17 4,12" />
-                      </svg>
-                      <span>Included In Stays</span>
-                    </h3>
-                    <div className={styles.richList} dangerouslySetInnerHTML={{ __html: hotel.inclusions }} />
-                  </div>
-                )}
-
-                {hotel.exclusions && hotel.exclusions !== '<ul></ul>' && (
-                  <div className={styles.exclusionsBlock}>
-                    <h3>
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                      <span>Excluded From Stays</span>
-                    </h3>
-                    <div className={styles.richList} dangerouslySetInnerHTML={{ __html: hotel.exclusions }} />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Terms & Conditions Section */}
-            {hotel.terms_conditions && hotel.terms_conditions !== '<ul></ul>' && (
-              <div className={styles.termsAccordion}>
-                <div className={styles.termsHeader} onClick={() => setIsTermsOpen(!isTermsOpen)}>
-                  <h3 className={styles.termsTitle}>
-                    📝 Hotel Specific Policies & Terms
-                  </h3>
-                  <svg 
-                    style={{ transform: isTermsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
-                    viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5"
-                  >
-                    <polyline points="6,9 12,15 18,9" />
-                  </svg>
-                </div>
-                {isTermsOpen && (
-                  <div className={styles.termsBody} dangerouslySetInnerHTML={{ __html: hotel.terms_conditions }} />
-                )}
-              </div>
-            )}
-
-            {/* Amenities */}
+            {/* SECTION 2: Amenities (Inside Left 6-Column Size) */}
             {hotel.facilities && hotel.facilities.length > 0 && (
-              <div style={{ background: '#ffffff', padding: '2.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-premium)', marginBottom: '1.25rem', border: '1px solid var(--color-border)' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '1rem' }}>
+              <div style={{ background: '#ffffff', padding: '2rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-premium)', marginBottom: '2rem', border: '1px solid var(--color-border)' }}>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '1rem' }}>
                   Amenities
                 </h2>
                 <div className={styles.facilitiesGrid}>
@@ -382,12 +350,10 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                 </div>
               </div>
             )}
-
           </div>
 
           {/* Right Side: Price block & Contact Form */}
           <div className={styles.sidebarSticky}>
-            
             {/* Price Display and Offer Label Block */}
             {((hotel.show_offer_label && hotel.offer_label) || (hotel.show_price && hotel.price)) && (
               <div className={styles.priceDisplayBlock}>
@@ -422,8 +388,10 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
               )}
 
               <form onSubmit={handleFormSubmit}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="name">Name</label>
+                <div className={styles.formGroup} style={{ marginBottom: '0.85rem' }}>
+                  <label htmlFor="name" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                    Full Name
+                  </label>
                   <input
                     type="text"
                     name="name"
@@ -432,38 +400,49 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     className={styles.formInput}
                     value={formData.name}
                     onChange={handleInputChange}
+                    placeholder="Enter your full name"
                   />
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="phone">Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    id="phone"
-                    required
-                    className={styles.formInput}
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.85rem' }}>
+                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                    <label htmlFor="phone" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      id="phone"
+                      required
+                      className={styles.formInput}
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="Phone No."
+                    />
+                  </div>
+
+                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                    <label htmlFor="email" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      id="email"
+                      required
+                      className={styles.formInput}
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Email Address"
+                    />
+                  </div>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="email">Email Address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    required
-                    className={styles.formInput}
-                    value={formData.email}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="check_in">Check-in Date</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.85rem' }}>
+                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                    <label htmlFor="check_in" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                      Check-in Date
+                    </label>
                     <input
                       type="date"
                       name="check_in"
@@ -474,8 +453,10 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                       onChange={handleInputChange}
                     />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="check_out">Check-out Date</label>
+                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                    <label htmlFor="check_out" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                      Check-out Date
+                    </label>
                     <input
                       type="date"
                       name="check_out"
@@ -488,9 +469,11 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="num_adults">Adults</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.85rem' }}>
+                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                    <label htmlFor="num_adults" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                      Adults (12+ yrs)
+                    </label>
                     <input
                       type="number"
                       name="num_adults"
@@ -502,8 +485,10 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                       onChange={handleInputChange}
                     />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="num_children">Children</label>
+                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                    <label htmlFor="num_children" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                      Children (0-11 yrs)
+                    </label>
                     <input
                       type="number"
                       name="num_children"
@@ -518,8 +503,10 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                 </div>
 
                 {Number(formData.num_children) > 0 && (
-                  <div className={styles.formGroup}>
-                    <label htmlFor="children_ages">Children's Age(s)</label>
+                  <div className={styles.formGroup} style={{ marginBottom: '0.85rem' }}>
+                    <label htmlFor="children_ages" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                      Children's Age(s)
+                    </label>
                     <input
                       type="text"
                       name="children_ages"
@@ -532,15 +519,18 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                   </div>
                 )}
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="message">Message / Special Requests</label>
+                <div className={styles.formGroup} style={{ marginBottom: '0.85rem' }}>
+                  <label htmlFor="message" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                    Special Requests / Message
+                  </label>
                   <textarea
                     name="message"
                     id="message"
-                    rows={4}
+                    rows={2}
                     className={styles.formInput}
                     value={formData.message}
                     onChange={handleInputChange}
+                    placeholder="Any special requirements..."
                   ></textarea>
                 </div>
 
@@ -554,6 +544,160 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
               </form>
             </div>
           </div>
+        </div>
+
+        {/* Full-width Sections Below Top Grid */}
+        <div style={{ marginTop: '2.5rem' }}>
+
+          {/* 3. Room Categories Section */}
+          {hotel.show_rooms && hotel.rooms && hotel.rooms.length > 0 && (
+            <div style={{ background: '#ffffff', padding: '2.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-premium)', marginBottom: '2.5rem', border: '1px solid var(--color-border)' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '0.5rem' }}>
+                Categories & Accommodations
+              </h2>
+              <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+                Select from our room categories and luxury suites.
+              </p>
+
+              <div className={styles.roomsGrid}>
+                {hotel.rooms.map((room) => (
+                  <div key={room.id} className={`${styles.roomCard} ${room.image || (room.images && room.images.length > 0) ? styles.hasImage : ''}`}>
+                    
+                    {/* Room Image */}
+                    {room.images && room.images.length > 0 ? (
+                      <div className={styles.roomImgWrapper}>
+                        <div className={styles.roomImgSlider}>
+                          {room.images.map((imgUrl, imgIdx) => (
+                            <img key={imgIdx} src={imgUrl} alt={`${room.type} view ${imgIdx + 1}`} className={styles.roomImg} />
+                          ))}
+                        </div>
+                      </div>
+                    ) : room.image ? (
+                      <div className={styles.roomImgWrapper}>
+                        <img src={room.image} alt={room.type} className={styles.roomImg} />
+                      </div>
+                    ) : null}
+
+                    {/* Room Content */}
+                    <div className={room.image || (room.images && room.images.length > 0) ? styles.roomContent : styles.roomContentDirect}>
+                      <div style={{ flex: 1 }}>
+                        <h3 className={styles.roomTitle}>{room.type}</h3>
+                        
+                        {room.description && (
+                          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '1.25rem', lineHeight: '1.6' }}>
+                            {room.description}
+                          </p>
+                        )}
+
+                        {/* Specifications Badges */}
+                        <div className={styles.roomSpecs}>
+                          {room.size && (
+                            <div className={styles.roomSpecItem}>
+                              <span className={styles.roomSpecLabel}>📐 Size:</span> {room.size}
+                            </div>
+                          )}
+                          {room.view && (
+                            <div className={styles.roomSpecItem}>
+                              <span className={styles.roomSpecLabel}>🏔️ View:</span> {room.view}
+                            </div>
+                          )}
+                          {room.bed_type && (
+                            <div className={styles.roomSpecItem}>
+                              <span className={styles.roomSpecLabel}>🛏️ Bed:</span> {room.bed_type}
+                            </div>
+                          )}
+                          {room.occupancy && (
+                            <div className={styles.roomSpecItem}>
+                              <span className={styles.roomSpecLabel}>👥 Capacity:</span> {room.occupancy}
+                            </div>
+                          )}
+                          {room.breakfast && (
+                            <div className={styles.roomSpecItem} style={{ gridColumn: 'span 2' }}>
+                              <span className={styles.roomSpecLabel}>☕ Meals:</span> {room.breakfast}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Room Price & Action CTA */}
+                      <div className={styles.roomRightSection}>
+                        {(room.price || hotel.price) && (
+                          <div className={styles.roomPriceWrapper}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Starting From</span>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary-navy)' }}>
+                              ₹{room.price || hotel.price}
+                              <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}> / night</span>
+                            </div>
+                          </div>
+                        )}
+                        <a
+                          href="#enquiry-form"
+                          className="btn btn-primary btn-sm"
+                          style={{ minWidth: '130px', textAlign: 'center' }}
+                          onClick={() => {
+                            const enquirySection = document.getElementById('enquiry-form');
+                            enquirySection?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                        >
+                          Enquire Room
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 4. Inclusions, Exclusions, and Privacy Policy / Terms */}
+          {((hotel.inclusions && hotel.inclusions !== '<ul></ul>') || (hotel.exclusions && hotel.exclusions !== '<ul></ul>')) && (
+            <div className={styles.inclusionsExclusionsGrid} style={{ marginBottom: '2.5rem' }}>
+              {hotel.inclusions && hotel.inclusions !== '<ul></ul>' && (
+                <div className={styles.inclusionsBlock}>
+                  <h3>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3">
+                      <polyline points="20,6 9,17 4,12" />
+                    </svg>
+                    <span>Inclusions</span>
+                  </h3>
+                  <div className={styles.richList} dangerouslySetInnerHTML={{ __html: hotel.inclusions }} />
+                </div>
+              )}
+
+              {hotel.exclusions && hotel.exclusions !== '<ul></ul>' && (
+                <div className={styles.exclusionsBlock}>
+                  <h3>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                    <span>Exclusions</span>
+                  </h3>
+                  <div className={styles.richList} dangerouslySetInnerHTML={{ __html: hotel.exclusions }} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Terms & Conditions / Privacy Policy Section */}
+          {hotel.terms_conditions && hotel.terms_conditions !== '<ul></ul>' && (
+            <div className={styles.termsAccordion} style={{ marginBottom: '4rem' }}>
+              <div className={styles.termsHeader} onClick={() => setIsTermsOpen(!isTermsOpen)}>
+                <h3 className={styles.termsTitle}>
+                  📝 Hotel Specific Policies, Terms & Privacy
+                </h3>
+                <svg 
+                  style={{ transform: isTermsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
+                  viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5"
+                >
+                  <polyline points="6,9 12,15 18,9" />
+                </svg>
+              </div>
+              {isTermsOpen && (
+                <div className={styles.termsBody} dangerouslySetInnerHTML={{ __html: hotel.terms_conditions }} />
+              )}
+            </div>
+          )}
         </div>
 
         {/* Room Categories Section */}

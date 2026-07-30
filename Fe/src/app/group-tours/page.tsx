@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { groupToursApi, GroupTour, GroupTourPage } from '@/lib/api';
 import styles from './group-tours.module.css';
+import Pagination from '@/components/Pagination';
 
 const defaultTours: GroupTour[] = [
   {
@@ -98,6 +99,8 @@ export default function GroupToursPage() {
     preferred_date: '2026-09-15'
   });
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 9;
 
   const toursRef = useRef<HTMLDivElement>(null);
   const enquiryFormRef = useRef<HTMLDivElement>(null);
@@ -282,50 +285,60 @@ export default function GroupToursPage() {
         </div>
 
         <div className={styles.packagesGrid}>
-          {filteredTours.map(tour => (
-            <div key={tour.id} className={styles.tourCard}>
-              <div 
-                className={styles.tourCardImage} 
-                style={{ backgroundImage: `url(${tour.image || defaultBanner})` }}
-              >
-                <span className={`${styles.statusBadge} ${getStatusClass(tour.status)}`}>
-                  {tour.status}
-                </span>
+          {filteredTours
+            .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+            .map(tour => (
+              <div key={tour.id} className={styles.tourCard}>
+                <div 
+                  className={styles.tourCardImage} 
+                  style={{ backgroundImage: `url(${tour.image || defaultBanner})` }}
+                >
+                  <span className={`${styles.statusBadge} ${getStatusClass(tour.status)}`}>
+                    {tour.status}
+                  </span>
+                </div>
+                <div className={styles.tourCardContent}>
+                  <h3 className={styles.tourTitle}>{tour.name}</h3>
+                  <div className={styles.tourMeta}>
+                    <span className={styles.tourMetaItem}>⏱️ {tour.duration}</span>
+                    {tour.departure_date && (
+                      <span className={styles.tourMetaItem}>📅 {new Date(tour.departure_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    )}
+                  </div>
+                  <div className={styles.tourPriceRow}>
+                    <span className={styles.priceLabel}>From</span>
+                    <span className={styles.priceValue}>₹{tour.starting_price.toLocaleString('en-IN')}/-</span>
+                  </div>
+                  
+                  <div className={styles.cardActionsRow}>
+                    <Link href={`/group-tours/${tour.id}`} className={styles.btnViewDetails}>
+                      View Details
+                    </Link>
+                    <button className={styles.btnEnquireNow} onClick={() => openEnquiryModal(tour)}>
+                      Enquire Now
+                    </button>
+                    <a 
+                      href={`https://wa.me/919846665005?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour.name)}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={styles.btnWhatsappIcon}
+                      title="Chat on WhatsApp"
+                    >
+                      💬
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div className={styles.tourCardContent}>
-                <h3 className={styles.tourTitle}>{tour.name}</h3>
-                <div className={styles.tourMeta}>
-                  <span className={styles.tourMetaItem}>⏱️ {tour.duration}</span>
-                  {tour.departure_date && (
-                    <span className={styles.tourMetaItem}>📅 {new Date(tour.departure_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                  )}
-                </div>
-                <div className={styles.tourPriceRow}>
-                  <span className={styles.priceLabel}>From</span>
-                  <span className={styles.priceValue}>₹{tour.starting_price.toLocaleString('en-IN')}/-</span>
-                </div>
-                
-                <div className={styles.cardActionsRow}>
-                  <Link href={`/group-tours/${tour.id}`} className={styles.btnViewDetails}>
-                    View Details
-                  </Link>
-                  <button className={styles.btnEnquireNow} onClick={() => openEnquiryModal(tour)}>
-                    Enquire Now
-                  </button>
-                  <a 
-                    href={`https://wa.me/919846665005?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour.name)}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={styles.btnWhatsappIcon}
-                    title="Chat on WhatsApp"
-                  >
-                    💬
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(filteredTours.length / ITEMS_PER_PAGE)}
+          onPageChange={setCurrentPage}
+          totalItems={filteredTours.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+        />
       </section>
 
       {/* 5. Upcoming Group Departures Banner Carousel */}

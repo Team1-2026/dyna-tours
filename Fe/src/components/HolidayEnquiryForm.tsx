@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { api } from '@/lib/api';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
 
 export default function HolidayEnquiryForm({ categoryName }: { categoryName: string }) {
+  const [countryCode, setCountryCode] = useState('+91');
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -30,7 +32,7 @@ export default function HolidayEnquiryForm({ categoryName }: { categoryName: str
         type: 'package',
         target_id: categoryName,
         name: formData.name,
-        phone: formData.phone,
+        phone: `${countryCode} ${formData.phone}`,
         email: formData.email,
         num_children: formData.num_children ? parseInt(formData.num_children) : 0,
         children_ages: formData.children_ages,
@@ -66,7 +68,10 @@ export default function HolidayEnquiryForm({ categoryName }: { categoryName: str
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {error && <div style={{ color: 'red', fontSize: '0.9rem' }}>{error}</div>}
       <input required type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Your Name" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
-      <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone No:" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+        <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone No:" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none', flex: 1 }} />
+      </div>
       <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email Address" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
       
       <div style={{ display: 'flex', gap: '1rem' }}>

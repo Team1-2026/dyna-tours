@@ -34,6 +34,9 @@ class Destination extends Model
         'city',
         'related_tours',
         'order_no',
+        'banner_heading',
+        'banner_tagline',
+        'status',
     ];
 
     protected $casts = [

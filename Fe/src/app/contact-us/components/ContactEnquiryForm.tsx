@@ -3,8 +3,10 @@
 import React, { useState } from 'react';
 import styles from '../contact.module.css';
 import { contactPageApi } from '@/lib/api';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
 
 export default function ContactEnquiryForm() {
+  const [countryCode, setCountryCode] = useState('+91');
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -31,7 +33,7 @@ export default function ContactEnquiryForm() {
     try {
       const res = await contactPageApi.submitContactEnquiry({
         name: formData.name,
-        phone: formData.phone,
+        phone: `${countryCode} ${formData.phone}`,
         email: formData.email,
         num_people: Number(formData.num_people),
         travel_date: formData.travel_date,
@@ -87,16 +89,23 @@ export default function ContactEnquiryForm() {
           </div>
 
           <div className={styles.formField}>
-            <label className={styles.label}>Phone Number <span>*</span></label>
-            <input 
-              type="tel" 
-              name="phone" 
-              required 
-              placeholder="e.g. +91 98466 65005" 
-              value={formData.phone} 
-              onChange={handleInputChange} 
-              className={styles.input} 
-            />
+            <label className={styles.label}>Phone Number <span className="required-star">*</span></label>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <CountryCodeSelect 
+                value={countryCode} 
+                onChange={(code) => setCountryCode(code)} 
+              />
+              <input 
+                type="tel" 
+                name="phone" 
+                required 
+                placeholder="98466 65005" 
+                value={formData.phone} 
+                onChange={handleInputChange} 
+                className={styles.input} 
+                style={{ flex: 1 }}
+              />
+            </div>
           </div>
         </div>
 

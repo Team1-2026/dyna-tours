@@ -4,10 +4,13 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api, Hotel } from '@/lib/api';
 import styles from './hotels.module.css';
+import Pagination from '@/components/Pagination';
 
 export default function HotelsDirectoryPage() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 9;
 
   // Search filter states
   const [searchDestination, setSearchDestination] = useState('');
@@ -155,96 +158,108 @@ export default function HotelsDirectoryPage() {
             <h3 style={{ color: 'var(--color-text-secondary)' }}>Searching available hotels...</h3>
           </div>
         ) : hotels.length > 0 ? (
-          <div className={styles.listingGrid}>
-            {hotels.map((hotel) => (
-              <div key={hotel.id} className={styles.hotelCard} style={{ background: '#ffffff' }}>
-                <div style={{ position: 'relative', height: '220px' }}>
-                  <img 
-                    src={(typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : (hotel.gallery?.[0] as any)?.url) || '/images/default_hotel.png'} 
-                    alt={hotel.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <span style={{ 
-                    position: 'absolute', 
-                    top: '1rem', 
-                    left: '1rem', 
-                    background: 'var(--color-secondary-navy)', 
-                    color: '#ffffff', 
-                    padding: '0.25rem 0.75rem', 
-                    borderRadius: 'var(--radius-full)', 
-                    fontSize: '0.75rem', 
-                    fontWeight: 700 
-                  }}>
-                    {hotel.category}
-                  </span>
-                  {hotel.featured && (
-                    <span style={{ 
-                      position: 'absolute', 
-                      top: '1rem', 
-                      right: '1rem', 
-                      background: 'linear-gradient(135deg, #f59e0b, #d97706)', 
-                      color: '#ffffff', 
-                      padding: '0.25rem 0.75rem', 
-                      borderRadius: 'var(--radius-full)', 
-                      fontSize: '0.725rem', 
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem'
-                    }}>
-                      <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style={{ color: '#ffffff' }}>
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                      Featured
-                    </span>
-                  )}
-                </div>
-                <div style={{ padding: '1.75rem' }}>
-                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '0.5rem' }}>
-                    {hotel.name}
-                  </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '1rem' }}>
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    {hotel.location}
+          <>
+            <div className={styles.listingGrid}>
+              {hotels
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map((hotel) => (
+                  <div key={hotel.id} className={styles.hotelCard} style={{ background: '#ffffff' }}>
+                    <div style={{ position: 'relative', height: '220px' }}>
+                      <img 
+                        src={(typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : (hotel.gallery?.[0] as any)?.url) || '/images/default_hotel.png'} 
+                        alt={hotel.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      <span style={{ 
+                        position: 'absolute', 
+                        top: '1rem', 
+                        left: '1rem', 
+                        background: 'var(--color-secondary-navy)', 
+                        color: '#ffffff', 
+                        padding: '0.25rem 0.75rem', 
+                        borderRadius: 'var(--radius-full)', 
+                        fontSize: '0.75rem', 
+                        fontWeight: 700 
+                      }}>
+                        {hotel.category}
+                      </span>
+                      {hotel.featured && (
+                        <span style={{ 
+                          position: 'absolute', 
+                          top: '1rem', 
+                          right: '1rem', 
+                          background: 'linear-gradient(135deg, #f59e0b, #d97706)', 
+                          color: '#ffffff', 
+                          padding: '0.25rem 0.75rem', 
+                          borderRadius: 'var(--radius-full)', 
+                          fontSize: '0.725rem', 
+                          fontWeight: 800,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem'
+                        }}>
+                          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style={{ color: '#ffffff' }}>
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          </svg>
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ padding: '1.75rem' }}>
+                      <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '0.5rem' }}>
+                        {hotel.name}
+                      </h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '1rem' }}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {hotel.location}
+                      </div>
+                      {expandedHotels.includes(hotel.id) && (
+                        <div 
+                          style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '1.5rem' }}
+                          dangerouslySetInnerHTML={{ __html: hotel.short_description }}
+                        />
+                      )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                        <button 
+                          type="button"
+                          onClick={() => toggleDescription(hotel.id)}
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: 'var(--color-primary-red)', 
+                            padding: 0, 
+                            font: 'inherit', 
+                            cursor: 'pointer', 
+                            textDecoration: 'underline', 
+                            fontSize: '0.85rem',
+                            fontWeight: 600 
+                          }}
+                        >
+                          {expandedHotels.includes(hotel.id) ? 'Hide Description' : 'Show Description'}
+                        </button>
+                        <Link href={`/hotels/${hotel.id}`} className="btn btn-primary btn-sm" style={{ marginLeft: 'auto' }}>
+                          View Hotel
+                        </Link>
+                      </div>
+                    </div>
                   </div>
-                  {expandedHotels.includes(hotel.id) && (
-                    <div 
-                      style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '1.5rem' }}
-                      dangerouslySetInnerHTML={{ __html: hotel.short_description }}
-                    />
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
-                    <button 
-                      type="button"
-                      onClick={() => toggleDescription(hotel.id)}
-                      style={{ 
-                        background: 'none', 
-                        border: 'none', 
-                        color: 'var(--color-primary-red)', 
-                        padding: 0, 
-                        font: 'inherit', 
-                        cursor: 'pointer', 
-                        textDecoration: 'underline', 
-                        fontSize: '0.85rem',
-                        fontWeight: 600 
-                      }}
-                    >
-                      {expandedHotels.includes(hotel.id) ? 'Hide Description' : 'Show Description'}
-                    </button>
-                    <Link href={`/hotels/${hotel.id}`} className="btn btn-primary btn-sm" style={{ marginLeft: 'auto' }}>
-                      View Hotel
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                ))}
+            </div>
+
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={Math.ceil(hotels.length / ITEMS_PER_PAGE)}
+              onPageChange={setCurrentPage}
+              totalItems={hotels.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
+          </>
         ) : (
           <div style={{ padding: '4rem 0', textAlign: 'center', background: '#ffffff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
             <h3 style={{ color: 'var(--color-secondary-navy)', marginBottom: '0.5rem' }}>No Hotels Found</h3>

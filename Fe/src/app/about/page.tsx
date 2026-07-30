@@ -310,7 +310,7 @@ export default async function AboutUsPage() {
             </div>
             
             <h1 className={styles.heroTitle}>
-              About <span className={styles.textRed}>Dyna Tours India</span>
+              About <span className={styles.textRed}>Us</span>
             </h1>
             
             <p className={styles.heroLead}>

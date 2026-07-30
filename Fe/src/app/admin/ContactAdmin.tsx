@@ -45,6 +45,11 @@ export default function ContactAdmin() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, fieldName: keyof ContactPage) => {
     const file = e.target.files?.[0];
     if (!file || !pageData) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert(`File "${file.name}" is ${(file.size / (1024 * 1024)).toFixed(2)} MB. Maximum allowed image size is 5 MB.`);
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target?.result) {
@@ -122,9 +127,60 @@ export default function ContactAdmin() {
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Brand Tagline</label>
           <input type="text" name="brand_tagline" value={pageData.brand_tagline || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
         </div>
-        <div style={{ marginBottom: '30px' }}>
+        <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Brand Card Description</label>
           <textarea name="brand_description" value={pageData.brand_description || ''} onChange={handleChange} rows={3} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+
+        {/* Social Media Links Editor (Task 38) */}
+        <div style={{ marginBottom: '30px', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#1e293b' }}>Connect With Us - Social Media Links</label>
+          {(pageData.social_links || []).map((link, idx) => (
+            <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+              <input 
+                type="text" 
+                placeholder="Platform (e.g. Instagram)" 
+                value={link.platform} 
+                onChange={(e) => {
+                  const updated = [...(pageData.social_links || [])];
+                  updated[idx] = { ...updated[idx], platform: e.target.value };
+                  setPageData({ ...pageData, social_links: updated });
+                }}
+                style={{ padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px' }}
+              />
+              <input 
+                type="text" 
+                placeholder="URL (e.g. https://instagram.com/dynatours)" 
+                value={link.url} 
+                onChange={(e) => {
+                  const updated = [...(pageData.social_links || [])];
+                  updated[idx] = { ...updated[idx], url: e.target.value };
+                  setPageData({ ...pageData, social_links: updated });
+                }}
+                style={{ padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px' }}
+              />
+              <button 
+                type="button"
+                onClick={() => {
+                  const updated = (pageData.social_links || []).filter((_, i) => i !== idx);
+                  setPageData({ ...pageData, social_links: updated });
+                }}
+                style={{ padding: '6px 12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button 
+            type="button"
+            onClick={() => {
+              const updated = [...(pageData.social_links || []), { platform: 'New Platform', url: 'https://', icon: 'Instagram' }];
+              setPageData({ ...pageData, social_links: updated });
+            }}
+            style={{ padding: '8px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '5px' }}
+          >
+            + Add Social Link
+          </button>
         </div>
 
         {/* Google Maps Embed Link */}
@@ -132,6 +188,27 @@ export default function ContactAdmin() {
         <div style={{ marginBottom: '30px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Google Maps Embed URL (`src` attribute)</label>
           <input type="text" name="map_embed_url" value={pageData.map_embed_url || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+
+        {/* SEO Settings (Task 32) */}
+        <h3 style={{ borderBottom: '2px solid #dc2626', paddingBottom: '8px', color: '#991b1b' }}>6. SEO Settings</h3>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Title</label>
+          <input type="text" name="meta_title" value={(pageData as any).meta_title || ''} onChange={handleChange} placeholder="e.g. Contact Us | Dyna Tours India" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Description</label>
+          <textarea name="meta_description" value={(pageData as any).meta_description || ''} onChange={handleChange} rows={2} placeholder="Meta description for search engines..." style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>URL Slug</label>
+            <input type="text" name="url_slug" value={(pageData as any).url_slug || 'contact-us'} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Canonical URL</label>
+            <input type="text" name="canonical_url" value={(pageData as any).canonical_url || ''} onChange={handleChange} placeholder="https://dynatours.in/contact-us" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+          </div>
         </div>
 
         <button type="submit" className={styles.saveBtn} style={{ padding: '12px 24px', fontSize: '1rem', cursor: 'pointer' }}>

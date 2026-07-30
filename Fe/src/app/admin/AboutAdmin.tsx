@@ -171,7 +171,7 @@ export default function AboutAdmin() {
       <form onSubmit={handleSave} style={{ background: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
         
         {/* 1. HERO BANNER SECTION */}
-        <h3 style={{ borderBottom: '2px solid #3b82f6', paddingBottom: '8px', color: '#1e3a8a', marginTop: 0 }}>
+        <h3 style={{ borderBottom: '2px solid #3b82f6', paddingBottom: '8px', color: '#1e3a8a', marginTop: '20px' }}>
           1. Hero Banner
         </h3>
         <div style={{ marginBottom: '15px' }}>
@@ -179,7 +179,7 @@ export default function AboutAdmin() {
           <input 
             type="text" 
             name="hero_title" 
-            value={pageData.hero_title || 'About Dyna Tours India'} 
+            value={pageData.hero_title || 'About Us'} 
             onChange={handleChange} 
             style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
           />
@@ -737,6 +737,27 @@ export default function AboutAdmin() {
               onChange={handleChange} 
               style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
             />
+          </div>
+        </div>
+
+        {/* 9. SEO Settings (Task 32) */}
+        <h3 style={{ borderBottom: '2px solid #dc2626', paddingBottom: '8px', color: '#991b1b', marginTop: '30px' }}>9. SEO Settings</h3>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Title</label>
+          <input type="text" name="meta_title" value={(pageData as any).meta_title || ''} onChange={handleChange} placeholder="e.g. About Us | Dyna Tours India" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Description</label>
+          <textarea name="meta_description" value={(pageData as any).meta_description || ''} onChange={handleChange} rows={2} placeholder="Meta description for search engines..." style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>URL Slug</label>
+            <input type="text" name="url_slug" value={(pageData as any).url_slug || 'about'} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Canonical URL</label>
+            <input type="text" name="canonical_url" value={(pageData as any).canonical_url || ''} onChange={handleChange} placeholder="https://dynatours.in/about" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
           </div>
         </div>
 

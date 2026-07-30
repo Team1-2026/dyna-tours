@@ -155,8 +155,24 @@ export default function HolidaysList({ initialCategory }: HolidaysListProps) {
 
       {/* Introduction Content */}
       <section style={{ padding: '2rem 0', textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '1rem', fontFamily: 'var(--font-manrope)' }}>
-          Popular {activeTab === 'All Packages' ? 'Holiday Packages' : activeTab}
+        <h2 style={{ fontSize: '2.25rem', fontWeight: 800, marginBottom: '1rem', fontFamily: 'var(--font-manrope)', color: '#0f172a' }}>
+          {activeTab === 'Honeymoon Tour Packages' ? (
+            <>
+              Popular Honeymoon <span style={{ color: 'var(--color-primary-red)' }}>Tour Packages</span>
+            </>
+          ) : activeTab === 'All Packages' ? (
+            <>
+              Popular <span style={{ color: 'var(--color-primary-red)' }}>Holiday Packages</span>
+            </>
+          ) : activeTab.includes('Tour Packages') ? (
+            <>
+              Popular {activeTab.replace(' Tour Packages', '')} <span style={{ color: 'var(--color-primary-red)' }}>Tour Packages</span>
+            </>
+          ) : (
+            <>
+              Popular <span style={{ color: 'var(--color-primary-red)' }}>{activeTab}</span>
+            </>
+          )}
         </h2>
         <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.8 }}>
           Explore our handpicked holiday packages covering the most loved destinations. Whether you&apos;re planning a family vacation, honeymoon, adventure trip, or cultural getaway, find the perfect package for your next journey. Our experts have curated the best itineraries to ensure you have a memorable and hassle-free travel experience.

@@ -256,8 +256,8 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
                   Book This Cruise
                 </h3>
                 {cruise.show_price && cruise.price ? (
-                  <div className={styles.sidebarPrice}>
-                    ₹{Number(cruise.price).toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>/ person</span>
+                  <div className={styles.sidebarPrice} suppressHydrationWarning>
+                    ₹{Number(cruise.price).toLocaleString('en-IN')} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>/ person</span>
                   </div>
                 ) : (
                   <div className={styles.sidebarPrice} style={{ fontSize: '1.25rem' }}>

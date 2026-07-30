@@ -66,20 +66,40 @@
   opacity: 0.9;
 }
 
-/* Two Column Grid */
-.detailGrid {
+/* Two Column Grid for Overview & Plan Your Trip */
+.overviewFormGrid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 3rem;
-  padding: 4rem 0;
-  align-items: start;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: stretch;
+  margin-bottom: 3rem;
 }
 
 @media (max-width: 992px) {
-  .detailGrid {
+  .overviewFormGrid {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2rem;
   }
+}
+
+.overviewCard {
+  background: var(--color-bg-card, #ffffff);
+  border-radius: var(--radius-xl, 20px);
+  padding: 2.5rem 2.25rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  box-shadow: var(--shadow-premium, 0 10px 30px rgba(0, 0, 0, 0.05));
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.detailGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 2rem 0 4rem 0;
 }
 
 /* Card layout blocks */
@@ -280,78 +300,98 @@
   object-fit: cover;
 }
 
-/* Sidebar / Enquiry Form */
-.sidebarSticky {
-  position: sticky;
-  top: 100px;
-}
-
+/* Sidebar / Enquiry Form (Navy Background matching Hotel enquiry form) */
 .formCard {
-  background: var(--color-secondary-navy);
+  background: var(--color-secondary-navy, #0c2745);
   color: #ffffff;
-  border-radius: var(--radius-lg);
-  padding: 2.25rem;
-  box-shadow: var(--shadow-xl);
+  border-radius: var(--radius-xl, 20px);
+  padding: 2.25rem 2rem;
+  box-shadow: 0 20px 45px -10px rgba(12, 39, 69, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .formTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.65rem;
+  font-weight: 800;
   color: #ffffff;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .formSubtitle {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  margin-bottom: 2rem;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1.25rem;
+}
+
+.formInnerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .formInnerGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .formGroup {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.85rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .formGroup label {
   display: block;
   font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
+  font-weight: 700;
+  color: #ffffff !important;
+  margin-bottom: 0.35rem;
+  opacity: 1 !important;
 }
 
-.formInput {
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.darkInput, .darkTextarea {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  border-radius: var(--radius-md);
-  padding: 0.75rem 1rem;
-  font-size: 0.95rem;
-  transition: all var(--transition-fast);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
-.formInput:focus {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--color-primary-red);
-  box-shadow: 0 0 0 3px rgba(231, 40, 43, 0.35);
+.darkInput::placeholder, .darkTextarea::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.darkInput:focus, .darkTextarea:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: var(--color-primary-red, #e7282b);
+  box-shadow: 0 0 0 3px rgba(231, 40, 43, 0.3);
 }
 
 .submitBtn {
   width: 100%;
-  padding: 0.9rem;
+  padding: 0.85rem;
   font-weight: 700;
-  background: var(--color-primary-red);
+  font-size: 1rem;
+  background: var(--color-primary-red, #dc2626);
   color: #ffffff;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   border: none;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
   margin-top: 1rem;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.35);
 }
 
 .submitBtn:hover {
-  background: var(--color-primary-red-hover);
-  box-shadow: 0 6px 20px rgba(231, 40, 43, 0.45);
+  background: var(--color-primary-red-hover, #b91c1c);
 }
 
 .submitBtn:disabled {
@@ -379,9 +419,27 @@
 
 .packagesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
   margin-top: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .packagesGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .packagesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .packagesGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Explore Hotels Section */
@@ -400,12 +458,18 @@
 
 .hotelCard {
   background: var(--color-bg-card);
-  border-radius: 1.25rem;
-  border-radius: var(--radius-lg);
+  border-radius: 1.25rem !important;
+  -webkit-border-radius: 1.25rem !important;
   overflow: hidden !important;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
   transition: transform var(--transition-fast);
+}
+
+.hotelCard img {
+  border-top-left-radius: 1.25rem !important;
+  border-top-right-radius: 1.25rem !important;
+  overflow: hidden !important;
 }
 
 .hotelCard:hover {

@@ -45,6 +45,10 @@ class Hotel extends Model
         'terms_conditions',
         'related_hotels',
         'video_url',
+        'is_visible',
+        'show_details',
+        'banner_heading',
+        'banner_tagline',
     ];
 
     protected $casts = [
@@ -54,6 +58,8 @@ class Hotel extends Model
         'show_rooms' => 'boolean',
         'show_offer_label' => 'boolean',
         'show_price' => 'boolean',
+        'is_visible' => 'boolean',
+        'show_details' => 'boolean',
         'price' => 'float',
         'order_no' => 'integer',
         'related_hotels' => 'array',
