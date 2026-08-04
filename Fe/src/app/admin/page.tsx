@@ -367,7 +367,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLocalImageUploadForSection = (e: React.ChangeEvent<HTMLInputElement>, section: 'banner' | 'featured' | 'gallery') => {
+  const handleLocalImageUploadForSection = async (e: React.ChangeEvent<HTMLInputElement>, section: 'banner' | 'featured' | 'gallery') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -377,7 +377,7 @@ export default function AdminDashboard() {
       e.target.value = '';
       return;
     }
-    const maxSizeMB = 5;
+    const maxSizeMB = 10;
     if (file.size > maxSizeMB * 1024 * 1024) {
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       alert(`Image file size (${fileSizeMB} MB) exceeds maximum limit of ${maxSizeMB} MB.`);
@@ -385,17 +385,22 @@ export default function AdminDashboard() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        const base64 = event.target.result as string;
-        if (section === 'banner') handleBannerImageUpdate(base64);
-        else if (section === 'featured') handleFeaturedImageUpdate(base64);
-        else handleAddGalleryImage(base64);
-      }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+    try {
+      setSaveStatus('Uploading image file...');
+      const uploaded = await api.uploadImage(file);
+      const imageUrl = uploaded.url;
+      if (section === 'banner') handleBannerImageUpdate(imageUrl);
+      else if (section === 'featured') handleFeaturedImageUpdate(imageUrl);
+      else handleAddGalleryImage(imageUrl);
+      setSaveStatus('✓ Image uploaded successfully!');
+      setTimeout(() => setSaveStatus(null), 3000);
+    } catch (err: any) {
+      console.error(err);
+      alert(err?.message || 'Failed to upload image file.');
+      setSaveStatus(null);
+    } finally {
+      e.target.value = '';
+    }
   };
 
   // Load all initial admin data
@@ -752,7 +757,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleRoomLocalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRoomLocalImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -762,7 +767,7 @@ export default function AdminDashboard() {
       e.target.value = '';
       return;
     }
-    const maxSizeMB = 5;
+    const maxSizeMB = 10;
     if (file.size > maxSizeMB * 1024 * 1024) {
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       alert(`Image file size (${fileSizeMB} MB) exceeds maximum limit of ${maxSizeMB} MB.`);
@@ -770,18 +775,22 @@ export default function AdminDashboard() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        const base64 = event.target.result as string;
-        setRoomForm(prev => ({
-          ...prev,
-          images: [...(prev.images || []), base64]
-        }));
-      }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+    try {
+      setSaveStatus('Uploading room image...');
+      const uploaded = await api.uploadImage(file);
+      setRoomForm(prev => ({
+        ...prev,
+        images: [...(prev.images || []), uploaded.url]
+      }));
+      setSaveStatus('✓ Room image uploaded!');
+      setTimeout(() => setSaveStatus(null), 3000);
+    } catch (err: any) {
+      console.error(err);
+      alert(err?.message || 'Failed to upload room image.');
+      setSaveStatus(null);
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const addRoomImageUrl = (url: string) => {
@@ -2841,9 +2850,15 @@ export default function AdminDashboard() {
                           <input 
                             type="text" 
                             placeholder="Or paste image URL / Base64 string..."
-                            value={isCreatingDest ? newDest.banner_image || '' : selectedDest?.banner_image || ''}
+                            value={(() => {
+                              const url = isCreatingDest ? newDest.banner_image : selectedDest?.banner_image;
+                              if (!url) return '';
+                              if (url.startsWith('data:image/')) return '[Uploaded Image File]';
+                              return url;
+                            })()}
                             onChange={(e) => {
                               const val = e.target.value;
+                              if (val === '[Uploaded Image File]') return;
                               if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_image: val }));
                               else setSelectedDest(prev => prev ? { ...prev, banner_image: val } : null);
                             }}

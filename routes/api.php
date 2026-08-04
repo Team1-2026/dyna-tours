@@ -22,6 +22,8 @@ use App\Http\Controllers\API\StaffController;
 use App\Http\Controllers\API\CruiseController;
 use App\Http\Controllers\API\CruisePageController;
 
+use App\Http\Controllers\API\ImageUploadController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -74,6 +76,7 @@ Route::post('/google-chat/webhook', GoogleChatWebhookController::class)
     
 // Protected admin routes
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/upload', [ImageUploadController::class, 'upload']);
     Route::post('/conversations/start', [ConversationalAgentController::class, 'startConversation']);
     Route::post('/conversations/continue', [ConversationalAgentController::class, 'continueConversation']);
 

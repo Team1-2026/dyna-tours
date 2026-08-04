@@ -352,6 +352,31 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
 }
 
 export const api = {
+  // Image Upload helper
+  uploadImage: async (file: File): Promise<{ message: string; url: string }> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const token = authHelper.getToken();
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(`${BASE_URL}/upload`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Image upload failed: ${res.statusText} (${errText})`);
+    }
+
+    return await res.json();
+  },
+
   // Authentication operations
   login: async (email: string, password: string): Promise<{ token: string; user: { name: string; email: string } }> => {
     const res = await apiFetch<{ token: string; user: { name: string; email: string } }>('/login', {
