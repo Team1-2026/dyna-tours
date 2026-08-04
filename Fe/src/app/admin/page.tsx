@@ -1025,6 +1025,7 @@ export default function AdminDashboard() {
               <div 
                 className={`${styles.subMenuItem} ${activeTab === 'hotels' && isCreatingHotel ? styles.subMenuItemActive : ''}`}
                 onClick={() => {
+                  const nextHotelOrder = hotels.length > 0 ? Math.max(...hotels.map(h => Number(h.order_no) || 0)) + 1 : 1;
                   setActiveTab('hotels');
                   setIsCreatingHotel(true);
                   setSelectedHotelId('');
@@ -1033,7 +1034,7 @@ export default function AdminDashboard() {
                     id: '', name: '', destination_id: destinations[0]?.id || '', short_description: '', about: '',
                     location: '', distance_from_attractions: '', category: '5-Star', price: 100,
                     offer_label: '', featured: false, show_rooms: true, show_offer_label: true,
-                    show_price: true, order_no: null, status: 'Active', country: 'India', state: 'Kerala',
+                    show_price: true, order_no: nextHotelOrder, status: 'Active', country: 'India', state: 'Kerala',
                     city: 'Munnar', inclusions: '', exclusions: '', terms_conditions: '',
                     gallery: [], facilities: [], related_hotels: [], rooms: [], video_url: ''
                   });
@@ -1069,6 +1070,7 @@ export default function AdminDashboard() {
               <div 
                 className={`${styles.subMenuItem} ${activeTab === 'destinations' && isCreatingDest ? styles.subMenuItemActive : ''}`}
                 onClick={() => {
+                  const nextDestOrder = destinations.length > 0 ? Math.max(...destinations.map(d => Number(d.order_no) || 0)) + 1 : 1;
                   setActiveTab('destinations');
                   setIsCreatingDest(true);
                   setSelectedDestId('');
@@ -1077,7 +1079,7 @@ export default function AdminDashboard() {
                     id: '', name: '', type: 'domestic', parent_id: null, overview: '',
                     show_packages: true, show_hotels: true, country: 'India', state: 'Kerala', city: '',
                     meta_title: '', meta_description: '', url_slug: '', canonical_url: '',
-                    gallery: [], top_attractions: [], related_tours: []
+                    gallery: [], top_attractions: [], related_tours: [], order_no: nextDestOrder, status: 'Active'
                   });
                 }}
               >
@@ -1541,12 +1543,13 @@ export default function AdminDashboard() {
                     <button 
                       className="btn btn-primary"
                       onClick={() => {
+                        const nextHotelOrder = hotels.length > 0 ? Math.max(...hotels.map(h => Number(h.order_no) || 0)) + 1 : 1;
                         setIsCreatingHotel(true);
                         setNewHotel({
                           id: '', name: '', destination_id: destinations[0]?.id || '', short_description: '', about: '',
                           location: '', distance_from_attractions: '', category: '5-Star', price: 100,
                           offer_label: '', featured: false, show_rooms: true, show_offer_label: true,
-                          show_price: true, order_no: null, status: 'Active', country: 'India', state: 'Kerala',
+                          show_price: true, order_no: nextHotelOrder, status: 'Active', country: 'India', state: 'Kerala',
                           city: 'Munnar', inclusions: '', exclusions: '', terms_conditions: '',
                           gallery: [], facilities: [], related_hotels: [], rooms: [], video_url: ''
                         });
@@ -2482,7 +2485,7 @@ export default function AdminDashboard() {
                 <div className={styles.editorGrid}>
                   
                   {/* LEFT COLUMN: Main specifications (65%) */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
                     
                     {/* Destination Details Card */}
                     <div className={styles.formCard}>
@@ -2577,7 +2580,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      <div className={styles.formRow}>
+                      <div className={styles.formRow} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
                         <div className="formGroup">
                           <label htmlFor="country">Country</label>
                           <select
@@ -2665,151 +2668,6 @@ export default function AdminDashboard() {
                       />
                     </div>
 
-                  </div>
-
-                  {/* RIGHT COLUMN: Media & SEO (35%) */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    
-                    {/* Images Card */}
-                    <div className={styles.formCard}>
-                      <h4 className={styles.formCardTitle}>Images</h4>
-                      
-                      {/* Banner Image Block */}
-                      <div className={styles.imageUploadCard}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                          <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', textTransform: 'uppercase', margin: 0 }}>
-                            Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
-                          </label>
-                          {(isCreatingDest ? newDest.banner_image : selectedDest?.banner_image) && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_image: null }));
-                                else setSelectedDest(prev => prev ? { ...prev, banner_image: null } : null);
-                              }}
-                              style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '22px', height: '22px', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                              title="Remove/Replace Banner Image"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-                        <img 
-                          src={isCreatingDest ? newDest.banner_image || '/images/default_hotel.png' : selectedDest?.banner_image || '/images/default_hotel.png'} 
-                          alt="Banner Preview" 
-                          className={styles.imageCardPreview}
-                          style={{ minHeight: '90px', objectFit: 'cover' }}
-                        />
-                        <div className={styles.imageCardControls} style={{ gap: '0.6rem' }}>
-                          <label className={styles.btnUploadFile} style={{ width: '100%', margin: 0 }}>
-                            📤 Upload Banner Image File
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              style={{ display: 'none' }}
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-
-                                const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
-                                if (!allowedTypes.includes(file.type.toLowerCase())) {
-                                  alert(`Invalid image format! Supported formats: PNG, JPG, WEBP, SVG.`);
-                                  e.target.value = '';
-                                  return;
-                                }
-                                const maxSizeMB = 5;
-                                if (file.size > maxSizeMB * 1024 * 1024) {
-                                  const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                                  alert(`Image file size (${fileSizeMB} MB) exceeds maximum limit of ${maxSizeMB} MB.`);
-                                  e.target.value = '';
-                                  return;
-                                }
-
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                  if (event.target?.result) {
-                                    const base64 = event.target.result as string;
-                                    if (isCreatingDest) {
-                                      setNewDest(prev => ({ ...prev, banner_image: base64 }));
-                                    } else {
-                                      setSelectedDest(prev => prev ? { ...prev, banner_image: base64 } : null);
-                                    }
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                                e.target.value = '';
-                              }}
-                            />
-                          </label>
-
-                          <input 
-                            type="text" 
-                            placeholder="Or paste image URL / Base64 string..."
-                            value={isCreatingDest ? newDest.banner_image || '' : selectedDest?.banner_image || ''}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_image: val }));
-                              else setSelectedDest(prev => prev ? { ...prev, banner_image: val } : null);
-                            }}
-                            className="formInput"
-                            style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
-                          />
-
-                          <div style={{ marginTop: '0.3rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <div>
-                              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.2rem' }}>Banner Title / Heading</label>
-                              <input 
-                                type="text" 
-                                placeholder="e.g. Explore Tropical Kerala"
-                                value={isCreatingDest ? newDest.banner_heading || '' : selectedDest?.banner_heading || ''}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_heading: val }));
-                                  else setSelectedDest(prev => prev ? { ...prev, banner_heading: val } : null);
-                                }}
-                                className="formInput"
-                                style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
-                              />
-                            </div>
-                            <div>
-                              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.2rem' }}>Banner Subtitle / Tagline</label>
-                              <input 
-                                type="text" 
-                                placeholder="e.g. God's Own Country - Backwaters & Hills"
-                                value={isCreatingDest ? newDest.banner_tagline || '' : selectedDest?.banner_tagline || ''}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_tagline: val }));
-                                  else setSelectedDest(prev => prev ? { ...prev, banner_tagline: val } : null);
-                                }}
-                                className="formInput"
-                                style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Destination Image Gallery */}
-                      <div className={styles.imageUploadCard}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
-                          Gallery Images <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 1200 × 800 px)</span>
-                        </label>
-                        <ImageTabularManager
-                          images={(isCreatingDest ? newDest.gallery || [] : selectedDest?.gallery || []) as any}
-                          onChange={handleDestGalleryChange}
-                        />
-                      </div>
-                    </div>
-
-
-
-                  </div>
-
-                </div>
-
-                {/* FULL WIDTH SECTIONS */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1.5rem' }}>
                     {/* How to Reach Details Card */}
                     <div className={styles.formCard}>
                       <h4 className={styles.formCardTitle}>How to Reach Details</h4>
@@ -2875,7 +2733,136 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    {/* SEO Settings Card */}
+                  </div>
+
+                  {/* RIGHT COLUMN: Media & SEO (35%) */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
+                    
+                    {/* Images Card */}
+                    <div className={styles.formCard}>
+                      <h4 className={styles.formCardTitle}>Images</h4>
+                      
+                      {/* Banner Image Block */}
+                      <div className={styles.imageUploadCard}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', textTransform: 'uppercase', margin: 0 }}>
+                            Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
+                          </label>
+                          {(isCreatingDest ? newDest.banner_image : selectedDest?.banner_image) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_image: null }));
+                                else setSelectedDest(prev => prev ? { ...prev, banner_image: null } : null);
+                              }}
+                              style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '22px', height: '22px', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                              title="Remove/Replace Banner Image"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                        <img 
+                          src={(isCreatingDest ? newDest.banner_image : selectedDest?.banner_image) || '/images/default_hotel.png'} 
+                          alt="Banner Preview" 
+                          className={styles.imageCardPreview}
+                          style={{ height: '90px', objectFit: 'cover' }}
+                        />
+                        <div className={styles.imageCardControls} style={{ gap: '0.6rem' }}>
+                          <label className={styles.btnUploadFile} style={{ width: '100%', margin: 0 }}>
+                            📤 Upload Banner Image File
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              style={{ display: 'none' }}
+                              onChange={(e) => handleLocalImageUploadForSection(e, 'banner')}
+                            />
+                          </label>
+
+                          <input 
+                            type="text" 
+                            placeholder="Or paste image URL / Base64 string..."
+                            value={isCreatingDest ? newDest.banner_image || '' : selectedDest?.banner_image || ''}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_image: val }));
+                              else setSelectedDest(prev => prev ? { ...prev, banner_image: val } : null);
+                            }}
+                            className="formInput"
+                            style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                          />
+
+                          <div style={{ marginTop: '0.3rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <div>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.2rem' }}>Banner Title / Heading</label>
+                              <input 
+                                type="text" 
+                                placeholder="e.g. Explore Tropical Kerala"
+                                value={isCreatingDest ? newDest.banner_heading || '' : selectedDest?.banner_heading || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_heading: val }));
+                                  else setSelectedDest(prev => prev ? { ...prev, banner_heading: val } : null);
+                                }}
+                                className="formInput"
+                                style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.2rem' }}>Banner Subtitle / Tagline</label>
+                              <input 
+                                type="text" 
+                                placeholder="e.g. God's Own Country - Backwaters & Hills"
+                                value={isCreatingDest ? newDest.banner_tagline || '' : selectedDest?.banner_tagline || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_tagline: val }));
+                                  else setSelectedDest(prev => prev ? { ...prev, banner_tagline: val } : null);
+                                }}
+                                className="formInput"
+                                style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Destination Image Gallery */}
+                      <div className={styles.imageUploadCard}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
+                          Gallery Images <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended size: 1200 × 800 px)</span>
+                        </label>
+                        <div className={styles.imageGridThumbnails}>
+                          {getGalleryImagesOnly(isCreatingDest ? newDest.gallery : selectedDest?.gallery).map((img, idx) => {
+                            const url = typeof img === 'string' ? img : img.url;
+                            return (
+                              <div key={idx} className={styles.thumbWrapper}>
+                                <img src={url} alt={`Gallery ${idx}`} className={styles.thumbImg} />
+                                <button 
+                                  type="button" 
+                                  className={styles.thumbRemoveBtn}
+                                  onClick={() => handleRemoveGalleryImage(url)}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <label className={styles.btnUploadFile} style={{ width: '100%' }}>
+                          ➕ Add More Gallery Images
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            style={{ display: 'none' }}
+                            onChange={(e) => handleLocalImageUploadForSection(e, 'gallery')}
+                          />
+                        </label>
+                      </div>
+
+                    </div>
+
+                    {/* SEO & URL Management Card */}
                     <div className={styles.formCard}>
                       <h4 className={styles.formCardTitle}>SEO & URL Management</h4>
                       
@@ -2927,6 +2914,9 @@ export default function AdminDashboard() {
                         />
                       </div>
                     </div>
+
+                  </div>
+
                 </div>
 
                 {/* Global Action Buttons */}

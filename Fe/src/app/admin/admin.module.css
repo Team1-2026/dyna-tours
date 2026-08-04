@@ -1082,9 +1082,13 @@ input:checked + .slider:before {
 
 .editorGrid {
   display: grid;
-  grid-template-columns: 1.8fr 1fr;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
+}
+
+.editorGrid > * {
+  min-width: 0;
 }
 
 @media (max-width: 1024px) {

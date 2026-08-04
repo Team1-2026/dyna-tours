@@ -221,205 +221,240 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
         /* ==========================================
            DETAIL PAGE LAYOUT
            ========================================== */
-        <section className="section">
+        <section className="section" style={{ paddingTop: '1rem' }}>
           <div className="container">
-            {/* Top Row: Overview (Col 6) and Plan Your Trip Form (Col 6) */}
-            <div className={styles.overviewFormGrid}>
-              {/* Left 6 Columns: Overview */}
-              <div className={styles.overviewCard}>
-                <div>
-                  <h2 className={styles.blockTitle}>{destination.name} Overview</h2>
-                  <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.overview }} />
+            {/* Top Gallery Images (matching Hotel page gallery layout) */}
+            {destination.gallery && destination.gallery.length > 0 && (
+              <div className={styles.imageGallery}>
+                <div className={styles.galleryGrid}>
+                  <div 
+                    className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      setZoomedIndex(0);
+                      setIsZoomOpen(true);
+                    }}
+                  >
+                    <img 
+                      src={typeof destination.gallery[0] === 'string' ? destination.gallery[0] : destination.gallery[0]?.url || ''} 
+                      alt={`${destination.name} featured view`} 
+                      className={styles.galleryImg} 
+                    />
+                  </div>
+                  {destination.gallery.slice(1, 3).map((img, idx) => {
+                    const imgUrl = typeof img === 'string' ? img : img?.url || '';
+                    if (!imgUrl) return null;
+                    return (
+                      <div 
+                        key={idx} 
+                        className={styles.galleryItem}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          setZoomedIndex(idx + 1);
+                          setIsZoomOpen(true);
+                        }}
+                      >
+                        <img src={imgUrl} alt={`${destination.name} view ${idx + 2}`} className={styles.galleryImg} />
+                      </div>
+                    );
+                  })}
+                  {destination.gallery[3] && (
+                    <div 
+                      className={styles.galleryItem} 
+                      style={{ gridColumn: 'span 2', cursor: 'pointer' }}
+                      onClick={() => {
+                        setZoomedIndex(3);
+                        setIsZoomOpen(true);
+                      }}
+                    >
+                      <img 
+                        src={typeof destination.gallery[3] === 'string' ? destination.gallery[3] : destination.gallery[3]?.url || ''} 
+                        alt={`${destination.name} view 4`} 
+                        className={styles.galleryImg} 
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
+            )}
 
-              {/* Right 6 Columns: Plan Your Trip Form (Dark Navy Theme matching Hotel form) */}
-              <div className={styles.formCard} id="plan-trip">
-                <h3 className={styles.formTitle}>Plan Your Trip</h3>
-                <p className={styles.formSubtitle}>Send us an enquiry to get custom details and rates.</p>
-
-                {formSuccess && (
-                  <div className={styles.alertSuccess}>
-                    ✓ Enquiry submitted successfully! Our experts will contact you soon.
+            {/* 2-Column Grid Row: Left Side = Content Cards, Right Side = Sticky Enquiry Form */}
+            <div className={styles.detailGrid}>
+              
+              {/* Left Side: Destination Information */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {/* Overview */}
+                {destination.overview && (
+                  <div className={styles.contentBlock}>
+                    <h2 className={styles.blockTitle}>{destination.name} Overview</h2>
+                    <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.overview }} />
                   </div>
                 )}
 
-                <form onSubmit={handleFormSubmit}>
-                  <div className={styles.formInnerGrid}>
+                {/* How to Reach */}
+                {destination.how_to_reach && (
+                  <div className={styles.contentBlock}>
+                    <h2 className={styles.blockTitle}>How to Reach</h2>
+                    <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.how_to_reach }} />
+                  </div>
+                )}
+
+                {/* Best Time to Visit */}
+                {destination.best_time_to_visit && (
+                  <div className={styles.contentBlock}>
+                    <h2 className={styles.blockTitle}>Best Time to Visit</h2>
+                    <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.best_time_to_visit }} />
+                  </div>
+                )}
+
+                {/* Top Attractions */}
+                {destination.top_attractions && destination.top_attractions.length > 0 && (
+                  <div className={styles.contentBlock}>
+                    <h2 className={styles.blockTitle}>Top Places to Visit in {destination.name}</h2>
+                    <div className={styles.attractionsList}>
+                      {destination.top_attractions.map((att, idx) => (
+                        <div key={idx} className={styles.attractionCard}>
+                          <div className={styles.attractionHeader}>
+                            <h3 className={styles.attractionName}>
+                              {idx + 1}. {att.name}
+                            </h3>
+                            <span className={styles.attractionFee}>
+                              Fee: {att.fee}
+                            </span>
+                          </div>
+                          <div className={styles.attractionMeta}>
+                            <div className={styles.attractionMetaItem}>
+                              <span className={styles.metaLabel}>Timings:</span>
+                              <span>{att.timings}</span>
+                            </div>
+                            <div className={styles.attractionMetaItem}>
+                              <span className={styles.metaLabel}>Highlights:</span>
+                              <span>{att.highlights}</span>
+                            </div>
+                            {att.note && (
+                              <div className={styles.attractionMetaItem}>
+                                <span className={styles.metaLabel}>Note:</span>
+                                <span>{att.note}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Side: Sticky Enquiry Form (Background & Size matching Hotel Enquiry Form) */}
+              <div className={styles.sidebarSticky}>
+                <div className={styles.formCard} id="plan-trip">
+                  <h3 className={styles.formTitle}>Plan Your Trip</h3>
+                  <p className={styles.formSubtitle}>Send us an enquiry to get custom details and rates.</p>
+
+                  {formSuccess && (
+                    <div className={styles.alertSuccess}>
+                      ✓ Enquiry submitted successfully! Our experts will contact you soon.
+                    </div>
+                  )}
+
+                  <form onSubmit={handleFormSubmit}>
                     <div className={styles.formGroup}>
-                      <label htmlFor="name">Name *</label>
+                      <label htmlFor="name">Full Name *</label>
                       <input
                         type="text"
                         name="name"
                         id="name"
                         required
-                        placeholder="John Doe"
+                        placeholder="Enter your full name"
                         className={styles.darkInput}
                         value={formData.name}
                         onChange={handleInputChange}
                       />
                     </div>
                     
-                    <div className={styles.formGroup}>
-                      <label htmlFor="phone">Phone Number *</label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        id="phone"
-                        required
-                        placeholder="9876543210"
-                        className={styles.darkInput}
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="email">Email Address *</label>
-                      <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        required
-                        placeholder="john@example.com"
-                        className={styles.darkInput}
-                        value={formData.email}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="num_people">No. of Travellers</label>
-                      <input
-                        type="number"
-                        name="num_people"
-                        id="num_people"
-                        min="1"
-                        required
-                        className={styles.darkInput}
-                        value={formData.num_people}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <div className={styles.formGroup} style={{ gridColumn: 'span 2' }}>
-                      <label htmlFor="travel_date">Travel Date</label>
-                      <input
-                        type="date"
-                        name="travel_date"
-                        id="travel_date"
-                        required
-                        className={styles.darkInput}
-                        value={formData.travel_date}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className={styles.formGroup} style={{ marginTop: '0.85rem' }}>
-                    <label htmlFor="message">Message / Preferences</label>
-                    <textarea
-                      name="message"
-                      id="message"
-                      rows={2}
-                      placeholder="Mention preferred hotels, places or special requests..."
-                      className={styles.darkTextarea}
-                      value={formData.message}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <button 
-                    type="submit" 
-                    className={styles.submitBtn}
-                    disabled={formSubmitting}
-                  >
-                    {formSubmitting ? 'Sending Request...' : 'Plan My Trip'}
-                  </button>
-                </form>
-              </div>
-            </div>
-
-            {/* Bottom Section: How to Reach, Best Time, Attractions, Gallery */}
-            <div className={styles.detailGrid}>
-              {/* How to Reach */}
-              {destination.how_to_reach && (
-                <div className={styles.contentBlock}>
-                  <h2 className={styles.blockTitle}>How to Reach</h2>
-                  <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.how_to_reach }} />
-                </div>
-              )}
-
-              {/* Best Time to Visit */}
-              {destination.best_time_to_visit && (
-                <div className={styles.contentBlock}>
-                  <h2 className={styles.blockTitle}>Best Time to Visit</h2>
-                  <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.best_time_to_visit }} />
-                </div>
-              )}
-
-              {/* Top Attractions */}
-              {destination.top_attractions && destination.top_attractions.length > 0 && (
-                <div className={styles.contentBlock}>
-                  <h2 className={styles.blockTitle}>Top Places to Visit in {destination.name}</h2>
-                  <div className={styles.attractionsList}>
-                    {destination.top_attractions.map((att, idx) => (
-                      <div key={idx} className={styles.attractionCard}>
-                        <div className={styles.attractionHeader}>
-                          <h3 className={styles.attractionName}>
-                            {idx + 1}. {att.name}
-                          </h3>
-                          <span className={styles.attractionFee}>
-                            Fee: {att.fee}
-                          </span>
-                        </div>
-                        <div className={styles.attractionMeta}>
-                          <div className={styles.attractionMetaItem}>
-                            <span className={styles.metaLabel}>Timings:</span>
-                            <span>{att.timings}</span>
-                          </div>
-                          <div className={styles.attractionMetaItem}>
-                            <span className={styles.metaLabel}>Highlights:</span>
-                            <span>{att.highlights}</span>
-                          </div>
-                          {att.note && (
-                            <div className={styles.attractionMetaItem}>
-                              <span className={styles.metaLabel}>Note:</span>
-                              <span>{att.note}</span>
-                            </div>
-                          )}
-                        </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="phone">Phone Number *</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          id="phone"
+                          required
+                          placeholder="Phone No."
+                          className={styles.darkInput}
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                        />
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              {/* Gallery */}
-              {destination.gallery && destination.gallery.length > 0 && (
-                <div className={styles.contentBlock}>
-                  <h2 className={styles.blockTitle}>Gallery Images</h2>
-                  <div className={styles.galleryGrid}>
-                    {destination.gallery.map((img, idx) => {
-                      const imgUrl = typeof img === 'string' ? img : img?.url || '';
-                      if (!imgUrl) return null;
-                      return (
-                        <div 
-                          key={idx} 
-                          className={styles.galleryItem}
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => {
-                            setZoomedIndex(idx);
-                            setIsZoomOpen(true);
-                          }}
-                        >
-                          <img src={imgUrl} alt={`${destination.name} Gallery ${idx}`} className={styles.galleryImg} />
-                        </div>
-                      );
-                    })}
-                  </div>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="email">Email Address *</label>
+                        <input
+                          type="email"
+                          name="email"
+                          id="email"
+                          required
+                          placeholder="Email Address"
+                          className={styles.darkInput}
+                          value={formData.email}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="num_people">No. of Travellers</label>
+                        <input
+                          type="number"
+                          name="num_people"
+                          id="num_people"
+                          min="1"
+                          required
+                          className={styles.darkInput}
+                          value={formData.num_people}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label htmlFor="travel_date">Travel Date</label>
+                        <input
+                          type="date"
+                          name="travel_date"
+                          id="travel_date"
+                          required
+                          className={styles.darkInput}
+                          value={formData.travel_date}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="message">Message / Preferences</label>
+                      <textarea
+                        name="message"
+                        id="message"
+                        rows={3}
+                        placeholder="Mention preferred hotels, places or special requests..."
+                        className={styles.darkTextarea}
+                        value={formData.message}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className={styles.submitBtn}
+                      disabled={formSubmitting}
+                    >
+                      {formSubmitting ? 'Sending Request...' : 'Plan My Trip'}
+                    </button>
+                  </form>
                 </div>
-              )}
+              </div>
+
             </div>
           </div>
         </section>

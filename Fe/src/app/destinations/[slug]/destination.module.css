@@ -96,10 +96,24 @@
 }
 
 .detailGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  padding: 2rem 0 4rem 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.25rem;
+  padding: 1.5rem 0 4rem 0;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .detailGrid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.sidebarSticky {
+  position: sticky;
+  top: 100px;
+  z-index: 10;
 }
 
 /* Card layout blocks */
@@ -128,199 +142,67 @@
   white-space: pre-wrap;
 }
 
-/* Attractions List */
-.attractionsList {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin-top: 1.5rem;
+/* Image Gallery Grid (matching Hotel gallery) */
+.imageGallery {
+  margin: 2rem 0;
 }
 
-.attractionCard {
-  background: var(--color-secondary-navy-light);
-  border-radius: var(--radius-md);
-  padding: 1.75rem;
-  border: 1px solid var(--color-border);
-  transition: transform var(--transition-fast);
-}
-
-.attractionCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.attractionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.attractionName {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-secondary-navy);
-}
-
-.attractionFee {
-  font-size: 0.875rem;
-  font-weight: 600;
-  background: rgba(231, 40, 43, 0.1);
-  color: var(--color-primary-red);
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
-}
-
-.attractionMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  font-size: 0.95rem;
-  color: var(--color-text-secondary);
-}
-
-.attractionMetaItem {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.metaLabel {
-  font-weight: 600;
-  color: var(--color-secondary-navy);
-  min-width: 90px;
-}
-
-/* Sub-destinations Grid (Kerala / Thailand popular lists) */
-.subDestSection {
-  padding: 5rem 0;
-  background: #ffffff;
-}
-
-.subDestGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-top: 2.5rem;
-}
-
-.subDestCard {
-  position: relative;
-  height: 240px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: var(--shadow-md);
-  transition: all var(--transition-normal);
-}
-
-.subDestCard:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-xl);
-}
-
-.subDestImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--transition-slow);
-}
-
-.subDestCard:hover .subDestImg {
-  transform: scale(1.08);
-}
-
-.subDestOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, transparent, rgba(12, 39, 69, 0.85));
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 1.5rem;
-  color: #ffffff;
-}
-
-.subDestName {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.subDestLink {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-primary-red);
-  margin-top: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-/* Image Gallery Grid */
 .galleryGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 180px 180px;
   gap: 1rem;
-  margin-top: 1.5rem;
 }
 
 @media (max-width: 768px) {
   .galleryGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .galleryGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
   }
 }
 
 .galleryItem {
-  height: 160px;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
+  height: 100%;
 }
 
-.galleryItem:hover {
-  transform: scale(1.03);
+.galleryItemLarge {
+  grid-row: span 2;
+  height: 100%;
 }
 
 .galleryImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform var(--transition-fast, 0.2s ease);
 }
 
-/* Sidebar / Enquiry Form (Navy Background matching Hotel enquiry form) */
+.galleryImg:hover {
+  transform: scale(1.03);
+}
+
+/* Sidebar / Enquiry Form (Background & Size matching Hotel enquiry form) */
 .formCard {
-  background: var(--color-secondary-navy, #0c2745);
+  background: var(--color-secondary-navy);
   color: #ffffff;
-  border-radius: var(--radius-xl, 20px);
-  padding: 2.25rem 2rem;
-  box-shadow: 0 20px 45px -10px rgba(12, 39, 69, 0.25);
+  border-radius: var(--radius-lg, 1.25rem);
+  padding: 1.5rem 1.25rem;
+  box-shadow: var(--shadow-xl);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  height: 100%;
-  box-sizing: border-box;
 }
 
 .formTitle {
-  font-size: 1.65rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: #ffffff;
   margin-bottom: 0.35rem;
 }
 
 .formSubtitle {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.8);
   margin-bottom: 1.25rem;
 }
