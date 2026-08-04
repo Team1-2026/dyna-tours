@@ -74,7 +74,7 @@ class DestinationController extends Controller
             // Location fields
             'country' => 'sometimes|string|nullable',
             'state' => 'sometimes|string|nullable',
-            'city' => 'sometimes|string|nullable',
+            'parent_id' => 'sometimes|string|nullable',
             // Related tours and hotels mapping
             'related_tours' => 'sometimes|nullable|array',
             'related_hotels' => 'sometimes|nullable|array',
@@ -83,6 +83,10 @@ class DestinationController extends Controller
             'banner_tagline' => 'sometimes|string|nullable',
             'status' => 'sometimes|string|nullable',
         ]);
+
+        if (array_key_exists('parent_id', $validated) && empty($validated['parent_id'])) {
+            $validated['parent_id'] = null;
+        }
 
         if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $destination->order_no) {
             $newOrder = (int) $validated['order_no'];
@@ -108,7 +112,7 @@ class DestinationController extends Controller
             'id' => 'required|string|unique:destinations,id',
             'name' => 'required|string|max:255',
             'type' => 'required|string|in:domestic,international',
-            'parent_id' => 'nullable|string|exists:destinations,id',
+            'parent_id' => 'nullable|string',
             'overview' => 'nullable|string',
             'how_to_reach' => 'nullable|string',
             'best_time_to_visit' => 'nullable|string',
@@ -126,13 +130,18 @@ class DestinationController extends Controller
             'country' => 'nullable|string',
             'state' => 'nullable|string',
             'city' => 'nullable|string',
-            // Related tours mapping
+            // Related tours and hotels mapping
             'related_tours' => 'nullable|array',
+            'related_hotels' => 'nullable|array',
             'order_no' => 'nullable|integer|min:0',
             'banner_heading' => 'nullable|string',
             'banner_tagline' => 'nullable|string',
             'status' => 'nullable|string',
         ]);
+
+        if (empty($validated['parent_id'])) {
+            $validated['parent_id'] = null;
+        }
 
         if (!isset($validated['overview'])) $validated['overview'] = '';
         if (!isset($validated['status'])) $validated['status'] = 'Active';

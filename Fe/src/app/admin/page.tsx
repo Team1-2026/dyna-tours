@@ -543,7 +543,13 @@ export default function AdminDashboard() {
           setSaveStatus(null);
           return;
         }
-        const response = await api.createDestination(dataToSave);
+        const payloadToCreate = {
+          ...dataToSave,
+          parent_id: dataToSave.parent_id ? dataToSave.parent_id : null,
+          overview: dataToSave.overview || '',
+          type: dataToSave.type || 'domestic',
+        };
+        const response = await api.createDestination(payloadToCreate);
         setSaveStatus('✓ Destination created successfully!');
         setIsCreatingDest(false);
         setSelectedDestId(response.destination.id);
@@ -568,6 +574,7 @@ export default function AdminDashboard() {
           country: dataToSave.country,
           state: dataToSave.state,
           city: dataToSave.city,
+          parent_id: dataToSave.parent_id ? dataToSave.parent_id : null,
           related_tours: dataToSave.related_tours,
           related_hotels: dataToSave.related_hotels,
           order_no: dataToSave.order_no,
@@ -577,9 +584,10 @@ export default function AdminDashboard() {
         setDestinations(prev => prev.map(d => d.id === selectedDestId ? response.destination : d));
       }
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('❌ Failed to save destination.');
+      const errMsg = err?.message || 'Failed to save destination.';
+      setSaveStatus(`❌ ${errMsg}`);
       setTimeout(() => setSaveStatus(null), 4000);
     }
   };
