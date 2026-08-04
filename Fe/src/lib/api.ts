@@ -85,6 +85,7 @@ export interface Destination {
 
   // Related items mapping
   related_tours?: string[] | null;
+  related_hotels?: string[] | null;
 }
 
 export interface Room {

@@ -136,13 +136,13 @@
 
 /* Image Gallery Grid (matching Hotel gallery) */
 .imageGallery {
-  margin: 2rem 0;
+  margin: 1.5rem 0 3.5rem 0;
 }
 
 .galleryGrid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 180px 180px;
+  grid-template-rows: auto;
   gap: 1rem;
 }
 
@@ -154,15 +154,15 @@
 }
 
 .galleryItem {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 12px);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  height: 100%;
+  height: 180px;
 }
 
 .galleryItemLarge {
   grid-row: span 2;
-  height: 100%;
+  height: 376px;
 }
 
 .galleryImg {
@@ -174,6 +174,76 @@
 
 .galleryImg:hover {
   transform: scale(1.03);
+}
+
+/* Sub-destinations Grid (Popular Destinations card list) */
+.subDestSection {
+  padding: 2rem 0;
+}
+
+.subDestGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.subDestCard {
+  position: relative;
+  height: 220px;
+  border-radius: var(--radius-lg, 1rem);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal, 0.3s ease);
+  display: block;
+}
+
+.subDestCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.subDestImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow, 0.4s ease);
+}
+
+.subDestCard:hover .subDestImg {
+  transform: scale(1.08);
+}
+
+.subDestOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent 30%, rgba(12, 39, 69, 0.88));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.25rem;
+  color: #ffffff;
+}
+
+.subDestName {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.subDestLink {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary-red, #e7282b);
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 /* Sidebar / Enquiry Form (Background & Size matching Hotel enquiry form) */

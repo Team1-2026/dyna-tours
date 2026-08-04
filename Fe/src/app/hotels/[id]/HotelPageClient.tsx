@@ -175,59 +175,71 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
 
       <div className="container">
         {/* Full-width Top Gallery Images (Excludes main banner) */}
-        {hotel.gallery && hotel.gallery.length > 0 && (
-          <div className={styles.imageGallery}>
-            <div className={styles.galleryGrid}>
-              <div 
-                className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  setZoomedIndex(0);
-                  setIsZoomOpen(true);
-                }}
-              >
-                <img 
-                  src={typeof hotel.gallery[0] === 'string' ? hotel.gallery[0] : hotel.gallery[0]?.url || ''} 
-                  alt={`${hotel.name} featured view`} 
-                  className={styles.galleryImg} 
-                />
-              </div>
-              {hotel.gallery.slice(1, 3).map((img, idx) => {
-                const imgUrl = typeof img === 'string' ? img : img?.url || '';
-                if (!imgUrl) return null;
-                return (
-                  <div 
-                    key={idx} 
-                    className={styles.galleryItem}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      setZoomedIndex(idx + 1);
-                      setIsZoomOpen(true);
-                    }}
-                  >
-                    <img src={imgUrl} alt={`${hotel.name} view ${idx + 2}`} className={styles.galleryImg} />
-                  </div>
-                );
-              })}
-              {hotel.gallery[3] && (
+        {(() => {
+          const displayGallery = (hotel.gallery || []).filter(img => {
+            const imgUrl = typeof img === 'string' ? img : img?.url || '';
+            if (!imgUrl) return false;
+            if (hotel.banner_image && (imgUrl === hotel.banner_image || imgUrl.endsWith(hotel.banner_image))) return false;
+            return true;
+          });
+
+          if (displayGallery.length === 0) return null;
+          const hasMultiple = displayGallery.length > 2;
+
+          return (
+            <div className={styles.imageGallery}>
+              <div className={styles.galleryGrid}>
                 <div 
-                  className={styles.galleryItem} 
-                  style={{ gridColumn: 'span 2', cursor: 'pointer' }}
+                  className={`${styles.galleryItem} ${hasMultiple ? styles.galleryItemLarge : ''}`}
+                  style={{ cursor: 'pointer' }}
                   onClick={() => {
-                    setZoomedIndex(3);
+                    setZoomedIndex(0);
                     setIsZoomOpen(true);
                   }}
                 >
                   <img 
-                    src={typeof hotel.gallery[3] === 'string' ? hotel.gallery[3] : hotel.gallery[3]?.url || ''} 
-                    alt={`${hotel.name} view 4`} 
+                    src={typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || ''} 
+                    alt={`${hotel.name} featured view`} 
                     className={styles.galleryImg} 
                   />
                 </div>
-              )}
+                {displayGallery.slice(1, 3).map((img, idx) => {
+                  const imgUrl = typeof img === 'string' ? img : img?.url || '';
+                  if (!imgUrl) return null;
+                  return (
+                    <div 
+                      key={idx} 
+                      className={styles.galleryItem}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        setZoomedIndex(idx + 1);
+                        setIsZoomOpen(true);
+                      }}
+                    >
+                      <img src={imgUrl} alt={`${hotel.name} view ${idx + 2}`} className={styles.galleryImg} />
+                    </div>
+                  );
+                })}
+                {displayGallery[3] && (
+                  <div 
+                    className={styles.galleryItem} 
+                    style={{ gridColumn: 'span 2', cursor: 'pointer' }}
+                    onClick={() => {
+                      setZoomedIndex(3);
+                      setIsZoomOpen(true);
+                    }}
+                  >
+                    <img 
+                      src={typeof displayGallery[3] === 'string' ? displayGallery[3] : displayGallery[3]?.url || ''} 
+                      alt={`${hotel.name} view 4`} 
+                      className={styles.galleryImg} 
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Meta Row: Location, Distance, Category */}
         <div className={styles.metaRow}>

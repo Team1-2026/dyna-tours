@@ -13,40 +13,62 @@ const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
 const getBannerUrl = (dest: Destination) => {
   let img = dest.banner_image;
 
-  if (!img || img === '/images/thailand_banner.png' || img === '/images/kerala_banner.png' || img === '/images/munnar_banner.png' || img === '/images/default_banner.png') {
-    if (dest.gallery && dest.gallery.length > 0) {
-      const g = dest.gallery[0];
-      const gUrl = typeof g === 'string' ? g : g?.url || '';
-      if (gUrl) img = gUrl;
+  if (img && typeof img === 'string' && img.trim().length > 0) {
+    img = img.trim();
+    if (img.startsWith('data:')) {
+      return img;
+    }
+    if (img.startsWith('http://') || img.startsWith('https://')) {
+      return img;
+    }
+    if (img.startsWith('/storage') || img.startsWith('/uploads') || img.startsWith('storage/') || img.startsWith('uploads/')) {
+      const origin = BASE_URL.replace(/\/api$/, '');
+      const cleanPath = img.startsWith('/') ? img : `/${img}`;
+      return `${origin}${cleanPath}`;
+    }
+    if (!img.includes('default_banner') && !img.includes('thailand_banner') && !img.includes('kerala_banner') && !img.includes('munnar_banner')) {
+      return img;
     }
   }
 
-  if (!img || img === '/images/thailand_banner.png' || img === '/images/kerala_banner.png' || img === '/images/munnar_banner.png' || img === '/images/default_banner.png') {
-    const nameLower = (dest.name || '').toLowerCase();
-    if (nameLower.includes('uae') || nameLower.includes('dubai')) {
-      img = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80';
-    } else if (nameLower.includes('kerala')) {
-      img = 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1920&q=80';
-    } else if (nameLower.includes('munnar')) {
-      img = 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1920&q=80';
-    } else if (nameLower.includes('thailand') || nameLower.includes('phuket')) {
-      img = 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1920&q=80';
-    } else {
-      img = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1920&q=80';
+  if (dest.gallery && dest.gallery.length > 0) {
+    const g = dest.gallery[0];
+    const gUrl = typeof g === 'string' ? g : g?.url || '';
+    if (gUrl && gUrl.trim().length > 0) {
+      if (gUrl.startsWith('data:') || gUrl.startsWith('http://') || gUrl.startsWith('https://')) return gUrl;
+      if (gUrl.startsWith('/storage') || gUrl.startsWith('/uploads')) {
+        const origin = BASE_URL.replace(/\/api$/, '');
+        return `${origin}${gUrl}`;
+      }
     }
   }
 
-  if (img.startsWith('http://') || img.startsWith('https://')) return img;
-  if (img.startsWith('/storage') || img.startsWith('/uploads')) {
-    const origin = BASE_URL.replace(/\/api$/, '');
-    return `${origin}${img}`;
+  const nameLower = (dest.name || '').toLowerCase();
+  if (nameLower.includes('uae') || nameLower.includes('dubai')) {
+    return 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80';
+  } else if (nameLower.includes('kerala')) {
+    return 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1920&q=80';
+  } else if (nameLower.includes('munnar')) {
+    return 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1920&q=80';
+  } else if (nameLower.includes('thailand') || nameLower.includes('phuket')) {
+    return 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1920&q=80';
   }
-  return img;
+
+  return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1920&q=80';
 };
 
 const getSubBannerUrl = (sub: any) => {
   let img = sub.banner_image;
-  if (!img || img === '/images/default_banner.png' || img === '/images/thailand_banner.png' || img === '/images/kerala_banner.png' || img === '/images/munnar_banner.png') {
+
+  if (!img || img.startsWith('/images/')) {
+    if (sub.gallery && sub.gallery.length > 0) {
+      const g = sub.gallery[0];
+      const gUrl = typeof g === 'string' ? g : g?.url || '';
+      if (gUrl && !gUrl.startsWith('/images/')) img = gUrl;
+    }
+  }
+
+  if (!img || img.startsWith('/images/')) {
     const nameLower = (sub.name || '').toLowerCase();
     if (nameLower.includes('dubai')) {
       img = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80';
@@ -58,6 +80,12 @@ const getSubBannerUrl = (sub: any) => {
       img = 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80';
     } else if (nameLower.includes('kochi') || nameLower.includes('cochin')) {
       img = 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('wayanad')) {
+      img = 'https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('thekkady')) {
+      img = 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('kovalam')) {
+      img = 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80';
     } else if (nameLower.includes('phuket')) {
       img = 'https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?auto=format&fit=crop&w=800&q=80';
     } else if (nameLower.includes('bangkok')) {
@@ -66,6 +94,7 @@ const getSubBannerUrl = (sub: any) => {
       img = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
     }
   }
+
   if (img.startsWith('http://') || img.startsWith('https://')) return img;
   if (img.startsWith('/storage') || img.startsWith('/uploads')) {
     const origin = BASE_URL.replace(/\/api$/, '');
@@ -113,6 +142,13 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
 
   // Filter tours matching this destination
   const destinationTours = toursData.filter(tour => {
+    // 1. Check explicit related_tours mapping from Admin
+    if (destination.related_tours && Array.isArray(destination.related_tours) && destination.related_tours.length > 0) {
+      if (destination.related_tours.includes(tour.id) || destination.related_tours.includes(tour.title)) {
+        return true;
+      }
+    }
+    // 2. Fallback to name/location matching
     const titleLower = tour.title.toLowerCase();
     const destLower = destination.name.toLowerCase();
     return titleLower.includes(destLower) || (destLower === 'kerala' && (titleLower.includes('munnar') || titleLower.includes('alleppey') || titleLower.includes('wayanad')));
@@ -121,6 +157,10 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
   // Filter hotels matching this destination from Laravel
   const matchedHotels = destination.hotels || [];
   const [expandedHotels, setExpandedHotels] = useState<string[]>([]);
+
+  // Check toggles for packages & hotels
+  const shouldShowPackages = destination.show_packages !== false && (destination.show_packages as any) !== 0 && (destination.show_packages as any) !== '0' && (destination.show_packages as any) !== 'false';
+  const shouldShowHotels = destination.show_hotels !== false && (destination.show_hotels as any) !== 0 && (destination.show_hotels as any) !== '0' && (destination.show_hotels as any) !== 'false';
 
   const toggleHotelDescription = (id: string) => {
     setExpandedHotels(prev =>
@@ -175,7 +215,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
       {/* 1. Hero Banner */}
       <section 
         className={styles.heroBanner}
-        style={{ backgroundImage: `url("${getBannerUrl(destination)}")` }}
+        style={{ backgroundImage: `url(${getBannerUrl(destination)})` }}
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
@@ -184,69 +224,81 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
               Explore {destination.parent_id}
             </span>
           )}
-          <h1 className={styles.heroTitle}>{destination.name}</h1>
+          <h1 className={styles.heroTitle}>{(destination as any).banner_title || (destination as any).banner_heading || destination.name}</h1>
           <p className={styles.heroSubtitle}>
-            {isStatePage ? 'State Overview & Popular Places' : 'Explore Attractions, Hotels & Packages'}
+            {(destination as any).banner_subtitle || (destination as any).banner_tagline || (isStatePage ? 'State Overview & Popular Places' : 'Explore Attractions, Hotels & Packages')}
           </p>
         </div>
       </section>
 
       {/* 2. Main Container Area */}
       <div className="container" style={{ paddingTop: '2rem' }}>
-        {/* Top Gallery Images (matching Hotel page gallery layout) */}
-        {destination.gallery && destination.gallery.length > 0 && (
-          <div className={styles.imageGallery}>
-            <div className={styles.galleryGrid}>
-              <div 
-                className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  setZoomedIndex(0);
-                  setIsZoomOpen(true);
-                }}
-              >
-                <img 
-                  src={typeof destination.gallery[0] === 'string' ? destination.gallery[0] : destination.gallery[0]?.url || ''} 
-                  alt={`${destination.name} featured view`} 
-                  className={styles.galleryImg} 
-                />
-              </div>
-              {destination.gallery.slice(1, 3).map((img, idx) => {
-                const imgUrl = typeof img === 'string' ? img : img?.url || '';
-                if (!imgUrl) return null;
-                return (
-                  <div 
-                    key={idx} 
-                    className={styles.galleryItem}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      setZoomedIndex(idx + 1);
-                      setIsZoomOpen(true);
-                    }}
-                  >
-                    <img src={imgUrl} alt={`${destination.name} view ${idx + 2}`} className={styles.galleryImg} />
-                  </div>
-                );
-              })}
-              {destination.gallery[3] && (
+        {/* Top Gallery Images (Excludes main banner) */}
+        {(() => {
+          const displayGallery = (destination.gallery || []).filter(img => {
+            const imgUrl = typeof img === 'string' ? img : img?.url || '';
+            if (!imgUrl) return false;
+            if (destination.banner_image && (imgUrl === destination.banner_image || imgUrl.endsWith(destination.banner_image))) return false;
+            return true;
+          });
+
+          if (displayGallery.length === 0) return null;
+          const hasMultiple = displayGallery.length > 2;
+
+          return (
+            <div className={styles.imageGallery}>
+              <div className={styles.galleryGrid}>
                 <div 
-                  className={styles.galleryItem} 
-                  style={{ gridColumn: 'span 2', cursor: 'pointer' }}
+                  className={`${styles.galleryItem} ${hasMultiple ? styles.galleryItemLarge : ''}`}
+                  style={{ cursor: 'pointer' }}
                   onClick={() => {
-                    setZoomedIndex(3);
+                    setZoomedIndex(0);
                     setIsZoomOpen(true);
                   }}
                 >
                   <img 
-                    src={typeof destination.gallery[3] === 'string' ? destination.gallery[3] : destination.gallery[3]?.url || ''} 
-                    alt={`${destination.name} view 4`} 
+                    src={typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || ''} 
+                    alt={`${destination.name} featured view`} 
                     className={styles.galleryImg} 
                   />
                 </div>
-              )}
+                {displayGallery.slice(1, 3).map((img, idx) => {
+                  const imgUrl = typeof img === 'string' ? img : img?.url || '';
+                  if (!imgUrl) return null;
+                  return (
+                    <div 
+                      key={idx} 
+                      className={styles.galleryItem}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        setZoomedIndex(idx + 1);
+                        setIsZoomOpen(true);
+                      }}
+                    >
+                      <img src={imgUrl} alt={`${destination.name} view ${idx + 2}`} className={styles.galleryImg} />
+                    </div>
+                  );
+                })}
+                {displayGallery[3] && (
+                  <div 
+                    className={styles.galleryItem} 
+                    style={{ gridColumn: 'span 2', cursor: 'pointer' }}
+                    onClick={() => {
+                      setZoomedIndex(3);
+                      setIsZoomOpen(true);
+                    }}
+                  >
+                    <img 
+                      src={typeof displayGallery[3] === 'string' ? displayGallery[3] : displayGallery[3]?.url || ''} 
+                      alt={`${destination.name} view 4`} 
+                      className={styles.galleryImg} 
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Top Row: Overview (6 Cols) and Plan Your Trip Form (6 Cols) */}
         <div className={styles.overviewFormGrid}>
@@ -482,7 +534,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
       </div>
 
       {/* 3. Explore Tour Packages Section */}
-      {destination.show_packages && (
+      {shouldShowPackages && destinationTours.length > 0 && (
         <section className={styles.packagesSection}>
           <div className="container">
             <div className="section-title-wrap">
@@ -490,23 +542,17 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
               <h2 className="section-title">Explore Our Related Packages</h2>
             </div>
 
-            {destinationTours.length > 0 ? (
-              <div className={styles.packagesGrid}>
-                {destinationTours.map((tour) => (
-                  <TourCard key={tour.id} tour={tour} />
-                ))}
-              </div>
-            ) : (
-              <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)', padding: '2rem 0' }}>
-                No standard packages currently listed for {destination.name}. Please submit an enquiry for a custom package!
-              </p>
-            )}
+            <div className={styles.packagesGrid}>
+              {destinationTours.map((tour) => (
+                <TourCard key={tour.id} tour={tour} />
+              ))}
+            </div>
           </div>
         </section>
       )}
 
       {/* 4. Explore Hotels Near Destination Section */}
-      {destination.show_hotels && (
+      {shouldShowHotels && matchedHotels.length > 0 && (
         <section className={styles.hotelsSection}>
           <div className="container">
             <div className="section-title-wrap">
@@ -514,67 +560,61 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
               <h2 className="section-title">Recommended Hotels Near {destination.name}</h2>
             </div>
 
-            {matchedHotels.length > 0 ? (
-              <div className={styles.hotelsGrid}>
-                {matchedHotels.map((hotel) => (
-                  <div key={hotel.id} className={styles.hotelCard}>
-                    <div className={styles.hotelImgWrapper}>
-                      <img 
-                        src={(typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : (hotel.gallery?.[0] as any)?.url) || '/images/default_hotel.png'} 
-                        alt={hotel.name}
-                        className={styles.hotelImg}
-                      />
-                      <span className={styles.hotelBadge}>{hotel.category}</span>
+            <div className={styles.hotelsGrid}>
+              {matchedHotels.map((hotel) => (
+                <div key={hotel.id} className={styles.hotelCard}>
+                  <div className={styles.hotelImgWrapper}>
+                    <img 
+                      src={(typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : (hotel.gallery?.[0] as any)?.url) || '/images/default_hotel.png'} 
+                      alt={hotel.name}
+                      className={styles.hotelImg}
+                    />
+                    <span className={styles.hotelBadge}>{hotel.category}</span>
+                  </div>
+                  <div className={styles.hotelInfo}>
+                    <div className={styles.hotelHeader}>
+                      <h3 className={styles.hotelName}>{hotel.name}</h3>
                     </div>
-                    <div className={styles.hotelInfo}>
-                      <div className={styles.hotelHeader}>
-                        <h3 className={styles.hotelName}>{hotel.name}</h3>
-                      </div>
-                      <div className={styles.hotelLocation}>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        {hotel.location}
-                      </div>
-                      {expandedHotels.includes(hotel.id) && (
-                        <div 
-                          style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '1.25rem' }}
-                          dangerouslySetInnerHTML={{ __html: hotel.short_description }}
-                        />
-                      )}
-                      
-                      <div className={styles.hotelFooter}>
-                        <button 
-                          type="button"
-                          onClick={() => toggleHotelDescription(hotel.id)}
-                          style={{ 
-                            background: 'none', 
-                            border: 'none', 
-                            color: 'var(--color-primary-red)', 
-                            padding: 0, 
-                            font: 'inherit', 
-                            cursor: 'pointer', 
-                            textDecoration: 'underline', 
-                            fontSize: '0.85rem',
-                            fontWeight: 600 
-                          }}
-                        >
-                          {expandedHotels.includes(hotel.id) ? 'Hide Description' : 'Show Description'}
-                        </button>
-                        <Link href={`/hotels/${hotel.id}`} className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>
-                          View Hotel
-                        </Link>
-                      </div>
+                    <div className={styles.hotelLocation}>
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      {hotel.location}
+                    </div>
+                    {expandedHotels.includes(hotel.id) && (
+                      <div 
+                        style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '1.25rem' }}
+                        dangerouslySetInnerHTML={{ __html: hotel.short_description }}
+                      />
+                    )}
+                    
+                    <div className={styles.hotelFooter}>
+                      <button 
+                        type="button"
+                        onClick={() => toggleHotelDescription(hotel.id)}
+                        style={{ 
+                          background: 'none', 
+                          border: 'none', 
+                          color: 'var(--color-primary-red)', 
+                          padding: 0, 
+                          font: 'inherit', 
+                          cursor: 'pointer', 
+                          textDecoration: 'underline', 
+                          fontSize: '0.85rem',
+                          fontWeight: 600 
+                        }}
+                      >
+                        {expandedHotels.includes(hotel.id) ? 'Hide Description' : 'Show Description'}
+                      </button>
+                      <Link href={`/hotels/${hotel.id}`} className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>
+                        View Hotel
+                      </Link>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)', padding: '2rem 0' }}>
-                No hotels currently registered near {destination.name}.
-              </p>
-            )}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}

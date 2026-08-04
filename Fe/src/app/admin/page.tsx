@@ -494,7 +494,8 @@ export default function AdminDashboard() {
     if (isCreatingDest) {
       setNewDest(prev => ({ ...prev, [field]: !prev[field] }));
     } else if (selectedDest) {
-      setSelectedDest(prev => prev ? { ...prev, [field]: !prev[field] } : null);
+      const currentVal = selectedDest[field] !== false && (selectedDest[field] as any) !== 0 && (selectedDest[field] as any) !== '0';
+      setSelectedDest(prev => prev ? { ...prev, [field]: !currentVal } : null);
     }
   };
 
@@ -511,6 +512,22 @@ export default function AdminDashboard() {
         ? current.filter(id => id !== tourId) 
         : [...current, tourId];
       setSelectedDest(prev => prev ? { ...prev, related_tours: updated } : null);
+    }
+  };
+
+  const handleDestRelatedHotelToggle = (hotelId: string) => {
+    if (isCreatingDest) {
+      const current = newDest.related_hotels || [];
+      const updated = current.includes(hotelId) 
+        ? current.filter(id => id !== hotelId) 
+        : [...current, hotelId];
+      setNewDest(prev => ({ ...prev, related_hotels: updated }));
+    } else if (selectedDest) {
+      const current = selectedDest.related_hotels || [];
+      const updated = current.includes(hotelId) 
+        ? current.filter(id => id !== hotelId) 
+        : [...current, hotelId];
+      setSelectedDest(prev => prev ? { ...prev, related_hotels: updated } : null);
     }
   };
 
@@ -540,6 +557,8 @@ export default function AdminDashboard() {
           show_packages: dataToSave.show_packages,
           show_hotels: dataToSave.show_hotels,
           banner_image: dataToSave.banner_image,
+          banner_heading: dataToSave.banner_heading,
+          banner_tagline: dataToSave.banner_tagline,
           gallery: dataToSave.gallery,
           top_attractions: dataToSave.top_attractions,
           meta_title: dataToSave.meta_title,
@@ -550,6 +569,9 @@ export default function AdminDashboard() {
           state: dataToSave.state,
           city: dataToSave.city,
           related_tours: dataToSave.related_tours,
+          related_hotels: dataToSave.related_hotels,
+          order_no: dataToSave.order_no,
+          status: dataToSave.status,
         });
         setSaveStatus('✓ Destination updated successfully!');
         setDestinations(prev => prev.map(d => d.id === selectedDestId ? response.destination : d));
@@ -2633,7 +2655,7 @@ export default function AdminDashboard() {
                           <label className={styles.checklistItem}>
                             <input
                               type="checkbox"
-                              checked={isCreatingDest ? newDest.show_packages : selectedDest?.show_packages || false}
+                              checked={isCreatingDest ? Boolean(newDest.show_packages) : (selectedDest?.show_packages !== false && (selectedDest?.show_packages as any) !== 0 && (selectedDest?.show_packages as any) !== '0')}
                               onChange={() => handleDestToggle('show_packages')}
                             />
                             <span>Display Tour Packages</span>
@@ -2641,7 +2663,7 @@ export default function AdminDashboard() {
                           <label className={styles.checklistItem}>
                             <input
                               type="checkbox"
-                              checked={isCreatingDest ? newDest.show_hotels : selectedDest?.show_hotels || false}
+                              checked={isCreatingDest ? Boolean(newDest.show_hotels) : (selectedDest?.show_hotels !== false && (selectedDest?.show_hotels as any) !== 0 && (selectedDest?.show_hotels as any) !== '0')}
                               onChange={() => handleDestToggle('show_hotels')}
                             />
                             <span>Display Hotels Near Destination</span>
@@ -2727,6 +2749,35 @@ export default function AdminDashboard() {
                                 onChange={() => handleDestRelatedTourToggle(tour.id)}
                               />
                               <span>{tour.title}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Recommended Hotels mapping */}
+                    <div className={styles.formCard}>
+                      <h4 className={styles.formCardTitle}>Recommended Hotels Mapping</h4>
+                      <input
+                        type="text"
+                        placeholder="Search hotels by name or location..."
+                        className={styles.searchBar}
+                        value={hotelSearchQuery}
+                        onChange={(e) => setHotelSearchQuery(e.target.value)}
+                      />
+                      <div className={styles.checklistGrid}>
+                        {filteredHotels.map(hotel => {
+                          const isChecked = isCreatingDest
+                            ? (newDest.related_hotels || []).includes(hotel.id)
+                            : (selectedDest?.related_hotels || []).includes(hotel.id);
+                          return (
+                            <label key={hotel.id} className={styles.checklistItem}>
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => handleDestRelatedHotelToggle(hotel.id)}
+                              />
+                              <span>{hotel.name} ({hotel.location})</span>
                             </label>
                           );
                         })}

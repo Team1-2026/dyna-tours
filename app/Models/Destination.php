@@ -33,6 +33,7 @@ class Destination extends Model
         'state',
         'city',
         'related_tours',
+        'related_hotels',
         'order_no',
         'banner_heading',
         'banner_tagline',
@@ -45,6 +46,7 @@ class Destination extends Model
         'show_packages' => 'boolean',
         'show_hotels' => 'boolean',
         'related_tours' => 'array',
+        'related_hotels' => 'array',
         'order_no' => 'integer',
     ];
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Destination;
+use App\Models\Hotel;
 use Illuminate\Http\Request;
 
 class DestinationController extends Controller
@@ -31,6 +32,14 @@ class DestinationController extends Controller
 
         if (!$destination) {
             return response()->json(['message' => 'Destination not found'], 404);
+        }
+
+        if (!empty($destination->related_hotels) && is_array($destination->related_hotels)) {
+            $explicitHotels = Hotel::whereIn('id', $destination->related_hotels)->get();
+            if ($explicitHotels->isNotEmpty()) {
+                $combined = $explicitHotels->concat($destination->hotels ?: collect())->unique('id')->values();
+                $destination->setRelation('hotels', $combined);
+            }
         }
 
         return response()->json($destination);
@@ -66,8 +75,9 @@ class DestinationController extends Controller
             'country' => 'sometimes|string|nullable',
             'state' => 'sometimes|string|nullable',
             'city' => 'sometimes|string|nullable',
-            // Related tours mapping
+            // Related tours and hotels mapping
             'related_tours' => 'sometimes|nullable|array',
+            'related_hotels' => 'sometimes|nullable|array',
             'order_no' => 'sometimes|integer|min:0|nullable',
             'banner_heading' => 'sometimes|string|nullable',
             'banner_tagline' => 'sometimes|string|nullable',
