@@ -66,13 +66,13 @@
   opacity: 0.9;
 }
 
-/* Two Column Grid for Overview & Plan Your Trip */
+/* Two Column Grid for Overview & Plan Your Trip (6 cols each) */
 .overviewFormGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2.5rem;
+  gap: 2.25rem;
   align-items: stretch;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 
 @media (max-width: 992px) {
@@ -84,8 +84,8 @@
 
 .overviewCard {
   background: var(--color-bg-card, #ffffff);
-  border-radius: var(--radius-xl, 20px);
-  padding: 2.5rem 2.25rem;
+  border-radius: var(--radius-lg, 1.25rem);
+  padding: 2rem 1.75rem;
   border: 1px solid var(--color-border, #e2e8f0);
   box-shadow: var(--shadow-premium, 0 10px 30px rgba(0, 0, 0, 0.05));
   height: 100%;
@@ -96,18 +96,10 @@
 }
 
 .detailGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2.25rem;
-  padding: 1.5rem 0 4rem 0;
-  align-items: start;
-}
-
-@media (max-width: 992px) {
-  .detailGrid {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 1rem 0 4rem 0;
 }
 
 .sidebarSticky {
