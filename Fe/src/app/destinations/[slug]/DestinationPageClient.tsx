@@ -2,13 +2,77 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { api, Destination, Hotel } from '@/lib/api';
+import { api, Destination, Hotel, BASE_URL } from '@/lib/api';
 import { toursData } from '@/data/toursData';
 import TourCard from '@/components/TourCard';
 import ImageZoomModal from '@/components/ImageZoomModal';
 import styles from './destination.module.css';
 
 const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
+
+const getBannerUrl = (dest: Destination) => {
+  let img = dest.banner_image;
+
+  if (!img || img === '/images/thailand_banner.png' || img === '/images/kerala_banner.png' || img === '/images/munnar_banner.png' || img === '/images/default_banner.png') {
+    if (dest.gallery && dest.gallery.length > 0) {
+      const g = dest.gallery[0];
+      const gUrl = typeof g === 'string' ? g : g?.url || '';
+      if (gUrl) img = gUrl;
+    }
+  }
+
+  if (!img || img === '/images/thailand_banner.png' || img === '/images/kerala_banner.png' || img === '/images/munnar_banner.png' || img === '/images/default_banner.png') {
+    const nameLower = (dest.name || '').toLowerCase();
+    if (nameLower.includes('uae') || nameLower.includes('dubai')) {
+      img = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80';
+    } else if (nameLower.includes('kerala')) {
+      img = 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1920&q=80';
+    } else if (nameLower.includes('munnar')) {
+      img = 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1920&q=80';
+    } else if (nameLower.includes('thailand') || nameLower.includes('phuket')) {
+      img = 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1920&q=80';
+    } else {
+      img = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1920&q=80';
+    }
+  }
+
+  if (img.startsWith('http://') || img.startsWith('https://')) return img;
+  if (img.startsWith('/storage') || img.startsWith('/uploads')) {
+    const origin = BASE_URL.replace(/\/api$/, '');
+    return `${origin}${img}`;
+  }
+  return img;
+};
+
+const getSubBannerUrl = (sub: any) => {
+  let img = sub.banner_image;
+  if (!img || img === '/images/default_banner.png' || img === '/images/thailand_banner.png' || img === '/images/kerala_banner.png' || img === '/images/munnar_banner.png') {
+    const nameLower = (sub.name || '').toLowerCase();
+    if (nameLower.includes('dubai')) {
+      img = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('abu dhabi')) {
+      img = 'https://images.unsplash.com/photo-1512632578888-169bbbc64f35?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('munnar')) {
+      img = 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('alleppey') || nameLower.includes('alappuzha')) {
+      img = 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('kochi') || nameLower.includes('cochin')) {
+      img = 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('phuket')) {
+      img = 'https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?auto=format&fit=crop&w=800&q=80';
+    } else if (nameLower.includes('bangkok')) {
+      img = 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=800&q=80';
+    } else {
+      img = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
+    }
+  }
+  if (img.startsWith('http://') || img.startsWith('https://')) return img;
+  if (img.startsWith('/storage') || img.startsWith('/uploads')) {
+    const origin = BASE_URL.replace(/\/api$/, '');
+    return `${origin}${img}`;
+  }
+  return img;
+};
 
 interface DestinationPageClientProps {
   initialDestination: Destination;
@@ -48,15 +112,11 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
   );
 
   // Filter tours matching this destination
-  let matchedTours = [];
-  if (destination.related_tours && destination.related_tours.length > 0) {
-    matchedTours = toursData.filter(tour => destination.related_tours?.includes(tour.id));
-  } else {
-    matchedTours = toursData.filter(tour => 
-      tour.destination.toLowerCase().includes(destination.name.toLowerCase()) ||
-      tour.title.toLowerCase().includes(destination.name.toLowerCase())
-    );
-  }
+  const destinationTours = toursData.filter(tour => {
+    const titleLower = tour.title.toLowerCase();
+    const destLower = destination.name.toLowerCase();
+    return titleLower.includes(destLower) || (destLower === 'kerala' && (titleLower.includes('munnar') || titleLower.includes('alleppey') || titleLower.includes('wayanad')));
+  });
 
   // Filter hotels matching this destination from Laravel
   const matchedHotels = destination.hotels || [];
@@ -115,7 +175,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
       {/* 1. Hero Banner */}
       <section 
         className={styles.heroBanner}
-        style={{ backgroundImage: `url(${destination.banner_image || '/images/default_banner.png'})` }}
+        style={{ backgroundImage: `url("${getBannerUrl(destination)}")` }}
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
@@ -131,337 +191,304 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
         </div>
       </section>
 
-      {/* 2. Main content area depending on page type */}
-      {isStatePage ? (
-        /* ==========================================
-           STATE / COUNTRY LAYOUT
-           ========================================== */
-        <div>
-          {/* Overview & Best Time to Visit */}
-          <section className="section">
-            <div className="container">
-              <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '3rem' }}>
-                <div>
-                  <h2 className={styles.blockTitle}>{destination.name} Overview</h2>
-                  <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.overview }} />
-                </div>
-                {destination.best_time_to_visit && (
-                  <div style={{ background: 'var(--color-bg-card)', padding: '2.25rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-premium)' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '1rem' }}>
-                      ☀️ Best Time to Visit
-                    </h3>
-                    <div 
-                      style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem', lineHeight: '1.6' }} 
-                      dangerouslySetInnerHTML={{ __html: destination.best_time_to_visit }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {/* Search bar & popular child places */}
-          <section className={styles.subDestSection}>
-            <div className="container">
-              <div className="section-title-wrap" style={{ textAlign: 'left', marginBottom: '2rem' }}>
-                <span className="section-subtitle">Discover regions</span>
-                <h2 className="section-title">Popular Destinations in {destination.name}</h2>
-              </div>
-
-              {/* Destination Search Bar */}
-              <div className={styles.searchBox}>
-                <input
-                  type="text"
-                  placeholder={`Search places in ${destination.name}...`}
-                  className={styles.searchInputField}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+      {/* 2. Main Container Area */}
+      <div className="container" style={{ paddingTop: '2rem' }}>
+        {/* Top Gallery Images (matching Hotel page gallery layout) */}
+        {destination.gallery && destination.gallery.length > 0 && (
+          <div className={styles.imageGallery}>
+            <div className={styles.galleryGrid}>
+              <div 
+                className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  setZoomedIndex(0);
+                  setIsZoomOpen(true);
+                }}
+              >
+                <img 
+                  src={typeof destination.gallery[0] === 'string' ? destination.gallery[0] : destination.gallery[0]?.url || ''} 
+                  alt={`${destination.name} featured view`} 
+                  className={styles.galleryImg} 
                 />
-                <button className="btn btn-primary" style={{ padding: '0.5rem 1.5rem' }}>
-                  Search
-                </button>
               </div>
-
-              {/* Child List Grid */}
-              {filteredSubDestinations.length > 0 ? (
-                <div className={styles.subDestGrid}>
-                  {filteredSubDestinations.map((sub) => (
-                    <Link 
-                      key={sub.id} 
-                      href={`/destinations/${sub.id}`}
-                      className={styles.subDestCard}
-                    >
-                      <img 
-                        src={sub.banner_image || '/images/default_banner.png'} 
-                        alt={sub.name}
-                        className={styles.subDestImg}
-                      />
-                      <div className={styles.subDestOverlay}>
-                        <h3 className={styles.subDestName}>{sub.name}</h3>
-                        <span className={styles.subDestLink}>
-                          View Details 
-                          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                            <polyline points="12 5 19 12 12 19" />
-                          </svg>
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p style={{ color: 'var(--color-text-secondary)', margin: '2rem 0' }}>
-                  No sub-destinations matching "{searchQuery}" found.
-                </p>
-              )}
-            </div>
-          </section>
-        </div>
-      ) : (
-        /* ==========================================
-           DETAIL PAGE LAYOUT
-           ========================================== */
-        <section className="section" style={{ paddingTop: '1rem' }}>
-          <div className="container">
-            {/* Top Gallery Images (matching Hotel page gallery layout) */}
-            {destination.gallery && destination.gallery.length > 0 && (
-              <div className={styles.imageGallery}>
-                <div className={styles.galleryGrid}>
+              {destination.gallery.slice(1, 3).map((img, idx) => {
+                const imgUrl = typeof img === 'string' ? img : img?.url || '';
+                if (!imgUrl) return null;
+                return (
                   <div 
-                    className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
+                    key={idx} 
+                    className={styles.galleryItem}
                     style={{ cursor: 'pointer' }}
                     onClick={() => {
-                      setZoomedIndex(0);
+                      setZoomedIndex(idx + 1);
                       setIsZoomOpen(true);
                     }}
                   >
-                    <img 
-                      src={typeof destination.gallery[0] === 'string' ? destination.gallery[0] : destination.gallery[0]?.url || ''} 
-                      alt={`${destination.name} featured view`} 
-                      className={styles.galleryImg} 
-                    />
+                    <img src={imgUrl} alt={`${destination.name} view ${idx + 2}`} className={styles.galleryImg} />
                   </div>
-                  {destination.gallery.slice(1, 3).map((img, idx) => {
-                    const imgUrl = typeof img === 'string' ? img : img?.url || '';
-                    if (!imgUrl) return null;
-                    return (
-                      <div 
-                        key={idx} 
-                        className={styles.galleryItem}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => {
-                          setZoomedIndex(idx + 1);
-                          setIsZoomOpen(true);
-                        }}
-                      >
-                        <img src={imgUrl} alt={`${destination.name} view ${idx + 2}`} className={styles.galleryImg} />
-                      </div>
-                    );
-                  })}
-                  {destination.gallery[3] && (
-                    <div 
-                      className={styles.galleryItem} 
-                      style={{ gridColumn: 'span 2', cursor: 'pointer' }}
-                      onClick={() => {
-                        setZoomedIndex(3);
-                        setIsZoomOpen(true);
-                      }}
-                    >
-                      <img 
-                        src={typeof destination.gallery[3] === 'string' ? destination.gallery[3] : destination.gallery[3]?.url || ''} 
-                        alt={`${destination.name} view 4`} 
-                        className={styles.galleryImg} 
-                      />
-                    </div>
-                  )}
+                );
+              })}
+              {destination.gallery[3] && (
+                <div 
+                  className={styles.galleryItem} 
+                  style={{ gridColumn: 'span 2', cursor: 'pointer' }}
+                  onClick={() => {
+                    setZoomedIndex(3);
+                    setIsZoomOpen(true);
+                  }}
+                >
+                  <img 
+                    src={typeof destination.gallery[3] === 'string' ? destination.gallery[3] : destination.gallery[3]?.url || ''} 
+                    alt={`${destination.name} view 4`} 
+                    className={styles.galleryImg} 
+                  />
                 </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 2-Column Grid Row: Left Side = Destination Content, Right Side = Sticky Enquiry Form */}
+        <div className={styles.detailGrid}>
+          
+          {/* Left Side: Destination Overview, Details & Places */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {/* Overview */}
+            {destination.overview && (
+              <div className={styles.contentBlock}>
+                <h2 className={styles.blockTitle}>{destination.name} Overview</h2>
+                <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.overview }} />
               </div>
             )}
 
-            {/* 2-Column Grid Row: Left Side = Content Cards, Right Side = Sticky Enquiry Form */}
-            <div className={styles.detailGrid}>
-              
-              {/* Left Side: Destination Information */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                {/* Overview */}
-                {destination.overview && (
-                  <div className={styles.contentBlock}>
-                    <h2 className={styles.blockTitle}>{destination.name} Overview</h2>
-                    <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.overview }} />
-                  </div>
-                )}
+            {/* Sub-destinations / Regions list (If State/Country Parent Page) */}
+            {isStatePage && (
+              <div className={styles.contentBlock}>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <span className="section-subtitle">Discover regions</span>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary-navy)' }}>
+                    Popular Destinations in {destination.name}
+                  </h2>
+                </div>
 
-                {/* How to Reach */}
-                {destination.how_to_reach && (
-                  <div className={styles.contentBlock}>
-                    <h2 className={styles.blockTitle}>How to Reach</h2>
-                    <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.how_to_reach }} />
-                  </div>
-                )}
+                {/* Search Bar */}
+                <div className={styles.searchBox} style={{ marginBottom: '1.5rem' }}>
+                  <input
+                    type="text"
+                    placeholder={`Search places in ${destination.name}...`}
+                    className={styles.searchInputField}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button className="btn btn-primary" style={{ padding: '0.5rem 1.5rem' }}>
+                    Search
+                  </button>
+                </div>
 
-                {/* Best Time to Visit */}
-                {destination.best_time_to_visit && (
-                  <div className={styles.contentBlock}>
-                    <h2 className={styles.blockTitle}>Best Time to Visit</h2>
-                    <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.best_time_to_visit }} />
-                  </div>
-                )}
-
-                {/* Top Attractions */}
-                {destination.top_attractions && destination.top_attractions.length > 0 && (
-                  <div className={styles.contentBlock}>
-                    <h2 className={styles.blockTitle}>Top Places to Visit in {destination.name}</h2>
-                    <div className={styles.attractionsList}>
-                      {destination.top_attractions.map((att, idx) => (
-                        <div key={idx} className={styles.attractionCard}>
-                          <div className={styles.attractionHeader}>
-                            <h3 className={styles.attractionName}>
-                              {idx + 1}. {att.name}
-                            </h3>
-                            <span className={styles.attractionFee}>
-                              Fee: {att.fee}
-                            </span>
-                          </div>
-                          <div className={styles.attractionMeta}>
-                            <div className={styles.attractionMetaItem}>
-                              <span className={styles.metaLabel}>Timings:</span>
-                              <span>{att.timings}</span>
-                            </div>
-                            <div className={styles.attractionMetaItem}>
-                              <span className={styles.metaLabel}>Highlights:</span>
-                              <span>{att.highlights}</span>
-                            </div>
-                            {att.note && (
-                              <div className={styles.attractionMetaItem}>
-                                <span className={styles.metaLabel}>Note:</span>
-                                <span>{att.note}</span>
-                              </div>
-                            )}
-                          </div>
+                {/* Regions Grid */}
+                {filteredSubDestinations.length > 0 ? (
+                  <div className={styles.subDestGrid}>
+                    {filteredSubDestinations.map((sub) => (
+                      <Link 
+                        key={sub.id} 
+                        href={`/destinations/${sub.id}`}
+                        className={styles.subDestCard}
+                      >
+                        <img 
+                          src={getSubBannerUrl(sub)} 
+                          alt={sub.name}
+                          className={styles.subDestImg}
+                        />
+                        <div className={styles.subDestOverlay}>
+                          <h3 className={styles.subDestName}>{sub.name}</h3>
+                          <span className={styles.subDestLink}>
+                            View Details 
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                              <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                      </Link>
+                    ))}
                   </div>
+                ) : (
+                  <p style={{ color: 'var(--color-text-secondary)', margin: '1rem 0' }}>
+                    No sub-destinations matching "{searchQuery}" found.
+                  </p>
                 )}
               </div>
+            )}
 
-              {/* Right Side: Sticky Enquiry Form (Background & Size matching Hotel Enquiry Form) */}
-              <div className={styles.sidebarSticky}>
-                <div className={styles.formCard} id="plan-trip">
-                  <h3 className={styles.formTitle}>Plan Your Trip</h3>
-                  <p className={styles.formSubtitle}>Send us an enquiry to get custom details and rates.</p>
+            {/* How to Reach */}
+            {destination.how_to_reach && (
+              <div className={styles.contentBlock}>
+                <h2 className={styles.blockTitle}>How to Reach</h2>
+                <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.how_to_reach }} />
+              </div>
+            )}
 
-                  {formSuccess && (
-                    <div className={styles.alertSuccess}>
-                      ✓ Enquiry submitted successfully! Our experts will contact you soon.
-                    </div>
-                  )}
+            {/* Best Time to Visit */}
+            {destination.best_time_to_visit && (
+              <div className={styles.contentBlock}>
+                <h2 className={styles.blockTitle}>Best Time to Visit</h2>
+                <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.best_time_to_visit }} />
+              </div>
+            )}
 
-                  <form onSubmit={handleFormSubmit}>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="name">Full Name *</label>
-                      <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        required
-                        placeholder="Enter your full name"
-                        className={styles.darkInput}
-                        value={formData.name}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
-                      <div className={styles.formGroup}>
-                        <label htmlFor="phone">Phone Number *</label>
-                        <input
-                          type="tel"
-                          name="phone"
-                          id="phone"
-                          required
-                          placeholder="Phone No."
-                          className={styles.darkInput}
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                        />
+            {/* Top Attractions */}
+            {destination.top_attractions && destination.top_attractions.length > 0 && (
+              <div className={styles.contentBlock}>
+                <h2 className={styles.blockTitle}>Top Places to Visit in {destination.name}</h2>
+                <div className={styles.attractionsList}>
+                  {destination.top_attractions.map((att, idx) => (
+                    <div key={idx} className={styles.attractionCard}>
+                      <div className={styles.attractionHeader}>
+                        <h3 className={styles.attractionName}>
+                          {idx + 1}. {att.name}
+                        </h3>
+                        <span className={styles.attractionFee}>
+                          Fee: {att.fee}
+                        </span>
                       </div>
-
-                      <div className={styles.formGroup}>
-                        <label htmlFor="email">Email Address *</label>
-                        <input
-                          type="email"
-                          name="email"
-                          id="email"
-                          required
-                          placeholder="Email Address"
-                          className={styles.darkInput}
-                          value={formData.email}
-                          onChange={handleInputChange}
-                        />
+                      <div className={styles.attractionMeta}>
+                        <div className={styles.attractionMetaItem}>
+                          <span className={styles.metaLabel}>Timings:</span>
+                          <span>{att.timings}</span>
+                        </div>
+                        <div className={styles.attractionMetaItem}>
+                          <span className={styles.metaLabel}>Highlights:</span>
+                          <span>{att.highlights}</span>
+                        </div>
+                        {att.note && (
+                          <div className={styles.attractionMetaItem}>
+                            <span className={styles.metaLabel}>Note:</span>
+                            <span>{att.note}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
-                      <div className={styles.formGroup}>
-                        <label htmlFor="num_people">No. of Travellers</label>
-                        <input
-                          type="number"
-                          name="num_people"
-                          id="num_people"
-                          min="1"
-                          required
-                          className={styles.darkInput}
-                          value={formData.num_people}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-
-                      <div className={styles.formGroup}>
-                        <label htmlFor="travel_date">Travel Date</label>
-                        <input
-                          type="date"
-                          name="travel_date"
-                          id="travel_date"
-                          required
-                          className={styles.darkInput}
-                          value={formData.travel_date}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="message">Message / Preferences</label>
-                      <textarea
-                        name="message"
-                        id="message"
-                        rows={3}
-                        placeholder="Mention preferred hotels, places or special requests..."
-                        className={styles.darkTextarea}
-                        value={formData.message}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <button 
-                      type="submit" 
-                      className={styles.submitBtn}
-                      disabled={formSubmitting}
-                    >
-                      {formSubmitting ? 'Sending Request...' : 'Plan My Trip'}
-                    </button>
-                  </form>
+                  ))}
                 </div>
               </div>
+            )}
+          </div>
 
+          {/* Right Side: Sticky Enquiry Form (Background & Size matching Hotel Enquiry Form) */}
+          <div className={styles.sidebarSticky}>
+            <div className={styles.formCard} id="plan-trip">
+              <h3 className={styles.formTitle}>Plan Your Trip</h3>
+              <p className={styles.formSubtitle}>Send us an enquiry to get custom details and rates.</p>
+
+              {formSuccess && (
+                <div className={styles.alertSuccess}>
+                  ✓ Enquiry submitted successfully! Our experts will contact you soon.
+                </div>
+              )}
+
+              <form onSubmit={handleFormSubmit}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="name">Full Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    required
+                    placeholder="Enter your full name"
+                    className={styles.darkInput}
+                    value={formData.name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="phone">Phone Number *</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      id="phone"
+                      required
+                      placeholder="Phone No."
+                      className={styles.darkInput}
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="email">Email Address *</label>
+                    <input
+                      type="email"
+                      name="email"
+                      id="email"
+                      required
+                      placeholder="Email Address"
+                      className={styles.darkInput}
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="num_people">No. of Travellers</label>
+                    <input
+                      type="number"
+                      name="num_people"
+                      id="num_people"
+                      min="1"
+                      required
+                      className={styles.darkInput}
+                      value={formData.num_people}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="travel_date">Travel Date</label>
+                    <input
+                      type="date"
+                      name="travel_date"
+                      id="travel_date"
+                      required
+                      className={styles.darkInput}
+                      value={formData.travel_date}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="message">Message / Preferences</label>
+                  <textarea
+                    name="message"
+                    id="message"
+                    rows={3}
+                    placeholder="Mention preferred hotels, places or special requests..."
+                    className={styles.darkTextarea}
+                    value={formData.message}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className={styles.submitBtn}
+                  disabled={formSubmitting}
+                >
+                  {formSubmitting ? 'Sending Request...' : 'Plan My Trip'}
+                </button>
+              </form>
             </div>
           </div>
-        </section>
-      )}
 
-      {/* 3. Explore Tour Packages Section (Conditional based on admin panel toggle) */}
-      {!isStatePage && destination.show_packages && (
+        </div>
+      </div>
+
+      {/* 3. Explore Tour Packages Section */}
+      {destination.show_packages && (
         <section className={styles.packagesSection}>
           <div className="container">
             <div className="section-title-wrap">
@@ -469,9 +496,9 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
               <h2 className="section-title">Explore Our Related Packages</h2>
             </div>
 
-            {matchedTours.length > 0 ? (
+            {destinationTours.length > 0 ? (
               <div className={styles.packagesGrid}>
-                {matchedTours.map((tour) => (
+                {destinationTours.map((tour) => (
                   <TourCard key={tour.id} tour={tour} />
                 ))}
               </div>
@@ -484,8 +511,8 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
         </section>
       )}
 
-      {/* 4. Explore Hotels Near Destination Section (Conditional based on admin panel toggle) */}
-      {!isStatePage && destination.show_hotels && (
+      {/* 4. Explore Hotels Near Destination Section */}
+      {destination.show_hotels && (
         <section className={styles.hotelsSection}>
           <div className="container">
             <div className="section-title-wrap">
