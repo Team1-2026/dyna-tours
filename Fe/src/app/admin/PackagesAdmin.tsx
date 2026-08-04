@@ -117,7 +117,10 @@ export default function PackagesAdmin() {
     cancellationPolicy: '',
     quickInfo: [],
     bannerCode: '',
-    relatedTours: []
+    relatedTours: [],
+    meta_title: '',
+    meta_description: '',
+    canonical_url: ''
   });
 
   const handleAddNew = () => {
@@ -137,6 +140,9 @@ export default function PackagesAdmin() {
     if (pkgCopy.tax === undefined) pkgCopy.tax = 0;
     if (pkgCopy.durationNights === undefined) pkgCopy.durationNights = 0;
     if (pkgCopy.relatedTours === undefined) pkgCopy.relatedTours = [];
+    if (pkgCopy.meta_title === undefined) pkgCopy.meta_title = '';
+    if (pkgCopy.meta_description === undefined) pkgCopy.meta_description = '';
+    if (pkgCopy.canonical_url === undefined) pkgCopy.canonical_url = '';
     setFormData(pkgCopy);
     setEditingId(pkg.id);
     setIsFormOpen(true);
@@ -700,6 +706,61 @@ export default function PackagesAdmin() {
               ))}
             </select>
             <small style={{ color: '#666' }}>Hold Cmd/Ctrl to select multiple.</small>
+          </div>
+          
+          {/* SEO Settings Card */}
+          <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '20px', marginBottom: '2rem' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#0f172a', fontSize: '1.1rem', fontWeight: 800 }}>
+              🔍 Search Engine Optimization (SEO) Settings
+            </h4>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                  <label style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Meta Title</label>
+                  <span style={{ fontSize: '0.75rem', color: (formData.meta_title || '').length > 60 ? '#ef4444' : '#64748b' }}>
+                    {(formData.meta_title || '').length} / 60
+                  </span>
+                </div>
+                <input 
+                  type="text" 
+                  className={styles.formInput} 
+                  value={formData.meta_title || ''} 
+                  onChange={e => setFormData({ ...formData, meta_title: e.target.value })} 
+                  placeholder={formData.title ? `${formData.title} | Dyna Tours` : 'Enter meta title...'}
+                  style={{ marginBottom: 0 }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontWeight: 'bold', fontSize: '0.85rem', display: 'block', marginBottom: '0.35rem' }}>Canonical URL</label>
+                <input 
+                  type="text" 
+                  className={styles.formInput} 
+                  value={formData.canonical_url || ''} 
+                  onChange={e => setFormData({ ...formData, canonical_url: e.target.value })} 
+                  placeholder={formData.slug ? `https://dynatours.in/holidays/${formData.slug}` : 'https://dynatours.in/holidays/slug'}
+                  style={{ marginBottom: 0 }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                <label style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Meta Description</label>
+                <span style={{ fontSize: '0.75rem', color: (formData.meta_description || '').length > 160 ? '#ef4444' : '#64748b' }}>
+                  {(formData.meta_description || '').length} / 160
+                </span>
+              </div>
+              <textarea 
+                rows={3} 
+                className={styles.formInput} 
+                value={formData.meta_description || ''} 
+                onChange={e => setFormData({ ...formData, meta_description: e.target.value })} 
+                placeholder="Enter meta description for search engines..."
+                style={{ marginBottom: 0 }}
+              />
+            </div>
           </div>
           
           <div style={{ textAlign: 'right', marginTop: '2rem' }}>

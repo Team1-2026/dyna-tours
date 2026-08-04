@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Cruise;
 use App\Models\Destination;
 use App\Models\Facility;
 use App\Models\Hotel;
@@ -368,6 +369,130 @@ class DatabaseSeeder extends Seeder
             'amenities' => ['Wifi', 'AC', 'TV', 'Mini Bar', 'Balcony', 'Jacuzzi', 'Dining Area', 'Kitchenette', 'Safe'],
             'price' => 400.00,
             'remaining_rooms' => 1,
+        ]);
+
+        // 3. Seed Cruise Packages
+        Cruise::create([
+            'id' => 'maldives-colombo',
+            'name' => 'MALDIVES - COLOMBO',
+            'destination' => 'Kochi, Maldives, Colombo',
+            'duration' => '5 Nights / 6 Days',
+            'price' => 45000,
+            'show_price' => true,
+            'short_description' => 'Experience a breathtaking ocean voyage from Kochi to the white sand lagoons of Maldives and the vibrant city of Colombo.',
+            'about' => 'Set sail on a luxurious cruise across the Indian Ocean. Enjoy world-class dining, poolside relaxation, Broadway-style entertainment, and curated island shore excursions.',
+            'banner_image' => 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1200&q=80',
+            'gallery' => [
+                'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
+            ],
+            'highlights' => [
+                'All-inclusive gourmet dining across specialty onboard restaurants',
+                'Guided island excursions in Male & Colombo',
+                'Onboard casino, theater shows & infinity pool lounge',
+                '24x7 oceanfront stateroom butler service'
+            ],
+            'itinerary' => [
+                ['day' => 1, 'title' => 'Embarkation at Kochi Port', 'description' => 'Board the cruise ship in Kochi. Welcome cocktail dinner and sail away party.'],
+                ['day' => 2, 'title' => 'Cruising the Arabian Sea', 'description' => 'Full day at sea. Enjoy spa treatments, deck games, and live theatrical performances.'],
+                ['day' => 3, 'title' => 'Maldives Island Paradise', 'description' => 'Arrive in Male, Maldives. Snorkeling, beach bungalow lunch, and sunset catamaran cruise.'],
+                ['day' => 4, 'title' => 'Colombo City Tour & Shopping', 'description' => 'Dock in Colombo. Guided city tour, Pettah market, and tea tasting experience.'],
+                ['day' => 5, 'title' => 'Gala Dinner at Sea', 'description' => 'Captain\'s Farewell Gala dinner with live music and fireworks.'],
+                ['day' => 6, 'title' => 'Disembarkation at Kochi', 'description' => 'Return to Kochi port. Breakfast onboard and disembarkation with fond memories.']
+            ],
+            'inclusions' => ['Luxury Stateroom Stay', 'All Daily Meals & Soft Drinks', 'Port Taxes & Gratuities', 'Access to Onboard Shows & Pools'],
+            'exclusions' => ['Personal Expenses & Casino', 'Alcoholic Packages (Unless Upgraded)', 'Flight/Train to Kochi Port'],
+            'need_to_know' => ['Valid passport with at least 6 months validity required.', 'Sri Lanka & Maldives entry permits handled at port.'],
+            'faqs' => [
+                ['question' => 'Is Wi-Fi available onboard?', 'answer' => 'Yes, satellite Wi-Fi packages are available for purchase onboard.'],
+                ['question' => 'What clothing should I pack?', 'answer' => 'Smart casuals for day time, swimwear for pool deck, and elegant attire for Captain\'s Gala Night.']
+            ],
+            'reviews' => [],
+            'featured' => true,
+            'order_no' => 1,
+            'status' => 'Active',
+            'meta_title' => 'Maldives - Colombo Cruise Package | Dyna Tours',
+            'meta_description' => 'Book 5 Nights 6 Days luxury cruise from Kochi to Maldives and Colombo with Dyna Tours India.',
+            'url_slug' => 'maldives-colombo',
+            'canonical_url' => 'http://localhost:3000/cruise/maldives-colombo'
+        ]);
+
+        Cruise::create([
+            'id' => 'singapore-far-east',
+            'name' => 'SINGAPORE & FAR EAST OCEAN SAIL',
+            'destination' => 'Singapore, Penang, Phuket',
+            'duration' => '6 Nights / 7 Days',
+            'price' => 65000,
+            'show_price' => true,
+            'short_description' => 'Sail aboard Genting Dream / Spectrum of the Seas covering Singapore, Malaysia, and Thailand.',
+            'about' => 'Experience Asia\'s finest cruise liner with water slides, zip-lining, international buffets, and tropical port stops.',
+            'banner_image' => 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1200&q=80',
+            'gallery' => [
+                'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80'
+            ],
+            'highlights' => [
+                'Waterpark & zip line on top deck',
+                'Shore excursions in Penang & Phuket beaches',
+                'Duty-free shopping onboard'
+            ],
+            'itinerary' => [
+                ['day' => 1, 'title' => 'Depart Singapore Marina Bay', 'description' => 'Check-in at Singapore cruise terminal and sail towards Penang.'],
+                ['day' => 2, 'title' => 'Penang Heritage Stop', 'description' => 'Explore George Town street art and local delicacies.'],
+                ['day' => 3, 'title' => 'Phuket Tropical Island', 'description' => 'Enjoy Patong beach and island hopping.'],
+                ['day' => 4, 'title' => 'Fun Day at Sea', 'description' => 'Enjoy onboard entertainment and water slides.'],
+                ['day' => 5, 'title' => 'Return to Singapore Port', 'description' => 'Disembarkation at Singapore terminal.']
+            ],
+            'inclusions' => ['Oceanview Cabin', 'All Meals Onboard', 'Port Taxes'],
+            'exclusions' => ['Airfare to Singapore', 'Singapore Tourist Visa'],
+            'need_to_know' => ['Passport valid for 6 months required.'],
+            'faqs' => [],
+            'reviews' => [],
+            'featured' => true,
+            'order_no' => 2,
+            'status' => 'Active',
+            'meta_title' => 'Singapore & Far East Cruise Package | Dyna Tours',
+            'meta_description' => 'Sail across Singapore, Penang & Phuket with Dyna Tours.',
+            'url_slug' => 'singapore-far-east',
+            'canonical_url' => 'http://localhost:3000/cruise/singapore-far-east'
+        ]);
+
+        Cruise::create([
+            'id' => 'mediterranean-magic',
+            'name' => 'MEDITERRANEAN MAGIC CRUISE',
+            'destination' => 'Barcelona, Rome, Athens, Santorini',
+            'duration' => '8 Nights / 9 Days',
+            'price' => 125000,
+            'show_price' => true,
+            'short_description' => 'Discover ancient history, cliffside Greek villages, and romantic European ports on Costa / MSC Cruises.',
+            'about' => 'Sailing through Spain, Italy, and Greece with luxury amenities, fine wine, and architectural wonders.',
+            'banner_image' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+            'gallery' => [
+                'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
+            ],
+            'highlights' => [
+                'Santorini white-and-blue cliffside views',
+                'Rome Colosseum & Vatican tour options',
+                'Authentic Mediterranean cuisine'
+            ],
+            'itinerary' => [
+                ['day' => 1, 'title' => 'Barcelona Sail-away', 'description' => 'Board ship in Barcelona.'],
+                ['day' => 2, 'title' => 'Rome Port (Civitavecchia)', 'description' => 'Excursion to Vatican & Colosseum.'],
+                ['day' => 3, 'title' => 'Santorini Island', 'description' => 'Sunset in Oia village.'],
+                ['day' => 4, 'title' => 'Athens Heritage', 'description' => 'Visit Acropolis & Parthenon.']
+            ],
+            'inclusions' => ['Balcony Cabin Stay', 'All Gourmet Dining', 'Port Charges'],
+            'exclusions' => ['Schengen Visa', 'Flight to Barcelona'],
+            'need_to_know' => ['Schengen Visa required before departure.'],
+            'faqs' => [],
+            'reviews' => [],
+            'featured' => true,
+            'order_no' => 3,
+            'status' => 'Active',
+            'meta_title' => 'Mediterranean Cruise Package | Dyna Tours',
+            'meta_description' => 'Explore Barcelona, Rome & Santorini on a Mediterranean Cruise.',
+            'url_slug' => 'mediterranean-magic',
+            'canonical_url' => 'http://localhost:3000/cruise/mediterranean-magic'
         ]);
     }
 }

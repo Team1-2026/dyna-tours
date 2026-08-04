@@ -15,6 +15,20 @@ const SECTION_SIZES = {
   other: { label: 'Other / Room', size: 'Any size' },
 };
 
+const formatImageName = (url: string) => {
+  if (!url) return 'No Image URL';
+  if (url.startsWith('data:image/')) {
+    const mimeMatch = url.match(/^data:image\/([a-zA-Z0-9+-]+);base64,/);
+    const ext = mimeMatch ? mimeMatch[1].toUpperCase() : 'IMAGE';
+    const approxKb = Math.round((url.length * 0.75) / 1024);
+    return `📁 Uploaded Image (${ext}, ~${approxKb} KB)`;
+  }
+  if (url.length > 55) {
+    return url.slice(0, 55) + '...';
+  }
+  return url;
+};
+
 export default function ImageTabularManager({ images, onChange }: ImageTabularManagerProps) {
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -177,7 +191,7 @@ export default function ImageTabularManager({ images, onChange }: ImageTabularMa
                   }}
                 />
                 <div style={styles.rowText}>
-                  <div style={styles.rowUrl}>{item.url}</div>
+                  <div style={styles.rowUrl} title={item.url}>{formatImageName(item.url)}</div>
                   <div style={styles.rowMeta}>
                     <span style={styles.sectionBadge}>
                       {SECTION_SIZES[item.section || 'gallery']?.label || 'Gallery'}

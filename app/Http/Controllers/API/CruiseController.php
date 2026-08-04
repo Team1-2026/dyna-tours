@@ -48,11 +48,35 @@ class CruiseController extends Controller
         return response()->json($cruise);
     }
 
+    private function sanitizeArrayInputs(Request $request): void
+    {
+        $arrayFields = ['gallery', 'highlights', 'itinerary', 'inclusions', 'exclusions', 'need_to_know', 'faqs', 'reviews'];
+        $updates = [];
+        foreach ($arrayFields as $field) {
+            if ($request->has($field)) {
+                $val = $request->input($field);
+                if (is_string($val)) {
+                    $decoded = json_decode($val, true);
+                    $updates[$field] = is_array($decoded) ? $decoded : [];
+                } elseif (is_null($val) || $val === '') {
+                    $updates[$field] = [];
+                } elseif (!is_array($val)) {
+                    $updates[$field] = [];
+                }
+            }
+        }
+        if (!empty($updates)) {
+            $request->merge($updates);
+        }
+    }
+
     /**
      * Store a newly created cruise package.
      */
     public function store(Request $request)
     {
+        $this->sanitizeArrayInputs($request);
+
         $validated = $request->validate([
             'id' => 'required|string|unique:cruises,id',
             'name' => 'required|string|max:255',
@@ -104,6 +128,8 @@ class CruiseController extends Controller
             return response()->json(['message' => 'Cruise package not found'], 404);
         }
 
+        $this->sanitizeArrayInputs($request);
+
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'destination' => 'sometimes|string|max:255',
@@ -113,14 +139,14 @@ class CruiseController extends Controller
             'short_description' => 'sometimes|string',
             'about' => 'sometimes|string|nullable',
             'banner_image' => 'sometimes|string|nullable',
-            'gallery' => 'sometimes|array',
-            'highlights' => 'sometimes|array',
-            'itinerary' => 'sometimes|array',
-            'inclusions' => 'sometimes|array',
-            'exclusions' => 'sometimes|array',
-            'need_to_know' => 'sometimes|array',
-            'faqs' => 'sometimes|array',
-            'reviews' => 'sometimes|array',
+            'gallery' => 'sometimes|nullable|array',
+            'highlights' => 'sometimes|nullable|array',
+            'itinerary' => 'sometimes|nullable|array',
+            'inclusions' => 'sometimes|nullable|array',
+            'exclusions' => 'sometimes|nullable|array',
+            'need_to_know' => 'sometimes|nullable|array',
+            'faqs' => 'sometimes|nullable|array',
+            'reviews' => 'sometimes|nullable|array',
             'featured' => 'sometimes|boolean',
             'order_no' => 'sometimes|integer|min:0|nullable',
             'status' => 'sometimes|string',

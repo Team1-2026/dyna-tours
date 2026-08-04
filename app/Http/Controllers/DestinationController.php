@@ -55,8 +55,8 @@ class DestinationController extends Controller
             'show_packages' => 'sometimes|boolean',
             'show_hotels' => 'sometimes|boolean',
             'banner_image' => 'sometimes|string|nullable',
-            'gallery' => 'sometimes|array',
-            'top_attractions' => 'sometimes|array',
+            'gallery' => 'sometimes|nullable|array',
+            'top_attractions' => 'sometimes|nullable|array',
             // SEO fields
             'meta_title' => 'sometimes|string|nullable',
             'meta_description' => 'sometimes|string|nullable',
@@ -67,7 +67,7 @@ class DestinationController extends Controller
             'state' => 'sometimes|string|nullable',
             'city' => 'sometimes|string|nullable',
             // Related tours mapping
-            'related_tours' => 'sometimes|array|nullable',
+            'related_tours' => 'sometimes|nullable|array',
             'order_no' => 'sometimes|integer|min:0|nullable',
             'banner_heading' => 'sometimes|string|nullable',
             'banner_tagline' => 'sometimes|string|nullable',

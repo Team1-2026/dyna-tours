@@ -44,10 +44,14 @@ export default function CruiseAdmin() {
     featured: true,
     order_no: 1,
     status: 'Active',
+    gallery: [],
     highlights: [],
+    itinerary: [],
     inclusions: [],
     exclusions: [],
     need_to_know: [],
+    faqs: [],
+    reviews: [],
   });
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
@@ -93,10 +97,14 @@ export default function CruiseAdmin() {
     setSelectedCruise(cruise);
     setCruiseForm({
       ...cruise,
-      highlights: cruise.highlights || [],
-      inclusions: cruise.inclusions || [],
-      exclusions: cruise.exclusions || [],
-      need_to_know: cruise.need_to_know || [],
+      gallery: Array.isArray(cruise.gallery) ? cruise.gallery : [],
+      highlights: Array.isArray(cruise.highlights) ? cruise.highlights : [],
+      itinerary: Array.isArray(cruise.itinerary) ? cruise.itinerary : [],
+      inclusions: Array.isArray(cruise.inclusions) ? cruise.inclusions : [],
+      exclusions: Array.isArray(cruise.exclusions) ? cruise.exclusions : [],
+      need_to_know: Array.isArray(cruise.need_to_know) ? cruise.need_to_know : [],
+      faqs: Array.isArray(cruise.faqs) ? cruise.faqs : [],
+      reviews: Array.isArray(cruise.reviews) ? cruise.reviews : [],
     });
   };
 
@@ -116,10 +124,14 @@ export default function CruiseAdmin() {
       featured: true,
       order_no: cruises.length + 1,
       status: 'Active',
+      gallery: [],
       highlights: [],
+      itinerary: [],
       inclusions: [],
       exclusions: [],
       need_to_know: [],
+      faqs: [],
+      reviews: [],
     });
   };
 

@@ -164,10 +164,10 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
         }}
       >
         <div className="container">
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.5rem', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+          <h1 style={{ color: '#ffffff', fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.5rem', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
             {hotel.banner_heading || hotel.name}
           </h1>
-          <p style={{ fontSize: '1.15rem', opacity: 0.95, textShadow: '0 1px 4px rgba(0,0,0,0.5)', maxWidth: '800px', margin: '0 auto' }}>
+          <p style={{ color: '#ffffff', fontSize: '1.15rem', opacity: 0.95, textShadow: '0 1px 4px rgba(0,0,0,0.6)', maxWidth: '800px', margin: '0 auto' }}>
             {hotel.banner_tagline || `${hotel.location} • ${hotel.category} Luxury Experience`}
           </p>
         </div>

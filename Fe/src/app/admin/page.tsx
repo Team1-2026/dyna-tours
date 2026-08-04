@@ -20,8 +20,9 @@ import ContactAdmin from './ContactAdmin';
 import StaffAdmin from './StaffAdmin';
 import CruiseAdmin from './CruiseAdmin';
 import HomePageAdmin from './HomePageAdmin';
+import SeoAdmin from './SeoAdmin';
 
-type TabType = 'dashboard' | 'homePage' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage' | 'staff' | 'cruise';
+type TabType = 'dashboard' | 'homePage' | 'seo' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage' | 'staff' | 'cruise';
 
 // Hierarchical location data
 const COUNTRIES_DATA: Record<string, { states: string[]; cities: Record<string, string[]> }> = {
@@ -635,18 +636,15 @@ export default function AdminDashboard() {
   };
 
   const handleDestGalleryChange = (updated: GalleryImage[]) => {
-    const bannerImg = updated.find(img => img.section === 'banner')?.url || '';
     if (isCreatingDest) {
       setNewDest(prev => ({
         ...prev,
         gallery: updated,
-        banner_image: bannerImg || prev.banner_image || null
       }));
     } else {
       setSelectedDest(prev => prev ? {
         ...prev,
         gallery: updated,
-        banner_image: bannerImg || prev.banner_image || null
       } : null);
     }
   };
@@ -989,6 +987,16 @@ export default function AdminDashboard() {
             <div className={styles.menuItemLabel}>
               <span>🏠</span>
               <span>Home Page CMS</span>
+            </div>
+          </div>
+
+          <div 
+            className={`${styles.menuItem} ${activeTab === 'seo' ? styles.menuItemActive : ''}`}
+            onClick={() => { setActiveTab('seo'); setIsCreatingDest(false); setIsCreatingHotel(false); setSelectedDestId(''); setSelectedHotelId(''); }}
+          >
+            <div className={styles.menuItemLabel}>
+              <span>🔍</span>
+              <span>SEO Manager</span>
             </div>
           </div>
 
@@ -1383,6 +1391,11 @@ export default function AdminDashboard() {
              HOME PAGE CMS TAB
              ========================================== */}
           {activeTab === 'homePage' && <HomePageAdmin />}
+
+          {/* ==========================================
+             SEO MANAGER TAB
+             ========================================== */}
+          {activeTab === 'seo' && <SeoAdmin />}
 
           {/* ==========================================
              ENQUIRIES TAB (TABLE VIEW)
@@ -2685,10 +2698,11 @@ export default function AdminDashboard() {
                           src={isCreatingDest ? newDest.banner_image || '/images/default_hotel.png' : selectedDest?.banner_image || '/images/default_hotel.png'} 
                           alt="Banner Preview" 
                           className={styles.imageCardPreview}
+                          style={{ minHeight: '90px', objectFit: 'cover' }}
                         />
-                        <div className={styles.imageCardControls}>
-                          <label className={styles.btnUploadFile}>
-                            📤 Upload Banner Image
+                        <div className={styles.imageCardControls} style={{ gap: '0.6rem' }}>
+                          <label className={styles.btnUploadFile} style={{ width: '100%', margin: 0 }}>
+                            📤 Upload Banner Image File
                             <input 
                               type="file" 
                               accept="image/*" 
@@ -2727,31 +2741,51 @@ export default function AdminDashboard() {
                               }}
                             />
                           </label>
-                          <div style={{ marginTop: '0.5rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                            <input 
-                              type="text" 
-                              placeholder="Banner Heading (Title)"
-                              value={isCreatingDest ? newDest.banner_heading || '' : selectedDest?.banner_heading || ''}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_heading: val }));
-                                else setSelectedDest(prev => prev ? { ...prev, banner_heading: val } : null);
-                              }}
-                              className="formInput"
-                              style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
-                            />
-                            <input 
-                              type="text" 
-                              placeholder="Banner Tagline (Subtitle)"
-                              value={isCreatingDest ? newDest.banner_tagline || '' : selectedDest?.banner_tagline || ''}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_tagline: val }));
-                                else setSelectedDest(prev => prev ? { ...prev, banner_tagline: val } : null);
-                              }}
-                              className="formInput"
-                              style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
-                            />
+
+                          <input 
+                            type="text" 
+                            placeholder="Or paste image URL / Base64 string..."
+                            value={isCreatingDest ? newDest.banner_image || '' : selectedDest?.banner_image || ''}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_image: val }));
+                              else setSelectedDest(prev => prev ? { ...prev, banner_image: val } : null);
+                            }}
+                            className="formInput"
+                            style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                          />
+
+                          <div style={{ marginTop: '0.3rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <div>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.2rem' }}>Banner Title / Heading</label>
+                              <input 
+                                type="text" 
+                                placeholder="e.g. Explore Tropical Kerala"
+                                value={isCreatingDest ? newDest.banner_heading || '' : selectedDest?.banner_heading || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_heading: val }));
+                                  else setSelectedDest(prev => prev ? { ...prev, banner_heading: val } : null);
+                                }}
+                                className="formInput"
+                                style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.2rem' }}>Banner Subtitle / Tagline</label>
+                              <input 
+                                type="text" 
+                                placeholder="e.g. God's Own Country - Backwaters & Hills"
+                                value={isCreatingDest ? newDest.banner_tagline || '' : selectedDest?.banner_tagline || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (isCreatingDest) setNewDest(prev => ({ ...prev, banner_tagline: val }));
+                                  else setSelectedDest(prev => prev ? { ...prev, banner_tagline: val } : null);
+                                }}
+                                className="formInput"
+                                style={{ padding: '0.45rem 0.65rem', fontSize: '0.8rem', width: '100%', marginBottom: 0 }}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>

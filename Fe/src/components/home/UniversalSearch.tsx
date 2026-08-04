@@ -3,7 +3,81 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Calendar, Compass, Hotel, FileText, Ship, Users, Clock, DollarSign } from 'lucide-react';
+import { 
+  Search, 
+  MapPin, 
+  Calendar, 
+  Compass, 
+  Hotel, 
+  FileText, 
+  Ship, 
+  Users, 
+  Clock, 
+  ChevronDown,
+  Globe,
+  Tag
+} from 'lucide-react';
+
+const fieldStyle: React.CSSProperties = {
+  height: '48px',
+  minHeight: '48px',
+  maxHeight: '48px',
+  width: '100%',
+  boxSizing: 'border-box',
+  borderRadius: '0.75rem',
+  border: '1px solid #cbd5e1',
+  backgroundColor: '#ffffff',
+  color: '#0f172a',
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  paddingLeft: '2.5rem',
+  paddingRight: '2.25rem',
+  outline: 'none',
+  WebkitAppearance: 'none',
+  MozAppearance: 'none',
+  appearance: 'none',
+  margin: 0,
+  cursor: 'pointer',
+};
+
+const inputStyle: React.CSSProperties = {
+  ...fieldStyle,
+  paddingRight: '1rem',
+  cursor: 'text',
+};
+
+const dateStyle: React.CSSProperties = {
+  ...fieldStyle,
+  paddingRight: '0.75rem',
+  cursor: 'pointer',
+};
+
+const optionStyle: React.CSSProperties = {
+  color: '#0f172a',
+  backgroundColor: '#ffffff',
+  fontSize: '14px',
+  fontWeight: 500,
+  padding: '10px',
+};
+
+const buttonBaseStyle: React.CSSProperties = {
+  height: '48px',
+  minHeight: '48px',
+  maxHeight: '48px',
+  width: '100%',
+  boxSizing: 'border-box',
+  borderRadius: '0.75rem',
+  border: 'none',
+  fontSize: '0.875rem',
+  fontWeight: 700,
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.5rem',
+  color: '#ffffff',
+  margin: 0,
+};
 
 export const UniversalSearch: React.FC = () => {
   const router = useRouter();
@@ -19,7 +93,6 @@ export const UniversalSearch: React.FC = () => {
   const [hotelDest, setHotelDest] = useState('');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
-  const [roomType, setRoomType] = useState('');
   const [guests, setGuests] = useState('2 Guests');
 
   // Visa Form State
@@ -51,7 +124,6 @@ export const UniversalSearch: React.FC = () => {
     if (hotelDest) params.append('search', hotelDest);
     if (checkIn) params.append('checkin', checkIn);
     if (checkOut) params.append('checkout', checkOut);
-    if (roomType) params.append('type', roomType);
     if (guests) params.append('guests', guests);
     router.push(`/hotels?${params.toString()}`);
   };
@@ -90,7 +162,7 @@ export const UniversalSearch: React.FC = () => {
 
   return (
     <div className="relative z-30 mx-auto max-w-6xl px-4 sm:px-6 -mt-20 sm:-mt-24 pb-12">
-      <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-6 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5">
+      <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5">
         
         {/* Navigation Tabs */}
         <div className="flex overflow-x-auto gap-2 border-b border-slate-100 pb-4 no-scrollbar">
@@ -100,6 +172,7 @@ export const UniversalSearch: React.FC = () => {
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative flex items-center gap-2.5 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                   isActive
@@ -115,89 +188,98 @@ export const UniversalSearch: React.FC = () => {
         </div>
 
         {/* Dynamic Forms Container */}
-        <div className="pt-6">
+        <div className="pt-5">
           <AnimatePresence mode="wait">
             
             {/* 1. Holiday Search Form */}
             {activeTab === 'holidays' && (
               <motion.form
                 key="holidays"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleHolidaySubmit}
                 className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-end"
               >
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Destination
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500 z-10 pointer-events-none" />
                     <input
                       type="text"
                       placeholder="Where to? (e.g. Europe, Bali)"
                       value={holidayDest}
                       onChange={(e) => setHolidayDest(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+                      style={inputStyle}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Holiday Type
                   </label>
-                  <select
-                    value={holidayType}
-                    onChange={(e) => setHolidayType(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
-                  >
-                    <option value="">All Themes</option>
-                    <option value="Honeymoon">Honeymoon</option>
-                    <option value="Family">Family Package</option>
-                    <option value="Adventure">Adventure & Trekking</option>
-                    <option value="Luxury">Luxury Resort</option>
-                    <option value="Pilgrimage">Pilgrimage</option>
-                  </select>
+                  <div className="relative">
+                    <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <select
+                      value={holidayType}
+                      onChange={(e) => setHolidayType(e.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="" style={optionStyle}>All Themes</option>
+                      <option value="Honeymoon" style={optionStyle}>Honeymoon</option>
+                      <option value="Family" style={optionStyle}>Family Package</option>
+                      <option value="Adventure" style={optionStyle}>Adventure & Trekking</option>
+                      <option value="Luxury" style={optionStyle}>Luxury Resort</option>
+                      <option value="Pilgrimage" style={optionStyle}>Pilgrimage</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Duration
                   </label>
-                  <select
-                    value={holidayDuration}
-                    onChange={(e) => setHolidayDuration(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
-                  >
-                    <option value="">Any Duration</option>
-                    <option value="1-3">1 - 3 Days</option>
-                    <option value="4-7">4 - 7 Days</option>
-                    <option value="8-12">8 - 12 Days</option>
-                    <option value="13+">13+ Days</option>
-                  </select>
+                  <div className="relative">
+                    <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <select
+                      value={holidayDuration}
+                      onChange={(e) => setHolidayDuration(e.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="" style={optionStyle}>Any Duration</option>
+                      <option value="1-3" style={optionStyle}>1 - 3 Days</option>
+                      <option value="4-7" style={optionStyle}>4 - 7 Days</option>
+                      <option value="8-12" style={optionStyle}>8 - 12 Days</option>
+                      <option value="13+" style={optionStyle}>13+ Days</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Travel Date
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
+                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
                     <input
                       type="date"
                       value={holidayDate}
                       onChange={(e) => setHolidayDate(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 pl-10 pr-3 text-sm text-white focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+                      style={dateStyle}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <button
-                    type="submit"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-600/30 transition-all hover:scale-[1.02] hover:from-red-500 hover:to-rose-500 active:scale-95"
+                  <button 
+                    type="submit" 
+                    style={{ ...buttonBaseStyle, background: 'linear-gradient(to right, #dc2626, #e11d48)' }}
+                    className="shadow-md shadow-red-600/20 hover:shadow-lg hover:shadow-red-600/30 transition-all active:scale-95"
                   >
                     <Search className="h-4 w-4" />
                     <span>Search Holidays</span>
@@ -210,72 +292,83 @@ export const UniversalSearch: React.FC = () => {
             {activeTab === 'hotels' && (
               <motion.form
                 key="hotels"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleHotelSubmit}
-                className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6 items-end"
+                className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-end"
               >
-                <div className="lg:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Destination / Hotel Name
                   </label>
                   <div className="relative">
-                    <Hotel className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-400" />
+                    <Hotel className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-600 z-10 pointer-events-none" />
                     <input
                       type="text"
                       placeholder="City or Hotel Name"
                       value={hotelDest}
                       onChange={(e) => setHotelDest(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 pl-10 pr-3 text-sm text-white placeholder-neutral-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      style={inputStyle}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Check-In
                   </label>
-                  <input
-                    type="date"
-                    value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-                  />
+                  <div className="relative">
+                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <input
+                      type="date"
+                      value={checkIn}
+                      onChange={(e) => setCheckIn(e.target.value)}
+                      style={dateStyle}
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Check-Out
                   </label>
-                  <input
-                    type="date"
-                    value={checkOut}
-                    onChange={(e) => setCheckOut(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-                  />
+                  <div className="relative">
+                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <input
+                      type="date"
+                      value={checkOut}
+                      onChange={(e) => setCheckOut(e.target.value)}
+                      style={dateStyle}
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Guests & Rooms
                   </label>
-                  <select
-                    value={guests}
-                    onChange={(e) => setGuests(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-                  >
-                    <option value="1 Guest">1 Guest, 1 Room</option>
-                    <option value="2 Guests">2 Guests, 1 Room</option>
-                    <option value="3 Guests">3 Guests, 1 Room</option>
-                    <option value="4+ Guests">4+ Guests / Family Suite</option>
-                  </select>
+                  <div className="relative">
+                    <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <select
+                      value={guests}
+                      onChange={(e) => setGuests(e.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="1 Guest" style={optionStyle}>1 Guest, 1 Room</option>
+                      <option value="2 Guests" style={optionStyle}>2 Guests, 1 Room</option>
+                      <option value="3 Guests" style={optionStyle}>3 Guests, 1 Room</option>
+                      <option value="4+ Guests" style={optionStyle}>4+ Guests / Family Suite</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <button
-                    type="submit"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-600/30 transition-all hover:scale-[1.02] hover:bg-teal-500 active:scale-95"
+                  <button 
+                    type="submit" 
+                    style={{ ...buttonBaseStyle, background: '#0d9488' }}
+                    className="shadow-md shadow-teal-600/20 hover:shadow-lg hover:shadow-teal-600/30 transition-all active:scale-95"
                   >
                     <Search className="h-4 w-4" />
                     <span>Find Hotels</span>
@@ -288,67 +381,80 @@ export const UniversalSearch: React.FC = () => {
             {activeTab === 'visa' && (
               <motion.form
                 key="visa"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleVisaSubmit}
                 className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end"
               >
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Destination Country
                   </label>
-                  <select
-                    value={visaCountry}
-                    onChange={(e) => setVisaCountry(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  >
-                    <option value="">Select Destination Country</option>
-                    <option value="UAE">United Arab Emirates (UAE)</option>
-                    <option value="Schengen">Schengen Countries (Europe)</option>
-                    <option value="UK">United Kingdom</option>
-                    <option value="Singapore">Singapore</option>
-                    <option value="Thailand">Thailand</option>
-                    <option value="Japan">Japan</option>
-                    <option value="USA">United States</option>
-                  </select>
+                  <div className="relative">
+                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500 z-10 pointer-events-none" />
+                    <select
+                      value={visaCountry}
+                      onChange={(e) => setVisaCountry(e.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="" style={optionStyle}>Select Destination Country</option>
+                      <option value="UAE" style={optionStyle}>United Arab Emirates (UAE)</option>
+                      <option value="Schengen" style={optionStyle}>Schengen Countries (Europe)</option>
+                      <option value="UK" style={optionStyle}>United Kingdom</option>
+                      <option value="Singapore" style={optionStyle}>Singapore</option>
+                      <option value="Thailand" style={optionStyle}>Thailand</option>
+                      <option value="Japan" style={optionStyle}>Japan</option>
+                      <option value="USA" style={optionStyle}>United States</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Visa Type
                   </label>
-                  <select
-                    value={visaType}
-                    onChange={(e) => setVisaType(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  >
-                    <option value="Tourist">Tourist Visa</option>
-                    <option value="Business">Business Visa</option>
-                    <option value="Express">Express eVisa</option>
-                    <option value="Transit">Transit Visa</option>
-                  </select>
+                  <div className="relative">
+                    <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <select
+                      value={visaType}
+                      onChange={(e) => setVisaType(e.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="Tourist" style={optionStyle}>Tourist Visa</option>
+                      <option value="Business" style={optionStyle}>Business Visa</option>
+                      <option value="Express" style={optionStyle}>Express eVisa</option>
+                      <option value="Transit" style={optionStyle}>Transit Visa</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Passport Nationality
                   </label>
-                  <input
-                    type="text"
-                    value={nationality}
-                    onChange={(e) => setNationality(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  />
+                  <div className="relative">
+                    <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Indian"
+                      value={nationality}
+                      onChange={(e) => setNationality(e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <button
-                    type="submit"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-amber-500/30 transition-all hover:scale-[1.02] hover:from-amber-400 hover:to-orange-500 active:scale-95"
+                  <button 
+                    type="submit" 
+                    style={{ ...buttonBaseStyle, background: 'linear-gradient(to right, #f59e0b, #ea580c)' }}
+                    className="shadow-md shadow-amber-500/20 hover:shadow-lg hover:shadow-amber-500/30 transition-all active:scale-95"
                   >
                     <Search className="h-4 w-4" />
-                    <span>Check Visa Requirements</span>
+                    <span>Check Requirements</span>
                   </button>
                 </div>
               </motion.form>
@@ -358,50 +464,59 @@ export const UniversalSearch: React.FC = () => {
             {activeTab === 'cruise' && (
               <motion.form
                 key="cruise"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleCruiseSubmit}
                 className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-end"
               >
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Cruise Destination
                   </label>
-                  <select
-                    value={cruiseDest}
-                    onChange={(e) => setCruiseDest(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="">All Regions</option>
-                    <option value="Singapore">Singapore & Southeast Asia</option>
-                    <option value="Mediterranean">Mediterranean & Europe</option>
-                    <option value="Caribbean">Caribbean Islands</option>
-                    <option value="Middle East">Dubai & Arabian Gulf</option>
-                  </select>
+                  <div className="relative">
+                    <Ship className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500 z-10 pointer-events-none" />
+                    <select
+                      value={cruiseDest}
+                      onChange={(e) => setCruiseDest(e.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="" style={optionStyle}>All Regions</option>
+                      <option value="Singapore" style={optionStyle}>Singapore & Southeast Asia</option>
+                      <option value="Mediterranean" style={optionStyle}>Mediterranean & Europe</option>
+                      <option value="Caribbean" style={optionStyle}>Caribbean Islands</option>
+                      <option value="Middle East" style={optionStyle}>Dubai & Arabian Gulf</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Cruise Line
                   </label>
-                  <select
-                    value={cruiseLine}
-                    onChange={(e) => setCruiseLine(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="">All Cruise Lines</option>
-                    <option value="Royal Caribbean">Royal Caribbean</option>
-                    <option value="Costa Cruises">Costa Cruises</option>
-                    <option value="MSC Cruises">MSC Cruises</option>
-                    <option value="Cordelia Cruises">Cordelia Cruises (India)</option>
-                  </select>
+                  <div className="relative">
+                    <Compass className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <select
+                      value={cruiseLine}
+                      onChange={(e) => setCruiseLine(e.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="" style={optionStyle}>All Cruise Lines</option>
+                      <option value="Royal Caribbean" style={optionStyle}>Royal Caribbean</option>
+                      <option value="Costa Cruises" style={optionStyle}>Costa Cruises</option>
+                      <option value="MSC Cruises" style={optionStyle}>MSC Cruises</option>
+                      <option value="Cordelia Cruises" style={optionStyle}>Cordelia Cruises (India)</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <button
-                    type="submit"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all hover:scale-[1.02] hover:bg-blue-500 active:scale-95"
+                  <button 
+                    type="submit" 
+                    style={{ ...buttonBaseStyle, background: '#2563eb' }}
+                    className="shadow-md shadow-blue-600/20 hover:shadow-lg hover:shadow-blue-600/30 transition-all active:scale-95"
                   >
                     <Search className="h-4 w-4" />
                     <span>Search Cruises</span>
@@ -414,46 +529,54 @@ export const UniversalSearch: React.FC = () => {
             {activeTab === 'group' && (
               <motion.form
                 key="group"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleGroupSubmit}
                 className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-end"
               >
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Group Tour Destination
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Destination (e.g. Europe, Kashmir)"
-                    value={groupDest}
-                    onChange={(e) => setGroupDest(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white placeholder-neutral-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                  />
+                  <div className="relative">
+                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600 z-10 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="Destination (e.g. Europe, Kashmir)"
+                      value={groupDest}
+                      onChange={(e) => setGroupDest(e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Departure Month
                   </label>
-                  <select
-                    value={deptMonth}
-                    onChange={(e) => setDeptMonth(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-neutral-800/70 py-3 px-3 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                  >
-                    <option value="">Any Month</option>
-                    <option value="August 2026">August 2026</option>
-                    <option value="September 2026">September 2026</option>
-                    <option value="October 2026">October 2026 (Diwali)</option>
-                    <option value="December 2026">December 2026 (New Year)</option>
-                  </select>
+                  <div className="relative">
+                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
+                    <select
+                      value={deptMonth}
+                      onChange={(e) => setDeptMonth(e.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="" style={optionStyle}>Any Month</option>
+                      <option value="August 2026" style={optionStyle}>August 2026</option>
+                      <option value="September 2026" style={optionStyle}>September 2026</option>
+                      <option value="October 2026" style={optionStyle}>October 2026 (Diwali)</option>
+                      <option value="December 2026" style={optionStyle}>December 2026 (New Year)</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <button
-                    type="submit"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/30 transition-all hover:scale-[1.02] hover:bg-emerald-500 active:scale-95"
+                  <button 
+                    type="submit" 
+                    style={{ ...buttonBaseStyle, background: '#059669' }}
+                    className="shadow-md shadow-emerald-600/20 hover:shadow-lg hover:shadow-emerald-600/30 transition-all active:scale-95"
                   >
                     <Search className="h-4 w-4" />
                     <span>Search Group Tours</span>

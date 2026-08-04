@@ -67,61 +67,83 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
   adminDescription = 'Journey across breathtaking bucket-list destinations curated for unparalleled luxury and cultural discovery.',
 }) => {
   const [activeTab, setActiveTab] = useState<'international' | 'domestic'>('international');
+  const [showAll, setShowAll] = useState(false);
 
   const defaultDestinations: DestinationItem[] = [
     // International
     {
-      id: 'dest-1',
+      id: 'switzerland',
       name: 'Switzerland & Alps',
       type: 'international',
       overview: 'Snow-capped peaks, scenic express trains, and crystal-clear mountain lakes.',
       banner_image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1000&q=80',
     },
     {
-      id: 'dest-2',
+      id: 'bali',
       name: 'Bali & Indonesian Isles',
       type: 'international',
       overview: 'Tropical beach sanctuaries, terraced rice paddies, and ancient clifftop temples.',
       banner_image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1000&q=80',
     },
     {
-      id: 'dest-5',
+      id: 'dubai',
       name: 'Dubai & Abu Dhabi',
       type: 'international',
       overview: 'Futuristic skylines, thrilling desert safaris, and World-class luxury shopping.',
       banner_image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1000&q=80',
     },
     {
-      id: 'dest-7',
+      id: 'singapore',
       name: 'Singapore & Sentosa',
       type: 'international',
       overview: 'Gardens by the Bay, Marina Bay Sands skyline, and island resorts.',
       banner_image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1000&q=80',
     },
+    {
+      id: 'thailand',
+      name: 'Thailand & Phuket',
+      type: 'international',
+      overview: 'Exotic island hopping, vibrant floating markets, and opulent golden temples.',
+      banner_image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1000&q=80',
+    },
+    {
+      id: 'maldives',
+      name: 'Maldives Overwater Retreats',
+      type: 'international',
+      overview: 'Private overwater bungalows, turquoise lagoons, and pristine house reefs.',
+      banner_image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1000&q=80',
+    },
+    {
+      id: 'japan',
+      name: 'Japan & Cherry Blossoms',
+      type: 'international',
+      overview: 'Historic Kyoto Shinto shrines, bullet trains, and Mount Fuji vistas.',
+      banner_image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1000&q=80',
+    },
     // Domestic
     {
-      id: 'dest-3',
+      id: 'kerala',
       name: 'Kerala Backwaters',
       type: 'domestic',
       overview: 'Serene luxury houseboats, misty Munnar tea hills, and pristine Kovalam beaches.',
       banner_image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1000&q=80',
     },
     {
-      id: 'dest-4',
+      id: 'kashmir',
       name: 'Kashmir Valley',
       type: 'domestic',
-      overview: 'Paradise on Earth with shikara rides on Dal Lake and snowy slope of Gulmarg.',
+      overview: 'Paradise on Earth with shikara rides on Dal Lake and snowy slopes of Gulmarg.',
       banner_image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1000&q=80',
     },
     {
-      id: 'dest-6',
+      id: 'rajasthan',
       name: 'Rajasthan Heritage',
       type: 'domestic',
       overview: 'Royal palaces, desert sand dunes, and vibrant fortress cities of Jaipur & Udaipur.',
       banner_image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1000&q=80',
     },
     {
-      id: 'dest-8',
+      id: 'goa',
       name: 'Goa Beaches & Forts',
       type: 'domestic',
       overview: 'Golden sands, Portuguese heritage architecture, and sunset river cruises.',
@@ -137,6 +159,11 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
   });
 
   const displayList = filtered.length > 0 ? filtered : sourceData.filter((d) => String(d.type).toLowerCase() === activeTab);
+  
+  // 3 rows limit (6 items in alternating 2-col + 1-col asymmetric grid layout)
+  const ROW_LIMIT = 6;
+  const visibleList = showAll ? displayList : displayList.slice(0, ROW_LIMIT);
+  const hasMore = displayList.length > ROW_LIMIT;
 
   return (
     <section className="bg-white py-24 text-slate-900 relative overflow-hidden">
@@ -159,7 +186,7 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
           {/* Filter Tabs */}
           <div className="flex items-center rounded-full border border-slate-200 bg-slate-100 p-1.5 self-start md:self-auto">
             <button
-              onClick={() => setActiveTab('international')}
+              onClick={() => { setActiveTab('international'); setShowAll(false); }}
               className={`rounded-full px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
                 activeTab === 'international'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md'
@@ -169,7 +196,7 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
               International
             </button>
             <button
-              onClick={() => setActiveTab('domestic')}
+              onClick={() => { setActiveTab('domestic'); setShowAll(false); }}
               className={`rounded-full px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
                 activeTab === 'domestic'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md'
@@ -184,16 +211,16 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
         {/* Mixed Masonry / Grid */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={activeTab}
+            key={activeTab + (showAll ? '-all' : '-sliced')}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[320px]"
           >
-            {displayList.map((item, idx) => {
+            {visibleList.map((item, idx) => {
               // Asymmetric masonry spans for 1st & 4th items
-              const isLarge = idx === 0 || idx === 3;
+              const isLarge = idx % 5 === 0 || idx % 5 === 3;
               const colSpanClass = isLarge ? 'md:col-span-2' : 'md:col-span-1';
               const imgUrl = getDestinationImage(item, idx);
 
@@ -201,7 +228,7 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
                 <motion.div
                   key={item.id || idx}
                   whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.4 }}
+                  transition={{ duration: 0.3 }}
                   className={`group relative overflow-hidden rounded-3xl border border-slate-200 ${colSpanClass} shadow-xl`}
                 >
                   <ResolvedImage
@@ -246,6 +273,27 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
             })}
           </motion.div>
         </AnimatePresence>
+
+        {/* View All Button */}
+        <div className="mt-12 flex items-center justify-center gap-4">
+          {hasMore && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-600/30 transition-all hover:scale-105 hover:from-teal-500 hover:to-emerald-500 active:scale-95 cursor-pointer"
+            >
+              <span>{showAll ? 'Show Less Destinations' : 'View All Destinations'}</span>
+              <ArrowRight className={`h-4 w-4 transition-transform duration-300 ${showAll ? '-rotate-90' : ''}`} />
+            </button>
+          )}
+
+          <Link
+            href="/holidays"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-7 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 active:scale-95"
+          >
+            <span>Browse All Packages</span>
+            <Compass className="h-4 w-4 text-teal-600" />
+          </Link>
+        </div>
 
       </div>
     </section>

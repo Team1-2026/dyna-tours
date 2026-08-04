@@ -235,8 +235,8 @@ export default async function AboutUsPage() {
   // Default image fallbacks matching design
   const heroBg = data?.hero_bg_image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80';
   const circlePhoto = data?.overview_image_1 || '/images/story_circle.jpg';
-  const director1Photo = '/images/jomy_milbin.jpg?v=2';
-  const director2Photo = '/images/thomas_john.jpg?v=2';
+  const director1Photo = '/images/jomy_milbin.jpg';
+  const director2Photo = '/images/thomas_john.jpg';
 
   // 6 Why Choose Us Cards
   const whyChooseList = data?.why_choose_cards?.length ? data.why_choose_cards : [
