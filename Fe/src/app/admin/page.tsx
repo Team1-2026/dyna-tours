@@ -1484,19 +1484,19 @@ export default function AdminDashboard() {
                                 <div>🧑 Adults: {enq.num_adults} | Child: {enq.num_children} | Infants: {enq.num_infants}</div>
                                 {enq.preferred_airline && <div>Airline: {enq.preferred_airline}</div>}
                               </div>
-                            ) : enq.type === 'destination' || enq.type === 'package' ? (
+                            ) : enq.type === 'hotel' ? (
                               <div>
-                                <div>🧑 Peoples: {enq.num_people || 'N/A'}</div>
+                                {enq.check_in && <div>📅 In: {enq.check_in}</div>}
+                                {enq.check_out && <div>📅 Out: {enq.check_out}</div>}
+                                <div>🧑 Adults: {enq.num_adults || 1} | Child: {enq.num_children || 0}</div>
+                              </div>
+                            ) : (
+                              <div>
+                                <div>🧑 Peoples: {enq.num_people || enq.num_adults || 'N/A'}</div>
                                 {enq.num_children !== undefined && enq.num_children > 0 && (
                                   <div>👶 Child: {enq.num_children} {enq.children_ages ? `(Ages: ${enq.children_ages})` : ''}</div>
                                 )}
                                 <div>📅 Date: {enq.travel_date || 'N/A'}</div>
-                              </div>
-                            ) : (
-                              <div>
-                                <div>📅 In: {enq.check_in}</div>
-                                <div>📅 Out: {enq.check_out}</div>
-                                <div>🧑 Adults: {enq.num_adults} | Child: {enq.num_children}</div>
                               </div>
                             )}
                           </td>
