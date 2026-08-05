@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { api, Hotel, Room, Facility, BASE_URL } from '@/lib/api';
+import { api, Hotel, Room, Facility, BASE_URL, getImageUrl } from '@/lib/api';
 import ImageZoomModal from '@/components/ImageZoomModal';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
 import styles from '../hotels.module.css';
 import { AmenityIcon } from '@/components/AmenityIcon';
 
@@ -77,6 +78,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
     children_ages: '',
     message: ''
   });
+  const [countryCode, setCountryCode] = useState('+91');
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
   const [showAboutDescription, setShowAboutDescription] = useState(true);
@@ -99,7 +101,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
         type: 'hotel',
         target_id: hotel.id,
         name: formData.name,
-        phone: formData.phone,
+        phone: `${countryCode} ${formData.phone}`,
         email: formData.email,
         check_in: formData.check_in,
         check_out: formData.check_out,
@@ -147,7 +149,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
 
   const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
 
-  const topBannerUrl = hotel.banner_image || (typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : hotel.gallery?.[0]?.url) || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80';
+  const topBannerUrl = getImageUrl(hotel.banner_image || (typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : hotel.gallery?.[0]?.url)) || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80';
 
   return (
     <div className={styles.pageContainer}>
@@ -198,7 +200,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                   }}
                 >
                   <img 
-                    src={typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || ''} 
+                    src={getImageUrl(typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || '')} 
                     alt={`${hotel.name} featured view`} 
                     className={styles.galleryImg} 
                   />
@@ -216,7 +218,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                         setIsZoomOpen(true);
                       }}
                     >
-                      <img src={imgUrl} alt={`${hotel.name} view ${idx + 2}`} className={styles.galleryImg} />
+                      <img src={getImageUrl(imgUrl)} alt={`${hotel.name} view ${idx + 2}`} className={styles.galleryImg} />
                     </div>
                   );
                 })}
@@ -230,7 +232,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     }}
                   >
                     <img 
-                      src={typeof displayGallery[3] === 'string' ? displayGallery[3] : displayGallery[3]?.url || ''} 
+                      src={getImageUrl(typeof displayGallery[3] === 'string' ? displayGallery[3] : displayGallery[3]?.url || '')} 
                       alt={`${hotel.name} view 4`} 
                       className={styles.galleryImg} 
                     />
@@ -421,16 +423,20 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     <label htmlFor="phone" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
                       Phone Number
                     </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      id="phone"
-                      required
-                      className={styles.formInput}
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="Phone No."
-                    />
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                      <input
+                        type="tel"
+                        name="phone"
+                        id="phone"
+                        required
+                        className={styles.formInput}
+                        style={{ flex: 1 }}
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="Phone No."
+                      />
+                    </div>
                   </div>
 
                   <div className={styles.formGroup} style={{ marginBottom: 0 }}>
@@ -580,13 +586,13 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                       <div className={styles.roomImgWrapper}>
                         <div className={styles.roomImgSlider}>
                           {room.images.map((imgUrl, imgIdx) => (
-                            <img key={imgIdx} src={imgUrl} alt={`${room.type} view ${imgIdx + 1}`} className={styles.roomImg} />
+                            <img key={imgIdx} src={getImageUrl(imgUrl)} alt={`${room.type} view ${imgIdx + 1}`} className={styles.roomImg} />
                           ))}
                         </div>
                       </div>
                     ) : room.image ? (
                       <div className={styles.roomImgWrapper}>
-                        <img src={room.image} alt={room.type} className={styles.roomImg} />
+                        <img src={getImageUrl(room.image)} alt={room.type} className={styles.roomImg} />
                       </div>
                     ) : null}
 
@@ -731,13 +737,13 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     <div className={styles.roomImgWrapper}>
                       <div className={styles.roomImgSlider}>
                         {room.images.map((imgUrl, imgIdx) => (
-                          <img key={imgIdx} src={imgUrl} alt={`${room.type} view ${imgIdx + 1}`} className={styles.roomImg} />
+                          <img key={imgIdx} src={getImageUrl(imgUrl)} alt={`${room.type} view ${imgIdx + 1}`} className={styles.roomImg} />
                         ))}
                       </div>
                     </div>
                   ) : room.image ? (
                     <div className={styles.roomImgWrapper}>
-                      <img src={room.image} alt={room.type} className={styles.roomImg} />
+                      <img src={getImageUrl(room.image)} alt={room.type} className={styles.roomImg} />
                     </div>
                   ) : null}
 
@@ -867,7 +873,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                   className={styles.relatedHotelCard}
                 >
                   <img 
-                    src={(typeof relHotel.gallery?.[0] === 'string' ? relHotel.gallery[0] : (relHotel.gallery?.[0] as any)?.url) || '/images/default_hotel.png'} 
+                    src={getImageUrl((typeof relHotel.gallery?.[0] === 'string' ? relHotel.gallery[0] : (relHotel.gallery?.[0] as any)?.url) || '') || '/images/default_hotel.png'} 
                     alt={relHotel.name} 
                     className={styles.relatedHotelImg} 
                   />

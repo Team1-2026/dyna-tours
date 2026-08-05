@@ -54,6 +54,7 @@ export default function PackagesAdmin() {
   const [formData, setFormData] = useState<any>(null);
 
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [relatedSearch, setRelatedSearch] = useState('');
 
   const fetchPackages = async () => {
     setLoading(true);
@@ -689,23 +690,41 @@ export default function PackagesAdmin() {
             </div>
           </div>
           
-          <h4>Related Tours</h4>
-          <div style={{ marginBottom: '2rem' }}>
-            <select 
-              multiple 
-              className={styles.formInput} 
-              style={{ height: '150px' }}
-              value={formData.relatedTours || []} 
-              onChange={e => {
-                const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-                setFormData({...formData, relatedTours: selectedOptions});
-              }}
-            >
-              {packages.filter(p => p.id !== formData.id).map(p => (
-                <option key={p.id} value={p.id}>{p.title}</option>
-              ))}
-            </select>
-            <small style={{ color: '#666' }}>Hold Cmd/Ctrl to select multiple.</small>
+          {/* Related Tour Packages mapping */}
+          <div className={styles.formCard}>
+            <h4 className={styles.formCardTitle}>Related Tour Packages Mapping</h4>
+            <input
+              type="text"
+              placeholder="Search tour packages by title or country..."
+              className={styles.searchBar}
+              value={relatedSearch}
+              onChange={(e) => setRelatedSearch(e.target.value)}
+            />
+            <div className={styles.checklistGrid}>
+              {packages
+                .filter(p => String(p.id) !== String(formData.id) && String(p.id) !== String(editingId))
+                .filter(p => !relatedSearch || p.title?.toLowerCase().includes(relatedSearch.toLowerCase()) || p.destination?.toLowerCase().includes(relatedSearch.toLowerCase()))
+                .map(tour => {
+                  const isChecked = (formData.relatedTours || []).map(String).includes(String(tour.id));
+                  return (
+                    <label key={tour.id} className={styles.checklistItem}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={e => {
+                          const current = (formData.relatedTours || []).map(String);
+                          const tourIdStr = String(tour.id);
+                          const updated = e.target.checked
+                            ? [...current, tourIdStr]
+                            : current.filter((id: string) => id !== tourIdStr);
+                          setFormData({ ...formData, relatedTours: updated });
+                        }}
+                      />
+                      <span>{tour.title}</span>
+                    </label>
+                  );
+                })}
+            </div>
           </div>
           
           {/* SEO Settings Card */}

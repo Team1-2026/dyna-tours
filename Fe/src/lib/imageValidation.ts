@@ -2,10 +2,10 @@
  * Helper utility for validating uploaded image files
  * Requirements:
  * 1. Formats: WebP, SVG, PNG (plus JPEG for backwards compatibility)
- * 2. Maximum file size: 5 MB (5,242,880 bytes)
+ * 2. Maximum file size: 1 MB (1,048,576 bytes)
  */
 
-export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+export const MAX_IMAGE_SIZE_BYTES = 1 * 1024 * 1024; // 1 MB
 
 export const ALLOWED_IMAGE_TYPES = [
   'image/webp',
@@ -27,12 +27,12 @@ export function validateImageFile(file: File): ValidationResult {
     return { isValid: false, error: 'No file selected.' };
   }
 
-  // File size check (Up to 5MB)
+  // File size check (Up to 1MB)
   if (file.size > MAX_IMAGE_SIZE_BYTES) {
     const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
     return {
       isValid: false,
-      error: `File "${file.name}" is ${sizeMb} MB. Maximum allowed image size is 5 MB.`
+      error: `File "${file.name}" is ${sizeMb} MB. Maximum allowed image size is 1 MB.`
     };
   }
 
@@ -44,7 +44,7 @@ export function validateImageFile(file: File): ValidationResult {
   if (!hasAllowedExt && !ALLOWED_IMAGE_TYPES.includes(fileType)) {
     return {
       isValid: false,
-      error: `Invalid file format for "${file.name}". Only WebP, SVG, and PNG images (up to 5 MB) are supported.`
+      error: `Invalid file format for "${file.name}". Only WebP, SVG, and PNG images (up to 1 MB) are supported.`
     };
   }
 

@@ -40,6 +40,22 @@ export const formatPrice = (val: any): string => {
   return str ? `₹${str}` : '';
 };
 
+export const getImageUrl = (url?: string | null): string => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  const origin = getBaseUrl().replace(/\/api$/, '');
+  if (trimmed.startsWith('/storage') || trimmed.startsWith('/uploads')) {
+    return `${origin}${trimmed}`;
+  }
+  if (trimmed.startsWith('storage/') || trimmed.startsWith('uploads/')) {
+    return `${origin}/${trimmed}`;
+  }
+  return trimmed;
+};
+
 export interface GalleryImage {
   url: string;
   section: 'banner' | 'gallery' | 'featured' | 'other';
@@ -1471,6 +1487,7 @@ export interface GroupTour {
   is_visible: boolean;
   is_featured: boolean;
   featured_order: number;
+  related_tours?: (number | string)[];
   created_at?: string;
   updated_at?: string;
 }
@@ -1748,6 +1765,16 @@ export const contactPageApi = {
 export const homePageApi = {
   getHomePageData: async (): Promise<any> => {
     try {
+      if (typeof window !== 'undefined') {
+        const local = localStorage.getItem('dyna_home_cms_data');
+        if (local) {
+          try {
+            const parsed = JSON.parse(local);
+            const remote = await apiFetch<any>('/home-page').catch(() => null);
+            return { ...(remote || {}), ...parsed };
+          } catch {}
+        }
+      }
       return await apiFetch<any>('/home-page');
     } catch {
       return null;

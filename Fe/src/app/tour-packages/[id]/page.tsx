@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ImageZoomModal from '@/components/ImageZoomModal';
 import TourCard from '@/components/TourCard';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
 import styles from './tour-details.module.css';
 import { getPackageById, getPackages, api } from '@/lib/api';
 
@@ -62,6 +63,7 @@ export default function TourDetailsPage({ params }: PageProps) {
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
+  const [countryCode, setCountryCode] = useState<string>('+91');
   const [numChildren, setNumChildren] = useState<number>(0);
   const [childrenAges, setChildrenAges] = useState<string>('');
   const [message, setMessage] = useState<string>('');
@@ -117,7 +119,7 @@ export default function TourDetailsPage({ params }: PageProps) {
         type: 'package',
         target_id: tour.title,
         name: fullName,
-        phone: phone,
+        phone: `${countryCode} ${phone}`,
         email: email,
         num_people: travelers,
         travel_date: travelDate,
@@ -678,13 +680,17 @@ export default function TourDetailsPage({ params }: PageProps) {
 
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Phone No</label>
-                <input 
-                  type="tel" 
-                  placeholder="Contact number"
-                  required 
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                  <input 
+                    type="tel" 
+                    placeholder="Contact number"
+                    required 
+                    style={{ flex: 1 }}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

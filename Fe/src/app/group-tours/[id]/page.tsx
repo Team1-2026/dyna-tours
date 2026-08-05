@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { groupToursApi, GroupTour, getImageUrl } from '@/lib/api';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
 import styles from './group-tour-details.module.css';
 
 interface PageProps {
@@ -21,7 +23,26 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
     travel_date: '2026-09-15',
     message: ''
   });
+  const [countryCode, setCountryCode] = useState('+91');
+  const [tour, setTour] = useState<GroupTour | null>(null);
+  const [relatedTours, setRelatedTours] = useState<GroupTour[]>([]);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    groupToursApi.getTours().then(allTours => {
+      const currentTour = allTours.find(t => String(t.id) === String(id));
+      if (currentTour) {
+        setTour(currentTour);
+        if (currentTour.related_tours && currentTour.related_tours.length > 0) {
+          const relIds = currentTour.related_tours.map(String);
+          const matched = allTours.filter(t => String(t.id) !== String(id) && relIds.includes(String(t.id)));
+          setRelatedTours(matched);
+        } else {
+          setRelatedTours(allTours.filter(t => String(t.id) !== String(id)).slice(0, 4));
+        }
+      }
+    }).catch(err => console.error(err));
+  }, [id]);
 
   const toggleDay = (day: number) => {
     setActiveDay(activeDay === day ? null : day);
@@ -29,6 +50,11 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    groupToursApi.submitEnquiry({
+      ...formData,
+      phone: `${countryCode} ${formData.phone}`,
+      group_tour_id: Number(id) || undefined
+    }).catch(err => console.error(err));
     setSubmitted(true);
   };
 
@@ -491,24 +517,23 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
             <div className={styles.relatedSection}>
               <h2 className={styles.sectionHeaderTitle}>Related Group Tour Packages</h2>
               <div className={styles.relatedGrid}>
-                {[
-                  { title: 'Swiss Alps Explorer', duration: '7 Nights / 8 Days', price: '₹1,79,999', image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&q=80&w=800' },
-                  { title: 'European Highlights', duration: '9 Nights / 10 Days', price: '₹1,99,999', image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=800' },
-                  { title: 'Thailand Discovery', duration: '6 Nights / 7 Days', price: '₹59,999', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=800' },
-                  { title: 'Dubai Explorer', duration: '5 Nights / 6 Days', price: '₹45,999', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800' }
-                ].map((rel, idx) => (
-                  <div key={idx} style={{ background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                    <div style={{ height: '160px', backgroundImage: `url(${rel.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                    <div style={{ padding: '1rem' }}>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.35rem' }}>{rel.title}</h4>
-                      <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '0.75rem' }}>⏱️ {rel.duration}</p>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#dc2626' }}>{rel.price}</span>
-                        <Link href="/group-tours" style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#2563eb', textDecoration: 'none' }}>View Tour →</Link>
+                {relatedTours.length > 0 ? (
+                  relatedTours.map((rel) => (
+                    <div key={rel.id} style={{ background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                      <div style={{ height: '160px', backgroundImage: `url(${getImageUrl(rel.image || '')})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                      <div style={{ padding: '1rem' }}>
+                        <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.35rem' }}>{rel.name}</h4>
+                        <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '0.75rem' }}>⏱️ {rel.duration}</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#dc2626' }}>₹{Number(rel.starting_price || 0).toLocaleString('en-IN')}</span>
+                          <Link href={`/group-tours/${rel.id}`} style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#2563eb', textDecoration: 'none' }}>View Tour →</Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p style={{ color: '#64748b' }}>No related tour packages have been selected for this tour yet.</p>
+                )}
               </div>
             </div>
 
@@ -543,14 +568,18 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
                       onChange={e => setFormData({ ...formData, email: e.target.value })} 
                       required 
                     />
-                    <input 
-                      type="tel" 
-                      placeholder="Phone Number *" 
-                      className={styles.formControl} 
-                      value={formData.phone} 
-                      onChange={e => setFormData({ ...formData, phone: e.target.value })} 
-                      required 
-                    />
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                      <input 
+                        type="tel" 
+                        placeholder="Phone Number *" 
+                        className={styles.formControl} 
+                        style={{ flex: 1 }}
+                        value={formData.phone} 
+                        onChange={e => setFormData({ ...formData, phone: e.target.value })} 
+                        required 
+                      />
+                    </div>
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
                       <div style={{ flex: 1 }}>
                         <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Travellers</label>

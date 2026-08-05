@@ -1,6 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
+import { getImageUrl } from '@/lib/api';
+
 export default function ResolvedImage({ src, alt, className, style, onClick, fill }: { src: string, alt: string, className?: string, style?: React.CSSProperties, onClick?: () => void, fill?: boolean }) {
   const [resolved, setResolved] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
@@ -14,7 +16,7 @@ export default function ResolvedImage({ src, alt, className, style, onClick, fil
         request.onsuccess = (ev) => {
           const db = (ev.target as any).result;
           if (!db.objectStoreNames.contains("images")) {
-            setResolved(src);
+            setResolved(getImageUrl(src));
             setLoading(false);
             return;
           }
@@ -22,21 +24,21 @@ export default function ResolvedImage({ src, alt, className, style, onClick, fil
           const getReq = tx.objectStore("images").get(`uploaded_image_${src}`);
           getReq.onsuccess = () => {
             if (getReq.result) {
-              setResolved(getReq.result);
+              setResolved(getImageUrl(getReq.result));
             } else {
-              setResolved(src);
+              setResolved(getImageUrl(src));
             }
             setLoading(false);
           };
-          getReq.onerror = () => { setResolved(src); setLoading(false); };
+          getReq.onerror = () => { setResolved(getImageUrl(src)); setLoading(false); };
         };
-        request.onerror = () => { setResolved(src); setLoading(false); };
+        request.onerror = () => { setResolved(getImageUrl(src)); setLoading(false); };
       } catch(e) {
-        setResolved(src);
+        setResolved(getImageUrl(src));
         setLoading(false);
       }
     } else {
-      setResolved(src || '');
+      setResolved(getImageUrl(src || ''));
       setLoading(false);
     }
   }, [src]);

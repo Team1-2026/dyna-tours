@@ -10,6 +10,8 @@ interface VisaEnquiryFormProps {
   preselectedCountry?: string;
 }
 
+import { api } from '@/lib/api';
+
 export default function VisaEnquiryForm({ destinations, preselectedCountry = '' }: VisaEnquiryFormProps) {
   const [countryCode, setCountryCode] = useState('+91');
   const [formData, setFormData] = useState({
@@ -35,8 +37,16 @@ export default function VisaEnquiryForm({ destinations, preselectedCountry = '' 
     setSubmitStatus('idle');
 
     try {
-      // Mock API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await api.submitEnquiry({
+        type: 'visa',
+        target_id: formData.destinationCountry || 'visa_service',
+        name: formData.fullName,
+        phone: `${countryCode} ${formData.mobileNumber}`,
+        email: formData.emailAddress,
+        travel_date: formData.travelDate,
+        message: `Destination Country: ${formData.destinationCountry} | Visa Type: ${formData.visaType}` + (formData.message ? ` | Note: ${formData.message}` : ''),
+      });
+
       setSubmitStatus('success');
       setFormData({
         fullName: '',
@@ -48,6 +58,7 @@ export default function VisaEnquiryForm({ destinations, preselectedCountry = '' 
         message: ''
       });
     } catch (error) {
+      console.error('Visa enquiry submission error:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);

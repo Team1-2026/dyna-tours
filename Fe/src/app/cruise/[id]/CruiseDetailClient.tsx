@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Cruise, api } from '@/lib/api';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
 import styles from './cruiseDetail.module.css';
 
 interface Props {
@@ -23,6 +24,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
     num_people: 2,
     message: ''
   });
+  const [countryCode, setCountryCode] = useState('+91');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -42,7 +44,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
         target_id: cruise.id,
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        phone: `${countryCode} ${formData.phone}`,
         travel_date: formData.travel_date,
         num_people: Number(formData.num_people),
         message: `Cruise: ${cruise.name} | Message: ${formData.message}`
@@ -279,7 +281,10 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
 
                   <div className="formGroup" style={{ marginBottom: '0.85rem' }}>
                     <label htmlFor="phone" style={{ fontSize: '0.85rem' }}>Phone Number *</label>
-                    <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="+91 9876543210" style={{ padding: '0.6rem' }} />
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                      <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="9876543210" style={{ padding: '0.6rem', flex: 1 }} />
+                    </div>
                   </div>
 
                   <div className="formGroup" style={{ marginBottom: '0.85rem' }}>

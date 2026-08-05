@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, Destination, Hotel, Enquiry, Room, GalleryImage, Facility } from '@/lib/api';
+import { api, Destination, Hotel, Enquiry, Room, GalleryImage, Facility, getImageUrl } from '@/lib/api';
 import { toursData } from '@/data/toursData';
 import { AmenityIcon } from '@/components/AmenityIcon';
 import styles from './admin.module.css';
@@ -231,14 +231,14 @@ export default function AdminDashboard() {
   const getBannerImage = (galleryList: (string | GalleryImage)[] | null | undefined) => {
     if (!galleryList) return '';
     const banner = galleryList.find(img => typeof img !== 'string' && img.section === 'banner');
-    if (banner && typeof banner !== 'string') return banner.url;
+    if (banner && typeof banner !== 'string') return getImageUrl(banner.url);
     return '';
   };
 
   const getFeaturedImage = (galleryList: (string | GalleryImage)[] | null | undefined) => {
     if (!galleryList) return '';
     const feat = galleryList.find(img => typeof img !== 'string' && img.section === 'featured');
-    if (feat && typeof feat !== 'string') return feat.url;
+    if (feat && typeof feat !== 'string') return getImageUrl(feat.url);
     return '';
   };
 
@@ -377,7 +377,7 @@ export default function AdminDashboard() {
       e.target.value = '';
       return;
     }
-    const maxSizeMB = 10;
+    const maxSizeMB = 1;
     if (file.size > maxSizeMB * 1024 * 1024) {
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       alert(`Image file size (${fileSizeMB} MB) exceeds maximum limit of ${maxSizeMB} MB.`);
@@ -767,7 +767,7 @@ export default function AdminDashboard() {
       e.target.value = '';
       return;
     }
-    const maxSizeMB = 10;
+    const maxSizeMB = 1;
     if (file.size > maxSizeMB * 1024 * 1024) {
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       alert(`Image file size (${fileSizeMB} MB) exceeds maximum limit of ${maxSizeMB} MB.`);
@@ -1982,7 +1982,7 @@ export default function AdminDashboard() {
                       {/* Featured Image Block */}
                       <div className={styles.imageUploadCard}>
                         <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
-                          Featured Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 800 × 600 px, Max 5 MB)</span>
+                          Featured Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 800 × 600 px, Max 1 MB)</span>
                         </label>
                         <img 
                           src={getFeaturedImage(isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery) || '/images/default_hotel.png'} 
@@ -2012,7 +2012,7 @@ export default function AdminDashboard() {
                       {/* Banner Image Block (Task 29 & Task 41) */}
                       <div className={styles.imageUploadCard}>
                         <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
-                          Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
+                          Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 1920 × 460 px, Max 1 MB)</span>
                         </label>
                         <img 
                           src={getBannerImage(isCreatingHotel ? newHotel.gallery : selectedHotel?.gallery) || '/images/default_hotel.png'} 
@@ -2069,7 +2069,7 @@ export default function AdminDashboard() {
                             const url = typeof img === 'string' ? img : img.url;
                             return (
                               <div key={idx} className={styles.thumbWrapper}>
-                                <img src={url} alt={`Gallery ${idx}`} className={styles.thumbImg} />
+                                <img src={getImageUrl(url)} alt={`Gallery ${idx}`} className={styles.thumbImg} />
                                 <button 
                                   type="button" 
                                   className={styles.thumbRemoveBtn}
@@ -2814,7 +2814,7 @@ export default function AdminDashboard() {
                       <div className={styles.imageUploadCard}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                           <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-secondary-navy)', textTransform: 'uppercase', margin: 0 }}>
-                            Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
+                            Banner Image * <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal', textTransform: 'none' }}>(Recommended: 1920 × 460 px, Max 1 MB)</span>
                           </label>
                           {(isCreatingDest ? newDest.banner_image : selectedDest?.banner_image) && (
                             <button
@@ -2831,7 +2831,7 @@ export default function AdminDashboard() {
                           )}
                         </div>
                         <img 
-                          src={(isCreatingDest ? newDest.banner_image : selectedDest?.banner_image) || '/images/default_hotel.png'} 
+                          src={getImageUrl((isCreatingDest ? newDest.banner_image : selectedDest?.banner_image) || '/images/default_hotel.png')} 
                           alt="Banner Preview" 
                           className={styles.imageCardPreview}
                           style={{ height: '90px', objectFit: 'cover' }}
@@ -2911,7 +2911,7 @@ export default function AdminDashboard() {
                             const url = typeof img === 'string' ? img : img.url;
                             return (
                               <div key={idx} className={styles.thumbWrapper}>
-                                <img src={url} alt={`Gallery ${idx}`} className={styles.thumbImg} />
+                                <img src={getImageUrl(url)} alt={`Gallery ${idx}`} className={styles.thumbImg} />
                                 <button 
                                   type="button" 
                                   className={styles.thumbRemoveBtn}
@@ -3363,7 +3363,7 @@ export default function AdminDashboard() {
                 <div className={styles.imageGrid} style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: 0 }}>
                   {(roomForm.images || []).map((rmImg, rIdx) => (
                     <div key={rIdx} className={styles.imageCard}>
-                      <img src={rmImg} alt="Room" className={styles.imagePreview} style={{ height: '70px' }} />
+                      <img src={getImageUrl(rmImg)} alt="Room" className={styles.imagePreview} style={{ height: '70px' }} />
                       <div className={styles.imageCardControls} style={{ padding: '2px', justifyContent: 'center' }}>
                         <button
                           type="button"

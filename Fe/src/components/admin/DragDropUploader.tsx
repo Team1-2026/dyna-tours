@@ -81,7 +81,7 @@ export default function DragDropUploader({
   return (
     <div style={{ marginTop: '1rem', marginBottom: '1.5rem' }}>
       <label style={{ display: 'block', fontWeight: 700, fontSize: '0.9rem', color: '#0f172a', marginBottom: '0.5rem' }}>
-        {label} <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(WebP, SVG, PNG up to 5 MB)</span>
+        {label} <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(WebP, SVG, PNG up to 1 MB)</span>
       </label>
 
       {errorMsg && (
@@ -124,7 +124,7 @@ export default function DragDropUploader({
           Drag & Drop multiple images here, or <span style={{ color: '#dc2626', textDecoration: 'underline' }}>browse files</span>
         </p>
         <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem', display: 'block' }}>
-          Supports WebP, SVG, PNG files (Max 5 MB each)
+          Supports WebP, SVG, PNG files (Max 1 MB each)
         </span>
       </div>
 

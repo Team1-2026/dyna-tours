@@ -45,10 +45,10 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
         target_id: 'general-cruise-enquiry',
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        phone: `${countryCode} ${formData.phone}`,
         travel_date: formData.travel_date,
         num_people: Number(formData.num_people),
-        message: `Preferred Destination: ${formData.destination || 'Not Specified'} | Message: ${formData.message}`
+        message: `Preferred Destination: ${formData.destination || 'Not Specified'}` + (formData.message ? ` | Note: ${formData.message}` : '')
       });
       setSuccess(true);
       setFormData({

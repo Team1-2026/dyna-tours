@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { api, Hotel } from '@/lib/api';
+import { api, Hotel, getImageUrl } from '@/lib/api';
 import styles from './hotels.module.css';
 import Pagination from '@/components/Pagination';
 
+import { useSearchParams } from 'next/navigation';
+
 export default function HotelsDirectoryPage() {
+  const searchParams = useSearchParams();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,8 +42,20 @@ export default function HotelsDirectoryPage() {
   };
 
   useEffect(() => {
-    fetchHotelsList();
-  }, []);
+    const urlDest = searchParams?.get('destination') || searchParams?.get('search') || '';
+    const urlCategory = searchParams?.get('category') || '';
+    const urlName = searchParams?.get('name') || '';
+
+    if (urlDest) setSearchDestination(urlDest);
+    if (urlCategory) setSearchCategory(urlCategory);
+    if (urlName) setSearchName(urlName);
+
+    fetchHotelsList({
+      destination_id: urlDest ? urlDest.trim().toLowerCase() : undefined,
+      category: urlCategory || undefined,
+      name: urlName || undefined,
+    });
+  }, [searchParams]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,7 +181,7 @@ export default function HotelsDirectoryPage() {
                   <div key={hotel.id} className={styles.hotelCard} style={{ background: '#ffffff' }}>
                     <div style={{ position: 'relative', height: '220px' }}>
                       <img 
-                        src={(typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : (hotel.gallery?.[0] as any)?.url) || '/images/default_hotel.png'} 
+                        src={getImageUrl((typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : (hotel.gallery?.[0] as any)?.url) || '') || '/images/default_hotel.png'} 
                         alt={hotel.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />

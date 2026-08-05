@@ -39,6 +39,7 @@ import { FeaturedHotelsSection } from '@/components/home/FeaturedHotelsSection';
 import { AboutSection } from '@/components/home/AboutSection';
 import { LatestBlogs } from '@/components/home/LatestBlogs';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
+import { HomeBottomContent } from '@/components/home/HomeBottomContent';
 import { FinalCTA } from '@/components/home/FinalCTA';
 
 export default function Home() {
@@ -55,6 +56,7 @@ export default function Home() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
   const [aboutData, setAboutData] = useState<any>(null);
   const [ctaData, setCtaData] = useState<any>(null);
+  const [reviewsContentData, setReviewsContentData] = useState<any>(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -108,6 +110,7 @@ export default function Home() {
           if (homeCms.testimonials) setTestimonials(homeCms.testimonials);
           if (homeCms.about) setAboutData(homeCms.about);
           if (homeCms.cta) setCtaData(homeCms.cta);
+          if (homeCms.reviews_bottom_content) setReviewsContentData(homeCms.reviews_bottom_content);
         }
       } catch (error) {
         console.warn('Using default luxury home datasets:', error);
@@ -153,7 +156,7 @@ export default function Home() {
         adminDescription={aboutData?.themes_description}
       />
 
-      {/* 7. Express Visa Services */}
+      {/* 7. Visa Services */}
       <VisaServicesSection 
         countries={visaCountries}
         adminDescription={aboutData?.visa_description}
@@ -180,7 +183,14 @@ export default function Home() {
       {/* 11. Testimonials Slider */}
       <TestimonialsSection testimonials={testimonials} />
 
-      {/* 12. Final Call To Action Banner */}
+      {/* 12. Content Below Reviews (Rich Text CMS Managed) */}
+      <HomeBottomContent 
+        title={reviewsContentData?.title}
+        subtitle={reviewsContentData?.subtitle}
+        content={reviewsContentData?.content}
+      />
+
+      {/* 13. Final Call To Action Banner */}
       <FinalCTA 
         heading={ctaData?.heading}
         description={ctaData?.description}

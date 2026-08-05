@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { api, Destination, Hotel, BASE_URL } from '@/lib/api';
+import { api, Destination, Hotel, BASE_URL, getImageUrl } from '@/lib/api';
 import { toursData } from '@/data/toursData';
 import TourCard from '@/components/TourCard';
 import ImageZoomModal from '@/components/ImageZoomModal';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
 import styles from './destination.module.css';
 
 const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
@@ -26,9 +27,7 @@ const getBannerUrl = (dest: Destination) => {
       const cleanPath = img.startsWith('/') ? img : `/${img}`;
       return `${origin}${cleanPath}`;
     }
-    if (!img.includes('default_banner') && !img.includes('thailand_banner') && !img.includes('kerala_banner') && !img.includes('munnar_banner')) {
-      return img;
-    }
+    return img;
   }
 
   if (dest.gallery && dest.gallery.length > 0) {
@@ -110,6 +109,7 @@ interface DestinationPageClientProps {
 
 export default function DestinationPageClient({ initialDestination, slug }: DestinationPageClientProps) {
   const [destination] = useState<Destination>(initialDestination);
+  const [countryCode, setCountryCode] = useState('+91');
 
   // Lightbox Zoom states
   const [isZoomOpen, setIsZoomOpen] = useState(false);
@@ -187,7 +187,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
         type: 'destination',
         target_id: destination.id,
         name: formData.name,
-        phone: formData.phone,
+        phone: `${countryCode} ${formData.phone}`,
         email: formData.email,
         num_people: Number(formData.num_people),
         travel_date: formData.travel_date,
@@ -210,20 +210,17 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
     }
   };
 
+  const bannerUrl = getBannerUrl(destination);
+
   return (
-    <div className={styles.pageContainer}>
+    <div className={styles.destinationPage}>
       {/* 1. Hero Banner */}
       <section 
         className={styles.heroBanner}
-        style={{ backgroundImage: `url(${getBannerUrl(destination)})` }}
+        style={{ backgroundImage: `url(${bannerUrl})` }}
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
-          {destination.parent_id && (
-            <span className={styles.parentBadge}>
-              Explore {destination.parent_id}
-            </span>
-          )}
           <h1 className={styles.heroTitle}>{(destination as any).banner_title || (destination as any).banner_heading || destination.name}</h1>
           <p className={styles.heroSubtitle}>
             {(destination as any).banner_subtitle || (destination as any).banner_tagline || (isStatePage ? 'State Overview & Popular Places' : 'Explore Attractions, Hotels & Packages')}
@@ -233,11 +230,12 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
 
       {/* 2. Main Container Area */}
       <div className="container" style={{ paddingTop: '2rem' }}>
-        {/* Top Gallery Images (Excludes main banner) */}
-        {(() => {
+        {/* Top Gallery Images (Displayed only on inside/sub-destination pages) */}
+        {!isStatePage && (() => {
           const displayGallery = (destination.gallery || []).filter(img => {
             const imgUrl = typeof img === 'string' ? img : img?.url || '';
-            if (!imgUrl) return false;
+            if (!imgUrl || !imgUrl.trim()) return false;
+            if (imgUrl.includes('/images/default.jpg') || imgUrl.includes('/images/placeholder.png')) return false;
             if (destination.banner_image && (imgUrl === destination.banner_image || imgUrl.endsWith(destination.banner_image))) return false;
             return true;
           });
@@ -257,14 +255,14 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                   }}
                 >
                   <img 
-                    src={typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || ''} 
+                    src={getImageUrl(typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || '')} 
                     alt={`${destination.name} featured view`} 
                     className={styles.galleryImg} 
                   />
                 </div>
                 {displayGallery.slice(1, 3).map((img, idx) => {
-                  const imgUrl = typeof img === 'string' ? img : img?.url || '';
-                  if (!imgUrl) return null;
+                  const rawUrl = typeof img === 'string' ? img : img?.url || '';
+                  if (!rawUrl) return null;
                   return (
                     <div 
                       key={idx} 
@@ -275,7 +273,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                         setIsZoomOpen(true);
                       }}
                     >
-                      <img src={imgUrl} alt={`${destination.name} view ${idx + 2}`} className={styles.galleryImg} />
+                      <img src={getImageUrl(rawUrl)} alt={`${destination.name} view ${idx + 2}`} className={styles.galleryImg} />
                     </div>
                   );
                 })}
@@ -289,7 +287,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                     }}
                   >
                     <img 
-                      src={typeof displayGallery[3] === 'string' ? displayGallery[3] : displayGallery[3]?.url || ''} 
+                      src={getImageUrl(typeof displayGallery[3] === 'string' ? displayGallery[3] : displayGallery[3]?.url || '')} 
                       alt={`${destination.name} view 4`} 
                       className={styles.galleryImg} 
                     />
@@ -337,16 +335,20 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
                 <div className={styles.formGroup}>
                   <label htmlFor="phone">Phone Number *</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    id="phone"
-                    required
-                    placeholder="Phone No."
-                    className={styles.darkInput}
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                  />
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                    <input
+                      type="tel"
+                      name="phone"
+                      id="phone"
+                      required
+                      placeholder="Phone No."
+                      className={styles.darkInput}
+                      style={{ flex: 1 }}
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
 
                 <div className={styles.formGroup}>
@@ -623,7 +625,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
         isOpen={isZoomOpen}
         onClose={() => setIsZoomOpen(false)}
         images={(destination.gallery || [])
-          .map((img: any) => (typeof img === 'string' ? img : img?.url || ''))
+          .map((img: any) => getImageUrl(typeof img === 'string' ? img : img?.url || ''))
           .filter(Boolean)}
         initialIndex={zoomedIndex}
       />

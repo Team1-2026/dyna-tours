@@ -16,9 +16,11 @@ import {
   BlogPost,
   Testimonial,
 } from '@/data/homeData';
+import RichTextEditor from '@/components/admin/RichTextEditor';
+import { defaultBottomContentHtml } from '@/components/home/HomeBottomContent';
 
 export default function HomePageAdmin() {
-  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'offers' | 'about' | 'cta' | 'testimonials'>('hero');
+  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'offers' | 'about' | 'testimonials' | 'cta' | 'reviews_content'>('hero');
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
@@ -45,6 +47,12 @@ export default function HomePageAdmin() {
     whatsappNumber: '919876543210',
   });
 
+  const [reviewsContentData, setReviewsContentData] = useState({
+    title: 'Discover Exceptional Travel Experiences',
+    subtitle: 'KNOWLEDGE & INSIGHTS',
+    content: defaultBottomContentHtml,
+  });
+
   useEffect(() => {
     async function fetchHomeCms() {
       setLoading(true);
@@ -57,6 +65,7 @@ export default function HomePageAdmin() {
           if (data.testimonials) setTestimonials(data.testimonials);
           if (data.about) setAboutData((prev) => ({ ...prev, ...data.about }));
           if (data.cta) setCtaData((prev) => ({ ...prev, ...data.cta }));
+          if (data.reviews_bottom_content) setReviewsContentData((prev) => ({ ...prev, ...data.reviews_bottom_content }));
         }
       } catch (err) {
         console.warn('Using initial home admin settings:', err);
@@ -79,6 +88,7 @@ export default function HomePageAdmin() {
         testimonials,
         about: aboutData,
         cta: ctaData,
+        reviews_bottom_content: reviewsContentData,
       };
       if (typeof window !== 'undefined') {
         localStorage.setItem('dyna_home_cms_data', JSON.stringify(payload));
@@ -131,6 +141,7 @@ export default function HomePageAdmin() {
           { id: 'offers', label: '🏷️ Exclusive Deals' },
           { id: 'about', label: 'ℹ️ About & Counters' },
           { id: 'testimonials', label: '💬 Testimonials' },
+          { id: 'reviews_content', label: '📝 Content Below Reviews' },
           { id: 'cta', label: '📢 Final CTA Banner' },
         ].map((tab) => (
           <button
@@ -559,6 +570,59 @@ export default function HomePageAdmin() {
                 style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Content Below Reviews (Rich Text Editor) */}
+      {activeSubTab === 'reviews_content' && (
+        <div style={{ padding: '1.25rem', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc' }}>
+          <div style={{ marginBottom: '1.25rem' }}>
+            <h4 style={{ margin: '0 0 0.25rem 0', color: '#0C2745', fontWeight: 800, fontSize: '1.1rem' }}>
+              📝 Manage Content Below Reviews Section
+            </h4>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
+              Use the rich text editor to format paragraphs, bullet points, headings (H1-H4), bold/italics, text alignment (Left, Center, Right, Justify), and internal/external hyperlinks.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                Section Title (Optional)
+              </label>
+              <input
+                type="text"
+                value={reviewsContentData.title}
+                onChange={(e) => setReviewsContentData({ ...reviewsContentData, title: e.target.value })}
+                placeholder="e.g. Discover Exceptional Travel Experiences"
+                style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontWeight: 700 }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                Section Subtitle / Tag (Optional)
+              </label>
+              <input
+                type="text"
+                value={reviewsContentData.subtitle}
+                onChange={(e) => setReviewsContentData({ ...reviewsContentData, subtitle: e.target.value })}
+                placeholder="e.g. KNOWLEDGE & INSIGHTS"
+                style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>
+              Rich Text Editor Content
+            </label>
+            <RichTextEditor
+              value={reviewsContentData.content}
+              onChange={(html) => setReviewsContentData({ ...reviewsContentData, content: html })}
+              minHeight="280px"
+              placeholder="Enter rich text content here..."
+            />
           </div>
         </div>
       )}

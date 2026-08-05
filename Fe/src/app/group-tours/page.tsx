@@ -73,7 +73,11 @@ const defaultTours: GroupTour[] = [
   }
 ];
 
+import { useSearchParams } from 'next/navigation';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
+
 export default function GroupToursPage() {
+  const searchParams = useSearchParams();
   const [pageData, setPageData] = useState<GroupTourPage | null>(null);
   const [tours, setTours] = useState<GroupTour[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,12 +102,21 @@ export default function GroupToursPage() {
     group_tour_id: '',
     preferred_date: '2026-09-15'
   });
+  const [countryCode, setCountryCode] = useState('+91');
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 9;
 
   const toursRef = useRef<HTMLDivElement>(null);
   const enquiryFormRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const urlDest = searchParams?.get('destination') || searchParams?.get('search') || '';
+    const urlType = searchParams?.get('type') || '';
+
+    if (urlDest) setDestFilter(urlDest);
+    if (urlType) setTypeFilter(urlType);
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -156,6 +169,7 @@ export default function GroupToursPage() {
     try {
       await groupToursApi.submitEnquiry({
         ...formData,
+        phone: `${countryCode} ${formData.phone}`,
         group_tour_id: formData.group_tour_id ? Number(formData.group_tour_id) : undefined
       });
       setFormStatus('success');
@@ -434,15 +448,19 @@ export default function GroupToursPage() {
 
                   <div className={styles.formGroup}>
                     <label>Mobile Number *</label>
-                    <input 
-                      type="tel" 
-                      name="phone" 
-                      placeholder="Enter your mobile number" 
-                      value={formData.phone} 
-                      onChange={handleFormChange} 
-                      className={styles.formInput} 
-                      required 
-                    />
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                      <input 
+                        type="tel" 
+                        name="phone" 
+                        placeholder="Enter your mobile number" 
+                        value={formData.phone} 
+                        onChange={handleFormChange} 
+                        className={styles.formInput} 
+                        style={{ flex: 1 }}
+                        required 
+                      />
+                    </div>
                   </div>
                 </div>
 

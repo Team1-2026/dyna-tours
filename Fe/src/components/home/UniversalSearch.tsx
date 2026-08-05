@@ -19,9 +19,9 @@ import {
 } from 'lucide-react';
 
 const fieldStyle: React.CSSProperties = {
-  height: '48px',
-  minHeight: '48px',
-  maxHeight: '48px',
+  height: '44px',
+  minHeight: '44px',
+  maxHeight: '44px',
   width: '100%',
   boxSizing: 'border-box',
   borderRadius: '0.75rem',
@@ -61,9 +61,9 @@ const optionStyle: React.CSSProperties = {
 };
 
 const buttonBaseStyle: React.CSSProperties = {
-  height: '48px',
-  minHeight: '48px',
-  maxHeight: '48px',
+  height: '44px',
+  minHeight: '44px',
+  maxHeight: '44px',
   width: '100%',
   boxSizing: 'border-box',
   borderRadius: '0.75rem',
@@ -111,7 +111,10 @@ export const UniversalSearch: React.FC = () => {
   const handleHolidaySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (holidayDest) params.append('search', holidayDest);
+    if (holidayDest.trim()) {
+      params.append('destination', holidayDest.trim());
+      params.append('search', holidayDest.trim());
+    }
     if (holidayType) params.append('category', holidayType);
     if (holidayDuration) params.append('duration', holidayDuration);
     if (holidayDate) params.append('date', holidayDate);
@@ -121,7 +124,10 @@ export const UniversalSearch: React.FC = () => {
   const handleHotelSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (hotelDest) params.append('search', hotelDest);
+    if (hotelDest.trim()) {
+      params.append('destination', hotelDest.trim());
+      params.append('search', hotelDest.trim());
+    }
     if (checkIn) params.append('checkin', checkIn);
     if (checkOut) params.append('checkout', checkOut);
     if (guests) params.append('guests', guests);
@@ -147,7 +153,10 @@ export const UniversalSearch: React.FC = () => {
   const handleGroupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (groupDest) params.append('destination', groupDest);
+    if (groupDest.trim()) {
+      params.append('destination', groupDest.trim());
+      params.append('search', groupDest.trim());
+    }
     if (deptMonth) params.append('month', deptMonth);
     router.push(`/group-tours?${params.toString()}`);
   };
@@ -161,11 +170,11 @@ export const UniversalSearch: React.FC = () => {
   ] as const;
 
   return (
-    <div className="relative z-30 mx-auto max-w-6xl px-4 sm:px-6 -mt-20 sm:-mt-24 pb-12">
-      <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5">
+    <div className="relative z-30 mx-auto max-w-6xl px-4 sm:px-6 -mt-20 sm:-mt-24 pb-6 sm:pb-8">
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5">
         
         {/* Navigation Tabs */}
-        <div className="flex overflow-x-auto gap-2 border-b border-slate-100 pb-4 no-scrollbar">
+        <div className="flex overflow-x-auto gap-1.5 border-b border-slate-100 pb-3 no-scrollbar">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -174,9 +183,9 @@ export const UniversalSearch: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2.5 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
+                className={`relative flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                   isActive
-                    ? 'text-white bg-gradient-to-r from-red-600 to-rose-600 shadow-lg shadow-red-600/30'
+                    ? 'text-white bg-gradient-to-r from-red-600 to-rose-600 shadow-md shadow-red-600/30'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
@@ -188,7 +197,7 @@ export const UniversalSearch: React.FC = () => {
         </div>
 
         {/* Dynamic Forms Container */}
-        <div className="pt-5">
+        <div className="pt-3.5">
           <AnimatePresence mode="wait">
             
             {/* 1. Holiday Search Form */}
@@ -199,10 +208,10 @@ export const UniversalSearch: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleHolidaySubmit}
-                className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-end"
+                className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5 items-end"
               >
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Destination
                   </label>
                   <div className="relative">
@@ -218,7 +227,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Holiday Type
                   </label>
                   <div className="relative">
@@ -240,7 +249,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Duration
                   </label>
                   <div className="relative">
@@ -261,7 +270,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Travel Date
                   </label>
                   <div className="relative">
@@ -296,10 +305,10 @@ export const UniversalSearch: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleHotelSubmit}
-                className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-end"
+                className="grid grid-cols-1 gap-3 sm:gap-3.5 sm:grid-cols-2 lg:grid-cols-5 items-end"
               >
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Destination / Hotel Name
                   </label>
                   <div className="relative">
@@ -315,7 +324,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Check-In
                   </label>
                   <div className="relative">
@@ -330,7 +339,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Check-Out
                   </label>
                   <div className="relative">
@@ -345,7 +354,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Guests & Rooms
                   </label>
                   <div className="relative">
@@ -385,10 +394,10 @@ export const UniversalSearch: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleVisaSubmit}
-                className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end"
+                className="grid grid-cols-1 gap-3 sm:gap-3.5 sm:grid-cols-2 lg:grid-cols-4 items-end"
               >
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Destination Country
                   </label>
                   <div className="relative">
@@ -412,7 +421,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Visa Type
                   </label>
                   <div className="relative">
@@ -432,7 +441,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Passport Nationality
                   </label>
                   <div className="relative">
@@ -468,10 +477,10 @@ export const UniversalSearch: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleCruiseSubmit}
-                className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-end"
+                className="grid grid-cols-1 gap-3 sm:gap-3.5 sm:grid-cols-3 items-end"
               >
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Cruise Destination
                   </label>
                   <div className="relative">
@@ -492,7 +501,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Cruise Line
                   </label>
                   <div className="relative">
@@ -533,10 +542,10 @@ export const UniversalSearch: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 onSubmit={handleGroupSubmit}
-                className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-end"
+                className="grid grid-cols-1 gap-3 sm:gap-3.5 sm:grid-cols-3 items-end"
               >
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Group Tour Destination
                   </label>
                   <div className="relative">
@@ -552,7 +561,7 @@ export const UniversalSearch: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Departure Month
                   </label>
                   <div className="relative">

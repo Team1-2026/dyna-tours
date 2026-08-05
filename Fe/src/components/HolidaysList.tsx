@@ -38,9 +38,14 @@ export default function HolidaysList({ initialCategory }: HolidaysListProps) {
 
   // Initialize filters from URL parameters if no initial category is forced
   useEffect(() => {
-    const urlDest = searchParams?.get('destination') || '';
+    const urlDest = searchParams?.get('destination') || searchParams?.get('search') || '';
+    const urlCategory = searchParams?.get('category') || searchParams?.get('theme') || '';
+    const urlDuration = searchParams?.get('duration') || '';
+
     if (urlDest) setSearchDest(urlDest);
-    // If the prop changed, update tab
+    if (urlCategory) setSelectedTheme(urlCategory);
+    if (urlDuration) setSelectedDuration(urlDuration);
+
     if (initialCategory) setActiveTab(initialCategory);
   }, [searchParams, initialCategory]);
 
@@ -64,26 +69,39 @@ export default function HolidaysList({ initialCategory }: HolidaysListProps) {
       }
     }
 
-    // 2. Destination search
+    // 2. Destination / Title Search
     if (searchDest) {
-      const matchDest = tour.destination.toLowerCase().includes(searchDest.toLowerCase());
+      const q = searchDest.toLowerCase().trim();
+      const matchDest =
+        tour.destination?.toLowerCase().includes(q) ||
+        tour.title?.toLowerCase().includes(q) ||
+        tour.category?.toLowerCase().includes(q);
       if (!matchDest) return false;
     }
 
-    // 3. Theme filter
-    if (selectedTheme && tour.category !== selectedTheme) {
-      return false;
+    // 3. Theme / Category Filter
+    if (selectedTheme && selectedTheme !== 'All Themes' && selectedTheme !== 'All') {
+      const qTheme = selectedTheme.toLowerCase().trim();
+      const matchTheme =
+        tour.category?.toLowerCase().includes(qTheme) ||
+        tour.holidayCategory?.some((c: string) => c.toLowerCase().includes(qTheme)) ||
+        tour.title?.toLowerCase().includes(qTheme);
+      if (!matchTheme) return false;
     }
 
-    // 4. Budget filter
+    // 4. Budget Filter
     if (selectedBudget) {
       const maxBudget = parseInt(selectedBudget, 10);
       if (tour.price > maxBudget) return false;
     }
 
-    // 5. Duration filter
+    // 5. Duration Filter
     if (selectedDuration) {
-      const days = tour.durationDays;
+      const days = tour.durationDays || 0;
+      if (selectedDuration === '1-3' && (days < 1 || days > 3)) return false;
+      if (selectedDuration === '4-7' && (days < 4 || days > 7)) return false;
+      if (selectedDuration === '8-12' && (days < 8 || days > 12)) return false;
+      if (selectedDuration === '13+' && days < 13) return false;
       if (selectedDuration === 'short' && days > 5) return false; 
       if (selectedDuration === 'long' && days <= 5) return false; 
     }

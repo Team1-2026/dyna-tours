@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { groupToursApi, GroupTour } from '@/lib/api';
+import { groupToursApi, GroupTour, getImageUrl } from '@/lib/api';
 import styles from './admin.module.css';
 import RichTextEditor from '@/components/RichTextEditor';
 
@@ -9,6 +9,7 @@ export default function GroupToursAdmin() {
   const [editingTour, setEditingTour] = useState<GroupTour | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [relatedSearch, setRelatedSearch] = useState('');
 
   useEffect(() => {
     loadTours();
@@ -177,15 +178,44 @@ export default function GroupToursAdmin() {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Thumbnail Image <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 800 × 600 px)</span></label>
             <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'block', marginBottom: '10px' }} />
-            {editingTour.image && <img src={editingTour.image} alt="Thumbnail" style={{ height: '100px', borderRadius: '4px', objectFit: 'cover' }} />}
+            {editingTour.image && <img src={getImageUrl(editingTour.image)} alt="Thumbnail" style={{ height: '100px', borderRadius: '4px', objectFit: 'cover' }} />}
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Full Details (Rich Text)</label>
-            <RichTextEditor 
-              value={editingTour.full_details || ''}
-              onChange={(val) => setEditingTour({ ...editingTour, full_details: val })}
+          {/* Related Group Tours Mapping */}
+          <div className={styles.formCard}>
+            <h4 className={styles.formCardTitle}>Related Group Tours Mapping</h4>
+            <input
+              type="text"
+              placeholder="Search group tours by name or destination..."
+              className={styles.searchBar}
+              value={relatedSearch}
+              onChange={(e) => setRelatedSearch(e.target.value)}
             />
+            <div className={styles.checklistGrid}>
+              {tours
+                .filter(t => t.id !== editingTour.id)
+                .filter(t => !relatedSearch || t.name?.toLowerCase().includes(relatedSearch.toLowerCase()) || t.destination?.toLowerCase().includes(relatedSearch.toLowerCase()))
+                .map(t => {
+                  const currentRelated = (editingTour.related_tours || []).map(String);
+                  const isChecked = currentRelated.includes(String(t.id));
+                  return (
+                    <label key={t.id} className={styles.checklistItem}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={e => {
+                          const tIdStr = String(t.id);
+                          const updated = e.target.checked
+                            ? [...currentRelated, t.id || tIdStr]
+                            : currentRelated.filter((id: string) => id !== String(t.id));
+                          setEditingTour(prev => prev ? ({ ...prev, related_tours: updated }) : null);
+                        }}
+                      />
+                      <span>{t.name}</span>
+                    </label>
+                  );
+                })}
+            </div>
           </div>
 
           <button type="submit" className={styles.saveBtn}>Save Tour</button>
@@ -208,7 +238,7 @@ export default function GroupToursAdmin() {
               {tours.map(tour => (
                 <tr key={tour.id}>
                   <td>
-                    {tour.image ? <img src={tour.image} alt={tour.name} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} /> : 'No image'}
+                    {tour.image ? <img src={getImageUrl(tour.image)} alt={tour.name} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} /> : 'No image'}
                   </td>
                   <td style={{ fontWeight: 'bold' }}>{tour.name}</td>
                   <td>{tour.destination}</td>

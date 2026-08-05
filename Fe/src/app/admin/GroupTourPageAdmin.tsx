@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { groupToursApi, GroupTourPage } from '@/lib/api';
+import { groupToursApi, GroupTourPage, getImageUrl } from '@/lib/api';
 import styles from './admin.module.css';
 import RichTextEditor from '@/components/RichTextEditor';
 
@@ -80,7 +80,7 @@ export default function GroupTourPageAdmin() {
             Hero Banner Image <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 1920 × 460 px)</span>
           </label>
           <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner_image')} style={{ display: 'block', marginBottom: '10px' }} />
-          {pageData.banner_image && <img src={pageData.banner_image} alt="Banner" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '4px' }} />}
+          {pageData.banner_image && <img src={getImageUrl(pageData.banner_image)} alt="Banner" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '4px' }} />}
         </div>
 
         <h3 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Overview Section</h3>
@@ -98,7 +98,7 @@ export default function GroupTourPageAdmin() {
         <div style={{ marginBottom: '30px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Overview Side Image <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 800 × 600 px)</span></label>
           <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'overview_image')} style={{ display: 'block', marginBottom: '10px' }} />
-          {pageData.overview_image && <img src={pageData.overview_image} alt="Overview" style={{ height: '150px', objectFit: 'cover', borderRadius: '4px' }} />}
+          {pageData.overview_image && <img src={getImageUrl(pageData.overview_image)} alt="Overview" style={{ height: '150px', objectFit: 'cover', borderRadius: '4px' }} />}
         </div>
 
         <button type="submit" className={styles.saveBtn}>Save Page Settings</button>

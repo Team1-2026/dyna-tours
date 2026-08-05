@@ -1,33 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Cruise, CruisePageData, api } from '@/lib/api';
+import { Cruise, api } from '@/lib/api';
 
 export default function CruiseAdmin() {
-  const [activeSubTab, setActiveSubTab] = useState<'packages' | 'page_settings'>('packages');
-
   // Cruise Packages state
   const [cruises, setCruises] = useState<Cruise[]>([]);
   const [loadingCruises, setLoadingCruises] = useState(true);
   const [selectedCruise, setSelectedCruise] = useState<Cruise | null>(null);
   const [isCreatingCruise, setIsCreatingCruise] = useState(false);
-
-  // Landing Page state
-  const [pageData, setPageData] = useState<CruisePageData>({
-    banner_title: 'Cruise Holidays',
-    banner_tagline: "Sail in Luxury – Discover the World's Most Spectacular Cruise Journeys",
-    banner_image: '',
-    overview_heading: 'Experience Unrivalled Luxury on the High Seas',
-    overview_description: '',
-    overview_image: '',
-    overview_cta_text: 'View Cruise Packages',
-    cta_heading: 'Ready to Set Sail?',
-    cta_description: 'Book your dream cruise holiday with Dyna Tours India.',
-    cta_image: '',
-    cta_button1_text: 'Enquire Now',
-    cta_button2_text: 'Talk to Expert',
-  });
-
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   // Form State for new/editing cruise package
@@ -58,8 +39,8 @@ export default function CruiseAdmin() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size exceeds the 5 MB limit. Please select a smaller image.');
+    if (file.size > 1 * 1024 * 1024) {
+      alert('File size exceeds the 1 MB limit. Please select a smaller image.');
       return;
     }
 
@@ -75,12 +56,8 @@ export default function CruiseAdmin() {
   const fetchData = async () => {
     setLoadingCruises(true);
     try {
-      const [fetchedCruises, fetchedPageData] = await Promise.all([
-        api.getCruises(),
-        api.getCruisePage()
-      ]);
+      const fetchedCruises = await api.getCruises();
       setCruises(fetchedCruises || []);
-      if (fetchedPageData) setPageData(fetchedPageData);
     } catch (err) {
       console.error('Error loading cruise admin data:', err);
     } finally {
@@ -171,42 +148,12 @@ export default function CruiseAdmin() {
     }
   };
 
-  const handleSavePageData = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaveStatus('Saving Page Settings...');
-    try {
-      await api.updateCruisePage(pageData);
-      setSaveStatus('✓ Landing page settings updated successfully!');
-      setTimeout(() => setSaveStatus(null), 4000);
-    } catch (err: any) {
-      setSaveStatus(`❌ ${err?.message || 'Failed to save page settings.'}`);
-      setTimeout(() => setSaveStatus(null), 6000);
-    }
-  };
-
   return (
     <div style={{ padding: '1rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '1rem' }}>
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>🚢 Cruise Holidays Management</h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Manage cruise packages, itinerary highlights, prices, and landing page content.</p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button
-            type="button"
-            className={`btn ${activeSubTab === 'packages' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveSubTab('packages')}
-          >
-            Cruise Packages ({cruises.length})
-          </button>
-          <button
-            type="button"
-            className={`btn ${activeSubTab === 'page_settings' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveSubTab('page_settings')}
-          >
-            Landing Page CMS
-          </button>
+          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Manage cruise packages, itinerary highlights, prices, and settings.</p>
         </div>
       </div>
 
@@ -216,9 +163,8 @@ export default function CruiseAdmin() {
         </div>
       )}
 
-      {/* Sub-Tab 1: Packages List & Editor */}
-      {activeSubTab === 'packages' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '2rem' }}>
+      {/* Packages List & Editor */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '2rem' }}>
           {/* Package List */}
           <div style={{ background: '#ffffff', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -366,7 +312,7 @@ export default function CruiseAdmin() {
                 {/* Banner Image Upload */}
                 <div className="formGroup" style={{ marginBottom: '1.25rem' }}>
                   <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
-                    Banner Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
+                    Banner Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended: 1920 × 460 px, Max 1 MB)</span>
                   </label>
 
                   {cruiseForm.banner_image ? (
@@ -469,298 +415,6 @@ export default function CruiseAdmin() {
             </div>
           )}
         </div>
-      )}
-
-      {/* Sub-Tab 2: Landing Page CMS Settings */}
-      {activeSubTab === 'page_settings' && (
-        <div style={{ background: '#ffffff', borderRadius: '1rem', padding: '2rem', border: '1px solid #e2e8f0', maxWidth: '850px' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.5rem' }}>
-            Edit Cruise Landing Page Content
-          </h3>
-
-          <form onSubmit={handleSavePageData}>
-            <h4 style={{ fontSize: '1.05rem', color: '#dc2626', marginBottom: '1rem' }}>1. Hero Banner</h4>
-            <div className="formGroup" style={{ marginBottom: '1rem' }}>
-              <label>Page Title</label>
-              <input
-                type="text"
-                value={pageData.banner_title}
-                onChange={e => setPageData({ ...pageData, banner_title: e.target.value })}
-              />
-            </div>
-
-            <div className="formGroup" style={{ marginBottom: '1rem' }}>
-              <label>Tagline</label>
-              <input
-                type="text"
-                value={pageData.banner_tagline}
-                onChange={e => setPageData({ ...pageData, banner_tagline: e.target.value })}
-              />
-            </div>
-
-            {/* Banner Image Upload */}
-            <div className="formGroup" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
-                Banner Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended: 1920 × 460 px, Max 5 MB)</span>
-              </label>
-
-              {pageData.banner_image ? (
-                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem', width: '100%' }}>
-                  <img
-                    src={pageData.banner_image}
-                    alt="Hero Banner Preview"
-                    style={{
-                      width: '100%',
-                      maxHeight: '140px',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setPageData({ ...pageData, banner_image: '' })}
-                    title="Remove Banner Image"
-                    style={{
-                      position: 'absolute',
-                      top: '6px',
-                      right: '6px',
-                      background: '#dc2626',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '26px',
-                      height: '26px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ) : null}
-
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  id="cruise-page-banner-upload"
-                  style={{ display: 'none' }}
-                  onChange={(e) => handleImageUpload(e, (url) => setPageData({ ...pageData, banner_image: url }))}
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => document.getElementById('cruise-page-banner-upload')?.click()}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
-                >
-                  📤 Upload Banner Image
-                </button>
-                <input
-                  type="text"
-                  placeholder="Or enter image URL..."
-                  value={pageData.banner_image || ''}
-                  onChange={e => setPageData({ ...pageData, banner_image: e.target.value })}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                />
-              </div>
-            </div>
-
-            <h4 style={{ fontSize: '1.05rem', color: '#dc2626', marginBottom: '1rem' }}>2. Cruise Overview Section</h4>
-            <div className="formGroup" style={{ marginBottom: '1rem' }}>
-              <label>Overview Heading</label>
-              <input
-                type="text"
-                value={pageData.overview_heading}
-                onChange={e => setPageData({ ...pageData, overview_heading: e.target.value })}
-              />
-            </div>
-
-            <div className="formGroup" style={{ marginBottom: '1rem' }}>
-              <label>Overview Description</label>
-              <textarea
-                rows={4}
-                value={pageData.overview_description || ''}
-                onChange={e => setPageData({ ...pageData, overview_description: e.target.value })}
-              />
-            </div>
-
-            {/* Overview Side Image Upload */}
-            <div className="formGroup" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
-                Overview Side Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Max 5 MB)</span>
-              </label>
-
-              {pageData.overview_image ? (
-                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem', width: '100%' }}>
-                  <img
-                    src={pageData.overview_image}
-                    alt="Overview Side Preview"
-                    style={{
-                      width: '100%',
-                      maxHeight: '140px',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setPageData({ ...pageData, overview_image: '' })}
-                    title="Remove Overview Image"
-                    style={{
-                      position: 'absolute',
-                      top: '6px',
-                      right: '6px',
-                      background: '#dc2626',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '26px',
-                      height: '26px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ) : null}
-
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  id="cruise-overview-image-upload"
-                  style={{ display: 'none' }}
-                  onChange={(e) => handleImageUpload(e, (url) => setPageData({ ...pageData, overview_image: url }))}
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => document.getElementById('cruise-overview-image-upload')?.click()}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
-                >
-                  📤 Upload Overview Image
-                </button>
-                <input
-                  type="text"
-                  placeholder="Or enter image URL..."
-                  value={pageData.overview_image || ''}
-                  onChange={e => setPageData({ ...pageData, overview_image: e.target.value })}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                />
-              </div>
-            </div>
-
-            <h4 style={{ fontSize: '1.05rem', color: '#dc2626', marginBottom: '1rem' }}>3. CTA Section</h4>
-            <div className="formGroup" style={{ marginBottom: '1rem' }}>
-              <label>CTA Heading</label>
-              <input
-                type="text"
-                value={pageData.cta_heading}
-                onChange={e => setPageData({ ...pageData, cta_heading: e.target.value })}
-              />
-            </div>
-
-            <div className="formGroup" style={{ marginBottom: '1rem' }}>
-              <label>CTA Description</label>
-              <textarea
-                rows={2}
-                value={pageData.cta_description || ''}
-                onChange={e => setPageData({ ...pageData, cta_description: e.target.value })}
-              />
-            </div>
-
-            {/* CTA Background Image Upload */}
-            <div className="formGroup" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
-                CTA Background Image Upload <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'normal' }}>(Max 5 MB)</span>
-              </label>
-
-              {pageData.cta_image ? (
-                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem', width: '100%' }}>
-                  <img
-                    src={pageData.cta_image}
-                    alt="CTA Background Preview"
-                    style={{
-                      width: '100%',
-                      maxHeight: '140px',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setPageData({ ...pageData, cta_image: '' })}
-                    title="Remove CTA Image"
-                    style={{
-                      position: 'absolute',
-                      top: '6px',
-                      right: '6px',
-                      background: '#dc2626',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '26px',
-                      height: '26px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ) : null}
-
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  id="cruise-cta-image-upload"
-                  style={{ display: 'none' }}
-                  onChange={(e) => handleImageUpload(e, (url) => setPageData({ ...pageData, cta_image: url }))}
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => document.getElementById('cruise-cta-image-upload')?.click()}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
-                >
-                  📤 Upload CTA Image
-                </button>
-                <input
-                  type="text"
-                  placeholder="Or enter image URL..."
-                  value={pageData.cta_image || ''}
-                  onChange={e => setPageData({ ...pageData, cta_image: e.target.value })}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                />
-              </div>
-            </div>
-
-            <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
-              Save Page Settings
-            </button>
-          </form>
-        </div>
-      )}
-    </div>
+      </div>
   );
 }

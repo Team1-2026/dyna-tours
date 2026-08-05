@@ -61,7 +61,7 @@ export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
               <span>TRAVEL WITHOUT WORRIES</span>
             </div>
             <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-5xl text-[#0C2745]">
-              Express Visa Services
+              Visa Services
             </h2>
             <p className="mt-3 text-sm text-slate-600 max-w-xl">
               {adminDescription}

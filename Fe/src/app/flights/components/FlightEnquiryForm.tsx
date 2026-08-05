@@ -3,9 +3,14 @@
 import React, { useState } from 'react';
 import styles from '../page.module.css';
 
+import { api } from '@/lib/api';
+
+import CountryCodeSelect from '@/components/CountryCodeSelect';
+
 export default function FlightEnquiryForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [countryCode, setCountryCode] = useState('+91');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,30 +37,35 @@ export default function FlightEnquiryForm() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/enquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          type: 'flight',
-          target_id: 'flight_service'
-        })
+      await api.submitEnquiry({
+        type: 'flight',
+        target_id: 'flight_service',
+        name: formData.name,
+        email: formData.email,
+        phone: `${countryCode} ${formData.phone}`,
+        from: formData.from,
+        to: formData.to,
+        trip_type: formData.trip_type,
+        departure_date: formData.departure_date,
+        return_date: formData.return_date,
+        num_adults: Number(formData.num_adults) || 1,
+        num_children: Number(formData.num_children) || 0,
+        num_infants: Number(formData.num_infants) || 0,
+        cabin_class: formData.cabin_class,
+        preferred_airline: formData.preferred_airline,
+        message: formData.message,
       });
 
-      if (response.ok) {
-        setSuccess(true);
-        setFormData({
-          name: '', email: '', phone: '', trip_type: 'Round Trip', from: '', to: '',
-          departure_date: '', return_date: '', num_adults: '1', num_children: '0',
-          num_infants: '0', cabin_class: 'Economy', preferred_airline: '', message: ''
-        });
-        setTimeout(() => setSuccess(false), 5000);
-      } else {
-        alert('Failed to submit enquiry. Please try again.');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('An error occurred.');
+      setSuccess(true);
+      setFormData({
+        name: '', email: '', phone: '', trip_type: 'Round Trip', from: '', to: '',
+        departure_date: '', return_date: '', num_adults: '1', num_children: '0',
+        num_infants: '0', cabin_class: 'Economy', preferred_airline: '', message: ''
+      });
+      setTimeout(() => setSuccess(false), 5000);
+    } catch (error: any) {
+      console.error('Flight enquiry error:', error);
+      alert(error?.message || 'Failed to submit enquiry. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -83,7 +93,10 @@ export default function FlightEnquiryForm() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Phone Number *</label>
-            <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} className={styles.darkInput} placeholder="Mobile Number" />
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+              <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} className={styles.darkInput} placeholder="Mobile Number" style={{ flex: 1 }} />
+            </div>
           </div>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Email Address *</label>

@@ -30,6 +30,11 @@ class AboutPageController extends Controller
                 'overview_image_2' => 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=80',
                 'years_experience' => 16,
 
+                // Partner Images
+                'partner_image_1' => '/images/partner_1.jpg',
+                'partner_image_2' => '/images/partner_2.jpg',
+                'partner_image_3' => '/images/partner_3.jpg',
+
                 // 3. Directors' Message
                 'founder_name' => 'Jomy Milbin',
                 'founder_title' => 'Managing Director',
@@ -209,6 +214,23 @@ class AboutPageController extends Controller
                 'cta_secondary_btn_text' => 'WhatsApp Us',
                 'cta_secondary_btn_url' => 'https://wa.me/919946461999'
             ]);
+        }
+
+        $dirty = false;
+        if (empty($page->partner_image_1) || str_contains($page->partner_image_1 ?? '', 'unsplash')) {
+            $page->partner_image_1 = '/images/partner_1.jpg';
+            $dirty = true;
+        }
+        if (empty($page->partner_image_2) || str_contains($page->partner_image_2 ?? '', 'unsplash')) {
+            $page->partner_image_2 = '/images/partner_2.jpg';
+            $dirty = true;
+        }
+        if (empty($page->partner_image_3) || str_contains($page->partner_image_3 ?? '', 'unsplash')) {
+            $page->partner_image_3 = '/images/partner_3.jpg';
+            $dirty = true;
+        }
+        if ($dirty) {
+            $page->save();
         }
 
         return response()->json($page);
