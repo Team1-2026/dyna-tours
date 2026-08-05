@@ -4,6 +4,8 @@ import styles from './contact.module.css';
 import { getBaseUrl, ContactPage as IContactPage } from '@/lib/api';
 import ContactEnquiryForm from './components/ContactEnquiryForm';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Contact Us | Dyna Tours India - Changanassery, Kottayam, Kerala',
   description: "Get in touch with Dyna Tours India. Contact our travel experts for holiday packages, flight bookings, visa assistance, hotel reservations, and group tours. Head Office: Marks Square Building, M C Road, Changanassery, Kerala.",

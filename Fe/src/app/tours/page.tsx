@@ -6,6 +6,8 @@ import styles from './tours.module.css';
 import { getPackages } from '@/lib/api';
 import TourCard from '@/components/TourCard';
 
+export const dynamic = 'force-dynamic';
+
 function ToursListContent() {
   const searchParams = useSearchParams();
   

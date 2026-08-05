@@ -5,6 +5,8 @@ import FlightEnquiryForm from './components/FlightEnquiryForm';
 import FaqAccordion from './components/FaqAccordion';
 import FlightGallery from './components/FlightGallery';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Flight Booking Services | Dyna Tours India',
   description: 'Book your domestic and international flights at the best available prices with Dyna Tours India. Fast, secure, and hassle-free flight booking.',

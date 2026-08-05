@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { api, Hotel, getImageUrl } from '@/lib/api';
 import styles from './hotels.module.css';
@@ -8,7 +8,9 @@ import Pagination from '@/components/Pagination';
 
 import { useSearchParams } from 'next/navigation';
 
-export default function HotelsDirectoryPage() {
+export const dynamic = 'force-dynamic';
+
+function HotelsDirectoryContent() {
   const searchParams = useSearchParams();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -288,5 +290,19 @@ export default function HotelsDirectoryPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function HotelsDirectoryPage() {
+  return (
+    <Suspense fallback={
+      <div className="container" style={{ padding: '4rem 0', textAlign: 'center' }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem', fontWeight: 600 }}>
+          Loading hotels...
+        </p>
+      </div>
+    }>
+      <HotelsDirectoryContent />
+    </Suspense>
   );
 }

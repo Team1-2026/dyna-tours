@@ -4,6 +4,8 @@ import Link from 'next/link';
 import styles from './about.module.css';
 import { getBaseUrl, AboutPage as IAboutPage } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'About Us | Dyna Tours India - 16+ Years of Travel Excellence',
   description: 'Learn about Dyna Tours India, a premier travel management company with over 16 years of expertise in domestic and international holidays, flight bookings, visas, hotels, and corporate travel.',

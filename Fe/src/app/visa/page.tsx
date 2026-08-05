@@ -10,6 +10,8 @@ import VisaProcess from '@/components/visa/VisaProcess';
 import VisaEnquiryForm from '@/components/visa/VisaEnquiryForm';
 import styles from './page.module.css';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Trusted Global Visa Services | Dyna Tours India',
   description: 'Apply for your tourist visa with confidence. Dyna Tours India provides reliable visa assistance for international destinations, including e-Visas and embassy visas.',

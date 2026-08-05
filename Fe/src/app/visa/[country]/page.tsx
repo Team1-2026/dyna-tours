@@ -6,6 +6,8 @@ import styles from './country.module.css';
 import VisaFAQ from '@/components/visa/VisaFAQ';
 import VisaEnquiryForm from '@/components/visa/VisaEnquiryForm';
 
+export const dynamic = 'force-dynamic';
+
 interface CountryVisaPageProps {
   params: {
     country: string;

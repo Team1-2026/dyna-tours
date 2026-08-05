@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { groupToursApi, GroupTour, GroupTourPage } from '@/lib/api';
 import styles from './group-tours.module.css';
@@ -76,7 +76,9 @@ const defaultTours: GroupTour[] = [
 import { useSearchParams } from 'next/navigation';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 
-export default function GroupToursPage() {
+export const dynamic = 'force-dynamic';
+
+function GroupToursContent() {
   const searchParams = useSearchParams();
   const [pageData, setPageData] = useState<GroupTourPage | null>(null);
   const [tours, setTours] = useState<GroupTour[]>([]);
@@ -555,5 +557,19 @@ export default function GroupToursPage() {
       </section>
 
     </div>
+  );
+}
+
+export default function GroupToursPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ padding: '4rem 0', textAlign: 'center' }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem', fontWeight: 600 }}>
+          Loading group tours...
+        </p>
+      </div>
+    }>
+      <GroupToursContent />
+    </Suspense>
   );
 }
