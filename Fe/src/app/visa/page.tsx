@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { schengenCountries, otherCountries } from '@/data/visaData';
-import { api } from '@/lib/api';
+import { api, getBaseUrl } from '@/lib/api';
 import VisaHeroBanner from '@/components/visa/VisaHeroBanner';
 import EVisaGrid from '@/components/visa/EVisaGrid';
 import StampedVisaSection from '@/components/visa/StampedVisaSection';
@@ -12,20 +12,32 @@ import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Trusted Global Visa Services | Dyna Tours India',
-  description: 'Apply for your tourist visa with confidence. Dyna Tours India provides reliable visa assistance for international destinations, including e-Visas and embassy visas.',
-  openGraph: {
-    title: 'Trusted Global Visa Services | Dyna Tours India',
-    description: 'Expert visa assistance, document verification, and end-to-end support for your international travel.',
-    type: 'website'
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Trusted Global Visa Services | Dyna Tours India',
-    description: 'Expert visa assistance, document verification, and end-to-end support for your international travel.'
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const res = await fetch(`${getBaseUrl()}/visa-page`, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        title: data.meta_title || 'Trusted Global Visa Services | Dyna Tours India',
+        description: data.meta_description || 'Apply for your tourist visa with confidence. Dyna Tours India provides reliable visa assistance for international destinations, including e-Visas and embassy visas.',
+        keywords: data.meta_keywords || 'Visa Services, Tourist Visa, e-Visa, Schengen Visa, USA Visa, UK Visa, Dyna Tours',
+        openGraph: {
+          title: data.og_title || data.meta_title || 'Trusted Global Visa Services | Dyna Tours India',
+          description: data.og_description || data.meta_description || 'Expert visa assistance, document verification, and end-to-end support for your international travel.',
+          type: 'website',
+          images: data.og_image ? [{ url: data.og_image }] : undefined,
+        },
+      };
+    }
+  } catch (err) {
+    console.error('Failed to fetch visa-page SEO metadata:', err);
   }
-};
+
+  return {
+    title: 'Trusted Global Visa Services | Dyna Tours India',
+    description: 'Apply for your tourist visa with confidence. Dyna Tours India provides reliable visa assistance for international destinations, including e-Visas and embassy visas.',
+  };
+}
 
 export default async function VisaPage() {
   // Schema.org structured data for Visa Service

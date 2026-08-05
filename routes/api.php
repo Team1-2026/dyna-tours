@@ -21,6 +21,7 @@ use App\Http\Controllers\API\ContactPageController;
 use App\Http\Controllers\API\StaffController;
 use App\Http\Controllers\API\CruiseController;
 use App\Http\Controllers\API\CruisePageController;
+use App\Http\Controllers\API\VisaPageController;
 
 use App\Http\Controllers\API\ImageUploadController;
 
@@ -55,6 +56,7 @@ Route::get('/cruises', [CruiseController::class, 'index']);
 Route::get('/cruises/{id}', [CruiseController::class, 'show']);
 Route::get('/about-page', [AboutPageController::class, 'show']);
 Route::get('/contact-page', [ContactPageController::class, 'show']);
+Route::get('/visa-page', [VisaPageController::class, 'show']);
 Route::post('/contact/submit', [ContactPageController::class, 'submit']);
 
 Route::get('/hotels', [HotelController::class, 'index']);
@@ -140,4 +142,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cruises', [CruiseController::class, 'store']);
     Route::put('/cruises/{id}', [CruiseController::class, 'update']);
     Route::delete('/cruises/{id}', [CruiseController::class, 'destroy']);
+
+    // Visa Page Admin Routes
+    Route::post('/visa-page', [VisaPageController::class, 'update']);
+    Route::put('/visa-page', [VisaPageController::class, 'update']);
 });

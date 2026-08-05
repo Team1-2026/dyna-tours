@@ -52,6 +52,15 @@ const SEO_PAGES: PageSeoItem[] = [
     defaultDescription: 'Book domestic and international flights with top airlines. Exclusive deals, instant seat selection, and 24x7 support.'
   },
   {
+    id: 'visa',
+    name: 'Visa Services Page',
+    category: 'static',
+    endpoint: '/visa-page',
+    defaultSlug: 'visa',
+    defaultTitle: 'Trusted Global Visa Services | Dyna Tours India',
+    defaultDescription: 'Apply for your tourist visa with confidence. Dyna Tours India provides reliable visa assistance for international destinations, including e-Visas and embassy visas.'
+  },
+  {
     id: 'groupTours',
     name: 'Group Tours Page',
     category: 'static',
