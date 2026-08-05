@@ -231,30 +231,21 @@ class PublicChatController extends Controller
             $resolvedConversationId = $response->conversationId ?? $conversationId;
             $agentResponse = (string) $response;
 
-            // Intercept custom tags since AI tools are disabled due to provider compatibility
+            // Payment links are currently hidden/disabled as requested. Suppress any payment tags.
             if (preg_match('/\[GENERATE_LINK:\s*([^\|]+?)\s*\|\s*(.+?)\]/', $agentResponse, $matches)) {
-                $amount = floatval(trim($matches[1]));
-                $description = trim($matches[2]);
-                
-                $tool = new \App\Ai\Tools\GeneratePaymentLinkTool();
-                $toolResponse = $tool->handle([
-                    'amount' => $amount,
-                    'description' => $description,
-                    'visitor_id' => $visitor->id
-                ]);
-
-                $agentResponse = preg_replace('/\[GENERATE_LINK:.*?\]/', $toolResponse, $agentResponse);
+                $agentResponse = preg_replace(
+                    '/\[GENERATE_LINK:.*?\]/',
+                    "Your dedicated travel expert will coordinate your itinerary details and final payment arrangements directly with you.",
+                    $agentResponse
+                );
             }
 
             if (preg_match('/\[CHECK_PAYMENT:\s*(.+?)\]/', $agentResponse, $matches)) {
-                $url = trim($matches[1]);
-                
-                $tool = new \App\Ai\Tools\CheckPaymentStatusTool();
-                $toolResponse = $tool->handle([
-                    'payment_url_or_id' => $url
-                ]);
-
-                $agentResponse = preg_replace('/\[CHECK_PAYMENT:.*?\]/', $toolResponse, $agentResponse);
+                $agentResponse = preg_replace(
+                    '/\[CHECK_PAYMENT:.*?\]/',
+                    "Our travel team will assist you directly with payment verification.",
+                    $agentResponse
+                );
             }
 
             $updates = [
@@ -290,13 +281,14 @@ class PublicChatController extends Controller
                 ],
             ]);
         } catch (ConnectionException $exception) {
-            Log::error('WebUI connection failed.', [
-                'url' => config('ai.providers.webui.url'),
+            $provider = (string) config('ai.default', 'webui');
+            Log::error('AI provider connection failed.', [
+                'provider' => $provider,
                 'message' => $exception->getMessage(),
             ]);
 
             return response()->json([
-                'message' => 'Unable to reach the AI server. Check WEBUI_URL in backend/.env.',
+                'message' => 'Unable to reach the AI server. Check AI_PROVIDER and API credentials in .env.',
             ], 503);
         } catch (Throwable $exception) {
             Log::error('Public chat failed.', [
@@ -305,12 +297,13 @@ class PublicChatController extends Controller
 
             $raw = $exception->getMessage();
 
-            if (str_contains($raw, 'Model not found')) {
+            if (str_contains($raw, 'Model not found') || str_contains($raw, 'model_not_found')) {
+                $provider = (string) config('ai.default', 'webui');
                 return response()->json([
-                    'message' => 'No AI model is available on Open WebUI/Ollama.',
-                    'hint' => 'Pull a model in Open WebUI, set AI_MODEL in backend/.env, then run: php artisan config:clear',
-                    'configured_model' => config('ai.providers.webui.models.text.default'),
-                    'webui_url' => config('ai.providers.webui.url'),
+                    'message' => 'The configured AI model was not found.',
+                    'hint' => 'Check AI_PROVIDER and AI_MODEL in .env, then run: php artisan config:clear',
+                    'configured_provider' => $provider,
+                    'configured_model' => config("ai.providers.{$provider}.models.text.default") ?? env('AI_MODEL'),
                 ], 503);
             }
 
@@ -320,3 +313,4 @@ class PublicChatController extends Controller
         }
     }
 }
+

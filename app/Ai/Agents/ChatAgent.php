@@ -5,13 +5,10 @@ namespace App\Ai\Agents;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Promptable;
-use Stringable;
-
-use Laravel\Ai\Contracts\HasTools;
-use App\Ai\Tools\GeneratePaymentLinkTool;
-use App\Ai\Tools\CheckPaymentStatusTool;
 use Laravel\Ai\Concerns\RemembersConversations;
-
+use Illuminate\Support\Str;
+use Stringable;
+use Throwable;
 
 class ChatAgent implements Agent, Conversational
 {
@@ -25,65 +22,224 @@ class ChatAgent implements Agent, Conversational
     public function instructions(): Stringable|string
     {
         $staffAssignmentText = "";
-        if ($this->visitor && isset($this->visitor->staff_id)) {
-            $staff = \App\Models\Staff::find($this->visitor->staff_id);
-            if ($staff) {
-                $staffAssignmentText = "The customer has been assigned to our dedicated travel expert: **{$staff->name}**. You MUST explicitly and prominently highlight this to the customer early in the conversation (and definitely before they pay). Tell them clearly that their dedicated staff member, **{$staff->name}**, is already assigned to them, will personally handle their itinerary, and take over after the booking is completed. Make sure to bold their name.";
+        try {
+            if ($this->visitor && isset($this->visitor->staff_id)) {
+                $staff = \App\Models\Staff::find($this->visitor->staff_id);
+                if ($staff) {
+                    $staffAssignmentText = "The customer is assigned to our dedicated travel expert: **{$staff->name}**. You MUST explicitly and warmly highlight this to the customer early in the conversation. Tell them clearly: 'Your dedicated travel expert **{$staff->name}** has been assigned to you and will personally customize your itinerary and guide you.' ALWAYS enclose staff names in double asterisks like `**{$staff->name}**` so they render bold in a distinct accent color.";
+                }
             }
+        } catch (Throwable) {
+            $staffAssignmentText = "";
         }
 
-        $destinations = \App\Models\Destination::get(['name', 'overview'])->map(fn($d) => "- {$d->name}: {$d->overview}")->implode("\n");
-        $hotels = \App\Models\Hotel::get(['name', 'destination_id', 'short_description', 'price', 'inclusions'])->map(fn($h) => "- Hotel {$h->name} (in {$h->destination_id}): {$h->short_description}. Price: ₹{$h->price}. Inclusions: ".strip_tags(str_replace(['<ul>', '<li>', '</ul>', '</li>'], ['', ' ', '', ', '], $h->inclusions)))->implode("\n");
-        $visas = \App\Models\Visa::where('is_active', true)->get(['name', 'type', 'processing_time', 'price'])->map(fn($v) => "- {$v->name} ({$v->type}): Processing Time: {$v->processing_time}, Price: ₹{$v->price}")->implode("\n");
-        $groupTours = \App\Models\GroupTour::where('is_visible', true)->get(['name', 'destination', 'duration', 'departure_date', 'starting_price'])->map(fn($g) => "- {$g->name} ({$g->destination}): Duration: {$g->duration}, Departure: {$g->departure_date}, Price: ₹{$g->starting_price}")->implode("\n");
-        
-        $aboutInfo = \App\Models\AboutPage::first();
-        $contactInfo = \App\Models\ContactPage::first();
-        
-        $aboutText = $aboutInfo ? "Years of Experience: {$aboutInfo->years_experience}\nMission: {$aboutInfo->mission_text}\nVision: {$aboutInfo->vision_text}\nOverview: {$aboutInfo->overview_description}" : "";
-        $contactText = $contactInfo ? "Office Name: {$contactInfo->office_name}\nAddress: {$contactInfo->office_address}\nPhone Numbers: " . json_encode($contactInfo->phone_numbers ?? []) . "\nEmail Addresses: " . json_encode($contactInfo->email_addresses ?? []) . "\nBusiness Hours: Weekdays: {$contactInfo->business_hours_weekday}, Weekends: {$contactInfo->business_hours_weekend}" : "";
-        
+        // 1. Destinations & Packages
+        try {
+            $destinations = \App\Models\Destination::all()
+                ->map(function ($d) {
+                    $text = "- {$d->name}";
+                    $loc = array_filter([$d->city, $d->state, $d->country]);
+                    if (!empty($loc)) {
+                        $text .= " (" . implode(', ', $loc) . ")";
+                    }
+                    if ($d->overview) {
+                        $text .= ": {$d->overview}";
+                    }
+                    if ($d->best_time_to_visit) {
+                        $text .= " | Best time: {$d->best_time_to_visit}";
+                    }
+                    return $text;
+                })->implode("\n");
+        } catch (Throwable) {
+            $destinations = "- Popular Destinations across India & Worldwide";
+        }
+
+        // 2. Hotels & Accommodations & Rooms
+        try {
+            $hotels = \App\Models\Hotel::with('rooms')->get()
+                ->map(function ($h) {
+                    $inclusions = strip_tags(str_replace(['<ul>', '<li>', '</ul>', '</li>'], ['', ' ', '', ', '], $h->inclusions ?? ''));
+                    $text = "- Hotel {$h->name}";
+                    if ($h->destination_id) {
+                        $text .= " (Destination: {$h->destination_id})";
+                    }
+                    if ($h->short_description) {
+                        $text .= ": {$h->short_description}";
+                    }
+                    if ($h->price) {
+                        $text .= ". Price: ₹{$h->price}";
+                    }
+                    if ($inclusions) {
+                        $text .= ". Inclusions: {$inclusions}";
+                    }
+                    if ($h->rooms && $h->rooms->count() > 0) {
+                        $roomDetails = $h->rooms->map(fn($r) => "{$r->type}" . ($r->price ? " (₹{$r->price})" : ""))->implode(', ');
+                        $text .= " | Available Rooms: {$roomDetails}";
+                    }
+                    return $text;
+                })->implode("\n");
+        } catch (Throwable) {
+            $hotels = "- Luxury & Comfort Hotel Packages";
+        }
+
+        // Hotel Facilities
+        try {
+            $facilities = \App\Models\Facility::all(['name', 'description'])
+                ->map(fn($f) => "- {$f->name}" . ($f->description ? ": {$f->description}" : ""))
+                ->implode("\n");
+        } catch (Throwable) {
+            $facilities = "";
+        }
+
+        // 3. Visa Services
+        try {
+            $visas = \App\Models\Visa::where('is_active', true)->get()
+                ->map(function ($v) {
+                    $text = "- {$v->name} ({$v->type}): Processing Time: {$v->processing_time}, Price: ₹{$v->price}";
+                    if ($v->requirements) {
+                        $reqs = is_array($v->requirements) ? implode(', ', $v->requirements) : $v->requirements;
+                        $text .= " | Documents: {$reqs}";
+                    }
+                    return $text;
+                })->implode("\n");
+        } catch (Throwable) {
+            $visas = "- Visa Assistance available for worldwide destinations";
+        }
+
+        // 4. Group Tours
+        try {
+            $groupTours = \App\Models\GroupTour::where('is_visible', true)->get()
+                ->map(function ($g) {
+                    $text = "- {$g->name} ({$g->destination}): Duration: {$g->duration}, Departure: {$g->departure_date}, Starting Price: ₹{$g->starting_price}";
+                    if ($g->full_details) {
+                        $text .= " | Details: " . Str::limit(strip_tags($g->full_details), 120);
+                    }
+                    return $text;
+                })->implode("\n");
+        } catch (Throwable) {
+            $groupTours = "- Curated Group Tours & Expeditions";
+        }
+
+        try {
+            $groupTourPage = \App\Models\GroupTourPage::first();
+            $groupTourPageText = $groupTourPage ? "Group Tour Services: {$groupTourPage->title} - {$groupTourPage->tagline}. Overview: {$groupTourPage->overview_description}" : "";
+        } catch (Throwable) {
+            $groupTourPageText = "";
+        }
+
+        // 5. Cruises
+        try {
+            $cruises = \App\Models\Cruise::all()
+                ->map(function ($c) {
+                    $text = "- {$c->name} ({$c->destination}): Duration: {$c->duration}, Price: ₹{$c->price}";
+                    if ($c->short_description) {
+                        $text .= " | {$c->short_description}";
+                    }
+                    if ($c->highlights) {
+                        $hl = is_array($c->highlights) ? implode(', ', $c->highlights) : $c->highlights;
+                        $text .= " | Highlights: {$hl}";
+                    }
+                    return $text;
+                })->implode("\n");
+        } catch (Throwable) {
+            $cruises = "- Luxury Ocean & River Cruises";
+        }
+
+        try {
+            $cruisePage = \App\Models\CruisePage::first();
+            $cruisePageText = $cruisePage ? "Cruise Experience: {$cruisePage->banner_title} - {$cruisePage->banner_tagline}. Overview: {$cruisePage->overview_description}" : "";
+        } catch (Throwable) {
+            $cruisePageText = "";
+        }
+
+        // 6. Flight Services
+        try {
+            $flightPage = \App\Models\FlightPage::first();
+            $flightPageText = "";
+            if ($flightPage) {
+                $benefits = is_array($flightPage->why_book_benefits) ? implode(', ', $flightPage->why_book_benefits) : "";
+                $flightPageText = "Flight Booking Services: {$flightPage->hero_headline} - {$flightPage->hero_tagline}. Overview: {$flightPage->overview_description}. Key Benefits: {$benefits}";
+            }
+        } catch (Throwable) {
+            $flightPageText = "";
+        }
+
+        // 7. About Us & Contact Info
+        try {
+            $aboutInfo = \App\Models\AboutPage::first();
+            $contactInfo = \App\Models\ContactPage::first();
+
+            $aboutText = $aboutInfo ? "Years of Experience: {$aboutInfo->years_experience}\nMission: {$aboutInfo->mission_text}\nVision: {$aboutInfo->vision_text}\nOverview: {$aboutInfo->overview_description}" : "";
+            $contactText = $contactInfo ? "Office Name: {$contactInfo->office_name}\nAddress: {$contactInfo->office_address}\nPhone Numbers: " . json_encode($contactInfo->phone_numbers ?? []) . "\nEmail Addresses: " . json_encode($contactInfo->email_addresses ?? []) . "\nBusiness Hours: Weekdays: {$contactInfo->business_hours_weekday}, Weekends: {$contactInfo->business_hours_weekend}" : "";
+        } catch (Throwable) {
+            $aboutText = "";
+            $contactText = "";
+        }
+
+        // 8. Staff / Team Knowledge
+        try {
+            $allStaffNames = \App\Models\Staff::pluck('name')->map(fn($n) => "**{$n}**")->implode(', ');
+            $staffTeamText = $allStaffNames ? "Our Travel Experts Team includes: {$allStaffNames}." : "";
+        } catch (Throwable) {
+            $staffTeamText = "";
+        }
+
         return <<<PROMPT
         Identity & Persona:
         You are an elite, premium AI Travel Consultant for "Dyna Tours" (a luxury Tours & Travels company in India). Your tone is sophisticated yet warm, highly professional, welcoming, and deeply attentive to detail. You represent a high-end brand, so your language should be polished, scannable, and engaging—never verbose.
 
-        Company Knowledge (Dyna Tours):
-        We specialize in the following destinations:
+        Company Knowledge (Dyna Tours - Complete Offerings):
+        
+        Destinations & Packages:
         {$destinations}
 
-        We offer the following premium hotel packages:
+        Hotel Packages & Accommodations:
         {$hotels}
 
-        We offer the following Group Tours:
-        {$groupTours}
+        Hotel Amenities & Facilities:
+        {$facilities}
 
-        We also provide the following Visa services for international travel:
+        Group Tours:
+        {$groupTours}
+        {$groupTourPageText}
+
+        Cruises & Ocean Voyages:
+        {$cruises}
+        {$cruisePageText}
+
+        Flight Booking Services:
+        {$flightPageText}
+
+        Visa Assistance & Processing:
         {$visas}
 
-        About Us:
+        About Dyna Tours:
         {$aboutText}
 
-        Contact & Business Details:
+        Contact & Office Details:
         {$contactText}
 
-        (Note: You must strictly base your answers on this company knowledge. Do not invent packages or prices.)
+        Team & Travel Experts:
+        {$staffTeamText}
+
+        (Note: You must strictly base your answers on this comprehensive company knowledge. Do not invent packages or prices.)
 
         {$staffAssignmentText}
 
         Core Directives:
         1. Context Retention: You have an absolute memory of the current conversation. Seamlessly build upon previously stated preferences, names, and requirements without asking the user to repeat themselves.
-        2. Needs-Driven Suggestions: The moment a user mentions a travel requirement, preference, or constraint, immediately analyze it and provide highly curated, tailored suggestions from the Company Knowledge section above. Do not just list options—make them enticing and directly aligned with what they asked for.
-        3. Concise Delivery: Keep responses "short and sweet." Use bullet points and clean formatting to present options so they are effortless to read on a mobile or web UI.
-        4. Booking & Payment (CRITICAL): When the customer agrees to a package and is ready to book, YOU MUST OUTPUT exactly this phrase and nothing else on that line: `[GENERATE_LINK: Amount | Description]` (for example: `[GENERATE_LINK: 180 | 3 Days Goa Package]`). Do not hallucinate or make up a URL. Our system will intercept this tag and provide the link to the user.
-        5. Payment Verification: When the customer says they have paid, YOU MUST OUTPUT exactly this phrase and nothing else on that line: `[CHECK_PAYMENT: URL]` (for example: `[CHECK_PAYMENT: http://localhost:8000/pay/123]`). Our system will intercept this tag and check the status.
-        6. Cross-selling & Multiple Service Availability: Proactively ask customers about multiple service requirements. For example, if they express interest in an international tour package, YOU MUST explicitly mention our related services like our Visa services and explain the details (processing time, price) of the corresponding country's visa using the Company Knowledge above. Always check if they require additional complementary services like flights or transfers.
+        2. Needs-Driven Suggestions: The moment a user mentions a travel requirement, preference, or constraint, immediately analyze it and provide highly curated, tailored suggestions from the Company Knowledge section above. Cover any related service (destinations, hotels, group tours, cruises, flights, or visas) as appropriate.
+        3. Concise Delivery: Keep responses short, sweet, and elegant. Use bullet points and clean formatting to present options.
+        4. Staff Name Formatting (CRITICAL): Always format staff/team member names in bold using double asterisks like `**Rahul Sharma**` or `**{$staffAssignmentText}**` so they render prominently in a distinct accent color.
+        5. Booking & Payment (PAYMENT LINKS HIDDEN): Online payment links are currently DISABLED in chat. Do NOT generate payment URLs or [GENERATE_LINK] tags. When the customer is ready to book, guide them warmly and inform them that their dedicated travel expert will coordinate their customized itinerary and final payment/booking arrangements directly.
+        6. Cross-selling & Multiple Service Availability: Proactively inform customers about all our offerings. If they ask about international packages, remind them of our Visa, Flight, Hotel, Cruise, or Group Tour services as relevant.
 
         Behavioral Workflow:
-        - Discovery: Actively listen to the client's destination, travel dates, budget, and accommodation style.
-        - Recommendation: Present up to 3 premium options based entirely on Dyna Tours' specific destinations and packages.
-        - Call to Action: Guide the user smoothly toward finalizing their selection. Generate a payment link when they are ready to buy.
+        - Discovery: Listen to client's destination, travel dates, budget, and accommodation style.
+        - Recommendation: Present up to 3 premium curated options based entirely on Dyna Tours' specific offerings.
+        - Guided Follow-up: Connect them seamlessly with their assigned travel expert for final customization and booking.
         PROMPT;
     }
-
-
 }
+
+

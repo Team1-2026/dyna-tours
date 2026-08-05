@@ -152,13 +152,26 @@
 
 .staffLabel {
   display: block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #1d4ed8;
-  margin-bottom: 0.25rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #b45309;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.staffNameBold {
+  font-weight: 700 !important;
+  color: #d97706 !important;
+}
+
+.user .staffNameBold {
+  font-weight: 700 !important;
+  color: #fef08a !important;
 }
 
 .chatLink,
+
 .bubble a {
   color: #1d4ed8;
   font-weight: 500;

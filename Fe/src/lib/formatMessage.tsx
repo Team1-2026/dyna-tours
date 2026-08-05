@@ -1,12 +1,42 @@
 import React from 'react';
 
 /**
- * Formats text by converting HTTP/HTTPS/WWW URLs into clickable, active links.
+ * Formats text by:
+ * 1. Parsing **bold text** (including staff names and highlights) into styled <strong> elements with a distinct accent color.
+ * 2. Converting HTTP/HTTPS/WWW URLs into clickable, active links.
  */
-export function renderMessageWithLinks(text: string, linkClassName?: string): React.ReactNode {
+export function renderMessageWithLinks(
+  text: string,
+  linkClassName?: string,
+  boldClassName?: string
+): React.ReactNode {
   if (!text) return null;
 
-  // Regex to match http://, https://, or www. URLs
+  // Split by markdown bold pattern: **text**
+  const boldParts = text.split(/(\*\*[^*]+\*\*)/g);
+
+  return boldParts.map((part, bIdx) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      const innerText = part.slice(2, -2);
+      return (
+        <strong
+          key={`bold-${bIdx}`}
+          className={boldClassName}
+          style={{
+            fontWeight: 700,
+            color: '#d97706', // Vibrant amber/gold color for staff names and bold text
+          }}
+        >
+          {renderUrls(innerText, linkClassName)}
+        </strong>
+      );
+    }
+
+    return <React.Fragment key={`text-${bIdx}`}>{renderUrls(part, linkClassName)}</React.Fragment>;
+  });
+}
+
+function renderUrls(text: string, linkClassName?: string): React.ReactNode {
   const urlRegex = /(https?:\/\/[^\s<>"]+|www\.[^\s<>"]+)/gi;
   const parts = text.split(urlRegex);
 
@@ -15,7 +45,6 @@ export function renderMessageWithLinks(text: string, linkClassName?: string): Re
       let url = part;
       let trailingPunctuation = '';
 
-      // Separate trailing punctuation (such as trailing period, comma, question mark) from the URL
       const matchPunct = part.match(/^((?:https?:\/\/|www\.)[^\s<>"]+?)([.,!?;:]+)$/i);
       if (matchPunct) {
         url = matchPunct[1];
@@ -42,3 +71,4 @@ export function renderMessageWithLinks(text: string, linkClassName?: string): Re
     return part;
   });
 }
+

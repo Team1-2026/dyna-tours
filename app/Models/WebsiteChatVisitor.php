@@ -45,6 +45,11 @@ class WebsiteChatVisitor extends Model
         return $visitor->fresh();
     }
 
+    public function staff()
+    {
+        return $this->belongsTo(Staff::class, 'staff_id');
+    }
+
     /**
      * @return list<array{id: string, role: string, content: string, created_at: mixed}>
      */
@@ -70,3 +75,4 @@ class WebsiteChatVisitor extends Model
             ->all();
     }
 }
+

@@ -425,7 +425,7 @@ export default function ChatWidget() {
             <>
               <div className={styles.messages}>
                 <div className={`${styles.message} ${styles.assistant}`}>
-                  <div className={styles.bubble}>{renderMessageWithLinks(WELCOME_MESSAGE, styles.chatLink)}</div>
+                  <div className={styles.bubble}>{renderMessageWithLinks(WELCOME_MESSAGE, styles.chatLink, styles.staffNameBold)}</div>
                 </div>
 
                 {messages.map((message) => (
@@ -441,12 +441,13 @@ export default function ChatWidget() {
                   >
                     <div className={styles.bubble}>
                       {message.role === 'staff' && (
-                        <span className={styles.staffLabel}>Travel team</span>
+                        <span className={styles.staffLabel}>Travel Expert Reply</span>
                       )}
-                      {renderMessageWithLinks(message.content, styles.chatLink)}
+                      {renderMessageWithLinks(message.content, styles.chatLink, styles.staffNameBold)}
                     </div>
                   </div>
                 ))}
+
 
                 {isSending && (
                   <div className={`${styles.message} ${styles.assistant}`}>

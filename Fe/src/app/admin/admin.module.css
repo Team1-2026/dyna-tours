@@ -1291,3 +1291,9 @@ input:checked + .slider:before {
 .userChatLink:hover {
   color: #ffffff;
 }
+
+.staffNameBold {
+  font-weight: 700 !important;
+  color: #d97706 !important;
+}
+

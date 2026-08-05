@@ -380,8 +380,10 @@ export default function CrmAdmin() {
                     </div>
                     {renderMessageWithLinks(
                       msg.content,
-                      msg.role === 'user' ? styles.userChatLink : styles.adminChatLink
+                      msg.role === 'user' ? styles.userChatLink : styles.adminChatLink,
+                      styles.staffNameBold
                     )}
+
                   </div>
                 ))
               )}
