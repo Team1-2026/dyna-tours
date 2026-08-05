@@ -18,7 +18,16 @@ class GroupTour extends Model
         'full_details',
         'is_visible',
         'is_featured',
-        'featured_order'
+        'featured_order',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'url_slug',
+        'og_title',
+        'og_description',
+        'og_image',
+        'canonical_url',
+        'structured_data'
     ];
 
     protected $casts = [

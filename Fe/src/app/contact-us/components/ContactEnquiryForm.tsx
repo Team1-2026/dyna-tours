@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styles from '../contact.module.css';
 import { contactPageApi } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 
 export default function ContactEnquiryForm() {
   const [countryCode, setCountryCode] = useState('+91');
@@ -26,6 +27,11 @@ export default function ContactEnquiryForm() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      setSubmitError(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setFormSubmitting(true);
     setSubmitSuccess(null);
     setSubmitError(null);

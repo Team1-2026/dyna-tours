@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Cruise, CruisePageData, api } from '@/lib/api';
 import styles from './cruise.module.css';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 
 interface Props {
   initialPageData: CruisePageData;
@@ -36,6 +37,11 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
 
   const handleSubmitEnquiry = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setSubmitting(true);
     setSuccess(false);
 

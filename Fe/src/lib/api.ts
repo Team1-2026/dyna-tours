@@ -1488,6 +1488,15 @@ export interface GroupTour {
   is_featured: boolean;
   featured_order: number;
   related_tours?: (number | string)[];
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  url_slug?: string;
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
+  canonical_url?: string;
+  structured_data?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -1500,6 +1509,15 @@ export interface GroupTourPage {
   overview_heading: string;
   overview_description: string;
   overview_image: string;
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  url_slug?: string;
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
+  canonical_url?: string;
+  structured_data?: string;
 }
 
 export interface GroupTourEnquiry {

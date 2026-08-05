@@ -6,6 +6,7 @@ import styles from '../page.module.css';
 import { api } from '@/lib/api';
 
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 
 export default function FlightEnquiryForm() {
   const [loading, setLoading] = useState(false);
@@ -34,6 +35,11 @@ export default function FlightEnquiryForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setLoading(true);
 
     try {

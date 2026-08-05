@@ -61,15 +61,6 @@ const SEO_PAGES: PageSeoItem[] = [
     defaultDescription: 'Apply for your tourist visa with confidence. Dyna Tours India provides reliable visa assistance for international destinations, including e-Visas and embassy visas.'
   },
   {
-    id: 'groupTours',
-    name: 'Group Tours Page',
-    category: 'static',
-    endpoint: '/group-tour-page',
-    defaultSlug: 'group-tours',
-    defaultTitle: 'Fixed Departure Group Tours | Dyna Tours India',
-    defaultDescription: 'Join our fully guided domestic & international group tours with experienced tour managers.'
-  },
-  {
     id: 'cruise',
     name: 'Cruise Holidays Page',
     category: 'static',

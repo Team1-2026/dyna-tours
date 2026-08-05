@@ -26,7 +26,7 @@ class EnquiryController extends Controller
             'type' => 'required|string|in:destination,hotel,package,flight,visa,cruise,custom',
             'target_id' => 'nullable|string',
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:50',
+            'phone' => ['required', 'string', 'min:6', 'max:50', 'regex:/^[0-9+\s\-\(\)]+$/'],
             'email' => 'required|email|max:255',
             'num_people' => 'nullable|integer|min:1',
             'travel_date' => 'nullable|string|max:100',

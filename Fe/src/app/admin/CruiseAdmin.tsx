@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Cruise, api } from '@/lib/api';
+import styles from './admin.module.css';
 
 export default function CruiseAdmin() {
   // Cruise Packages state
@@ -402,6 +403,70 @@ export default function CruiseAdmin() {
                     />
                     <span>Featured on Landing Page</span>
                   </label>
+                </div>
+
+                {/* SEO Settings Card (Matching Add Hotel Page) */}
+                <div className={styles.formCard} style={{ marginTop: '2rem', marginBottom: '1.5rem' }}>
+                  <h4 className={styles.formCardTitle}>SEO Settings</h4>
+                  
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                      Meta Title <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter meta title"
+                      value={cruiseForm.meta_title || ''}
+                      onChange={e => setCruiseForm({ ...cruiseForm, meta_title: e.target.value })}
+                      style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)' }}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.25rem', textAlign: 'right' }}>
+                      {(cruiseForm.meta_title || '').length}/60
+                    </span>
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                      Meta Description <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder="Enter meta description"
+                      value={cruiseForm.meta_description || ''}
+                      onChange={e => setCruiseForm({ ...cruiseForm, meta_description: e.target.value })}
+                      style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)' }}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.25rem', textAlign: 'right' }}>
+                      {(cruiseForm.meta_description || '').length}/160
+                    </span>
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                      URL Slug <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <span style={{ padding: '0.75rem', background: '#f1f5f9', border: '1px solid var(--color-border, #cbd5e1)', borderRight: 'none', borderRadius: 'var(--radius-md, 8px) 0 0 var(--radius-md, 8px)', fontSize: '0.8rem', color: 'var(--color-text-secondary, #64748b)', fontWeight: 600 }}>/cruise/</span>
+                      <input
+                        type="text"
+                        placeholder="enter-url-slug"
+                        style={{ flex: 1, padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: '0 var(--radius-md, 8px) var(--radius-md, 8px) 0' }}
+                        value={cruiseForm.url_slug || ''}
+                        onChange={e => setCruiseForm({ ...cruiseForm, url_slug: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>Canonical URL</label>
+                    <input
+                      type="text"
+                      placeholder="https://www.example.com/cruise/slug"
+                      value={cruiseForm.canonical_url || ''}
+                      onChange={e => setCruiseForm({ ...cruiseForm, canonical_url: e.target.value })}
+                      style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)' }}
+                    />
+                  </div>
                 </div>
 
                 <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>

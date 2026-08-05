@@ -422,6 +422,70 @@ export default function VisasAdmin() {
               <button type="button" className="btn btn-primary" onClick={addFaq} style={{ marginTop: '0.5rem', cursor: 'pointer' }}>+ Add FAQ</button>
             </div>
 
+            {/* SEO Settings Card (Matching Add Hotel Page) */}
+            <div className={styles.formCard} style={{ marginTop: '2rem' }}>
+              <h4 className={styles.formCardTitle}>SEO Settings</h4>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                  Meta Title <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter meta title"
+                  value={selectedVisa?.meta_title || ''}
+                  onChange={e => setSelectedVisa({ ...selectedVisa, meta_title: e.target.value })}
+                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)' }}
+                />
+                <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.25rem', textAlign: 'right' }}>
+                  {(selectedVisa?.meta_title || '').length}/60
+                </span>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                  Meta Description <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Enter meta description"
+                  value={selectedVisa?.meta_description || ''}
+                  onChange={e => setSelectedVisa({ ...selectedVisa, meta_description: e.target.value })}
+                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)' }}
+                />
+                <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.25rem', textAlign: 'right' }}>
+                  {(selectedVisa?.meta_description || '').length}/160
+                </span>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                  URL Slug <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ padding: '0.75rem', background: '#f1f5f9', border: '1px solid var(--color-border, #cbd5e1)', borderRight: 'none', borderRadius: 'var(--radius-md, 8px) 0 0 var(--radius-md, 8px)', fontSize: '0.8rem', color: 'var(--color-text-secondary, #64748b)', fontWeight: 600 }}>/visa/</span>
+                  <input
+                    type="text"
+                    placeholder="enter-url-slug"
+                    style={{ flex: 1, padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: '0 var(--radius-md, 8px) var(--radius-md, 8px) 0' }}
+                    value={selectedVisa?.url_slug || ''}
+                    onChange={e => setSelectedVisa({ ...selectedVisa, url_slug: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>Canonical URL</label>
+                <input
+                  type="text"
+                  placeholder="https://www.example.com/visa/slug"
+                  value={selectedVisa?.canonical_url || ''}
+                  onChange={e => setSelectedVisa({ ...selectedVisa, canonical_url: e.target.value })}
+                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)' }}
+                />
+              </div>
+            </div>
+
             <div className={styles.formActions} style={{ marginTop: '3rem' }}>
               <button type="button" className="btn btn-primary" onClick={() => setIsEditing(false)} style={{ marginRight: '1rem', padding: '0.75rem 2rem', fontSize: '1.1rem', cursor: 'pointer' }}>Cancel</button>
               <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem', cursor: 'pointer' }}>Save Visa</button>

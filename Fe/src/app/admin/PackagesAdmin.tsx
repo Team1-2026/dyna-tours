@@ -728,56 +728,69 @@ export default function PackagesAdmin() {
           </div>
           
           {/* SEO Settings Card */}
-          <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '20px', marginBottom: '2rem' }}>
-            <h4 style={{ margin: '0 0 1rem 0', color: '#0f172a', fontSize: '1.1rem', fontWeight: 800 }}>
-              🔍 Search Engine Optimization (SEO) Settings
-            </h4>
+          <div className={styles.formCard} style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+            <h4 className={styles.formCardTitle}>SEO Settings</h4>
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                Meta Title <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                type="text"
+                className={styles.formInput}
+                placeholder="Enter meta title"
+                value={formData.meta_title || ''}
+                onChange={e => setFormData({ ...formData, meta_title: e.target.value })}
+                style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)', marginBottom: 0 }}
+              />
+              <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.25rem', textAlign: 'right' }}>
+                {(formData.meta_title || '').length}/60
+              </span>
+            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                  <label style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Meta Title</label>
-                  <span style={{ fontSize: '0.75rem', color: (formData.meta_title || '').length > 60 ? '#ef4444' : '#64748b' }}>
-                    {(formData.meta_title || '').length} / 60
-                  </span>
-                </div>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  value={formData.meta_title || ''} 
-                  onChange={e => setFormData({ ...formData, meta_title: e.target.value })} 
-                  placeholder={formData.title ? `${formData.title} | Dyna Tours` : 'Enter meta title...'}
-                  style={{ marginBottom: 0 }}
-                />
-              </div>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                Meta Description <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <textarea
+                rows={3}
+                className={styles.formInput}
+                placeholder="Enter meta description"
+                value={formData.meta_description || ''}
+                onChange={e => setFormData({ ...formData, meta_description: e.target.value })}
+                style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)', marginBottom: 0 }}
+              />
+              <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.25rem', textAlign: 'right' }}>
+                {(formData.meta_description || '').length}/160
+              </span>
+            </div>
 
-              <div>
-                <label style={{ fontWeight: 'bold', fontSize: '0.85rem', display: 'block', marginBottom: '0.35rem' }}>Canonical URL</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  value={formData.canonical_url || ''} 
-                  onChange={e => setFormData({ ...formData, canonical_url: e.target.value })} 
-                  placeholder={formData.slug ? `https://dynatours.in/holidays/${formData.slug}` : 'https://dynatours.in/holidays/slug'}
-                  style={{ marginBottom: 0 }}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                URL Slug <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ padding: '0.75rem', background: '#f1f5f9', border: '1px solid var(--color-border, #cbd5e1)', borderRight: 'none', borderRadius: 'var(--radius-md, 8px) 0 0 var(--radius-md, 8px)', fontSize: '0.8rem', color: 'var(--color-text-secondary, #64748b)', fontWeight: 600 }}>/holidays/</span>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  placeholder="enter-url-slug"
+                  style={{ flex: 1, padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: '0 var(--radius-md, 8px) var(--radius-md, 8px) 0', marginBottom: 0 }}
+                  value={formData.url_slug || formData.slug || ''}
+                  onChange={e => setFormData({ ...formData, url_slug: e.target.value, slug: e.target.value })}
                 />
               </div>
             </div>
 
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                <label style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Meta Description</label>
-                <span style={{ fontSize: '0.75rem', color: (formData.meta_description || '').length > 160 ? '#ef4444' : '#64748b' }}>
-                  {(formData.meta_description || '').length} / 160
-                </span>
-              </div>
-              <textarea 
-                rows={3} 
-                className={styles.formInput} 
-                value={formData.meta_description || ''} 
-                onChange={e => setFormData({ ...formData, meta_description: e.target.value })} 
-                placeholder="Enter meta description for search engines..."
-                style={{ marginBottom: 0 }}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>Canonical URL</label>
+              <input
+                type="text"
+                className={styles.formInput}
+                placeholder="https://www.example.com/holidays/slug"
+                value={formData.canonical_url || ''}
+                onChange={e => setFormData({ ...formData, canonical_url: e.target.value })}
+                style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--color-border, #cbd5e1)', borderRadius: 'var(--radius-md, 8px)', marginBottom: 0 }}
               />
             </div>
           </div>

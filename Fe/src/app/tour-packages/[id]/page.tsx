@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import ImageZoomModal from '@/components/ImageZoomModal';
 import TourCard from '@/components/TourCard';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 import styles from './tour-details.module.css';
 import { getPackageById, getPackages, api } from '@/lib/api';
 
@@ -108,6 +109,11 @@ export default function TourDetailsPage({ params }: PageProps) {
     e.preventDefault();
     if (!travelDate || !fullName || !email || !phone) {
       alert('Please fill out all required booking fields.');
+      return;
+    }
+    const phoneCheck = validatePhoneByCountry(phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
       return;
     }
 

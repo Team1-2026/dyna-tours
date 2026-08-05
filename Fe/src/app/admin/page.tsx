@@ -1262,36 +1262,6 @@ export default function AdminDashboard() {
           </div>
 
           <div 
-            className={`${styles.menuItem} ${activeTab === 'flights' ? styles.menuItemActive : ''}`}
-            onClick={() => { setActiveTab('flights'); }}
-          >
-            <div className={styles.menuItemLabel}>
-              <span>✈️</span>
-              <span>Flights</span>
-            </div>
-          </div>
-
-          <div 
-            className={`${styles.menuItem} ${activeTab === 'aboutPage' ? styles.menuItemActive : ''}`}
-            onClick={() => { setActiveTab('aboutPage'); }}
-          >
-            <div className={styles.menuItemLabel}>
-              <span>ℹ️</span>
-              <span>About Us Page</span>
-            </div>
-          </div>
-
-          <div 
-            className={`${styles.menuItem} ${activeTab === 'contactPage' ? styles.menuItemActive : ''}`}
-            onClick={() => { setActiveTab('contactPage'); }}
-          >
-            <div className={styles.menuItemLabel}>
-              <span>📞</span>
-              <span>Contact Us Page</span>
-            </div>
-          </div>
-
-          <div 
             className={`${styles.menuItem} ${activeTab === 'staff' ? styles.menuItemActive : ''}`}
             onClick={() => { setActiveTab('staff'); }}
           >

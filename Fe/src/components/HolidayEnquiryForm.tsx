@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { api } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 
 export default function HolidayEnquiryForm({ categoryName }: { categoryName: string }) {
   const [countryCode, setCountryCode] = useState('+91');
@@ -26,6 +27,11 @@ export default function HolidayEnquiryForm({ categoryName }: { categoryName: str
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      setError(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setSubmitting(true);
     setError('');
     

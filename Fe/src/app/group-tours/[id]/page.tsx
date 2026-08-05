@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { groupToursApi, GroupTour, getImageUrl } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 import styles from './group-tour-details.module.css';
 
 interface PageProps {
@@ -50,6 +51,11 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     groupToursApi.submitEnquiry({
       ...formData,
       phone: `${countryCode} ${formData.phone}`,

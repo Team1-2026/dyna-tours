@@ -48,6 +48,15 @@ class GroupTourController extends Controller
             'is_visible' => 'boolean',
             'is_featured' => 'boolean',
             'featured_order' => 'integer',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'url_slug' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string',
+            'og_image' => 'nullable|string',
+            'canonical_url' => 'nullable|string|max:255',
+            'structured_data' => 'nullable|string',
         ]);
 
         $tour = GroupTour::create($validated);
@@ -76,6 +85,15 @@ class GroupTourController extends Controller
             'is_visible' => 'boolean',
             'is_featured' => 'boolean',
             'featured_order' => 'integer',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'url_slug' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string',
+            'og_image' => 'nullable|string',
+            'canonical_url' => 'nullable|string|max:255',
+            'structured_data' => 'nullable|string',
         ]);
 
         $tour->update($validated);

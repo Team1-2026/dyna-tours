@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { api, Hotel, Room, Facility, BASE_URL, getImageUrl } from '@/lib/api';
 import ImageZoomModal from '@/components/ImageZoomModal';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 import styles from '../hotels.module.css';
 import { AmenityIcon } from '@/components/AmenityIcon';
 
@@ -93,6 +94,11 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setFormSubmitting(true);
     setFormSuccess(false);
 

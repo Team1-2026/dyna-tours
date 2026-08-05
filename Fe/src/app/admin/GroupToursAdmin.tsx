@@ -218,7 +218,29 @@ export default function GroupToursAdmin() {
             </div>
           </div>
 
-          <button type="submit" className={styles.saveBtn}>Save Tour</button>
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>🔍 SEO & Social Metadata</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Title</label>
+                <input type="text" name="meta_title" value={editingTour.meta_title || ''} onChange={handleChange} placeholder="Tour Meta Title" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>URL Slug</label>
+                <input type="text" name="url_slug" value={editingTour.url_slug || ''} onChange={handleChange} placeholder="tour-url-slug" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              </div>
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Description</label>
+              <textarea name="meta_description" rows={2} value={editingTour.meta_description || ''} onChange={handleChange} placeholder="Tour Meta Description" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Keywords</label>
+              <input type="text" name="meta_keywords" value={editingTour.meta_keywords || ''} onChange={handleChange} placeholder="keywords, comma separated" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+            </div>
+          </div>
+
+          <button type="submit" className={styles.saveBtn} style={{ marginTop: '20px' }}>Save Tour</button>
         </form>
       ) : (
         <div className={styles.tableContainer}>

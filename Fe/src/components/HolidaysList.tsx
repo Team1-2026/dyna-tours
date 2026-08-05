@@ -75,17 +75,22 @@ export default function HolidaysList({ initialCategory }: HolidaysListProps) {
       const matchDest =
         tour.destination?.toLowerCase().includes(q) ||
         tour.title?.toLowerCase().includes(q) ||
-        tour.category?.toLowerCase().includes(q);
+        tour.category?.toLowerCase().includes(q) ||
+        tour.description?.toLowerCase().includes(q) ||
+        (Array.isArray(tour.holidayCategory) && tour.holidayCategory.some((cat: string) => cat.toLowerCase().includes(q))) ||
+        (Array.isArray(tour.highlights) && tour.highlights.some((h: string) => typeof h === 'string' && h.toLowerCase().includes(q))) ||
+        (Array.isArray(tour.routeOverview) && tour.routeOverview.some((r: any) => r.destination?.toLowerCase().includes(q)));
       if (!matchDest) return false;
     }
 
     // 3. Theme / Category Filter
     if (selectedTheme && selectedTheme !== 'All Themes' && selectedTheme !== 'All') {
-      const qTheme = selectedTheme.toLowerCase().trim();
+      const cleanTheme = selectedTheme.toLowerCase().replace(/package|resort|& trekking/g, '').trim();
       const matchTheme =
-        tour.category?.toLowerCase().includes(qTheme) ||
-        tour.holidayCategory?.some((c: string) => c.toLowerCase().includes(qTheme)) ||
-        tour.title?.toLowerCase().includes(qTheme);
+        tour.category?.toLowerCase().includes(cleanTheme) ||
+        tour.holidayCategory?.some((c: string) => c.toLowerCase().includes(cleanTheme)) ||
+        tour.title?.toLowerCase().includes(cleanTheme) ||
+        tour.description?.toLowerCase().includes(cleanTheme);
       if (!matchTheme) return false;
     }
 

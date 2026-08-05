@@ -101,6 +101,44 @@ export default function GroupTourPageAdmin() {
           {pageData.overview_image && <img src={getImageUrl(pageData.overview_image)} alt="Overview" style={{ height: '150px', objectFit: 'cover', borderRadius: '4px' }} />}
         </div>
 
+        <h3 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '30px', color: 'var(--color-secondary-navy)' }}>🔍 SEO & Social Metadata Settings</h3>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Title</label>
+          <input type="text" name="meta_title" placeholder="Fixed Departure Group Tours | Dyna Tours India" value={pageData.meta_title || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Description</label>
+          <textarea name="meta_description" rows={3} placeholder="Join our fully guided domestic & international group tours with experienced tour managers." value={pageData.meta_description || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Keywords</label>
+          <input type="text" name="meta_keywords" placeholder="Group Tours, Fixed Departures, India Tours" value={pageData.meta_keywords || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>URL Slug</label>
+          <input type="text" name="url_slug" placeholder="group-tours" value={pageData.url_slug || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Open Graph (OG) Title</label>
+          <input type="text" name="og_title" placeholder="Fixed Departure Group Tours | Dyna Tours" value={pageData.og_title || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Open Graph (OG) Description</label>
+          <textarea name="og_description" rows={2} placeholder="Join our fully guided domestic & international group tours with experienced tour managers." value={pageData.og_description || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>OG Image URL</label>
+          <input type="text" name="og_image" placeholder="https://example.com/og-image.jpg" value={pageData.og_image || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Canonical URL</label>
+          <input type="text" name="canonical_url" placeholder="https://dynatours.in/group-tours" value={pageData.canonical_url || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+        </div>
+        <div style={{ marginBottom: '30px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Structured Data (JSON-LD)</label>
+          <textarea name="structured_data" rows={4} placeholder='{"@context": "https://schema.org", "@type": "TouristAttraction"}' value={pageData.structured_data || ''} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', fontFamily: 'monospace' }} />
+        </div>
+
         <button type="submit" className={styles.saveBtn}>Save Page Settings</button>
       </form>
     </div>

@@ -31,6 +31,15 @@ class Visa extends Model
         'faqs',
         'region',
         'is_active',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'url_slug',
+        'og_title',
+        'og_description',
+        'og_image',
+        'canonical_url',
+        'structured_data',
     ];
 
     protected $casts = [

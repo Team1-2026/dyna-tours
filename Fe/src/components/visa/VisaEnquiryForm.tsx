@@ -4,15 +4,17 @@ import React, { useState } from 'react';
 import styles from '../../app/visa/page.module.css';
 import { VisaCountry } from '@/data/visaData';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 
 interface VisaEnquiryFormProps {
   destinations: VisaCountry[];
   preselectedCountry?: string;
+  className?: string;
 }
 
 import { api } from '@/lib/api';
 
-export default function VisaEnquiryForm({ destinations, preselectedCountry = '' }: VisaEnquiryFormProps) {
+export default function VisaEnquiryForm({ destinations, preselectedCountry = '', className }: VisaEnquiryFormProps) {
   const [countryCode, setCountryCode] = useState('+91');
   const [formData, setFormData] = useState({
     fullName: '',
@@ -33,6 +35,11 @@ export default function VisaEnquiryForm({ destinations, preselectedCountry = '' 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.mobileNumber, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setIsSubmitting(true);
     setSubmitStatus('idle');
 

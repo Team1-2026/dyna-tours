@@ -15,6 +15,15 @@ export interface VisaCountry {
   terms: string[];
   faqs: { question: string; answer: string }[];
   region?: string;
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  url_slug?: string;
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
+  canonical_url?: string;
+  structured_data?: string;
 }
 
 export const eVisaDestinations: VisaCountry[] = [

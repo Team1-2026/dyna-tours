@@ -7,6 +7,7 @@ import { toursData } from '@/data/toursData';
 import TourCard from '@/components/TourCard';
 import ImageZoomModal from '@/components/ImageZoomModal';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 import styles from './destination.module.css';
 
 const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
@@ -179,6 +180,11 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setFormSubmitting(true);
     setFormSuccess(false);
 

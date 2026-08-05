@@ -75,6 +75,15 @@ const defaultTours: GroupTour[] = [
 
 import { useSearchParams } from 'next/navigation';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+
+const formatDepartureDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -165,6 +174,11 @@ function GroupToursContent() {
     e.preventDefault();
     if (!formData.name || !formData.phone || !formData.email) {
       alert("Please fill all required fields.");
+      return;
+    }
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
       return;
     }
     setFormStatus('loading');
@@ -318,7 +332,7 @@ function GroupToursContent() {
                   <div className={styles.tourMeta}>
                     <span className={styles.tourMetaItem}>⏱️ {tour.duration}</span>
                     {tour.departure_date && (
-                      <span className={styles.tourMetaItem}>📅 {new Date(tour.departure_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                      <span className={styles.tourMetaItem} suppressHydrationWarning>📅 {formatDepartureDate(tour.departure_date)}</span>
                     )}
                   </div>
                   <div className={styles.tourPriceRow}>
