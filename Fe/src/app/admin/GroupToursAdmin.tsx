@@ -235,8 +235,8 @@ export default function GroupToursAdmin() {
               <textarea name="meta_description" rows={2} value={editingTour.meta_description || ''} onChange={handleChange} placeholder="Tour Meta Description" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
             <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Meta Keywords</label>
-              <input type="text" name="meta_keywords" value={editingTour.meta_keywords || ''} onChange={handleChange} placeholder="keywords, comma separated" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Canonical URL</label>
+              <input type="text" name="canonical_url" value={editingTour.canonical_url || ''} onChange={handleChange} placeholder="https://dynatours.in/group-tours/tour-slug" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
           </div>
 

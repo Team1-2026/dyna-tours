@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Cruise;
 use App\Models\Destination;
 use App\Models\Facility;
+use App\Models\GroupTour;
 use App\Models\Hotel;
 use App\Models\Room;
 use App\Models\User;
@@ -493,6 +494,67 @@ class DatabaseSeeder extends Seeder
             'meta_description' => 'Explore Barcelona, Rome & Santorini on a Mediterranean Cruise.',
             'url_slug' => 'mediterranean-magic',
             'canonical_url' => 'http://localhost:3000/cruise/mediterranean-magic'
+        ]);
+
+        // Seed Default Group Tours
+        GroupTour::create([
+            'id' => 1,
+            'name' => 'Europe Panoramic Tour',
+            'destination' => 'France, Switzerland, Italy',
+            'type' => 'international',
+            'duration' => '7 Nights / 8 Days',
+            'starting_price' => 189999,
+            'status' => 'Available',
+            'departure_date' => '2026-09-15',
+            'image' => 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=1000',
+            'is_visible' => true,
+            'is_featured' => true,
+            'featured_order' => 1,
+        ]);
+
+        GroupTour::create([
+            'id' => 2,
+            'name' => 'Swiss Alps Explorer',
+            'destination' => 'Switzerland',
+            'type' => 'international',
+            'duration' => '7 Nights / 8 Days',
+            'starting_price' => 179999,
+            'status' => 'Filling Fast',
+            'departure_date' => '2026-07-15',
+            'image' => 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&q=80&w=1000',
+            'is_visible' => true,
+            'is_featured' => true,
+            'featured_order' => 2,
+        ]);
+
+        GroupTour::create([
+            'id' => 3,
+            'name' => 'Thailand Discovery',
+            'destination' => 'Thailand',
+            'type' => 'international',
+            'duration' => '6 Nights / 7 Days',
+            'starting_price' => 59999,
+            'status' => 'Limited Seats',
+            'departure_date' => '2026-09-18',
+            'image' => 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=1000',
+            'is_visible' => true,
+            'is_featured' => true,
+            'featured_order' => 3,
+        ]);
+
+        GroupTour::create([
+            'id' => 4,
+            'name' => 'Dubai Explorer',
+            'destination' => 'Dubai',
+            'type' => 'international',
+            'duration' => '5 Nights / 6 Days',
+            'starting_price' => 45999,
+            'status' => 'Sold Out',
+            'departure_date' => '2026-11-05',
+            'image' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=1000',
+            'is_visible' => true,
+            'is_featured' => false,
+            'featured_order' => 4,
         ]);
     }
 }

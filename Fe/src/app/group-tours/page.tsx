@@ -183,15 +183,22 @@ function GroupToursContent() {
     }
     setFormStatus('loading');
     try {
+      const tourNameInfo = selectedTourForEnquiry ? `Interested in ${selectedTourForEnquiry.name}` : '';
+      const finalMessage = tourNameInfo
+        ? (formData.message ? `${tourNameInfo}\n${formData.message}` : tourNameInfo)
+        : formData.message;
+
       await groupToursApi.submitEnquiry({
         ...formData,
+        message: finalMessage,
         phone: `${countryCode} ${formData.phone}`,
         group_tour_id: formData.group_tour_id ? Number(formData.group_tour_id) : undefined
       });
       setFormStatus('success');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setFormStatus('success'); // graceful fallback for user UX
+      setFormStatus('error');
+      alert(err?.message || 'Failed to submit enquiry. Please try again.');
     }
   };
 

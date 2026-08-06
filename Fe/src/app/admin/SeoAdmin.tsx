@@ -50,33 +50,6 @@ const SEO_PAGES: PageSeoItem[] = [
     defaultSlug: 'flights',
     defaultTitle: 'Flight Ticket Booking | Best Airfare Deals | Dyna Tours',
     defaultDescription: 'Book domestic and international flights with top airlines. Exclusive deals, instant seat selection, and 24x7 support.'
-  },
-  {
-    id: 'visa',
-    name: 'Visa Services Page',
-    category: 'static',
-    endpoint: '/visa-page',
-    defaultSlug: 'visa',
-    defaultTitle: 'Trusted Global Visa Services | Dyna Tours India',
-    defaultDescription: 'Apply for your tourist visa with confidence. Dyna Tours India provides reliable visa assistance for international destinations, including e-Visas and embassy visas.'
-  },
-  {
-    id: 'cruise',
-    name: 'Cruise Holidays Page',
-    category: 'static',
-    endpoint: '/cruise-page',
-    defaultSlug: 'cruise',
-    defaultTitle: 'Luxury Cruise Holidays & Packages | Dyna Tours India',
-    defaultDescription: 'Sail in luxury across Europe, Asia, and tropical islands. Exclusive ocean and river cruise packages.'
-  },
-  {
-    id: 'packages',
-    name: 'Holiday Packages Page',
-    category: 'static',
-    endpoint: '/group-tour-page',
-    defaultSlug: 'holidays',
-    defaultTitle: 'Domestic & International Holiday Packages | Dyna Tours India',
-    defaultDescription: 'Explore handcrafted domestic and international vacation packages with customized itineraries, flights, and luxury hotel stays.'
   }
 ];
 

@@ -28,8 +28,14 @@ class GroupTourEnquiryController extends Controller
             'phone' => 'required|string|max:255',
             'num_travellers' => 'required|integer|min:1',
             'message' => 'nullable|string',
-            'group_tour_id' => 'nullable|exists:group_tours,id',
+            'group_tour_id' => 'nullable|integer',
         ]);
+
+        if (!empty($validated['group_tour_id'])) {
+            if (!\App\Models\GroupTour::where('id', $validated['group_tour_id'])->exists()) {
+                $validated['group_tour_id'] = null;
+            }
+        }
 
         $enquiry = GroupTourEnquiry::create($validated);
 

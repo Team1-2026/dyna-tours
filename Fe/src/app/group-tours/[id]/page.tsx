@@ -49,19 +49,30 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
     setActiveDay(activeDay === day ? null : day);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
     if (!phoneCheck.isValid) {
       alert(phoneCheck.message || 'Please enter a valid phone number.');
       return;
     }
-    groupToursApi.submitEnquiry({
-      ...formData,
-      phone: `${countryCode} ${formData.phone}`,
-      group_tour_id: Number(id) || undefined
-    }).catch(err => console.error(err));
-    setSubmitted(true);
+    try {
+      const tourNameInfo = tour ? `Interested in ${tour.name}` : '';
+      const finalMessage = tourNameInfo
+        ? (formData.message ? `${tourNameInfo}\n${formData.message}` : tourNameInfo)
+        : formData.message;
+
+      await groupToursApi.submitEnquiry({
+        ...formData,
+        message: finalMessage,
+        phone: `${countryCode} ${formData.phone}`,
+        group_tour_id: Number(id) || undefined
+      });
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error(err);
+      alert(err?.message || 'Failed to submit enquiry. Please try again.');
+    }
   };
 
   return (

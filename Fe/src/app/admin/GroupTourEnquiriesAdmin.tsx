@@ -25,27 +25,6 @@ export default function GroupTourEnquiriesAdmin() {
     }
   };
 
-  const updateStatus = async (id: number, newStatus: string) => {
-    try {
-      await groupToursApi.updateEnquiryStatus(id, newStatus);
-      setEnquiries(prev => prev.map(e => e.id === id ? { ...e, status: newStatus as any } : e));
-    } catch (err) {
-      console.error(err);
-      alert('Failed to update status');
-    }
-  };
-
-  const getStatusColor = (status: string | undefined) => {
-    switch (status) {
-      case 'New': return { bg: '#e3f2fd', color: '#1565c0' };
-      case 'Contacted': return { bg: '#fff3e0', color: '#e65100' };
-      case 'In Progress': return { bg: '#f3e5f5', color: '#6a1b9a' };
-      case 'Converted': return { bg: '#e8f5e9', color: '#2e7d32' };
-      case 'Closed': return { bg: '#ffebee', color: '#c62828' };
-      default: return { bg: '#f5f5f5', color: '#616161' };
-    }
-  };
-
   if (loading) return <div>Loading enquiries...</div>;
 
   return (
@@ -72,12 +51,11 @@ export default function GroupTourEnquiriesAdmin() {
               <th style={{ width: '200px' }}>Tour Interested In</th>
               <th style={{ width: '90px', textAlign: 'center' }}>Travellers</th>
               <th>Message</th>
-              <th style={{ width: '150px' }}>Status</th>
             </tr>
           </thead>
           <tbody>
             {enquiries.length === 0 && (
-              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2.5rem', color: '#64748b' }}>No enquiries found.</td></tr>
+              <tr><td colSpan={5} style={{ textAlign: 'center', padding: '2.5rem', color: '#64748b' }}>No enquiries found.</td></tr>
             )}
             {enquiries.map(enq => (
               <tr key={enq.id}>
@@ -93,34 +71,14 @@ export default function GroupTourEnquiriesAdmin() {
                   {enq.group_tour ? (
                     <span style={{ fontWeight: 600, color: 'var(--color-secondary-navy)' }}>{enq.group_tour.name}</span>
                   ) : (
-                    <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>General / Unsure</span>
+                    <span style={{ fontWeight: enq.message?.includes('Interested in') ? 600 : 400, color: enq.message?.includes('Interested in') ? 'var(--color-secondary-navy)' : '#94a3b8', fontStyle: enq.message?.includes('Interested in') ? 'normal' : 'italic' }}>
+                      {enq.message?.match(/Interested in ([^\n|]+)/)?.[1]?.trim() || 'General / Unsure'}
+                    </span>
                   )}
                 </td>
                 <td style={{ textAlign: 'center', fontWeight: 600 }}>{enq.num_travellers}</td>
                 <td style={{ maxWidth: '300px', wordBreak: 'break-word', fontSize: '0.875rem' }} title={enq.message}>
                   {enq.message || '-'}
-                </td>
-                <td>
-                  <select 
-                    value={enq.status} 
-                    onChange={(e) => enq.id && updateStatus(enq.id, e.target.value)}
-                    style={{
-                      padding: '6px 10px',
-                      borderRadius: '6px',
-                      border: '1px solid #cbd5e1',
-                      backgroundColor: getStatusColor(enq.status).bg,
-                      color: getStatusColor(enq.status).color,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      fontSize: '0.825rem'
-                    }}
-                  >
-                    <option value="New">New</option>
-                    <option value="Contacted">Contacted</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Converted">Converted</option>
-                    <option value="Closed">Closed</option>
-                  </select>
                 </td>
               </tr>
             ))}
