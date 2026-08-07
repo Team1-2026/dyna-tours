@@ -271,75 +271,244 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
           <div>
             <div className={styles.stickySidebar}>
               <div className={styles.sidebarCard}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.35rem' }}>
                   Book This Cruise
                 </h3>
                 {cruise.show_price && cruise.price ? (
-                  <div className={styles.sidebarPrice} suppressHydrationWarning>
-                    ₹{Number(cruise.price).toLocaleString('en-IN')} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>/ person</span>
+                  <div className={styles.sidebarPrice} suppressHydrationWarning style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '1.5rem', fontWeight: 800 }}>
+                    ₹{Number(cruise.price).toLocaleString('en-IN')} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255, 255, 255, 0.7)' }}>/ person</span>
                   </div>
                 ) : (
-                  <div className={styles.sidebarPrice} style={{ fontSize: '1.25rem' }}>
+                  <div className={styles.sidebarPrice} style={{ fontSize: '1.2rem', color: '#ffffff', marginBottom: '1rem' }}>
                     Price on Request
                   </div>
                 )}
 
                 {success && (
-                  <div style={{ padding: '0.75rem', backgroundColor: '#dcfce7', color: '#166534', borderRadius: '6px', marginBottom: '1rem', fontSize: '0.85rem' }}>
+                  <div style={{ padding: '0.75rem', backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 600 }}>
                     ✓ Request sent! Our specialist will reach out soon.
                   </div>
                 )}
 
                 <form onSubmit={handleFormSubmit}>
-                  <div className="formGroup" style={{ marginBottom: '0.65rem' }}>
-                    <label htmlFor="name" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Full Name *</label>
-                    <input type="text" id="name" name="name" required value={formData.name} onChange={handleInputChange} placeholder="John Doe" style={{ padding: '0.55rem' }} />
+                  <div style={{ marginBottom: '0.6rem' }}>
+                    <label htmlFor="name" style={{ fontSize: '0.825rem', fontWeight: 700, color: '#ffffff', display: 'block', marginBottom: '0.3rem' }}>Full Name *</label>
+                    <input 
+                      type="text" 
+                      id="name" 
+                      name="name" 
+                      required 
+                      value={formData.name} 
+                      onChange={handleInputChange} 
+                      placeholder="John Doe" 
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.85rem',
+                        background: 'rgba(255, 255, 255, 0.07)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        color: '#ffffff',
+                        borderRadius: 'var(--radius-md, 8px)',
+                        fontSize: '0.9rem',
+                        boxSizing: 'border-box'
+                      }} 
+                    />
                   </div>
 
-                  <div className="formGroup" style={{ marginBottom: '0.65rem' }}>
-                    <label htmlFor="phone" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Phone Number *</label>
-                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
-                      <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="9876543210" style={{ padding: '0.55rem', flex: 1 }} />
+                  <div style={{ marginBottom: '0.6rem' }}>
+                    <label htmlFor="phone" style={{ fontSize: '0.825rem', fontWeight: 700, color: '#ffffff', display: 'block', marginBottom: '0.3rem' }}>Phone Number *</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
+                      <CountryCodeSelect 
+                        value={countryCode} 
+                        onChange={setCountryCode} 
+                        style={{ 
+                          background: 'rgba(255, 255, 255, 0.07)', 
+                          border: '1px solid rgba(255, 255, 255, 0.15)', 
+                          color: '#ffffff', 
+                          padding: '0.65rem 0.4rem', 
+                          width: '100px',
+                          flexShrink: 0,
+                          borderRadius: 'var(--radius-md, 8px)'
+                        }} 
+                      />
+                      <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        required 
+                        value={formData.phone} 
+                        onChange={handleInputChange} 
+                        placeholder="Phone No." 
+                        style={{ 
+                          flex: 1, 
+                          minWidth: 0,
+                          width: '100%',
+                          padding: '0.65rem 0.85rem',
+                          background: 'rgba(255, 255, 255, 0.07)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          color: '#ffffff',
+                          borderRadius: 'var(--radius-md, 8px)',
+                          fontSize: '0.9rem',
+                          boxSizing: 'border-box'
+                        }} 
+                      />
                     </div>
                   </div>
 
-                  <div className="formGroup" style={{ marginBottom: '0.65rem' }}>
-                    <label htmlFor="email" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Email Address *</label>
-                    <input type="email" id="email" name="email" required value={formData.email} onChange={handleInputChange} placeholder="john@example.com" style={{ padding: '0.55rem' }} />
+                  <div style={{ marginBottom: '0.6rem' }}>
+                    <label htmlFor="email" style={{ fontSize: '0.825rem', fontWeight: 700, color: '#ffffff', display: 'block', marginBottom: '0.3rem' }}>Email Address *</label>
+                    <input 
+                      type="email" 
+                      id="email" 
+                      name="email" 
+                      required 
+                      value={formData.email} 
+                      onChange={handleInputChange} 
+                      placeholder="john@example.com" 
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.85rem',
+                        background: 'rgba(255, 255, 255, 0.07)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        color: '#ffffff',
+                        borderRadius: 'var(--radius-md, 8px)',
+                        fontSize: '0.9rem',
+                        boxSizing: 'border-box'
+                      }} 
+                    />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginBottom: '0.65rem' }}>
-                    <div className="formGroup" style={{ marginBottom: 0 }}>
-                      <label htmlFor="travel_date" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Travel Date</label>
-                      <input type="date" id="travel_date" name="travel_date" value={formData.travel_date} onChange={handleInputChange} style={{ padding: '0.55rem' }} />
+                  <div className={styles.formRowGrid}>
+                    <div style={{ marginBottom: 0 }}>
+                      <label htmlFor="travel_date" style={{ fontSize: '0.825rem', fontWeight: 700, color: '#ffffff', display: 'block', marginBottom: '0.3rem' }}>Travel Date</label>
+                      <input 
+                        type="date" 
+                        id="travel_date" 
+                        name="travel_date" 
+                        value={formData.travel_date} 
+                        onChange={handleInputChange} 
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 0.85rem',
+                          background: 'rgba(255, 255, 255, 0.07)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          color: '#ffffff',
+                          borderRadius: 'var(--radius-md, 8px)',
+                          fontSize: '0.9rem',
+                          boxSizing: 'border-box'
+                        }} 
+                      />
                     </div>
 
-                    <div className="formGroup" style={{ marginBottom: 0 }}>
-                      <label htmlFor="num_people" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Travellers</label>
-                      <input type="number" id="num_people" name="num_people" min="1" value={formData.num_people} onChange={handleInputChange} style={{ padding: '0.55rem' }} />
+                    <div style={{ marginBottom: 0 }}>
+                      <label htmlFor="num_people" style={{ fontSize: '0.825rem', fontWeight: 700, color: '#ffffff', display: 'block', marginBottom: '0.3rem' }}>Travellers</label>
+                      <input 
+                        type="number" 
+                        id="num_people" 
+                        name="num_people" 
+                        min="1" 
+                        value={formData.num_people} 
+                        onChange={handleInputChange} 
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 0.85rem',
+                          background: 'rgba(255, 255, 255, 0.07)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          color: '#ffffff',
+                          borderRadius: 'var(--radius-md, 8px)',
+                          fontSize: '0.9rem',
+                          boxSizing: 'border-box'
+                        }} 
+                      />
                     </div>
                   </div>
 
-                  <div className="formGroup" style={{ marginBottom: '0.65rem' }}>
-                    <label htmlFor="num_children" style={{ fontSize: '0.8rem', fontWeight: 700 }}>No. of Children</label>
-                    <input type="number" id="num_children" name="num_children" min="0" value={formData.num_children} onChange={handleInputChange} style={{ padding: '0.55rem' }} />
-                  </div>
-
-                  {Number(formData.num_children) > 0 && (
-                    <div className="formGroup" style={{ marginBottom: '0.65rem' }}>
-                      <label htmlFor="children_ages" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Children Ages (e.g. 5, 8)</label>
-                      <input type="text" id="children_ages" name="children_ages" value={formData.children_ages} onChange={handleInputChange} placeholder="e.g. 5, 8" style={{ padding: '0.55rem' }} />
+                  <div className={styles.formRowGrid}>
+                    <div style={{ marginBottom: 0 }}>
+                      <label htmlFor="num_children" style={{ fontSize: '0.825rem', fontWeight: 700, color: '#ffffff', display: 'block', marginBottom: '0.3rem' }}>No. of Children</label>
+                      <input 
+                        type="number" 
+                        id="num_children" 
+                        name="num_children" 
+                        min="0" 
+                        value={formData.num_children} 
+                        onChange={handleInputChange} 
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 0.85rem',
+                          background: 'rgba(255, 255, 255, 0.07)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          color: '#ffffff',
+                          borderRadius: 'var(--radius-md, 8px)',
+                          fontSize: '0.9rem',
+                          boxSizing: 'border-box'
+                        }} 
+                      />
                     </div>
-                  )}
 
-                  <div className="formGroup" style={{ marginBottom: '0.85rem' }}>
-                    <label htmlFor="message" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Message</label>
-                    <textarea id="message" name="message" rows={2} value={formData.message} onChange={handleInputChange} placeholder="Questions or cabin preference..." style={{ padding: '0.55rem' }} />
+                    {Number(formData.num_children) > 0 ? (
+                      <div style={{ marginBottom: 0 }}>
+                        <label htmlFor="children_ages" style={{ fontSize: '0.825rem', fontWeight: 700, color: '#ffffff', display: 'block', marginBottom: '0.3rem' }}>Children Ages</label>
+                        <input 
+                          type="text" 
+                          id="children_ages" 
+                          name="children_ages" 
+                          value={formData.children_ages} 
+                          onChange={handleInputChange} 
+                          placeholder="e.g. 5, 8" 
+                          style={{
+                            width: '100%',
+                            padding: '0.65rem 0.85rem',
+                            background: 'rgba(255, 255, 255, 0.07)',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            color: '#ffffff',
+                            borderRadius: 'var(--radius-md, 8px)',
+                            fontSize: '0.9rem',
+                            boxSizing: 'border-box'
+                          }} 
+                        />
+                      </div>
+                    ) : <div />}
                   </div>
 
-                  <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.75rem' }} disabled={submitting}>
-                    {submitting ? 'Submitting...' : 'Enquire Now'}
+                  <div style={{ marginBottom: '0.6rem' }}>
+                    <label htmlFor="message" style={{ fontSize: '0.825rem', fontWeight: 700, color: '#ffffff', display: 'block', marginBottom: '0.3rem' }}>Message</label>
+                    <textarea 
+                      id="message" 
+                      name="message" 
+                      rows={2} 
+                      value={formData.message} 
+                      onChange={handleInputChange} 
+                      placeholder="Questions or cabin preference..." 
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.85rem',
+                        background: 'rgba(255, 255, 255, 0.07)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        color: '#ffffff',
+                        borderRadius: 'var(--radius-md, 8px)',
+                        fontSize: '0.9rem',
+                        boxSizing: 'border-box'
+                      }} 
+                    />
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      background: 'var(--color-primary-red, #e7282b)',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      borderRadius: 'var(--radius-md, 8px)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '0.95rem',
+                      marginTop: '0.6rem'
+                    }} 
+                    disabled={submitting}
+                  >
+                    {submitting ? 'Submitting...' : 'Submit Enquiry'}
                   </button>
                 </form>
               </div>

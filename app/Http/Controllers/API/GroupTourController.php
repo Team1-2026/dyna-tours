@@ -33,13 +33,32 @@ class GroupTourController extends Controller
         return response()->json($query->get());
     }
 
+    private function sanitizeArrayInputs(Request $request): void
+    {
+        if ($request->has('gallery')) {
+            $val = $request->input('gallery');
+            if (is_string($val)) {
+                $decoded = json_decode($val, true);
+                $request->merge(['gallery' => is_array($decoded) ? $decoded : []]);
+            } elseif (is_null($val) || $val === '') {
+                $request->merge(['gallery' => []]);
+            }
+        }
+    }
+
     public function store(Request $request)
     {
+        $this->sanitizeArrayInputs($request);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
             'type' => 'required|in:domestic,international',
             'image' => 'nullable|string',
+            'banner_image' => 'nullable|string',
+            'banner_title' => 'nullable|string|max:255',
+            'banner_tagline' => 'nullable|string|max:255',
+            'gallery' => 'nullable|array',
             'duration' => 'required|string|max:255',
             'departure_date' => 'nullable|date',
             'starting_price' => 'required|numeric|min:0',
@@ -71,12 +90,17 @@ class GroupTourController extends Controller
     public function update(Request $request, $id)
     {
         $tour = GroupTour::findOrFail($id);
+        $this->sanitizeArrayInputs($request);
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'destination' => 'sometimes|required|string|max:255',
             'type' => 'sometimes|required|in:domestic,international',
             'image' => 'nullable|string',
+            'banner_image' => 'nullable|string',
+            'banner_title' => 'nullable|string|max:255',
+            'banner_tagline' => 'nullable|string|max:255',
+            'gallery' => 'nullable|array',
             'duration' => 'sometimes|required|string|max:255',
             'departure_date' => 'nullable|date',
             'starting_price' => 'sometimes|required|numeric|min:0',

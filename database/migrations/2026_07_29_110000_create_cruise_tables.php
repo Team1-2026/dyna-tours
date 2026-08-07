@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('show_price')->default(true);
             $table->text('short_description');
             $table->text('about')->nullable();
-            $table->string('banner_image')->nullable();
+            $table->longText('banner_image')->nullable();
             $table->json('gallery')->nullable();
             $table->json('highlights')->nullable();
             $table->json('itinerary')->nullable();

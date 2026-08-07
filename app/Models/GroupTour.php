@@ -27,7 +27,11 @@ class GroupTour extends Model
         'og_description',
         'og_image',
         'canonical_url',
-        'structured_data'
+        'structured_data',
+        'banner_image',
+        'banner_title',
+        'banner_tagline',
+        'gallery',
     ];
 
     protected $casts = [
@@ -35,6 +39,7 @@ class GroupTour extends Model
         'is_featured' => 'boolean',
         'departure_date' => 'date',
         'starting_price' => 'decimal:2',
+        'gallery' => 'array',
     ];
 
     public function enquiries()

@@ -11,8 +11,24 @@ export default function GroupToursAdmin() {
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [relatedSearch, setRelatedSearch] = useState('');
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+
   useEffect(() => {
     loadTours();
+    const onAddNew = () => {
+      handleAddNew();
+    };
+    const onViewAll = () => {
+      setEditingTour(null);
+    };
+    window.addEventListener('admin:add-new-group-tour', onAddNew);
+    window.addEventListener('admin:view-group-tours', onViewAll);
+    return () => {
+      window.removeEventListener('admin:add-new-group-tour', onAddNew);
+      window.removeEventListener('admin:view-group-tours', onViewAll);
+    };
   }, []);
 
   const loadTours = async () => {
@@ -39,12 +55,19 @@ export default function GroupToursAdmin() {
       is_visible: true,
       is_featured: false,
       featured_order: 0,
+      banner_image: '',
+      banner_title: '',
+      banner_tagline: '',
+      gallery: [],
     } as GroupTour);
   };
 
   const handleEdit = (tour: GroupTour) => {
     setIsCreating(false);
-    setEditingTour({ ...tour });
+    setEditingTour({
+      ...tour,
+      gallery: Array.isArray(tour.gallery) ? tour.gallery : [],
+    });
   };
 
   const handleDelete = async (id: number) => {
@@ -63,10 +86,19 @@ export default function GroupToursAdmin() {
     if (!editingTour) return;
     setSaveStatus('Saving...');
     try {
+      const rawPrice = String(editingTour.starting_price ?? '').trim();
+      const rawOrder = String(editingTour.featured_order ?? '').trim();
+      const payload = {
+        ...editingTour,
+        starting_price: rawPrice !== '' ? Number(rawPrice) : 0,
+        featured_order: rawOrder !== '' ? Number(rawOrder) : 0,
+        gallery: Array.isArray(editingTour.gallery) ? editingTour.gallery : [],
+      };
+
       if (isCreating) {
-        await groupToursApi.createTour(editingTour);
+        await groupToursApi.createTour(payload);
       } else if (editingTour.id) {
-        await groupToursApi.updateTour(editingTour.id, editingTour);
+        await groupToursApi.updateTour(editingTour.id, payload);
       }
       setSaveStatus('Saved successfully!');
       setTimeout(() => setSaveStatus(null), 3000);
@@ -86,8 +118,6 @@ export default function GroupToursAdmin() {
     let parsedValue: any = value;
     if (type === 'checkbox') {
       parsedValue = (e.target as HTMLInputElement).checked;
-    } else if (name === 'starting_price' || name === 'featured_order') {
-      parsedValue = Number(value);
     }
     
     setEditingTour({ ...editingTour, [name]: parsedValue });
@@ -105,17 +135,56 @@ export default function GroupToursAdmin() {
     reader.readAsDataURL(file);
   };
 
+  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingTour) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setEditingTour({ ...editingTour, banner_image: event.target.result as string });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !editingTour) return;
+    
+    const newImages: string[] = [];
+    let readCount = 0;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          newImages.push(event.target.result as string);
+        }
+        readCount++;
+        if (readCount === files.length) {
+          setEditingTour((prev) => prev ? ({
+            ...prev,
+            gallery: [...(Array.isArray(prev.gallery) ? prev.gallery : []), ...newImages]
+          }) : null);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleRemoveGalleryImage = (idxToRemove: number) => {
+    if (!editingTour) return;
+    const currentGallery = Array.isArray(editingTour.gallery) ? editingTour.gallery : [];
+    setEditingTour({
+      ...editingTour,
+      gallery: currentGallery.filter((_, idx) => idx !== idxToRemove)
+    });
+  };
+
   if (loading && tours.length === 0) return <div>Loading Group Tours...</div>;
 
   return (
     <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ margin: 0, color: 'var(--color-secondary-navy)' }}>Group Tours Management</h2>
-        {!editingTour && (
-          <button onClick={handleAddNew} className={styles.saveBtn}>+ Add Group Tour</button>
-        )}
-      </div>
-
       {saveStatus && <div style={{ background: '#e6ffe6', padding: '10px', marginBottom: '20px', borderRadius: '4px', color: '#006600' }}>{saveStatus}</div>}
 
       {editingTour ? (
@@ -200,8 +269,82 @@ export default function GroupToursAdmin() {
             {editingTour.image && <img src={getImageUrl(editingTour.image)} alt="Thumbnail" style={{ height: '100px', borderRadius: '4px', objectFit: 'cover' }} />}
           </div>
 
+          {/* Hero Banner Section */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>🚩 Hero Banner & Header Content</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Banner Title / Heading</label>
+                <input 
+                  type="text" 
+                  name="banner_title" 
+                  value={editingTour.banner_title || ''} 
+                  onChange={handleChange} 
+                  placeholder="e.g. Panoramic Europe – Alpine Grandeur & Cultural Treasures" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Banner Tagline / Subtitle</label>
+                <input 
+                  type="text" 
+                  name="banner_tagline" 
+                  value={editingTour.banner_tagline || ''} 
+                  onChange={handleChange} 
+                  placeholder="e.g. Discover the Best of Europe in One Unforgettable Journey" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+                />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                Banner Background Image <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Recommended size: 1920 × 600 px)</span>
+              </label>
+              <input type="file" accept="image/*" onChange={handleBannerUpload} style={{ display: 'block', marginBottom: '10px' }} />
+              {editingTour.banner_image && (
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <img src={getImageUrl(editingTour.banner_image)} alt="Banner Preview" style={{ height: '120px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #e2e8f0' }} />
+                  <button 
+                    type="button" 
+                    onClick={() => setEditingTour({ ...editingTour, banner_image: '' })}
+                    style={{ position: 'absolute', top: '5px', right: '5px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Gallery Images Upload Section */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>🖼️ Photo Gallery Images</h4>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                Upload Gallery Images <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal' }}>(Select multiple images to show in tour gallery)</span>
+              </label>
+              <input type="file" accept="image/*" multiple onChange={handleGalleryUpload} style={{ display: 'block', marginBottom: '15px' }} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
+              {(Array.isArray(editingTour.gallery) ? editingTour.gallery : []).map((imgUrl, idx) => (
+                <div key={idx} style={{ position: 'relative', width: '100%', height: '90px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
+                  <img src={getImageUrl(imgUrl)} alt={`Gallery ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <button 
+                    type="button" 
+                    onClick={() => handleRemoveGalleryImage(idx)}
+                    style={{ position: 'absolute', top: '4px', right: '4px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Related Group Tours Mapping */}
-          <div className={styles.formCard}>
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
             <h4 className={styles.formCardTitle}>Related Group Tours Mapping</h4>
             <input
               type="text"
@@ -259,49 +402,153 @@ export default function GroupToursAdmin() {
             </div>
           </div>
 
-          <button type="submit" className={styles.saveBtn} style={{ marginTop: '20px' }}>Save Tour</button>
+          <button type="submit" className={styles.saveBtn} style={{ marginTop: '20px' }}>
+            {isCreating ? 'Save Tour' : 'Update Tour'}
+          </button>
         </form>
       ) : (
-        <div className={styles.tableContainer}>
-          <table className={styles.adminTable}>
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Destination</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Featured</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tours.map(tour => (
-                <tr key={tour.id}>
-                  <td>
-                    {tour.image ? <img src={getImageUrl(tour.image)} alt={tour.name} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} /> : 'No image'}
-                  </td>
-                  <td style={{ fontWeight: 'bold' }}>{tour.name}</td>
-                  <td>{tour.destination}</td>
-                  <td>₹{tour.starting_price.toLocaleString('en-IN')}</td>
-                  <td>
-                    <span style={{ 
-                      padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem',
-                      background: tour.status === 'Available' ? '#e6ffe6' : tour.status === 'Sold Out' ? '#ffe6e6' : '#fff3e6',
-                      color: tour.status === 'Available' ? '#006600' : tour.status === 'Sold Out' ? '#cc0000' : '#cc6600'
-                    }}>
-                      {tour.status}
-                    </span>
-                  </td>
-                  <td>{tour.is_featured ? '⭐ Yes' : 'No'}</td>
-                  <td>
-                    <button onClick={() => handleEdit(tour)} style={{ background: 'var(--color-primary-blue)', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', marginRight: '8px', cursor: 'pointer' }}>Edit</button>
-                    <button onClick={() => tour.id && handleDelete(tour.id)} style={{ background: 'var(--color-primary-red)', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className={styles.panelCard}>
+          {/* Row 1: Title and Add Button */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h3 className={styles.panelTitle} style={{ margin: 0 }}>Group Tours Management</h3>
+            <button className="btn btn-primary" onClick={handleAddNew}>
+              + Add Group Tour
+            </button>
+          </div>
+
+          {/* Row 2: Search and Filter Fields aligned in a single row */}
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'nowrap', width: '100%' }}>
+            <div className={styles.searchWrapper} style={{ flex: 2, minWidth: '220px' }}>
+              <span className={styles.searchIcon}>🔍</span>
+              <input
+                type="text"
+                placeholder="Search group tour..."
+                className={styles.toolbarSearchInput}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            <select 
+              className={`searchSelect ${styles.toolbarSelect}`}
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              style={{ flex: 1, minWidth: '140px' }}
+            >
+              <option value="">All Types</option>
+              <option value="domestic">Domestic</option>
+              <option value="international">International</option>
+            </select>
+
+            <select 
+              className={`searchSelect ${styles.toolbarSelect}`}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ flex: 1, minWidth: '140px' }}
+            >
+              <option value="">All Status</option>
+              <option value="Available">Available</option>
+              <option value="Filling Fast">Filling Fast</option>
+              <option value="Limited Seats">Limited Seats</option>
+              <option value="Sold Out">Sold Out</option>
+            </select>
+
+            <button type="button" className={styles.filterBtn} style={{ whiteSpace: 'nowrap' }}>
+              <span>🎛️</span> Filter
+            </button>
+          </div>
+
+          <div className={styles.tableContainer}>
+            {(() => {
+              const filteredTours = tours.filter((t) => {
+                const matchSearch = (t.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    (t.destination || '').toLowerCase().includes(searchQuery.toLowerCase());
+                const matchType = !typeFilter || t.type === typeFilter;
+                const matchStatus = !statusFilter || t.status === statusFilter;
+                return matchSearch && matchType && matchStatus;
+              });
+
+              if (filteredTours.length === 0) {
+                return (
+                  <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+                    No group tours found. Click "+ Add Group Tour" to add one.
+                  </div>
+                );
+              }
+
+              return (
+                <table className={styles.adminTable}>
+                  <thead>
+                    <tr>
+                      <th>Sl No</th>
+                      <th>Group Tour Name</th>
+                      <th>Destination</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th>Featured</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTours.map((tour, idx) => (
+                      <tr key={tour.id}>
+                        <td>{idx + 1}</td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            {tour.image ? (
+                              <img src={getImageUrl(tour.image)} alt={tour.name} style={{ width: '40px', height: '30px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--color-border)' }} />
+                            ) : null}
+                            <span style={{ fontWeight: 700, color: 'var(--color-secondary-navy)' }}>{tour.name}</span>
+                          </div>
+                        </td>
+                        <td>📍 {tour.destination}</td>
+                        <td style={{ fontWeight: 700, color: 'var(--color-primary-red)' }}>₹{Number(tour.starting_price).toLocaleString('en-IN')}</td>
+                        <td>
+                          <span className={`${styles.statusPill} ${tour.status === 'Available' ? styles.statusActive : styles.statusDraft}`}>
+                            {tour.status}
+                          </span>
+                        </td>
+                        <td>{tour.is_featured ? '⭐ Yes' : 'No'}</td>
+                        <td>
+                          <a 
+                            href={`/group-tours/${tour.url_slug || tour.id}`} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className={`${styles.tableActionBtn} ${styles.actionView}`}
+                          >
+                            View
+                          </a>
+                          <button 
+                            type="button" 
+                            onClick={() => handleEdit(tour)} 
+                            className={`${styles.tableActionBtn} ${styles.actionEdit}`}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => tour.id && handleDelete(tour.id)} 
+                            className={`${styles.tableActionBtn} ${styles.actionDelete}`}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              );
+            })()}
+          </div>
+
+          <div className={styles.tableFooterRow}>
+            <span>Showing 1 to {tours.length} of {tours.length} entries</span>
+            <div className={styles.paginationWrapper}>
+              <button className={styles.paginationBtn}>Previous</button>
+              <button className={`${styles.paginationBtn} ${styles.paginationBtnActive}`}>1</button>
+              <button className={styles.paginationBtn}>Next</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

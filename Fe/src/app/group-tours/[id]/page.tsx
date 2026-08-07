@@ -80,7 +80,7 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
       {/* 1. Hero Banner */}
       <section 
         className={styles.heroSection}
-        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=2000')` }}
+        style={{ backgroundImage: `url('${getImageUrl(tour?.banner_image || tour?.image || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=2000')}')` }}
       >
         <div className={styles.heroOverlay} />
         <div className="container">
@@ -90,21 +90,21 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
               <span>/</span>
               <Link href="/group-tours">Group Tours</Link>
               <span>/</span>
-              <span style={{ color: '#ffffff' }}>Panoramic Europe</span>
+              <span style={{ color: '#ffffff' }}>{tour?.name || 'Group Tour'}</span>
             </div>
 
             <div className={styles.badgesRow}>
-              <span className={`${styles.statusBadge} ${styles.badgeFilling}`}>🔥 Filling Fast</span>
-              <span className={`${styles.statusBadge} ${styles.badgeDuration}`}>⏱️ 7 Nights / 8 Days</span>
+              <span className={`${styles.statusBadge} ${styles.badgeFilling}`}>🔥 {tour?.status || 'Available'}</span>
+              <span className={`${styles.statusBadge} ${styles.badgeDuration}`}>⏱️ {tour?.duration || '7 Nights / 8 Days'}</span>
               <span className={`${styles.statusBadge} ${styles.badgeSeats}`}>👥 Max 30 Seats</span>
             </div>
 
-            <h1 className={styles.heroTitle}>Panoramic Europe – Alpine Grandeur & Cultural Treasures</h1>
-            <p className={styles.heroSubtitle}>Discover the Best of Europe in One Unforgettable Journey</p>
+            <h1 className={styles.heroTitle}>{tour?.banner_title || tour?.name || 'Panoramic Europe – Alpine Grandeur & Cultural Treasures'}</h1>
+            <p className={styles.heroSubtitle}>{tour?.banner_tagline || 'Discover the Best of Europe in One Unforgettable Journey'}</p>
 
             <div className={styles.priceTag}>
               <span className={styles.priceLabel}>Starting From</span>
-              <span className={styles.priceValue}>₹1,99,999/-</span>
+              <span className={styles.priceValue}>₹{Number(tour?.starting_price || 0).toLocaleString('en-IN')}/-</span>
               <span style={{ color: '#cbd5e1', fontSize: '0.875rem' }}>per person</span>
             </div>
           </div>
@@ -146,6 +146,43 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Top Image Gallery (Matches Hotel Page Layout Exactly) */}
+      {Array.isArray(tour?.gallery) && tour.gallery.length > 0 && (() => {
+        const displayGallery = tour.gallery.filter(Boolean);
+        if (displayGallery.length === 0) return null;
+        const hasMultiple = displayGallery.length > 2;
+
+        return (
+          <div className="container" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+            <div className={styles.imageGallery} style={{ margin: 0 }}>
+              <div className={styles.galleryGrid}>
+                <div className={`${styles.galleryItem} ${hasMultiple ? styles.galleryItemLarge : ''}`}>
+                  <img 
+                    src={getImageUrl(displayGallery[0])} 
+                    alt={`${tour.name} featured view`} 
+                    className={styles.galleryImg} 
+                  />
+                </div>
+                {displayGallery.slice(1, 3).map((imgUrl, idx) => (
+                  <div key={idx} className={styles.galleryItem}>
+                    <img src={getImageUrl(imgUrl)} alt={`${tour.name} view ${idx + 2}`} className={styles.galleryImg} />
+                  </div>
+                ))}
+                {displayGallery[3] && (
+                  <div className={styles.galleryItem} style={{ gridColumn: 'span 2' }}>
+                    <img 
+                      src={getImageUrl(displayGallery[3])} 
+                      alt={`${tour.name} view 4`} 
+                      className={styles.galleryImg} 
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 3. Main Content & Sidebar Layout */}
       <div className="container">
@@ -526,7 +563,6 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
                     <li>Visa approval is subject to the respective embassy or immigration authorities.</li>
                   </ul>
                 </div>
-
               </div>
             </div>
 
@@ -564,72 +600,105 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
                 <p className={styles.formSubtitle}>Submit your enquiry for instant seat reservation and itinerary details.</p>
 
                 {submitted ? (
-                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '1.25rem', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', padding: '1rem', borderRadius: '8px', textAlign: 'center', fontWeight: 600 }}>
                     ✓ Thank you! Our travel expert will call you shortly regarding seat availability and booking details.
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit}>
-                    <input 
-                      type="text" 
-                      placeholder="Full Name *" 
-                      className={styles.formControl} 
-                      value={formData.name} 
-                      onChange={e => setFormData({ ...formData, name: e.target.value })} 
-                      required 
-                    />
-                    <input 
-                      type="email" 
-                      placeholder="Email Address *" 
-                      className={styles.formControl} 
-                      value={formData.email} 
-                      onChange={e => setFormData({ ...formData, email: e.target.value })} 
-                      required 
-                    />
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                    <div className={styles.formGroup}>
+                      <label>Full Name *</label>
                       <input 
-                        type="tel" 
-                        placeholder="Phone Number *" 
+                        type="text" 
+                        placeholder="Enter your full name" 
                         className={styles.formControl} 
-                        style={{ flex: 1 }}
-                        value={formData.phone} 
-                        onChange={e => setFormData({ ...formData, phone: e.target.value })} 
+                        value={formData.name} 
+                        onChange={e => setFormData({ ...formData, name: e.target.value })} 
                         required 
                       />
                     </div>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Travellers</label>
+
+                    <div className={styles.formGroup}>
+                      <label>Phone Number *</label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
+                        <CountryCodeSelect 
+                          value={countryCode} 
+                          onChange={setCountryCode} 
+                          style={{ 
+                            background: 'rgba(255, 255, 255, 0.07)', 
+                            border: '1px solid rgba(255, 255, 255, 0.15)', 
+                            color: '#ffffff', 
+                            padding: '0.65rem 0.4rem', 
+                            width: '100px',
+                            flexShrink: 0,
+                            borderRadius: 'var(--radius-md, 8px)'
+                          }} 
+                        />
+                        <input 
+                          type="tel" 
+                          placeholder="Phone Number *" 
+                          className={styles.formControl} 
+                          style={{ flex: 1, minWidth: 0, marginBottom: 0 }}
+                          value={formData.phone} 
+                          onChange={e => setFormData({ ...formData, phone: e.target.value })} 
+                          required 
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>Email Address *</label>
+                      <input 
+                        type="email" 
+                        placeholder="Email address" 
+                        className={styles.formControl} 
+                        value={formData.email} 
+                        onChange={e => setFormData({ ...formData, email: e.target.value })} 
+                        required 
+                      />
+                    </div>
+
+                    <div className={styles.formRowGrid}>
+                      <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                        <label>Travellers</label>
                         <input 
                           type="number" 
                           className={styles.formControl} 
+                          style={{ marginBottom: 0 }}
                           value={formData.num_travellers} 
                           onChange={e => setFormData({ ...formData, num_travellers: Number(e.target.value) })} 
                           min={1} 
                         />
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Departure</label>
+
+                      <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                        <label>Departure Date</label>
                         <input 
                           type="date" 
                           className={styles.formControl} 
+                          style={{ marginBottom: 0 }}
                           value={formData.travel_date} 
                           onChange={e => setFormData({ ...formData, travel_date: e.target.value })} 
                         />
                       </div>
                     </div>
-                    <textarea 
-                      placeholder="Special Requirements / Queries" 
-                      rows={3} 
-                      className={styles.formControl} 
-                      value={formData.message} 
-                      onChange={e => setFormData({ ...formData, message: e.target.value })} 
-                    />
+
+                    <div className={styles.formGroup} style={{ marginBottom: '0.6rem' }}>
+                      <label>Special Requirements</label>
+                      <textarea 
+                        placeholder="Special requirements or queries..." 
+                        rows={2} 
+                        className={styles.formControl} 
+                        style={{ marginBottom: 0 }}
+                        value={formData.message} 
+                        onChange={e => setFormData({ ...formData, message: e.target.value })} 
+                      />
+                    </div>
+
                     <button type="submit" className={styles.btnSubmit}>
                       Submit Enquiry
                     </button>
                     <a 
-                      href="https://wa.me/919846665005?text=Hi,%20I'm%20interested%20in%20Panoramic%20Europe%20Group%20Tour" 
+                      href={`https://wa.me/919846665005?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour?.name || 'Group Tour')}`} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className={styles.btnWhatsapp}

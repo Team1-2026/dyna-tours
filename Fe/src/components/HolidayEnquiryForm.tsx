@@ -80,9 +80,9 @@ export default function HolidayEnquiryForm({ categoryName }: { categoryName: str
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {error && <div style={{ color: 'red', fontSize: '0.9rem' }}>{error}</div>}
       <input required type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Your Name" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-        <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
-        <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone No:" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none', flex: 1 }} />
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
+        <CountryCodeSelect value={countryCode} onChange={setCountryCode} style={{ flexShrink: 0 }} />
+        <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone No:" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none', flex: 1, minWidth: 0 }} />
       </div>
       <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email Address" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
       

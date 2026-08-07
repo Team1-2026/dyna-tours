@@ -447,45 +447,55 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.85rem' }}>
-                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                    <label htmlFor="phone" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
-                      Phone Number
-                    </label>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
-                      <input
-                        type="tel"
-                        name="phone"
-                        id="phone"
-                        required
-                        className={styles.formInput}
-                        style={{ flex: 1 }}
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="Phone No."
-                      />
-                    </div>
-                  </div>
-
-                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                    <label htmlFor="email" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
-                      Email Address
-                    </label>
+                <div className={styles.formGroup} style={{ marginBottom: '0.85rem' }}>
+                  <label htmlFor="phone" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                    Phone Number
+                  </label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
+                    <CountryCodeSelect 
+                      value={countryCode} 
+                      onChange={setCountryCode} 
+                      style={{ 
+                        background: 'rgba(255, 255, 255, 0.07)', 
+                        border: '1px solid rgba(255, 255, 255, 0.15)', 
+                        color: '#ffffff', 
+                        padding: '0.65rem 0.4rem', 
+                        width: '100px',
+                        flexShrink: 0,
+                        borderRadius: 'var(--radius-md, 8px)'
+                      }} 
+                    />
                     <input
-                      type="email"
-                      name="email"
-                      id="email"
+                      type="tel"
+                      name="phone"
+                      id="phone"
                       required
                       className={styles.formInput}
-                      value={formData.email}
+                      style={{ flex: 1, minWidth: 0 }}
+                      value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="Email Address"
+                      placeholder="Phone No."
                     />
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.85rem' }}>
+                <div className={styles.formGroup} style={{ marginBottom: '0.85rem' }}>
+                  <label htmlFor="email" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    required
+                    className={styles.formInput}
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Email Address"
+                  />
+                </div>
+
+                <div className={styles.formRowGrid}>
                   <div className={styles.formGroup} style={{ marginBottom: 0 }}>
                     <label htmlFor="check_in" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
                       Check-in Date
@@ -516,7 +526,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.85rem' }}>
+                <div className={styles.formRowGrid}>
                   <div className={styles.formGroup} style={{ marginBottom: 0 }}>
                     <label htmlFor="num_adults" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
                       Adults (12+ yrs)

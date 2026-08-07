@@ -123,6 +123,49 @@
   color: #f87171;
 }
 
+/* Full-width Top Image Gallery (Matches Hotel Page Layout Exactly) */
+.imageGallery {
+  margin: 1.5rem 0 2rem 0;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: auto;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .galleryGrid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+.galleryItem {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  height: 180px;
+}
+
+.galleryItemLarge {
+  grid-row: span 2;
+  height: 376px;
+}
+
+.galleryImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.galleryImg:hover {
+  transform: scale(1.03);
+}
+
 /* Inclusions Strip */
 .inclusionsStrip {
   background: #ffffff;
@@ -540,61 +583,104 @@
 /* Sidebar Form Card */
 .stickySidebar {
   position: sticky;
-  top: 150px;
+  top: 100px;
+  z-index: 10;
 }
 
 .bookingFormCard {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 2rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  background: var(--color-secondary-navy, #0c2745);
+  color: #ffffff;
+  border-radius: var(--radius-lg, 1.25rem);
+  padding: 1.5rem 1.25rem;
+  box-shadow: var(--shadow-xl, 0 10px 30px rgba(12, 39, 69, 0.2));
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .formTitle {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #ffffff;
   margin-bottom: 0.35rem;
 }
 
 .formSubtitle {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  color: #ffffff;
+  margin-bottom: 1.1rem;
+}
+
+.formRowGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+@media (max-width: 640px) {
+  .formRowGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formGroup {
+  margin-bottom: 0.6rem;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  margin-bottom: 0.3rem;
 }
 
 .formControl {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.9375rem;
-  margin-bottom: 1rem;
-  transition: border-color 0.2s ease;
+  padding: 0.65rem 0.85rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.formControl::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .formControl:focus {
   outline: none;
-  border-color: #2563eb;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--color-primary-red, #e7282b);
+  box-shadow: 0 0 0 3px rgba(231, 40, 43, 0.35);
+}
+
+.formControl option {
+  background-color: #0c2745;
+  color: #ffffff;
 }
 
 .btnSubmit {
   width: 100%;
-  background: #dc2626;
+  background: var(--color-primary-red, #e7282b);
   color: #ffffff;
   font-weight: 700;
-  padding: 0.85rem;
-  border-radius: 8px;
+  padding: 0.75rem;
+  border-radius: var(--radius-md, 8px);
   border: none;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s ease;
-  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  margin-top: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
 .btnSubmit:hover {
-  background: #b91c1c;
+  background: var(--color-primary-red-hover, #c81e21);
+  box-shadow: 0 6px 20px rgba(231, 40, 43, 0.45);
 }
 
 .btnWhatsapp {
@@ -602,21 +688,22 @@
   background: #25d366;
   color: #ffffff;
   font-weight: 700;
-  padding: 0.85rem;
-  border-radius: 8px;
+  padding: 0.75rem;
+  border-radius: var(--radius-md, 8px);
   border: none;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   text-decoration: none;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .btnWhatsapp:hover {
   background: #1eb856;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
 }
 
 /* Related Packages Grid */

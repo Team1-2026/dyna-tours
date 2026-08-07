@@ -1545,7 +1545,7 @@ export interface GroupTour {
   image?: string;
   duration: string;
   departure_date?: string;
-  starting_price: number;
+  starting_price: number | string;
   status: 'Filling Fast' | 'Limited Seats' | 'Available' | 'Sold Out';
   full_details?: string;
   is_visible: boolean;
@@ -1560,6 +1560,10 @@ export interface GroupTour {
   og_description?: string;
   og_image?: string;
   canonical_url?: string;
+  banner_image?: string;
+  banner_title?: string;
+  banner_tagline?: string;
+  gallery?: string[];
   structured_data?: string;
   created_at?: string;
   updated_at?: string;

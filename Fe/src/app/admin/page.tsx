@@ -1178,9 +1178,15 @@ export default function AdminDashboard() {
             <div className={styles.subMenuContainer}>
               <div 
                 className={`${styles.subMenuItem} ${activeTab === 'groupTours' ? styles.subMenuItemActive : ''}`}
-                onClick={() => { setActiveTab('groupTours'); }}
+                onClick={() => { setActiveTab('groupTours'); window.dispatchEvent(new Event('admin:view-group-tours')); }}
               >
-                Tour Packages
+                All Group Tour Packages
+              </div>
+              <div 
+                className={`${styles.subMenuItem}`}
+                onClick={() => { setActiveTab('groupTours'); setTimeout(() => window.dispatchEvent(new Event('admin:add-new-group-tour')), 50); }}
+              >
+                Add Group Tour
               </div>
               <div 
                 className={`${styles.subMenuItem} ${activeTab === 'groupTourPage' ? styles.subMenuItemActive : ''}`}

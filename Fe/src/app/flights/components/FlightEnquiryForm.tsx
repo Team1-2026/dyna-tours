@@ -99,9 +99,9 @@ export default function FlightEnquiryForm() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Phone Number *</label>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
-              <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} className={styles.darkInput} placeholder="Mobile Number" style={{ flex: 1 }} />
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
+              <CountryCodeSelect value={countryCode} onChange={setCountryCode} style={{ flexShrink: 0 }} />
+              <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} className={styles.darkInput} placeholder="Mobile Number" style={{ flex: 1, minWidth: 0 }} />
             </div>
           </div>
           <div className={styles.formGroup}>

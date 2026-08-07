@@ -502,6 +502,19 @@
   margin-bottom: 1.25rem;
 }
 
+.formRowGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .formRowGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .formGroup {
   margin-bottom: 0.6rem;
 }

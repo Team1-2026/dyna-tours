@@ -96,10 +96,11 @@ export default function ContactEnquiryForm() {
 
           <div className={styles.formField}>
             <label className={styles.label}>Phone Number <span className="required-star">*</span></label>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
               <CountryCodeSelect 
                 value={countryCode} 
                 onChange={(code) => setCountryCode(code)} 
+                style={{ flexShrink: 0 }}
               />
               <input 
                 type="tel" 
@@ -109,7 +110,7 @@ export default function ContactEnquiryForm() {
                 value={formData.phone} 
                 onChange={handleInputChange} 
                 className={styles.input} 
-                style={{ flex: 1 }}
+                style={{ flex: 1, minWidth: 0 }}
               />
             </div>
           </div>

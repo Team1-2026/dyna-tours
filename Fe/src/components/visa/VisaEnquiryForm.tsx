@@ -110,9 +110,9 @@ export default function VisaEnquiryForm({ destinations, preselectedCountry = '',
 
             <div className={styles.inputGroupHalf}>
               <label htmlFor="mobileNumber">Mobile Number <span className="required-star">*</span></label>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
-                <input type="tel" id="mobileNumber" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} required placeholder="Mobile number" style={{ flex: 1 }} />
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
+                <CountryCodeSelect value={countryCode} onChange={setCountryCode} style={{ flexShrink: 0 }} />
+                <input type="tel" id="mobileNumber" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} required placeholder="Mobile number" style={{ flex: 1, minWidth: 0 }} />
               </div>
             </div>
 

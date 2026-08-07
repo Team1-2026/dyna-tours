@@ -685,13 +685,13 @@ export default function TourDetailsPage({ params }: PageProps) {
 
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Phone No</label>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
+                  <CountryCodeSelect value={countryCode} onChange={setCountryCode} style={{ flexShrink: 0 }} />
                   <input 
                     type="tel" 
                     placeholder="Contact number"
                     required 
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, minWidth: 0 }}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />

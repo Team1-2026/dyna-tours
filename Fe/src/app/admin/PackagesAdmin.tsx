@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { getPackages, createPackage, updatePackage, deletePackage } from '@/lib/api';
 import styles from './admin.module.css';
+import ResolvedImage from '@/components/ResolvedImage';
 
 import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
@@ -57,6 +58,10 @@ export default function PackagesAdmin() {
 
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [relatedSearch, setRelatedSearch] = useState('');
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   const fetchPackages = async () => {
     setLoading(true);
@@ -282,50 +287,161 @@ export default function PackagesAdmin() {
       {saveStatus && <div style={{ padding: '1rem', background: '#d4edda', color: '#155724', marginBottom: '1rem' }}>{saveStatus}</div>}
       
       {!isFormOpen ? (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-            <h2 style={{ color: 'var(--color-secondary-navy)', margin: 0 }}>Packages Management</h2>
-            <button className="btn btn-primary" onClick={handleAddNew}>+ Add New Package</button>
+        <div className={styles.panelCard}>
+          <div className={styles.tableHeaderToolbar}>
+            <h3 className={styles.panelTitle} style={{ margin: 0 }}>Packages Management</h3>
+            
+            <div className={styles.toolbarFilters}>
+              <div className={styles.searchWrapper}>
+                <span className={styles.searchIcon}>🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search package..."
+                  className={styles.toolbarSearchInput}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <select 
+                className={`searchSelect ${styles.toolbarSelect}`}
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="">All Categories</option>
+                <option value="Domestic Tour Packages">Domestic Tour Packages</option>
+                <option value="International Tour Packages">International Tour Packages</option>
+                <option value="Honeymoon Tour Packages">Honeymoon Tour Packages</option>
+                <option value="Luxury Tour Packages">Luxury Tour Packages</option>
+                <option value="Kerala Tour Packages">Kerala Tour Packages</option>
+                <option value="Leisure">Leisure</option>
+                <option value="Nature">Nature</option>
+                <option value="Culture">Culture</option>
+                <option value="Adventure">Adventure</option>
+              </select>
+
+              <select 
+                className={`searchSelect ${styles.toolbarSelect}`}
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Draft / Inactive</option>
+              </select>
+
+              <button type="button" className={styles.filterBtn}>
+                <span>🎛️</span> Filter
+              </button>
+            </div>
+
+            <button className="btn btn-primary" onClick={handleAddNew}>
+              + Add New Package
+            </button>
           </div>
-          
+
           <div className={styles.tableContainer}>
-            <table className={styles.adminTable}>
-              <thead>
-                <tr>
-                  <th>Package Name</th>
-                  <th>Destination</th>
-                  <th>Theme</th>
-                  <th>Rating</th>
-                  <th>Duration</th>
-                  <th>Price</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {packages.map((pkg) => (
-                  <tr key={pkg.id}>
-                    <td><strong>{pkg.title}</strong></td>
-                    <td>{pkg.destination}</td>
-                    <td>
-                      <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '0.25rem 0.6rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 700 }}>
-                        {pkg.category || 'Leisure'}
-                      </span>
-                    </td>
-                    <td>
-                      <span style={{ color: '#d97706', fontWeight: 'bold' }}>★ {pkg.rating || 5}</span> <span style={{ fontSize: '0.8rem', color: '#64748b' }}>({pkg.reviewsCount || 0})</span>
-                    </td>
-                    <td>{pkg.duration}</td>
-                    <td>₹{pkg.price?.toLocaleString()}</td>
-                    <td>
-                      <button onClick={() => handleEdit(pkg)} className="btn btn-primary" style={{ padding: '0.5rem 1rem', marginRight: '0.5rem', cursor: 'pointer' }}>Edit</button>
-                      <button onClick={() => handleDelete(pkg.id, pkg.title)} className="btn btn-primary" style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {(() => {
+              const filteredPackages = packages.filter((pkg) => {
+                const titleMatch = (pkg.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                   (pkg.destination || '').toLowerCase().includes(searchQuery.toLowerCase());
+                const catMatch = !categoryFilter || (pkg.holidayCategory && pkg.holidayCategory.includes(categoryFilter)) || pkg.category === categoryFilter;
+                const statMatch = !statusFilter || (statusFilter === 'Active' ? pkg.status !== 'Inactive' : pkg.status === 'Inactive');
+                return titleMatch && catMatch && statMatch;
+              });
+
+              if (filteredPackages.length === 0) {
+                return (
+                  <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+                    No packages found. Click "+ Add New Package" to add one.
+                  </div>
+                );
+              }
+
+              return (
+                <table className={styles.adminTable}>
+                  <thead>
+                    <tr>
+                      <th>Sl No</th>
+                      <th>Package Name</th>
+                      <th>Destination</th>
+                      <th>Category</th>
+                      <th>Duration</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPackages.map((pkg, idx) => (
+                      <tr key={pkg.id}>
+                        <td>{idx + 1}</td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <ResolvedImage
+                              src={pkg.image || (pkg.gallery && pkg.gallery[0]) || ''}
+                              alt={pkg.title}
+                              style={{ width: '40px', height: '30px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--color-border)' }}
+                            />
+                            <span style={{ fontWeight: 700, color: 'var(--color-secondary-navy)' }}>{pkg.title}</span>
+                          </div>
+                        </td>
+                        <td>📍 {pkg.destination || 'India'}</td>
+                        <td>
+                          <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '0.25rem 0.6rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 700 }}>
+                            {pkg.category || 'Leisure'}
+                          </span>
+                        </td>
+                        <td>⏳ {pkg.duration || `${pkg.durationDays || 1} Days`}</td>
+                        <td style={{ fontWeight: 700, color: 'var(--color-primary-red)' }}>
+                          {pkg.show_price !== false && pkg.price ? `₹${Number(pkg.price).toLocaleString('en-IN')}` : 'Price on Request'}
+                        </td>
+                        <td>
+                          <span className={`${styles.statusPill} ${pkg.status === 'Inactive' ? styles.statusDraft : styles.statusActive}`}>
+                            {pkg.status === 'Inactive' ? 'Draft' : 'Active'}
+                          </span>
+                        </td>
+                        <td>
+                          <a 
+                            href={`/tour-packages/${pkg.slug || pkg.id}`} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className={`${styles.tableActionBtn} ${styles.actionView}`}
+                          >
+                            View
+                          </a>
+                          <button 
+                            type="button" 
+                            onClick={() => handleEdit(pkg)} 
+                            className={`${styles.tableActionBtn} ${styles.actionEdit}`}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => handleDelete(pkg.id, pkg.title)} 
+                            className={`${styles.tableActionBtn} ${styles.actionDelete}`}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              );
+            })()}
           </div>
-        </>
+
+          <div className={styles.tableFooterRow}>
+            <span>Showing 1 to {packages.length} of {packages.length} entries</span>
+            <div className={styles.paginationWrapper}>
+              <button className={styles.paginationBtn}>Previous</button>
+              <button className={`${styles.paginationBtn} ${styles.paginationBtnActive}`}>1</button>
+              <button className={styles.paginationBtn}>Next</button>
+            </div>
+          </div>
+        </div>
       ) : (
         <form onSubmit={handleSave} className={styles.formCard}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
