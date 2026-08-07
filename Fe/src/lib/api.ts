@@ -924,9 +924,21 @@ export interface CrmChatLeadDetail extends CrmChatLead {
   messages: CrmChatMessage[];
 }
 
+export interface ChatOrderData {
+  id: number;
+  order_ref: string;
+  service_name: string;
+  travel_date: string;
+  num_travelers: number;
+  amount: number;
+  status: string;
+  created_at?: string;
+}
+
 export interface ChatConversationResponse {
   conversation_id: string;
   agent_response: string;
+  order?: ChatOrderData | null;
   lead?: {
     name: string | null;
     email: string | null;

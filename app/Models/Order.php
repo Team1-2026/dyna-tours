@@ -13,9 +13,12 @@ class Order extends Model
     protected $fillable = [
         'staff_id',
         'customer_id',
+        'visitor_uuid',
+        'conversation_id',
         'service_id',
         'amount',
         'status',
+        'source',
         'description',
     ];
 

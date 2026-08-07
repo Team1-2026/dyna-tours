@@ -421,3 +421,86 @@
     font-size: 0.92rem;
   }
 }
+
+/* AI Order Summary Badge Card */
+.orderCard {
+  margin-top: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #86efac;
+  border-radius: 0.85rem;
+  box-shadow: 0 4px 14px -4px rgba(22, 101, 52, 0.15);
+  color: #14532d;
+  font-size: 0.88rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.orderCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #bbf7d0;
+}
+
+.orderBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #166534;
+  color: #ffffff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+
+.orderRef {
+  font-weight: 800;
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #15803d;
+}
+
+.orderCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.orderRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.orderLabel {
+  font-size: 0.8rem;
+  color: #166534;
+  opacity: 0.85;
+}
+
+.orderValue {
+  font-weight: 600;
+  color: #0f172a;
+  text-align: right;
+}
+
+.orderPrice {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #15803d;
+}
+
+.orderCardFooter {
+  padding-top: 0.4rem;
+  border-top: 1px dashed #bbf7d0;
+  font-size: 0.78rem;
+  color: #166534;
+  line-height: 1.35;
+  font-style: italic;
+}
+

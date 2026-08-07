@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { chatApi } from '@/lib/api';
+import { chatApi, ChatOrderData } from '@/lib/api';
 import { useGoogleIdentity } from '@/hooks/useGoogleIdentity';
 import { renderMessageWithLinks } from '@/lib/formatMessage';
 import styles from './ChatWidget.module.css';
@@ -13,6 +13,7 @@ interface ChatMessage {
   id: string;
   role: ChatRole;
   content: string;
+  order?: ChatOrderData | null;
   createdAt?: string;
 }
 
@@ -287,6 +288,7 @@ export default function ChatWidget() {
           id: createId(),
           role: 'assistant',
           content: response.agent_response,
+          order: response.order,
         },
       ]);
     } catch {
@@ -444,6 +446,35 @@ export default function ChatWidget() {
                         <span className={styles.staffLabel}>Travel Expert Reply</span>
                       )}
                       {renderMessageWithLinks(message.content, styles.chatLink, styles.staffNameBold)}
+                      {message.order && (
+                        <div className={styles.orderCard}>
+                          <div className={styles.orderCardHeader}>
+                            <span className={styles.orderBadge}>Official Order Generated</span>
+                            <span className={styles.orderRef}>{message.order.order_ref}</span>
+                          </div>
+                          <div className={styles.orderCardBody}>
+                            <div className={styles.orderRow}>
+                              <span className={styles.orderLabel}>Package / Service:</span>
+                              <span className={styles.orderValue}>{message.order.service_name}</span>
+                            </div>
+                            <div className={styles.orderRow}>
+                              <span className={styles.orderLabel}>Travel Date:</span>
+                              <span className={styles.orderValue}>{message.order.travel_date}</span>
+                            </div>
+                            <div className={styles.orderRow}>
+                              <span className={styles.orderLabel}>Travelers:</span>
+                              <span className={styles.orderValue}>{message.order.num_travelers} Guest(s)</span>
+                            </div>
+                            <div className={styles.orderRow}>
+                              <span className={styles.orderLabel}>Total Price:</span>
+                              <span className={styles.orderPrice}>₹{Number(message.order.amount).toLocaleString('en-IN')}</span>
+                            </div>
+                          </div>
+                          <div className={styles.orderCardFooter}>
+                            <span>Our team will contact you shortly with your confirmation invoice!</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\MirrorWebsiteChatToGoogleChat;
 use App\Models\WebsiteChatVisitor;
 use App\Services\ChatConversationService;
+use App\Services\ChatOrderExtractionService;
 use App\Services\GoogleIdentityService;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,7 @@ class PublicChatController extends Controller
     public function __construct(
         protected ChatConversationService $chatConversationService,
         protected GoogleIdentityService $googleIdentityService,
+        protected ChatOrderExtractionService $chatOrderExtractionService,
     ) {}
 
     public function googleIdentity(Request $request): JsonResponse
@@ -270,9 +272,18 @@ class PublicChatController extends Controller
                 $agentResponse,
             );
 
+            // Attempt automatic order extraction if all mandatory booking fields are gathered
+            $orderData = null;
+            try {
+                $orderData = $this->chatOrderExtractionService->extractAndCreateOrder($visitor, $resolvedConversationId);
+            } catch (Throwable $e) {
+                Log::error('Chat order extraction error: ' . $e->getMessage());
+            }
+
             return response()->json([
                 'conversation_id' => $resolvedConversationId,
                 'agent_response' => $agentResponse,
+                'order' => $orderData,
                 'lead' => [
                     'name' => $visitor->name,
                     'email' => $visitor->email,
