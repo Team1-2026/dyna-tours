@@ -162,10 +162,16 @@ export default function PackagesAdmin() {
     e.preventDefault();
     setSaveStatus('Saving...');
     
-    // Auto-generate duration string
+    // Auto-generate duration string and parse numeric fields
     const dataToSave = {
       ...formData,
-      duration: `${formData.durationDays} Days / ${formData.durationNights || 0} Nights`
+      price: formData.price === '' || formData.price === null || formData.price === undefined ? 0 : Number(formData.price),
+      tax: formData.tax === '' || formData.tax === null || formData.tax === undefined ? 0 : Number(formData.tax),
+      durationDays: formData.durationDays === '' || formData.durationDays === null || formData.durationDays === undefined ? 1 : Number(formData.durationDays),
+      durationNights: formData.durationNights === '' || formData.durationNights === null || formData.durationNights === undefined ? 0 : Number(formData.durationNights),
+      rating: formData.rating === '' || formData.rating === null || formData.rating === undefined ? 5 : Number(formData.rating),
+      reviewsCount: formData.reviewsCount === '' || formData.reviewsCount === null || formData.reviewsCount === undefined ? 0 : Number(formData.reviewsCount),
+      duration: `${formData.durationDays || 1} Days / ${formData.durationNights || 0} Nights`
     };
 
     try {
@@ -326,7 +332,7 @@ export default function PackagesAdmin() {
             <h3 style={{ margin: 0 }}>{editingId ? 'Edit Package' : 'Create New Package'}</h3>
             <div>
               <button type="button" className="btn btn-primary" onClick={() => setIsFormOpen(false)} style={{ marginRight: '1rem', cursor: 'pointer' }}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Save Package</button>
+              <button type="submit" className="btn btn-primary">{editingId ? 'Update Package' : 'Save Package'}</button>
             </div>
           </div>
 
@@ -346,7 +352,7 @@ export default function PackagesAdmin() {
             <div>
               <label>Price</label>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <input type="number" className={styles.formInput} value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} style={{ flex: 1, marginBottom: 0 }} />
+                <input type="text" className={styles.formInput} value={formData.price ?? ''} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="Enter price" style={{ flex: 1, marginBottom: 0 }} />
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', marginBottom: 0, fontWeight: 'normal', cursor: 'pointer' }}>
                   <input type="checkbox" checked={formData.show_price !== false} onChange={e => setFormData({...formData, show_price: e.target.checked})} style={{ margin: 0, width: 'auto' }} />
                   Show Price
@@ -356,7 +362,7 @@ export default function PackagesAdmin() {
             <div>
               <label>Tax & Permits Amount (Per Person)</label>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <input type="number" className={styles.formInput} value={formData.tax || 0} onChange={e => setFormData({...formData, tax: Number(e.target.value)})} style={{ flex: 1, marginBottom: 0 }} />
+                <input type="text" className={styles.formInput} value={formData.tax ?? ''} onChange={e => setFormData({...formData, tax: e.target.value})} placeholder="Enter tax amount" style={{ flex: 1, marginBottom: 0 }} />
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', marginBottom: 0, fontWeight: 'normal', cursor: 'pointer' }}>
                   <input type="checkbox" checked={formData.show_price_breakdown !== false} onChange={e => setFormData({...formData, show_price_breakdown: e.target.checked})} style={{ margin: 0, width: 'auto' }} />
                   Show Price Breakdown
@@ -365,11 +371,11 @@ export default function PackagesAdmin() {
             </div>
             <div>
               <label>Total Days</label>
-              <input type="number" className={styles.formInput} value={formData.durationDays} onChange={e => setFormData({...formData, durationDays: Number(e.target.value)})} />
+              <input type="text" className={styles.formInput} value={formData.durationDays ?? ''} onChange={e => setFormData({...formData, durationDays: e.target.value})} placeholder="e.g. 5" />
             </div>
             <div>
               <label>Total Nights</label>
-              <input type="number" className={styles.formInput} value={formData.durationNights || 0} onChange={e => setFormData({...formData, durationNights: Number(e.target.value)})} />
+              <input type="text" className={styles.formInput} value={formData.durationNights ?? ''} onChange={e => setFormData({...formData, durationNights: e.target.value})} placeholder="e.g. 4" />
             </div>
             <div>
               <label>Upload Featured Image / Banner <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 'normal' }}>(Recommended size: 1920 × 460 px)</span></label>
@@ -431,14 +437,12 @@ export default function PackagesAdmin() {
               <label>Star Rating (1.0 to 5.0) <span className="required-star">*</span></label>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <input 
-                  type="number" 
-                  step="0.1" 
-                  min="1" 
-                  max="5" 
+                  type="text" 
                   className={styles.formInput} 
-                  value={formData.rating ?? 5} 
-                  onChange={e => setFormData({...formData, rating: parseFloat(e.target.value) || 5})} 
+                  value={formData.rating ?? ''} 
+                  onChange={e => setFormData({...formData, rating: e.target.value})} 
                   style={{ flex: 1, marginBottom: 0 }} 
+                  placeholder="e.g. 4.8"
                 />
                 <span style={{ fontSize: '1.1rem', color: '#f59e0b', fontWeight: 'bold' }}>
                   ★ {formData.rating ?? 5}
@@ -448,11 +452,11 @@ export default function PackagesAdmin() {
             <div>
               <label>Reviews Count (Display Label)</label>
               <input 
-                type="number" 
-                min="0" 
+                type="text" 
                 className={styles.formInput} 
-                value={formData.reviewsCount ?? 0} 
-                onChange={e => setFormData({...formData, reviewsCount: parseInt(e.target.value, 10) || 0})} 
+                value={formData.reviewsCount ?? ''} 
+                onChange={e => setFormData({...formData, reviewsCount: e.target.value})} 
+                placeholder="e.g. 128 Reviews"
               />
             </div>
             <div>
@@ -536,11 +540,11 @@ export default function PackagesAdmin() {
                 <input placeholder="Destination" className={styles.formInput} value={stop.destination} onChange={e => updateRouteStop(idx, 'destination', e.target.value)} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <label style={{ fontSize: '0.9rem', color: '#666' }}>Days:</label>
-                  <input type="number" className={styles.formInput} style={{ width: '80px' }} value={stop.days || 0} onChange={e => updateRouteStop(idx, 'days', Number(e.target.value))} />
+                  <input type="text" className={styles.formInput} style={{ width: '80px' }} value={stop.days ?? ''} onChange={e => updateRouteStop(idx, 'days', e.target.value)} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <label style={{ fontSize: '0.9rem', color: '#666' }}>Nights:</label>
-                  <input type="number" className={styles.formInput} style={{ width: '80px' }} value={stop.nights} onChange={e => updateRouteStop(idx, 'nights', Number(e.target.value))} />
+                  <input type="text" className={styles.formInput} style={{ width: '80px' }} value={stop.nights ?? ''} onChange={e => updateRouteStop(idx, 'nights', e.target.value)} />
                 </div>
                 <button type="button" className="btn btn-primary" onClick={() => removeRouteStop(idx)}>Remove</button>
               </div>
@@ -833,7 +837,7 @@ export default function PackagesAdmin() {
           </div>
           
           <div style={{ textAlign: 'right', marginTop: '2rem' }}>
-            <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>Save Package</button>
+            <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>{editingId ? 'Update Package' : 'Save Package'}</button>
           </div>
         </form>
       )}

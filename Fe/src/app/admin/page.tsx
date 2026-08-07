@@ -1831,7 +1831,7 @@ export default function AdminDashboard() {
                           <div style={{ display: 'flex', alignItems: 'center' }}>
                             <span style={{ padding: '0.75rem', background: '#f1f5f9', border: '1px solid var(--color-border)', borderRight: 'none', borderRadius: 'var(--radius-md) 0 0 var(--radius-md)', fontWeight: 700 }}>₹</span>
                             <input
-                              type="number"
+                              type="text"
                               name="price"
                               id="price"
                               placeholder="Enter price"
@@ -3216,7 +3216,7 @@ export default function AdminDashboard() {
                 <div className="formGroup">
                   <label>Room Price ($ per night, optional)</label>
                   <input
-                    type="number"
+                    type="text"
                     placeholder="e.g. 240"
                     className="formInput"
                     value={roomForm.price || ''}

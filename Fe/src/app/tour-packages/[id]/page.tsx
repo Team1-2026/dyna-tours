@@ -246,19 +246,13 @@ export default function TourDetailsPage({ params }: PageProps) {
           {/* Left Column: Details & Tabs */}
           <div>
             {/* Main Picture */}
-            <div 
-              className={styles.gallery} 
-              style={{ backgroundImage: `url("${(() => {
-                if (!tour.image) return '';
-                if (typeof window !== 'undefined') {
-                  const storedData = localStorage.getItem(`uploaded_image_${tour.image}`);
-                  if (storedData) return storedData;
-                }
-                if (tour.image.startsWith('/') || tour.image.startsWith('http')) return tour.image;
-                return `/images/${tour.image}`;
-              })()}")`, cursor: 'pointer' }} 
-              onClick={() => setIsZoomOpen(true)}
-            />
+            <div className={styles.gallery} onClick={() => setIsZoomOpen(true)} style={{ cursor: 'pointer', overflow: 'hidden' }}>
+              <ResolvedImage
+                src={tour.image || (tour.gallery && tour.gallery.length > 0 ? tour.gallery[0] : '')}
+                alt={tour.title}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
 
             {/* Custom Banner Code */}
             {tour.bannerCode && (
@@ -364,6 +358,12 @@ export default function TourDetailsPage({ params }: PageProps) {
                     <div className={styles.accordion}>
                       {tour.itinerary.map((day: any) => {
                         const isExpanded = activeDay === day.day;
+                        const isTitleRedundant = day.title && (
+                          day.title.toLowerCase().trim() === `day ${day.day}` ||
+                          day.title.toLowerCase().trim() === `day-${day.day}` ||
+                          day.title.toLowerCase().trim() === `day${day.day}`
+                        );
+                        const cleanTitle = isTitleRedundant ? '' : day.title;
                         return (
                           <div 
                             key={day.day} 
@@ -376,7 +376,7 @@ export default function TourDetailsPage({ params }: PageProps) {
                             >
                               <div className={styles.accordionHeaderLeft}>
                                 <span className={styles.dayBadge}>DAY {day.day}</span>
-                                <span className={styles.accordionTitle}>{day.title}</span>
+                                {cleanTitle && <span className={styles.accordionTitle}>{cleanTitle}</span>}
                               </div>
                               <svg 
                                 className={`${styles.accordionChevron} ${isExpanded ? styles.chevronRotated : ''}`} 
@@ -465,9 +465,8 @@ export default function TourDetailsPage({ params }: PageProps) {
                                 </div>
 
                                 { (day.image || (day.gallery && day.gallery.length > 0) || day.logistics) && (() => {
-                                  const mainImg = day.image || (day.gallery && day.gallery[0]);
-                                  const thumbImages = day.image ? (day.gallery || []) : (day.gallery || []).slice(1);
-                                  const allImages = [mainImg, ...thumbImages].filter(Boolean);
+                                  const rawImages = [day.image, ...(Array.isArray(day.gallery) ? day.gallery : [])].filter(Boolean);
+                                  const allImages = Array.from(new Set(rawImages));
                                   const displayImages = allImages.slice(0, 4);
                                   return (
                                     <div className={styles.galleryColumn}>

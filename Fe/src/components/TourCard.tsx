@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import styles from './TourCard.module.css';
 import { Tour } from '@/data/toursData';
+import ResolvedImage from './ResolvedImage';
 
 interface TourCardProps {
   tour: Tour;
@@ -49,13 +50,18 @@ export default function TourCard({ tour, layout = 'vertical' }: TourCardProps) {
     return stars;
   };
 
-  const getImageUrl = (imagePath: string) => {
-    if (!imagePath) return '';
+  const getImageUrl = (imagePath?: string | null) => {
+    if (!imagePath || !imagePath.trim()) {
+      if (tour.gallery && tour.gallery.length > 0 && tour.gallery[0]) {
+        return tour.gallery[0];
+      }
+      return 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1000&q=80';
+    }
     if (typeof window !== 'undefined') {
       const storedData = localStorage.getItem(`uploaded_image_${imagePath}`);
       if (storedData) return storedData;
     }
-    if (imagePath.startsWith('/') || imagePath.startsWith('http')) return imagePath;
+    if (imagePath.startsWith('/') || imagePath.startsWith('http') || imagePath.startsWith('data:')) return imagePath;
     return `/images/${imagePath}`;
   };
 
@@ -63,10 +69,11 @@ export default function TourCard({ tour, layout = 'vertical' }: TourCardProps) {
     <div className={`${styles.card} ${layout === 'horizontal' ? styles.cardHorizontal : ''}`}>
       {/* Tour Image */}
       <div className={styles.imageContainer}>
-        <div 
+        <ResolvedImage 
+          src={tour.image || (tour.gallery && tour.gallery.length > 0 ? tour.gallery[0] : '')} 
+          alt={tour.title}
           className={styles.image} 
-          style={{ backgroundImage: `url("${getImageUrl(tour.image)}")` }} 
-          aria-label={tour.title}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
         <span className={styles.categoryBadge}>{tour.category}</span>
         {tour.show_price !== false && (

@@ -147,7 +147,7 @@ export default function GroupToursAdmin() {
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Starting Price <span className="required-star">*</span></label>
-              <input type="number" name="starting_price" value={editingTour.starting_price || 0} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              <input type="text" name="starting_price" value={editingTour.starting_price ?? ''} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Departure Date</label>

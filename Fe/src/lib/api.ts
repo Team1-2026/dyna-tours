@@ -41,7 +41,8 @@ export const formatPrice = (val: any): string => {
 };
 
 export const getImageUrl = (url?: string | null): string => {
-  if (!url) return '';
+  const fallback = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
+  if (!url || !url.trim()) return fallback;
   const trimmed = url.trim();
   if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     return trimmed;
@@ -53,7 +54,13 @@ export const getImageUrl = (url?: string | null): string => {
   if (trimmed.startsWith('storage/') || trimmed.startsWith('uploads/')) {
     return `${origin}/${trimmed}`;
   }
-  return trimmed;
+  if (trimmed.startsWith('/') || trimmed.startsWith('blob:')) {
+    return trimmed;
+  }
+  if (trimmed.includes('.')) {
+    return `/images/${trimmed}`;
+  }
+  return fallback;
 };
 
 export interface GalleryImage {
@@ -1457,8 +1464,15 @@ export const getPackages = async (): Promise<any[]> => {
   ];
 
   data = data.map((pkg: any) => {
-    // Strictly assign only the standard quick info items, discarding any other custom items (like 4-Star Hotel, Swiss Travel Pass, etc.)
+    // Strictly assign only the standard quick info items
     pkg.quickInfo = [...standardQuickInfo];
+    if (!pkg.image || !pkg.image.trim()) {
+      if (pkg.gallery && pkg.gallery.length > 0 && pkg.gallery[0]) {
+        pkg.image = pkg.gallery[0];
+      } else {
+        pkg.image = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
+      }
+    }
     return pkg;
   });
   
@@ -1467,12 +1481,17 @@ export const getPackages = async (): Promise<any[]> => {
 
 export const getPackageById = async (id: string): Promise<any | null> => {
   const packages = await getPackages();
-  return packages.find(p => p.id === id) || null;
+  return packages.find(p => p.id === id || p.slug === id) || null;
 };
 
 export const createPackage = async (data: Omit<any, 'id'>): Promise<any> => {
+  const defaultImg = data.gallery && data.gallery.length > 0 && data.gallery[0]
+    ? data.gallery[0]
+    : 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
+
   const newPackage = {
     ...data,
+    image: data.image && data.image.trim() ? data.image : defaultImg,
     id: data.slug || `pkg-${Date.now()}`,
   };
   const packages = await getPackages();
@@ -1483,10 +1502,17 @@ export const createPackage = async (data: Omit<any, 'id'>): Promise<any> => {
 
 export const updatePackage = async (id: string, data: Partial<any>): Promise<any> => {
   const packages = await getPackages();
-  const index = packages.findIndex(p => p.id === id);
+  const index = packages.findIndex(p => p.id === id || p.slug === id);
   if (index === -1) throw new Error('Package not found');
   
   const updatedPackage = { ...packages[index], ...data };
+  if (!updatedPackage.image || !updatedPackage.image.trim()) {
+    if (updatedPackage.gallery && updatedPackage.gallery.length > 0 && updatedPackage.gallery[0]) {
+      updatedPackage.image = updatedPackage.gallery[0];
+    } else {
+      updatedPackage.image = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
+    }
+  }
   packages[index] = updatedPackage;
   localStorage.setItem('dyna_packages', JSON.stringify(packages));
   return updatedPackage;

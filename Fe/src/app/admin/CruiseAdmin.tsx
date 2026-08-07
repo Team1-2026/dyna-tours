@@ -976,7 +976,7 @@ export default function CruiseAdmin() {
                 <div className="formGroup" style={{ marginBottom: '1.25rem' }}>
                   <label htmlFor="price">Price (₹)</label>
                   <input
-                    type="number"
+                    type="text"
                     id="price"
                     value={cruiseForm.price ?? ''}
                     onChange={e => setCruiseForm({ ...cruiseForm, price: e.target.value ? Number(e.target.value) : null })}
