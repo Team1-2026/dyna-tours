@@ -177,6 +177,7 @@ export default function AdminDashboard() {
   const [isDestinationsMenuOpen, setIsDestinationsMenuOpen] = useState(true);
   const [isPackagesMenuOpen, setIsPackagesMenuOpen] = useState(true);
   const [isGroupToursMenuOpen, setIsGroupToursMenuOpen] = useState(true);
+  const [isCruiseMenuOpen, setIsCruiseMenuOpen] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Hotels List Management Table Filters
@@ -1221,25 +1222,7 @@ export default function AdminDashboard() {
 
           <div className={styles.menuSectionHeader}>Operations</div>
           
-          <div 
-            className={`${styles.menuItem} ${activeTab === 'bookings' ? styles.menuItemActive : ''}`}
-            onClick={() => { setActiveTab('bookings'); }}
-          >
-            <div className={styles.menuItemLabel}>
-              <span>📅</span>
-              <span>Bookings</span>
-            </div>
-          </div>
 
-          <div 
-            className={`${styles.menuItem} ${activeTab === 'offers' ? styles.menuItemActive : ''}`}
-            onClick={() => { setActiveTab('offers'); }}
-          >
-            <div className={styles.menuItemLabel}>
-              <span>🏷️</span>
-              <span>Offers</span>
-            </div>
-          </div>
 
           <div 
             className={`${styles.menuItem} ${activeTab === 'facilities' ? styles.menuItemActive : ''}`}
@@ -1273,14 +1256,33 @@ export default function AdminDashboard() {
           </div>
 
           <div 
-            className={`${styles.menuItem} ${activeTab === 'cruise' ? styles.menuItemActive : ''}`}
-            onClick={() => { setActiveTab('cruise'); }}
+            className={`${styles.menuItem}`}
+            onClick={() => setIsCruiseMenuOpen(!isCruiseMenuOpen)}
+            style={{ cursor: 'pointer' }}
           >
             <div className={styles.menuItemLabel}>
               <span>🚢</span>
               <span>Cruise Holidays</span>
             </div>
+            <span style={{ fontSize: '0.75rem' }}>{isCruiseMenuOpen ? '▼' : '▶'}</span>
           </div>
+
+          {isCruiseMenuOpen && (
+            <div className={styles.subMenuContainer}>
+              <div 
+                className={`${styles.subMenuItem} ${activeTab === 'cruise' ? styles.subMenuItemActive : ''}`}
+                onClick={() => { setActiveTab('cruise'); window.dispatchEvent(new Event('admin:view-cruises')); }}
+              >
+                All Cruise Packages
+              </div>
+              <div 
+                className={`${styles.subMenuItem}`}
+                onClick={() => { setActiveTab('cruise'); setTimeout(() => window.dispatchEvent(new Event('admin:add-new-cruise')), 50); }}
+              >
+                Add New Cruise
+              </div>
+            </div>
+          )}
 
           <div className={styles.menuSectionHeader}>Settings</div>
           

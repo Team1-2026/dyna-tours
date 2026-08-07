@@ -219,6 +219,7 @@ export interface CruiseItineraryDay {
   day: string;
   title: string;
   description: string;
+  accommodation?: string;
 }
 
 export interface CruiseFaq {

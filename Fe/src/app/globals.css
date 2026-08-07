@@ -288,6 +288,30 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(231, 40, 43, 0.15);
 }
 
+/* ContentEditable Rich Text Editor Lists */
+div[contenteditable] ul,
+[contenteditable="true"] ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+  padding-left: 1.5rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+div[contenteditable] ol,
+[contenteditable="true"] ol {
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+  padding-left: 1.5rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+div[contenteditable] li,
+[contenteditable="true"] li {
+  display: list-item !important;
+  list-style-type: inherit !important;
+  margin-bottom: 0.35rem !important;
+}
+
 /* Button UI Components */
 .btn {
   display: inline-flex;

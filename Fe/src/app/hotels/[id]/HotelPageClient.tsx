@@ -37,23 +37,46 @@ const getEmbedUrl = (url: string | null, autoplay: boolean = false) => {
   const formatted = formatVideoUrl(url);
   if (!formatted) return null;
   
-  const autoParam = autoplay ? '?autoplay=1' : '';
-  
-  // YouTube Regex to match standard, youtu.be, and shorts links
-  const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/)|youtu\.b[e]\/)([^"&?\/\s]{11})/;
-  const match = formatted.match(ytRegex);
-  if (match && match[1]) {
-    return `https://www.youtube.com/embed/${match[1]}${autoParam}`;
-  }
-  
-  // Vimeo Regex
-  const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
-  const vimeoMatch = formatted.match(vimeoRegex);
-  if (vimeoMatch && vimeoMatch[1]) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}${autoParam}`;
-  }
-  
   return formatted;
+};
+
+const formatRichListContent = (content?: string | null) => {
+  if (!content || content === '<ul></ul>' || content.trim() === '') return null;
+
+  let items: string[] = [];
+
+  // Extract items from <li> tags if present
+  if (/<li/i.test(content)) {
+    const liMatches = content.match(/<li[^>]*>(.*?)<\/li>/gi);
+    if (liMatches && liMatches.length > 0) {
+      items = liMatches.map(li => li.replace(/<[^>]+>/g, '').trim()).filter(Boolean);
+    }
+  } 
+  // Extract items from <p> or <div> tags if present
+  else if (/<(p|div)/i.test(content)) {
+    const blockMatches = content.match(/<(p|div)[^>]*>(.*?)<\/(p|div)>/gi);
+    if (blockMatches && blockMatches.length > 0) {
+      items = blockMatches.map(block => block.replace(/<[^>]+>/g, '').trim()).filter(Boolean);
+    }
+  }
+
+  // Fallback for plain text or <br> linebreaks
+  if (items.length === 0) {
+    const cleanText = content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+    items = cleanText.split(/\n|\r/).map(item => item.trim()).filter(Boolean);
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className={styles.richList}>
+      <ul>
+        {items.map((item, idx) => (
+          <li key={idx}>{item.replace(/^[-•*✓✕]\s*/, '')}</li>
+        ))}
+      </ul>
+    </div>
+  );
 };
 
 export default function HotelPageClient({ initialHotel, initialRelatedHotels, id }: HotelPageClientProps) {
@@ -684,7 +707,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     </svg>
                     <span>Inclusions</span>
                   </h3>
-                  <div className={styles.richList} dangerouslySetInnerHTML={{ __html: hotel.inclusions }} />
+                  {formatRichListContent(hotel.inclusions)}
                 </div>
               )}
 
@@ -697,7 +720,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     </svg>
                     <span>Exclusions</span>
                   </h3>
-                  <div className={styles.richList} dangerouslySetInnerHTML={{ __html: hotel.exclusions }} />
+                  {formatRichListContent(hotel.exclusions)}
                 </div>
               )}
             </div>
@@ -718,7 +741,9 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                 </svg>
               </div>
               {isTermsOpen && (
-                <div className={styles.termsBody} dangerouslySetInnerHTML={{ __html: hotel.terms_conditions }} />
+                <div className={styles.termsBody}>
+                  {formatRichListContent(hotel.terms_conditions)}
+                </div>
               )}
             </div>
           )}

@@ -208,14 +208,6 @@ export default function Home() {
       {/* 11. Testimonials Slider */}
       <TestimonialsSection testimonials={testimonials} />
 
-      {/* 13. Final Call To Action Banner */}
-      <FinalCTA 
-        heading={ctaData?.heading}
-        description={ctaData?.description}
-        bgImage={ctaData?.bg_image}
-        whatsappNumber={ctaData?.whatsapp_number}
-      />
-
     </div>
   );
 }

@@ -21,7 +21,7 @@ import { defaultBottomContentHtml } from '@/components/home/HomeBottomContent';
 import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
 export default function HomePageAdmin() {
-  const [activeSubTab, setActiveSubTab] = useState<'visibility' | 'hero' | 'offers' | 'about' | 'testimonials' | 'cta' | 'reviews_content'>('visibility');
+  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'offers' | 'about' | 'testimonials' | 'cta' | 'reviews_content'>('hero');
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
@@ -138,13 +138,10 @@ export default function HomePageAdmin() {
       {/* Sub Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
         {[
-          { id: 'visibility', label: '👁️ Section Visibility' },
           { id: 'hero', label: '🎬 Hero Slides (4-6)' },
           { id: 'offers', label: '🏷️ Exclusive Deals' },
           { id: 'about', label: 'ℹ️ About & Counters' },
           { id: 'testimonials', label: '💬 Testimonials' },
-          { id: 'reviews_content', label: '📝 Content Below Reviews' },
-          { id: 'cta', label: '📢 Final CTA Banner' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -166,46 +163,6 @@ export default function HomePageAdmin() {
           </button>
         ))}
       </div>
-
-      {/* 0. Home Page Section Visibility Controls */}
-      {activeSubTab === 'visibility' && (
-        <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: '#0C2745', fontWeight: 800 }}>👁️ Home Page Section Visibility Controls</h3>
-          <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
-            Enable or disable sections on the Home Page. Changes take effect immediately across all visitors.
-          </p>
-
-          <SectionVisibilityToggle
-            sectionKey="packages"
-            title="📦 Trending Holiday Packages Section"
-            description="Controls the display of the Trending Holiday Packages grid on the Home Page."
-          />
-
-          <SectionVisibilityToggle
-            sectionKey="destinations"
-            title="🗺️ Popular Destinations Section"
-            description="Controls the display of the Popular Destinations masonry grid on the Home Page."
-          />
-
-          <SectionVisibilityToggle
-            sectionKey="themes"
-            title="🎨 Holiday Themes Section"
-            description="Controls the display of the Explore Holiday Themes card grid on the Home Page."
-          />
-
-          <SectionVisibilityToggle
-            sectionKey="visa"
-            title="🛂 Visa Services Section"
-            description="Controls the display of the Visa Services section on the Home Page."
-          />
-
-          <SectionVisibilityToggle
-            sectionKey="hotels"
-            title="🏨 Featured Hotels Section"
-            description="Controls the display of the Featured Luxury Hotels section on the Home Page."
-          />
-        </div>
-      )}
       {activeSubTab === 'hero' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {heroSlides.map((slide, idx) => (
@@ -566,106 +523,7 @@ export default function HomePageAdmin() {
         </div>
       )}
 
-      {/* 5. Final CTA Banner */}
-      {activeSubTab === 'cta' && (
-        <div style={{ padding: '1.25rem', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc' }}>
-          <h4 style={{ margin: '0 0 1rem 0', color: '#0C2745', fontWeight: 800 }}>Final Call to Action Banner</h4>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Main Banner Heading</label>
-            <input
-              type="text"
-              value={ctaData.heading}
-              onChange={(e) => setCtaData({ ...ctaData, heading: e.target.value })}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontWeight: 700 }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Short Description</label>
-            <textarea
-              rows={2}
-              value={ctaData.description}
-              onChange={(e) => setCtaData({ ...ctaData, description: e.target.value })}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Background Image URL</label>
-              <input
-                type="text"
-                value={ctaData.bgImage}
-                onChange={(e) => setCtaData({ ...ctaData, bgImage: e.target.value })}
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>WhatsApp Number (Country code)</label>
-              <input
-                type="text"
-                value={ctaData.whatsappNumber}
-                onChange={(e) => setCtaData({ ...ctaData, whatsappNumber: e.target.value })}
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 6. Content Below Reviews (Rich Text Editor) */}
-      {activeSubTab === 'reviews_content' && (
-        <div style={{ padding: '1.25rem', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc' }}>
-          <div style={{ marginBottom: '1.25rem' }}>
-            <h4 style={{ margin: '0 0 0.25rem 0', color: '#0C2745', fontWeight: 800, fontSize: '1.1rem' }}>
-              📝 Manage Content Below Reviews Section
-            </h4>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
-              Use the rich text editor to format paragraphs, bullet points, headings (H1-H4), bold/italics, text alignment (Left, Center, Right, Justify), and internal/external hyperlinks.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
-                Section Title (Optional)
-              </label>
-              <input
-                type="text"
-                value={reviewsContentData.title}
-                onChange={(e) => setReviewsContentData({ ...reviewsContentData, title: e.target.value })}
-                placeholder="e.g. Discover Exceptional Travel Experiences"
-                style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontWeight: 700 }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
-                Section Subtitle / Tag (Optional)
-              </label>
-              <input
-                type="text"
-                value={reviewsContentData.subtitle}
-                onChange={(e) => setReviewsContentData({ ...reviewsContentData, subtitle: e.target.value })}
-                placeholder="e.g. KNOWLEDGE & INSIGHTS"
-                style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>
-              Rich Text Editor Content
-            </label>
-            <RichTextEditor
-              value={reviewsContentData.content}
-              onChange={(html) => setReviewsContentData({ ...reviewsContentData, content: html })}
-              minHeight="280px"
-              placeholder="Enter rich text content here..."
-            />
-          </div>
-        </div>
-      )}
 
     </div>
   );

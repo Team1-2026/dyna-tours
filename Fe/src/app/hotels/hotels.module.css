@@ -661,14 +661,58 @@
 }
 
 .richList {
-  padding-left: 1.25rem;
   line-height: 1.8;
   color: var(--color-text-secondary);
   font-size: 0.95rem;
 }
 
-.richList li {
-  margin-bottom: 0.5rem;
+.richList ul,
+.richList ol {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 0 !important;
+}
+
+.inclusionsBlock .richList li,
+.inclusionsBlock .richList p {
+  position: relative !important;
+  padding-left: 1.75rem !important;
+  margin-bottom: 0.65rem !important;
+  line-height: 1.6 !important;
+  color: #334155 !important;
+  list-style: none !important;
+}
+
+.inclusionsBlock .richList li::before,
+.inclusionsBlock .richList p::before {
+  content: '✓' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  color: #10b981 !important;
+  font-weight: 900 !important;
+  font-size: 1.05rem !important;
+}
+
+.exclusionsBlock .richList li,
+.exclusionsBlock .richList p {
+  position: relative !important;
+  padding-left: 1.75rem !important;
+  margin-bottom: 0.65rem !important;
+  line-height: 1.6 !important;
+  color: #334155 !important;
+  list-style: none !important;
+}
+
+.exclusionsBlock .richList li::before,
+.exclusionsBlock .richList p::before {
+  content: '✕' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  color: var(--color-primary-red, #dc2626) !important;
+  font-weight: 900 !important;
+  font-size: 0.95rem !important;
 }
 
 /* Terms and Conditions Accordion */
@@ -708,6 +752,36 @@
   font-size: 0.95rem;
   color: var(--color-text-secondary);
   animation: slideDown 0.2s ease-out;
+}
+
+.termsBody ul,
+.termsBody ol {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 0 !important;
+}
+
+.termsBody li,
+.termsBody p,
+.termsBody div:not(:has(> *)) {
+  position: relative !important;
+  padding-left: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+  line-height: 1.7 !important;
+  color: #334155 !important;
+  list-style: none !important;
+}
+
+.termsBody li::before,
+.termsBody p::before,
+.termsBody div:not(:has(> *))::before {
+  content: '•' !important;
+  position: absolute !important;
+  left: 0.35rem !important;
+  top: 0 !important;
+  color: var(--color-secondary-navy, #0f172a) !important;
+  font-weight: 900 !important;
+  font-size: 1.2rem !important;
 }
 
 /* Related Hotels styling */
