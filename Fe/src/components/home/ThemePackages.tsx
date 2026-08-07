@@ -47,9 +47,9 @@ export const ThemePackages: React.FC<ThemePackagesProps> = ({
           </p>
         </div>
 
-        {/* Themes 9-Card Grid */}
+        {/* Themes Grid (Limited to 2 rows / 6 cards max) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {themes.map((theme, idx) => {
+          {themes.slice(0, 6).map((theme, idx) => {
             const Icon = getIconComponent(theme.iconName);
             return (
               <motion.div
@@ -97,6 +97,17 @@ export const ThemePackages: React.FC<ThemePackagesProps> = ({
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Explore All Holiday Themes Button */}
+        <div className="mt-12 text-center">
+          <Link
+            href="/holidays"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-8 py-3.5 text-sm font-bold text-slate-900 shadow-sm transition-all hover:bg-slate-900 hover:text-white hover:scale-105"
+          >
+            <span>Explore All Holiday Themes</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
 
       </div>

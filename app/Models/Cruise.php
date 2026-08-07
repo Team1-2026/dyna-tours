@@ -22,6 +22,8 @@ class Cruise extends Model
         'short_description',
         'about',
         'banner_image',
+        'banner_title',
+        'banner_tagline',
         'gallery',
         'highlights',
         'itinerary',

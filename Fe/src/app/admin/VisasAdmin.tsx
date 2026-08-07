@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import styles from './admin.module.css';
 import { api } from '@/lib/api';
 import { VisaCountry, eVisaDestinations, schengenCountries, otherCountries } from '@/data/visaData';
+import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
 const WysiwygEditor = dynamic(
   () => import('react-simple-wysiwyg').then((mod) => {
@@ -211,7 +212,7 @@ export default function VisasAdmin() {
 
       {!isEditing ? (
         <>
-          <div className={styles.sectionHeader}>
+          <div className={styles.sectionHeader} style={{ marginBottom: '1.5rem' }}>
             <h2 className={styles.sectionTitle}>Manage Visa Services</h2>
             <div style={{ display: 'flex', gap: '1rem' }}>
               {visas.length < 5 && (
@@ -365,6 +366,31 @@ export default function VisasAdmin() {
                   value={selectedVisa?.stayPeriod || ''} 
                   onChange={e => setSelectedVisa({...selectedVisa, stayPeriod: e.target.value})}
                 />
+              </div>
+
+              <div className={styles.formGroup} style={{ gridColumn: '1 / -1', marginTop: '0.5rem', padding: '1.25rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#0C2745' }}>👁️ Visibility & Home Page Controls</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#15803d', margin: 0 }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedVisa?.popular !== false} 
+                      onChange={e => setSelectedVisa({ ...selectedVisa, popular: e.target.checked })} 
+                      style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                    />
+                    <span>Show on Home Page (Popular Visa Service)</span>
+                  </label>
+
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, color: '#334155', margin: 0 }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedVisa?.status !== 'Inactive'} 
+                      onChange={e => setSelectedVisa({ ...selectedVisa, status: e.target.checked ? 'Active' : 'Inactive' })} 
+                      style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                    />
+                    <span>Enable Visa Service (Active Status)</span>
+                  </label>
+                </div>
               </div>
             </div>
 

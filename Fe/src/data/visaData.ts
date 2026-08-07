@@ -15,6 +15,8 @@ export interface VisaCountry {
   terms: string[];
   faqs: { question: string; answer: string }[];
   region?: string;
+  popular?: boolean;
+  status?: string;
   meta_title?: string;
   meta_description?: string;
   meta_keywords?: string;

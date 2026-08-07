@@ -8,7 +8,10 @@ import {
   homePageApi, 
   formatPrice,
   Hotel, 
-  Destination 
+  Destination,
+  getSectionVisibility,
+  SectionVisibility,
+  defaultSectionVisibility
 } from '@/lib/api';
 
 import {
@@ -57,11 +60,20 @@ export default function Home() {
   const [aboutData, setAboutData] = useState<any>(null);
   const [ctaData, setCtaData] = useState<any>(null);
   const [reviewsContentData, setReviewsContentData] = useState<any>(null);
+  const [sectionVisibility, setSectionVisibility] = useState<SectionVisibility>(defaultSectionVisibility);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
+
+    setSectionVisibility(getSectionVisibility());
+    const handleVisibilityChanged = () => {
+      if (isMounted) setSectionVisibility(getSectionVisibility());
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('dyna_section_visibility_changed', handleVisibilityChanged);
+    }
 
     async function loadHomeContent() {
       try {
@@ -123,6 +135,9 @@ export default function Home() {
 
     return () => {
       isMounted = false;
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('dyna_section_visibility_changed', handleVisibilityChanged);
+      }
     };
   }, []);
 
@@ -139,31 +154,41 @@ export default function Home() {
       <ExclusiveDeals offers={offers} />
 
       {/* 4. Trending Holiday Packages */}
-      <TrendingPackages 
-        packages={packages} 
-        adminDescription={aboutData?.trending_description}
-      />
+      {sectionVisibility.packages !== false && (
+        <TrendingPackages 
+          packages={packages} 
+          adminDescription={aboutData?.trending_description}
+        />
+      )}
 
       {/* 5. Popular Destinations */}
-      <PopularDestinations 
-        destinations={destinations}
-        adminDescription={aboutData?.destinations_description}
-      />
+      {sectionVisibility.destinations !== false && (
+        <PopularDestinations 
+          destinations={destinations}
+          adminDescription={aboutData?.destinations_description}
+        />
+      )}
 
       {/* 6. Theme Packages Grid */}
-      <ThemePackages 
-        themes={themes}
-        adminDescription={aboutData?.themes_description}
-      />
+      {sectionVisibility.themes !== false && (
+        <ThemePackages 
+          themes={themes}
+          adminDescription={aboutData?.themes_description}
+        />
+      )}
 
       {/* 7. Visa Services */}
-      <VisaServicesSection 
-        countries={visaCountries}
-        adminDescription={aboutData?.visa_description}
-      />
+      {sectionVisibility.visa !== false && (
+        <VisaServicesSection 
+          countries={visaCountries}
+          adminDescription={aboutData?.visa_description}
+        />
+      )}
 
       {/* 8. Featured Luxury Hotels */}
-      <FeaturedHotelsSection hotels={featuredHotels} />
+      {sectionVisibility.hotels !== false && (
+        <FeaturedHotelsSection hotels={featuredHotels} />
+      )}
 
       {/* 9. About Dyna Tours India & Counter Stats */}
       <AboutSection 
@@ -178,17 +203,10 @@ export default function Home() {
       />
 
       {/* 10. Latest Blogs & Travel Guides */}
-      <LatestBlogs blogs={blogs} />
+      {/* <LatestBlogs blogs={blogs} /> */}
 
       {/* 11. Testimonials Slider */}
       <TestimonialsSection testimonials={testimonials} />
-
-      {/* 12. Content Below Reviews (Rich Text CMS Managed) */}
-      <HomeBottomContent 
-        title={reviewsContentData?.title}
-        subtitle={reviewsContentData?.subtitle}
-        content={reviewsContentData?.content}
-      />
 
       {/* 13. Final Call To Action Banner */}
       <FinalCTA 

@@ -132,7 +132,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
   const [formSuccess, setFormSuccess] = useState(false);
 
   // Determine if it is a State/Country (parent) page or Detail page
-  const subDestinations = destination.sub_destinations || [];
+  const subDestinations = (destination.sub_destinations || []).filter(d => !d.status || d.status.toLowerCase() !== 'inactive');
   const isStatePage = destination.parent_id === null && subDestinations.length > 0;
 
   // Filter sub-destinations based on search query

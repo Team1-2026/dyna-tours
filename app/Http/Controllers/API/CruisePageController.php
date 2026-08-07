@@ -59,6 +59,22 @@ class CruisePageController extends Controller
             $page = new CruisePage();
         }
 
+        if ($request->has('faqs')) {
+            $val = $request->input('faqs');
+            if (is_string($val)) {
+                $decoded = json_decode($val, true);
+                $val = is_array($decoded) ? $decoded : [];
+            } elseif (is_null($val) || $val === '') {
+                $val = [];
+            } elseif (!is_array($val)) {
+                $val = [];
+            }
+            $request->merge(['faqs' => $val]);
+            if ($request->isJson()) {
+                $request->json()->add(['faqs' => $val]);
+            }
+        }
+
         $validated = $request->validate([
             'banner_title' => 'sometimes|string',
             'banner_tagline' => 'sometimes|string',
@@ -72,7 +88,7 @@ class CruisePageController extends Controller
             'cta_image' => 'sometimes|string|nullable',
             'cta_button1_text' => 'sometimes|string',
             'cta_button2_text' => 'sometimes|string',
-            'faqs' => 'sometimes|array',
+            'faqs' => 'sometimes|nullable|array',
             'meta_title' => 'sometimes|string|nullable',
             'meta_description' => 'sometimes|string|nullable',
         ]);

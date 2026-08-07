@@ -80,6 +80,7 @@ export interface Destination {
   }> | null;
   show_packages: boolean;
   show_hotels: boolean;
+  show_on_home?: boolean;
   sub_destinations?: Destination[];
   hotels?: Hotel[];
 
@@ -241,6 +242,8 @@ export interface Cruise {
   short_description: string;
   about?: string | null;
   banner_image?: string | null;
+  banner_title?: string | null;
+  banner_tagline?: string | null;
   gallery?: string[] | null;
   highlights?: string[] | null;
   itinerary?: CruiseItineraryDay[] | null;
@@ -426,23 +429,45 @@ export const api = {
   },
 
   // Destination operations
-  getDestinations: async (): Promise<Destination[]> => {
+  getDestinations: async (params?: { status?: string }): Promise<Destination[]> => {
     try {
-      return await apiFetch<Destination[]>('/destinations');
+      const query = params?.status ? `?status=${params.status}` : '';
+      const list = await apiFetch<Destination[]>(`/destinations${query}`);
+      if (params?.status === 'all') return list;
+      return list
+        .filter(d => !d.status || d.status.toLowerCase() !== 'inactive')
+        .map(d => ({
+          ...d,
+          sub_destinations: d.sub_destinations
+            ? d.sub_destinations.filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive')
+            : d.sub_destinations,
+        }));
     } catch {
-      return mockDestinations;
+      if (params?.status === 'all') return mockDestinations;
+      return mockDestinations
+        .filter(d => !d.status || d.status.toLowerCase() !== 'inactive')
+        .map(d => ({
+          ...d,
+          sub_destinations: d.sub_destinations
+            ? d.sub_destinations.filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive')
+            : d.sub_destinations,
+        }));
     }
   },
 
   getDestination: async (id: string): Promise<Destination> => {
     try {
-      return await apiFetch<Destination>(`/destinations/${id}`);
+      const dest = await apiFetch<Destination>(`/destinations/${id}`);
+      if (dest && dest.sub_destinations) {
+        dest.sub_destinations = dest.sub_destinations.filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive');
+      }
+      return dest;
     } catch {
-      const found = mockDestinations.find(d => d.id === id || String(d.id) === String(id));
+      const found = mockDestinations.find(d => (d.id === id || String(d.id) === String(id)) && (!d.status || d.status.toLowerCase() !== 'inactive'));
       if (!found) throw new Error('Destination not found');
       return {
         ...found,
-        sub_destinations: mockDestinations.filter(d => d.parent_id === id || String(d.parent_id) === String(id)),
+        sub_destinations: mockDestinations.filter(d => (d.parent_id === id || String(d.parent_id) === String(id)) && (!d.status || d.status.toLowerCase() !== 'inactive')),
         hotels: mockHotels.filter(h => h.destination_id === id || String(h.destination_id) === String(id)).sort((a, b) => {
           const orderA = a.order_no ?? Infinity;
           const orderB = b.order_no ?? Infinity;
@@ -1798,6 +1823,42 @@ export const homePageApi = {
       return null;
     }
   },
+};
+
+// --- Section Visibility Management ---
+export interface SectionVisibility {
+  packages: boolean;
+  destinations: boolean;
+  themes: boolean;
+  visa: boolean;
+  hotels: boolean;
+}
+
+export const defaultSectionVisibility: SectionVisibility = {
+  packages: true,
+  destinations: true,
+  themes: true,
+  visa: true,
+  hotels: true,
+};
+
+export const getSectionVisibility = (): SectionVisibility => {
+  if (typeof window !== 'undefined') {
+    const local = localStorage.getItem('dyna_section_visibility');
+    if (local) {
+      try {
+        return { ...defaultSectionVisibility, ...JSON.parse(local) };
+      } catch {}
+    }
+  }
+  return defaultSectionVisibility;
+};
+
+export const setSectionVisibility = (visibility: SectionVisibility): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('dyna_section_visibility', JSON.stringify(visibility));
+    window.dispatchEvent(new Event('dyna_section_visibility_changed'));
+  }
 };
 
 

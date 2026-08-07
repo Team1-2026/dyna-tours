@@ -35,7 +35,9 @@ class ChatAgent implements Agent, Conversational
 
         // 1. Destinations & Packages
         try {
-            $destinations = \App\Models\Destination::all()
+            $destinations = \App\Models\Destination::where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'Active')->orWhere('status', 'active');
+            })->get()
                 ->map(function ($d) {
                     $text = "- {$d->name}";
                     $loc = array_filter([$d->city, $d->state, $d->country]);

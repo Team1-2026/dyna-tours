@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { getPackages, createPackage, updatePackage, deletePackage } from '@/lib/api';
 import styles from './admin.module.css';
 
+import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
+
 export default function PackagesAdmin() {
   const compressAndSaveImage = (file: File, key: string) => {
     const reader = new FileReader();
@@ -276,7 +278,7 @@ export default function PackagesAdmin() {
       {!isFormOpen ? (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-            <h2 style={{ color: 'var(--color-secondary-navy)' }}>Packages Management</h2>
+            <h2 style={{ color: 'var(--color-secondary-navy)', margin: 0 }}>Packages Management</h2>
             <button className="btn btn-primary" onClick={handleAddNew}>+ Add New Package</button>
           </div>
           
@@ -469,6 +471,41 @@ export default function PackagesAdmin() {
                 <option value="Family Tour Packages">Family Tour Packages</option>
                 <option value="Culture">Culture</option>
               </select>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '2rem', padding: '1.25rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#0C2745', fontWeight: 800 }}>👁️ Display & Home Page Visibility Controls</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.25rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#15803d', margin: 0 }}>
+                <input 
+                  type="checkbox" 
+                  checked={formData.show_on_home !== false} 
+                  onChange={e => setFormData({...formData, show_on_home: e.target.checked})} 
+                  style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                />
+                <span>Show on Home Page (Trending Packages)</span>
+              </label>
+
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.25rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, color: '#334155', margin: 0 }}>
+                <input 
+                  type="checkbox" 
+                  checked={formData.show_price !== false} 
+                  onChange={e => setFormData({...formData, show_price: e.target.checked})} 
+                  style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                />
+                <span>Display Package Price</span>
+              </label>
+
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.25rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, color: '#334155', margin: 0 }}>
+                <input 
+                  type="checkbox" 
+                  checked={formData.status !== 'Inactive'} 
+                  onChange={e => setFormData({...formData, status: e.target.checked ? 'Active' : 'Inactive'})} 
+                  style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                />
+                <span>Package Active Status</span>
+              </label>
             </div>
           </div>
 

@@ -11,26 +11,70 @@ class DestinationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
-        // Return all destinations. Eager load subDestinations.
-        $destinations = Destination::with('subDestinations')
-            ->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC')
+        $query = Destination::query();
+
+        if ($request->has('status')) {
+            if ($request->status !== 'all') {
+                $query->where('status', $request->status);
+            }
+        } else {
+            // Default for public frontend requests: only Active or null status
+            $query->where(function ($q) {
+                $q->whereNull('status')
+                  ->orWhere('status', 'Active')
+                  ->orWhere('status', 'active');
+            });
+        }
+
+        if ($request->has('status') && $request->status === 'all') {
+            $query->with('subDestinations');
+        } else {
+            $query->with(['subDestinations' => function ($sq) {
+                $sq->where(function ($q) {
+                    $q->whereNull('status')
+                      ->orWhere('status', 'Active')
+                      ->orWhere('status', 'active');
+                });
+            }]);
+        }
+
+        $destinations = $query->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC')
             ->get();
+
         return response()->json($destinations);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        $destination = Destination::with(['subDestinations', 'hotels'])
-            ->where('id', $id)
-            ->orWhere('url_slug', $id)
-            ->first();
+        $includeInactive = $request->has('status') && $request->status === 'all';
+
+        $query = Destination::with(['subDestinations' => function ($sq) use ($includeInactive) {
+            if (!$includeInactive) {
+                $sq->where(function ($q) {
+                    $q->whereNull('status')
+                      ->orWhere('status', 'Active')
+                      ->orWhere('status', 'active');
+                });
+            }
+        }, 'hotels']);
+
+        $destination = $query->where(function ($q) use ($id) {
+            $q->where('id', $id)->orWhere('url_slug', $id);
+        })->first();
 
         if (!$destination) {
+            return response()->json(['message' => 'Destination not found'], 404);
+        }
+
+        if (!$includeInactive && $destination->status && strtolower($destination->status) === 'inactive') {
             return response()->json(['message' => 'Destination not found'], 404);
         }
 

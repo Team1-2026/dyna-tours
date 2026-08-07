@@ -258,7 +258,7 @@ label span.required {
   display: inline-block;
 }
 
-input, select, textarea {
+input:not([type="checkbox"]):not([type="radio"]), select, textarea {
   font-family: inherit;
   font-size: 1rem;
   padding: 0.75rem 1rem;
@@ -269,6 +269,18 @@ input, select, textarea {
   outline: none;
   transition: var(--transition-fast);
   width: 100%;
+}
+
+input[type="checkbox"], input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  accent-color: var(--color-primary-red);
+  flex-shrink: 0;
 }
 
 input:focus, select:focus, textarea:focus {

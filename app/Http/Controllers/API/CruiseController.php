@@ -60,13 +60,18 @@ class CruiseController extends Controller
                     $updates[$field] = is_array($decoded) ? $decoded : [];
                 } elseif (is_null($val) || $val === '') {
                     $updates[$field] = [];
-                } elseif (!is_array($val)) {
+                } elseif (is_array($val)) {
+                    $updates[$field] = $val;
+                } else {
                     $updates[$field] = [];
                 }
             }
         }
         if (!empty($updates)) {
             $request->merge($updates);
+            if ($request->isJson()) {
+                $request->json()->add($updates);
+            }
         }
     }
 
@@ -87,6 +92,8 @@ class CruiseController extends Controller
             'short_description' => 'required|string',
             'about' => 'nullable|string',
             'banner_image' => 'nullable|string',
+            'banner_title' => 'nullable|string|max:255',
+            'banner_tagline' => 'nullable|string|max:255',
             'gallery' => 'nullable|array',
             'highlights' => 'nullable|array',
             'itinerary' => 'nullable|array',
@@ -139,6 +146,8 @@ class CruiseController extends Controller
             'short_description' => 'sometimes|string',
             'about' => 'sometimes|string|nullable',
             'banner_image' => 'sometimes|string|nullable',
+            'banner_title' => 'sometimes|string|nullable|max:255',
+            'banner_tagline' => 'sometimes|string|nullable|max:255',
             'gallery' => 'sometimes|nullable|array',
             'highlights' => 'sometimes|nullable|array',
             'itinerary' => 'sometimes|nullable|array',

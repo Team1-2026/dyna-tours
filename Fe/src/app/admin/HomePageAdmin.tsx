@@ -18,9 +18,10 @@ import {
 } from '@/data/homeData';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { defaultBottomContentHtml } from '@/components/home/HomeBottomContent';
+import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
 export default function HomePageAdmin() {
-  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'offers' | 'about' | 'testimonials' | 'cta' | 'reviews_content'>('hero');
+  const [activeSubTab, setActiveSubTab] = useState<'visibility' | 'hero' | 'offers' | 'about' | 'testimonials' | 'cta' | 'reviews_content'>('visibility');
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
@@ -137,6 +138,7 @@ export default function HomePageAdmin() {
       {/* Sub Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
         {[
+          { id: 'visibility', label: '👁️ Section Visibility' },
           { id: 'hero', label: '🎬 Hero Slides (4-6)' },
           { id: 'offers', label: '🏷️ Exclusive Deals' },
           { id: 'about', label: 'ℹ️ About & Counters' },
@@ -165,7 +167,45 @@ export default function HomePageAdmin() {
         ))}
       </div>
 
-      {/* 1. Hero Slides Editor */}
+      {/* 0. Home Page Section Visibility Controls */}
+      {activeSubTab === 'visibility' && (
+        <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ margin: '0 0 0.5rem 0', color: '#0C2745', fontWeight: 800 }}>👁️ Home Page Section Visibility Controls</h3>
+          <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
+            Enable or disable sections on the Home Page. Changes take effect immediately across all visitors.
+          </p>
+
+          <SectionVisibilityToggle
+            sectionKey="packages"
+            title="📦 Trending Holiday Packages Section"
+            description="Controls the display of the Trending Holiday Packages grid on the Home Page."
+          />
+
+          <SectionVisibilityToggle
+            sectionKey="destinations"
+            title="🗺️ Popular Destinations Section"
+            description="Controls the display of the Popular Destinations masonry grid on the Home Page."
+          />
+
+          <SectionVisibilityToggle
+            sectionKey="themes"
+            title="🎨 Holiday Themes Section"
+            description="Controls the display of the Explore Holiday Themes card grid on the Home Page."
+          />
+
+          <SectionVisibilityToggle
+            sectionKey="visa"
+            title="🛂 Visa Services Section"
+            description="Controls the display of the Visa Services section on the Home Page."
+          />
+
+          <SectionVisibilityToggle
+            sectionKey="hotels"
+            title="🏨 Featured Hotels Section"
+            description="Controls the display of the Featured Luxury Hotels section on the Home Page."
+          />
+        </div>
+      )}
       {activeSubTab === 'hero' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {heroSlides.map((slide, idx) => (

@@ -23,6 +23,8 @@ export default function CruiseAdmin() {
     short_description: '',
     about: '',
     banner_image: '',
+    banner_title: '',
+    banner_tagline: '',
     featured: true,
     order_no: 1,
     status: 'Active',
@@ -99,6 +101,8 @@ export default function CruiseAdmin() {
       short_description: '',
       about: '',
       banner_image: '',
+      banner_title: '',
+      banner_tagline: '',
       featured: true,
       order_no: cruises.length + 1,
       status: 'Active',
@@ -117,16 +121,31 @@ export default function CruiseAdmin() {
     e.preventDefault();
     setSaveStatus('Saving...');
     try {
+      const { show_on_homepage, ...cleanForm } = cruiseForm as any;
+      const payload: Partial<Cruise> = {
+        ...cleanForm,
+        banner_title: cruiseForm.banner_title || null,
+        banner_tagline: cruiseForm.banner_tagline || null,
+        gallery: Array.isArray(cruiseForm.gallery) ? cruiseForm.gallery : [],
+        highlights: Array.isArray(cruiseForm.highlights) ? cruiseForm.highlights : [],
+        itinerary: Array.isArray(cruiseForm.itinerary) ? cruiseForm.itinerary : [],
+        inclusions: Array.isArray(cruiseForm.inclusions) ? cruiseForm.inclusions : [],
+        exclusions: Array.isArray(cruiseForm.exclusions) ? cruiseForm.exclusions : [],
+        need_to_know: Array.isArray(cruiseForm.need_to_know) ? cruiseForm.need_to_know : [],
+        faqs: Array.isArray(cruiseForm.faqs) ? cruiseForm.faqs : [],
+        reviews: Array.isArray(cruiseForm.reviews) ? cruiseForm.reviews : [],
+      };
+
       if (isCreatingCruise) {
-        const res = await api.createCruise(cruiseForm);
+        const res = await api.createCruise(payload);
         setSaveStatus('✓ Cruise package created successfully!');
         setIsCreatingCruise(false);
-        const createdObj = res?.cruise || { ...cruiseForm };
+        const createdObj = res?.cruise || { ...payload };
         setSelectedCruise(createdObj as Cruise);
       } else if (selectedCruise) {
-        const res = await api.updateCruise(selectedCruise.id, cruiseForm);
+        const res = await api.updateCruise(selectedCruise.id, payload);
         setSaveStatus('✓ Cruise package updated successfully!');
-        const updatedObj = res?.cruise || { ...selectedCruise, ...cruiseForm };
+        const updatedObj = res?.cruise || { ...selectedCruise, ...payload };
         setSelectedCruise(updatedObj as Cruise);
       }
       await fetchData();
@@ -383,6 +402,35 @@ export default function CruiseAdmin() {
                   </div>
                 </div>
 
+                {/* Banner Title / Heading & Tagline */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+                  <div className="formGroup">
+                    <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.35rem' }}>
+                      Banner Title / Heading
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Royal Caribbean Mediterranean Voyage"
+                      value={cruiseForm.banner_title || ''}
+                      onChange={e => setCruiseForm({ ...cruiseForm, banner_title: e.target.value })}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  <div className="formGroup">
+                    <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '0.35rem' }}>
+                      Banner Subtitle / Tagline
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 7 Nights Luxury Ocean Voyage from Barcelona to Rome"
+                      value={cruiseForm.banner_tagline || ''}
+                      onChange={e => setCruiseForm({ ...cruiseForm, banner_tagline: e.target.value })}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                    />
+                  </div>
+                </div>
+
                 <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', marginBottom: '1.5rem' }}>
                   <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', whiteSpace: 'nowrap', margin: 0, fontSize: '0.9rem', color: '#0f172a', fontWeight: 600 }}>
                     <input
@@ -470,7 +518,7 @@ export default function CruiseAdmin() {
                 </div>
 
                 <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                  Save Cruise Package
+                  {isCreatingCruise ? 'Save Cruise Package' : 'Update Cruise Package'}
                 </button>
               </form>
             </div>

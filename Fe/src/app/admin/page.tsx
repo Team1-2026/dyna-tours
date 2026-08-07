@@ -21,6 +21,7 @@ import StaffAdmin from './StaffAdmin';
 import CruiseAdmin from './CruiseAdmin';
 import HomePageAdmin from './HomePageAdmin';
 import SeoAdmin from './SeoAdmin';
+import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
 type TabType = 'dashboard' | 'homePage' | 'seo' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage' | 'staff' | 'cruise';
 
@@ -417,7 +418,7 @@ export default function AdminDashboard() {
   const refreshData = () => {
     Promise.all([
       api.getEnquiries(),
-      api.getDestinations(),
+      api.getDestinations({ status: 'all' }),
       api.getHotels(),
       api.getFacilities()
     ]).then(([enqData, destData, hotelData, facData]) => {
@@ -495,7 +496,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDestToggle = (field: 'show_packages' | 'show_hotels') => {
+  const handleDestToggle = (field: 'show_packages' | 'show_hotels' | 'show_on_home') => {
     if (isCreatingDest) {
       setNewDest(prev => ({ ...prev, [field]: !prev[field] }));
     } else if (selectedDest) {
@@ -1878,7 +1879,7 @@ export default function AdminDashboard() {
                               checked={isCreatingHotel ? newHotel.featured : selectedHotel?.featured || false}
                               onChange={() => handleHotelToggle('featured')}
                             />
-                            <span>Featured Hotel Option</span>
+                            <span style={{ fontWeight: 700, color: '#15803d' }}>Show on Home Page (Featured Hotel)</span>
                           </label>
                           <label className={styles.checklistItem}>
                             <input
@@ -2482,7 +2483,6 @@ export default function AdminDashboard() {
                     <div className={styles.paginationWrapper}>
                       <button className={styles.paginationBtn}>Previous</button>
                       <button className={`${styles.paginationBtn} ${styles.paginationBtnActive}`}>1</button>
-                      <button className={styles.paginationBtn}>Next</button>
                     </div>
                   </div>
                 </div>
@@ -2638,7 +2638,16 @@ export default function AdminDashboard() {
 
                       {/* Visibilities / Toggles inside card */}
                       <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-secondary-navy)', textTransform: 'uppercase', display: 'block', marginBottom: '1rem' }}>Display Configurations</label>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                          <label className={styles.checklistItem}>
+                            <input
+                              type="checkbox"
+                              checked={isCreatingDest ? (newDest.show_on_home !== false) : (selectedDest?.show_on_home !== false)}
+                              onChange={() => handleDestToggle('show_on_home')}
+                            />
+                            <span style={{ fontWeight: 700, color: '#15803d' }}>Show on Home Page (Popular Destination)</span>
+                          </label>
                           <label className={styles.checklistItem}>
                             <input
                               type="checkbox"

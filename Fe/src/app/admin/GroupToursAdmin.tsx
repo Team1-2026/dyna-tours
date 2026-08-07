@@ -166,11 +166,30 @@ export default function GroupToursAdmin() {
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Featured Order (Lower is first)</label>
               <input type="number" name="featured_order" value={editingTour.featured_order || 0} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Visibility</label>
-              <div style={{ display: 'flex', gap: '20px' }}>
-                <label><input type="checkbox" name="is_visible" checked={editingTour.is_visible} onChange={handleChange} /> Is Visible on Site</label>
-                <label><input type="checkbox" name="is_featured" checked={editingTour.is_featured} onChange={handleChange} /> Is Featured (Carousel)</label>
+            <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#0C2745' }}>👁️ Visibility & Home Page Controls</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#15803d', margin: 0 }}>
+                  <input 
+                    type="checkbox" 
+                    name="is_visible" 
+                    checked={editingTour.is_visible} 
+                    onChange={handleChange} 
+                    style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                  />
+                  <span>Enable / Show on Site</span>
+                </label>
+
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#15803d', margin: 0 }}>
+                  <input 
+                    type="checkbox" 
+                    name="is_featured" 
+                    checked={editingTour.is_featured} 
+                    onChange={handleChange} 
+                    style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                  />
+                  <span>Show on Home Page (Featured Group Tour)</span>
+                </label>
               </div>
             </div>
           </div>

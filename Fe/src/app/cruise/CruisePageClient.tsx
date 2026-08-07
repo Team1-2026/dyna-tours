@@ -25,6 +25,8 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
     destination: '',
     travel_date: '',
     num_people: 2,
+    num_children: 0,
+    children_ages: '',
     message: ''
   });
   const [submitting, setSubmitting] = useState(false);
@@ -54,6 +56,8 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
         phone: `${countryCode} ${formData.phone}`,
         travel_date: formData.travel_date,
         num_people: Number(formData.num_people),
+        num_children: Number(formData.num_children) || 0,
+        children_ages: formData.children_ages,
         message: `Preferred Destination: ${formData.destination || 'Not Specified'}` + (formData.message ? ` | Note: ${formData.message}` : '')
       });
       setSuccess(true);
@@ -64,6 +68,8 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
         destination: '',
         travel_date: '',
         num_people: 2,
+        num_children: 0,
+        children_ages: '',
         message: ''
       });
     } catch (err) {
@@ -137,45 +143,57 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
               <form onSubmit={handleSubmitEnquiry}>
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
-                    <label htmlFor="name" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>Full Name *</label>
+                    <label htmlFor="name" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Full Name *</label>
                     <input type="text" id="name" name="name" required value={formData.name} onChange={handleInputChange} placeholder="John Doe" className={styles.darkInput} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="phone" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>Phone Number *</label>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <label htmlFor="phone" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Phone Number *</label>
+                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
                       <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
                       <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="9876543210" className={styles.darkInput} style={{ flex: 1 }} />
                     </div>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="email" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>Email Address *</label>
+                    <label htmlFor="email" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Email Address *</label>
                     <input type="email" id="email" name="email" required value={formData.email} onChange={handleInputChange} placeholder="john@example.com" className={styles.darkInput} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="destination" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>Preferred Destination</label>
+                    <label htmlFor="destination" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Preferred Destination</label>
                     <input type="text" id="destination" name="destination" value={formData.destination} onChange={handleInputChange} placeholder="e.g. Mediterranean, Singapore" className={styles.darkInput} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="travel_date" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>Travel Date</label>
+                    <label htmlFor="travel_date" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Travel Date</label>
                     <input type="date" id="travel_date" name="travel_date" value={formData.travel_date} onChange={handleInputChange} className={styles.darkInput} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="num_people" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>No. of Travellers</label>
+                    <label htmlFor="num_people" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>No. of Travellers</label>
                     <input type="number" id="num_people" name="num_people" min="1" value={formData.num_people} onChange={handleInputChange} className={styles.darkInput} />
                   </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="num_children" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>No. of Children</label>
+                    <input type="number" id="num_children" name="num_children" min="0" value={formData.num_children} onChange={handleInputChange} className={styles.darkInput} />
+                  </div>
+
+                  {Number(formData.num_children) > 0 && (
+                    <div className={styles.formGroup}>
+                      <label htmlFor="children_ages" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Children Ages (e.g. 5, 8)</label>
+                      <input type="text" id="children_ages" name="children_ages" value={formData.children_ages} onChange={handleInputChange} placeholder="e.g. 5, 8" className={styles.darkInput} />
+                    </div>
+                  )}
                 </div>
 
-                <div className={styles.formGroup} style={{ marginTop: '0.85rem' }}>
-                  <label htmlFor="message" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>Message / Special Requirements</label>
+                <div className={styles.formGroup} style={{ marginTop: '0.5rem' }}>
+                  <label htmlFor="message" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Message / Special Requirements</label>
                   <textarea id="message" name="message" rows={2} value={formData.message} onChange={handleInputChange} placeholder="Preferred cruise line, cabin type..." className={styles.darkTextarea} />
                 </div>
 
-                <button type="submit" className={styles.redSubmitBtn} disabled={submitting}>
+                <button type="submit" className={styles.redSubmitBtn} disabled={submitting} style={{ marginTop: '0.75rem', padding: '0.75rem 1rem' }}>
                   {submitting ? 'Sending Request...' : 'Request a Quote'}
                 </button>
               </form>

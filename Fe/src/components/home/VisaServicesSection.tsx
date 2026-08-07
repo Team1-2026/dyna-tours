@@ -72,14 +72,14 @@ export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
             href="/visa"
             className="inline-flex items-center gap-2 rounded-full border border-[#0C2745]/30 bg-blue-50/80 px-6 py-3 text-xs font-bold uppercase tracking-wider text-[#0C2745] backdrop-blur-md transition-all hover:bg-[#0C2745] hover:text-white shadow-sm"
           >
-            <span>View All Visa Services</span>
+            <span>Explore more visa services</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        {/* Visa Countries Responsive Grid */}
+        {/* Visa Countries Responsive Grid (Limited to 2 rows / 6 cards max) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {countries.map((item, idx) => {
+          {countries.slice(0, 6).map((item, idx) => {
             const flagUrl = getCountryFlagUrl(item.country, item.code);
 
             return (
@@ -154,6 +154,17 @@ export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Explore More Visa Services Button */}
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/visa"
+            className="inline-flex items-center gap-2 rounded-full bg-[#0C2745] px-8 py-3.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all duration-300 hover:bg-red-600 hover:scale-105"
+          >
+            <span>Explore more visa services</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
 
       </div>

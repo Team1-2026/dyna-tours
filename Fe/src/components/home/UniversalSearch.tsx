@@ -97,7 +97,7 @@ export const UniversalSearch: React.FC = () => {
 
   // Visa Form State
   const [visaCountry, setVisaCountry] = useState('');
-  const [visaType, setVisaType] = useState('Tourist');
+  const [visaType, setVisaType] = useState('e-visa');
   const [nationality, setNationality] = useState('Indian');
 
   // Cruise Form State
@@ -238,11 +238,15 @@ export const UniversalSearch: React.FC = () => {
                       style={fieldStyle}
                     >
                       <option value="" style={optionStyle}>All Themes</option>
-                      <option value="Honeymoon" style={optionStyle}>Honeymoon</option>
-                      <option value="Family" style={optionStyle}>Family Package</option>
+                      <option value="Culture" style={optionStyle}>Culture & Heritage</option>
                       <option value="Adventure" style={optionStyle}>Adventure & Trekking</option>
-                      <option value="Luxury" style={optionStyle}>Luxury Resort</option>
-                      <option value="Pilgrimage" style={optionStyle}>Pilgrimage</option>
+                      <option value="Leisure" style={optionStyle}>Leisure & Relaxation</option>
+                      <option value="Nature" style={optionStyle}>Nature & Wildlife</option>
+                      <option value="Beach" style={optionStyle}>Beach & Islands</option>
+                      <option value="Honeymoon" style={optionStyle}>Honeymoon & Romantic</option>
+                      <option value="Family" style={optionStyle}>Family Holidays</option>
+                      <option value="Luxury" style={optionStyle}>Luxury Getaways</option>
+                      <option value="Pilgrimage" style={optionStyle}>Pilgrimage & Spiritual</option>
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                   </div>
@@ -431,10 +435,9 @@ export const UniversalSearch: React.FC = () => {
                       onChange={(e) => setVisaType(e.target.value)}
                       style={fieldStyle}
                     >
-                      <option value="Tourist" style={optionStyle}>Tourist Visa</option>
-                      <option value="Business" style={optionStyle}>Business Visa</option>
-                      <option value="Express" style={optionStyle}>Express eVisa</option>
-                      <option value="Transit" style={optionStyle}>Transit Visa</option>
+                      <option value="e-visa" style={optionStyle}>E-Visa</option>
+                      <option value="transit" style={optionStyle}>Transit Visa</option>
+                      <option value="visit" style={optionStyle}>Visit Visa</option>
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                   </div>

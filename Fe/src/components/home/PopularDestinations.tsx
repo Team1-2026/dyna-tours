@@ -67,7 +67,6 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
   adminDescription = 'Journey across breathtaking bucket-list destinations curated for unparalleled luxury and cultural discovery.',
 }) => {
   const [activeTab, setActiveTab] = useState<'international' | 'domestic'>('international');
-  const [showAll, setShowAll] = useState(false);
 
   const defaultDestinations: DestinationItem[] = [
     // International
@@ -151,7 +150,11 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
     },
   ];
 
-  const sourceData = destinations && destinations.length >= 4 ? destinations : defaultDestinations;
+  const activeDestinations = (destinations && destinations.length > 0)
+    ? destinations.filter(d => !('status' in d) || !(d as any).status || (d as any).status.toLowerCase() !== 'inactive')
+    : [];
+
+  const sourceData = activeDestinations.length >= 4 ? activeDestinations : defaultDestinations;
 
   const filtered = sourceData.filter((d) => {
     if (!d.type) return true;
@@ -160,10 +163,9 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
 
   const displayList = filtered.length > 0 ? filtered : sourceData.filter((d) => String(d.type).toLowerCase() === activeTab);
   
-  // 3 rows limit (6 items in alternating 2-col + 1-col asymmetric grid layout)
-  const ROW_LIMIT = 6;
-  const visibleList = showAll ? displayList : displayList.slice(0, ROW_LIMIT);
-  const hasMore = displayList.length > ROW_LIMIT;
+  // 2 rows limit (4 items in alternating 2-col + 1-col asymmetric grid layout)
+  const ROW_LIMIT = 4;
+  const visibleList = displayList.slice(0, ROW_LIMIT);
 
   return (
     <section className="bg-white py-24 text-slate-900 relative overflow-hidden">
@@ -186,7 +188,7 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
           {/* Filter Tabs */}
           <div className="flex items-center rounded-full border border-slate-200 bg-slate-100 p-1.5 self-start md:self-auto">
             <button
-              onClick={() => { setActiveTab('international'); setShowAll(false); }}
+              onClick={() => setActiveTab('international')}
               className={`rounded-full px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
                 activeTab === 'international'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md'
@@ -196,7 +198,7 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
               International
             </button>
             <button
-              onClick={() => { setActiveTab('domestic'); setShowAll(false); }}
+              onClick={() => setActiveTab('domestic')}
               className={`rounded-full px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
                 activeTab === 'domestic'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md'
@@ -211,7 +213,7 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
         {/* Mixed Masonry / Grid */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={activeTab + (showAll ? '-all' : '-sliced')}
+            key={activeTab}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -274,24 +276,14 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
           </motion.div>
         </AnimatePresence>
 
-        {/* View All Button */}
-        <div className="mt-12 flex items-center justify-center gap-4">
-          {hasMore && (
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-600/30 transition-all hover:scale-105 hover:from-teal-500 hover:to-emerald-500 active:scale-95 cursor-pointer"
-            >
-              <span>{showAll ? 'Show Less Destinations' : 'View All Destinations'}</span>
-              <ArrowRight className={`h-4 w-4 transition-transform duration-300 ${showAll ? '-rotate-90' : ''}`} />
-            </button>
-          )}
-
+        {/* Explore All Destinations Button */}
+        <div className="mt-12 text-center">
           <Link
             href="/holidays"
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-7 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-600/30 transition-all hover:scale-105"
           >
-            <span>Browse All Packages</span>
-            <Compass className="h-4 w-4 text-teal-600" />
+            <span>Explore All Destinations</span>
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
