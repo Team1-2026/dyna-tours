@@ -86,20 +86,20 @@ export default function HolidayEnquiryForm({ categoryName }: { categoryName: str
       </div>
       <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email Address" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
       
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        <div style={{ flex: 1 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem' }}>
+        <div>
           <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Travel Date</label>
           <input required type="date" name="travel_date" value={formData.travel_date} onChange={handleChange} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
         </div>
-        <div style={{ flex: 1 }}>
+        <div>
           <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '0.25rem' }}>No: of Guests</label>
           <input required type="number" name="num_people" min="1" value={formData.num_people} onChange={handleChange} placeholder="No: of Guests" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        <input type="number" name="num_children" value={formData.num_children} onChange={handleChange} min="0" placeholder="No: of Child" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '50%', outline: 'none' }} />
-        <input type="text" name="children_ages" value={formData.children_ages} onChange={handleChange} placeholder="Children Ages (e.g. 5, 8)" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '50%', outline: 'none' }} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem' }}>
+        <input type="number" name="num_children" value={formData.num_children} onChange={handleChange} min="0" placeholder="No: of Child" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
+        <input type="text" name="children_ages" value={formData.children_ages} onChange={handleChange} placeholder="Children Ages (e.g. 5, 8)" style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
       </div>
 
       <textarea required name="message" value={formData.message} onChange={handleChange} placeholder="Message / Travel Plans..." rows={3} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none', resize: 'vertical' }}></textarea>

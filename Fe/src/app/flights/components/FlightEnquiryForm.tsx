@@ -96,7 +96,7 @@ export default function FlightEnquiryForm() {
           <input required type="text" name="name" value={formData.name} onChange={handleChange} className={styles.darkInput} placeholder="Enter your full name" />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+        <div className={styles.formRowGrid}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Phone Number *</label>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
@@ -112,7 +112,7 @@ export default function FlightEnquiryForm() {
 
         <h3 className={styles.formSectionHeading}>Travel Details</h3>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+        <div className={styles.formRowGrid}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Trip Type</label>
             <select name="trip_type" value={formData.trip_type} onChange={handleChange} className={styles.darkSelect}>
@@ -132,7 +132,7 @@ export default function FlightEnquiryForm() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+        <div className={styles.formRowGrid}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>From (Origin) *</label>
             <input required type="text" name="from" value={formData.from} onChange={handleChange} className={styles.darkInput} placeholder="City or Airport" />
@@ -143,7 +143,7 @@ export default function FlightEnquiryForm() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+        <div className={styles.formRowGrid}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Departure Date *</label>
             <input required type="date" name="departure_date" value={formData.departure_date} onChange={handleChange} className={styles.darkInput} />
@@ -154,7 +154,7 @@ export default function FlightEnquiryForm() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.65rem' }}>
+        <div className={styles.formRowGrid3}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Adults (12+)</label>
             <input type="number" min="1" name="num_adults" value={formData.num_adults} onChange={handleChange} className={styles.darkInput} />

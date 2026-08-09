@@ -624,69 +624,85 @@ export default function TourDetailsPage({ params }: PageProps) {
             )}
 
             <form className={styles.bookingForm} onSubmit={handleBookingSubmit}>
-              {/* Travel Date */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Select Travel Date</label>
-                <input 
-                  type="date" 
-                  required 
-                  min={new Date().toISOString().split('T')[0]} 
-                  value={travelDate}
-                  onChange={(e) => setTravelDate(e.target.value)}
-                />
-              </div>
+              {/* Row 1: Travel Date & Guests */}
+              <div className={styles.formRowGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Select Travel Date</label>
+                  <input 
+                    type="date" 
+                    required 
+                    min={new Date().toISOString().split('T')[0]} 
+                    value={travelDate}
+                    onChange={(e) => setTravelDate(e.target.value)}
+                  />
+                </div>
 
-              {/* Travelers Counter */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Number of Guests</label>
-                <div className={styles.counter}>
-                  <button 
-                    type="button" 
-                    className={styles.counterBtn}
-                    onClick={decrementTravelers}
-                    disabled={travelers <= 1}
-                  >
-                    −
-                  </button>
-                  <span className={styles.counterValue}>{travelers}</span>
-                  <button 
-                    type="button" 
-                    className={styles.counterBtn}
-                    onClick={incrementTravelers}
-                    disabled={travelers >= 10}
-                  >
-                    +
-                  </button>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Number of Guests</label>
+                  <div className={styles.counter}>
+                    <button 
+                      type="button" 
+                      className={styles.counterBtn}
+                      onClick={decrementTravelers}
+                      disabled={travelers <= 1}
+                    >
+                      −
+                    </button>
+                    <span className={styles.counterValue}>{travelers}</span>
+                    <button 
+                      type="button" 
+                      className={styles.counterBtn}
+                      onClick={incrementTravelers}
+                      disabled={travelers >= 10}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Traveler Information */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Full Name</label>
-                <input 
-                  type="text" 
-                  placeholder="Lead traveler name"
-                  required 
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
+              {/* Row 2: Full Name & Email */}
+              <div className={styles.formRowGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Full Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="Lead traveler name"
+                    required 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Email Address</label>
+                  <input 
+                    type="email" 
+                    placeholder="For ticket delivery"
+                    required 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Email Address</label>
-                <input 
-                  type="email" 
-                  placeholder="For ticket delivery"
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-
+              {/* Row 3: Phone No */}
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Phone No</label>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
-                  <CountryCodeSelect value={countryCode} onChange={setCountryCode} style={{ flexShrink: 0 }} />
+                  <CountryCodeSelect 
+                    value={countryCode} 
+                    onChange={setCountryCode} 
+                    style={{ 
+                      background: 'rgba(255, 255, 255, 0.07)', 
+                      border: '1px solid rgba(255, 255, 255, 0.15)', 
+                      color: '#ffffff', 
+                      padding: '0.65rem 0.4rem', 
+                      width: '100px',
+                      flexShrink: 0,
+                      borderRadius: 'var(--radius-md, 8px)'
+                    }} 
+                  />
                   <input 
                     type="tel" 
                     placeholder="Contact number"
@@ -698,7 +714,8 @@ export default function TourDetailsPage({ params }: PageProps) {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              {/* Row 4: Children & Ages */}
+              <div className={styles.formRowGrid}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>No: of Child</label>
                   <input 
@@ -720,14 +737,14 @@ export default function TourDetailsPage({ params }: PageProps) {
                 </div>
               </div>
 
+              {/* Row 5: Message */}
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Message</label>
                 <textarea 
                   placeholder="Special requests or notes..."
-                  rows={3}
+                  rows={2}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--color-border)', resize: 'vertical' }}
                 />
               </div>
 
@@ -744,8 +761,6 @@ export default function TourDetailsPage({ params }: PageProps) {
               {/* Submit CTA */}
               <button 
                 type="submit" 
-                className="btn btn-primary btn-full btn-lg" 
-                style={{ marginTop: '0.5rem' }}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Securing Booking...' : 'Request Reservation'}

@@ -1537,6 +1537,61 @@ export const deletePackage = async (id: string): Promise<void> => {
 };
 
 // --- Group Tours ---
+export interface GroupTourDetails {
+  quick_info?: {
+    trip_from?: string;
+    trip_to?: string;
+    group_size?: string;
+    accommodation_type?: string;
+    transportation_type?: string;
+  };
+  overview?: string;
+  highlights?: string[];
+  itinerary?: {
+    day: number;
+    title: string;
+    desc: string;
+    places?: string[];
+    highlights?: string[];
+    optional?: string;
+    meals?: string;
+    overnight?: string;
+  }[];
+  flight_details?: {
+    onward?: {
+      from?: string;
+      to?: string;
+      departure_time?: string;
+      departure_date?: string;
+      arrival_time?: string;
+      arrival_date?: string;
+      duration?: string;
+    };
+    return?: {
+      from?: string;
+      to?: string;
+      departure_time?: string;
+      departure_date?: string;
+      arrival_time?: string;
+      arrival_date?: string;
+      duration?: string;
+    };
+  };
+  hotels?: {
+    city: string;
+    hotel_name: string;
+    rating: string;
+    check_in: string;
+    check_out: string;
+  }[];
+  inclusions?: string[];
+  exclusions?: string[];
+  need_to_know?: {
+    title: string;
+    rules: string[];
+  }[];
+}
+
 export interface GroupTour {
   id?: number;
   name: string;
@@ -1547,7 +1602,7 @@ export interface GroupTour {
   departure_date?: string;
   starting_price: number | string;
   status: 'Filling Fast' | 'Limited Seats' | 'Available' | 'Sold Out';
-  full_details?: string;
+  full_details?: string | GroupTourDetails;
   is_visible: boolean;
   is_featured: boolean;
   featured_order: number;

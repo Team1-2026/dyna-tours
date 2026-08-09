@@ -916,7 +916,8 @@
   .formGrid {
     grid-template-columns: 1fr;
   }
-  .inputGroupHalf {
+  .inputGroupHalf,
+  .inputGroupFull {
     grid-column: span 1;
   }
   .enquiryFormCard {

@@ -382,63 +382,66 @@ export default function TourDetailsPage({ params }: PageProps) {
             </div>
 
             <form className={styles.bookingForm} onSubmit={handleBookingSubmit}>
-              {/* Travel Date */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Select Travel Date</label>
-                <input 
-                  type="date" 
-                  required 
-                  min={new Date().toISOString().split('T')[0]} 
-                  value={travelDate}
-                  onChange={(e) => setTravelDate(e.target.value)}
-                />
-              </div>
+              {/* Row 1: Travel Date & Guests */}
+              <div className={styles.formRowGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Select Travel Date</label>
+                  <input 
+                    type="date" 
+                    required 
+                    min={new Date().toISOString().split('T')[0]} 
+                    value={travelDate}
+                    onChange={(e) => setTravelDate(e.target.value)}
+                  />
+                </div>
 
-              {/* Travelers Counter */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Number of Guests</label>
-                <div className={styles.counter}>
-                  <button 
-                    type="button" 
-                    className={styles.counterBtn}
-                    onClick={decrementTravelers}
-                    disabled={travelers <= 1}
-                  >
-                    −
-                  </button>
-                  <span className={styles.counterValue}>{travelers}</span>
-                  <button 
-                    type="button" 
-                    className={styles.counterBtn}
-                    onClick={incrementTravelers}
-                    disabled={travelers >= 10}
-                  >
-                    +
-                  </button>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Number of Guests</label>
+                  <div className={styles.counter}>
+                    <button 
+                      type="button" 
+                      className={styles.counterBtn}
+                      onClick={decrementTravelers}
+                      disabled={travelers <= 1}
+                    >
+                      −
+                    </button>
+                    <span className={styles.counterValue}>{travelers}</span>
+                    <button 
+                      type="button" 
+                      className={styles.counterBtn}
+                      onClick={incrementTravelers}
+                      disabled={travelers >= 10}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Traveler Information */}
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Full Name</label>
-                <input 
-                  type="text" 
-                  placeholder="Lead traveler name"
-                  required 
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </div>
+              {/* Row 2: Full Name & Email */}
+              <div className={styles.formRowGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Full Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="Lead traveler name"
+                    required 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Email Address</label>
-                <input 
-                  type="email" 
-                  placeholder="For ticket delivery"
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Email Address</label>
+                  <input 
+                    type="email" 
+                    placeholder="For ticket delivery"
+                    required 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
               </div>
 
               {/* Pricing breakdown summary */}
@@ -454,8 +457,6 @@ export default function TourDetailsPage({ params }: PageProps) {
               {/* Submit CTA */}
               <button 
                 type="submit" 
-                className="btn btn-primary btn-full btn-lg" 
-                style={{ marginTop: '0.5rem' }}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Securing Booking...' : 'Request Reservation'}

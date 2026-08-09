@@ -21,7 +21,7 @@ import { defaultBottomContentHtml } from '@/components/home/HomeBottomContent';
 import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
 export default function HomePageAdmin() {
-  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'offers' | 'about' | 'testimonials' | 'cta' | 'reviews_content'>('hero');
+  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'offers' | 'testimonials' | 'cta' | 'reviews_content'>('hero');
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
@@ -105,9 +105,9 @@ export default function HomePageAdmin() {
     <div style={{ padding: '1.5rem', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0C2745', margin: 0 }}>🏠 Home Page CMS Manager</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0C2745', margin: 0 }}>🏠 Home Page</h2>
           <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-            Customize hero slides, promotional offers, about content, statistics, and final CTA banners dynamically.
+            Customize hero slides, promotional offers, testimonials, and final CTA banners dynamically.
           </p>
         </div>
 
@@ -140,7 +140,6 @@ export default function HomePageAdmin() {
         {[
           { id: 'hero', label: '🎬 Hero Slides (4-6)' },
           { id: 'offers', label: '🏷️ Exclusive Deals' },
-          { id: 'about', label: 'ℹ️ About & Counters' },
           { id: 'testimonials', label: '💬 Testimonials' },
         ].map((tab) => (
           <button
@@ -360,119 +359,7 @@ export default function HomePageAdmin() {
         </div>
       )}
 
-      {/* 3. About & Counter Stats */}
-      {activeSubTab === 'about' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ padding: '1.25rem', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc' }}>
-            <h4 style={{ margin: '0 0 1rem 0', color: '#0C2745', fontWeight: 800 }}>About Section Content</h4>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Heading Title</label>
-                <input
-                  type="text"
-                  value={aboutData.title}
-                  onChange={(e) => setAboutData({ ...aboutData, title: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Subtitle</label>
-                <input
-                  type="text"
-                  value={aboutData.subtitle}
-                  onChange={(e) => setAboutData({ ...aboutData, subtitle: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-            </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Primary Paragraph</label>
-              <textarea
-                rows={3}
-                value={aboutData.description1}
-                onChange={(e) => setAboutData({ ...aboutData, description1: e.target.value })}
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Video Thumbnail Image URL</label>
-                <input
-                  type="text"
-                  value={aboutData.videoThumbnail}
-                  onChange={(e) => setAboutData({ ...aboutData, videoThumbnail: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>YouTube Video URL</label>
-                <input
-                  type="text"
-                  value={aboutData.youtubeUrl}
-                  onChange={(e) => setAboutData({ ...aboutData, youtubeUrl: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Years Exp.</label>
-                <input
-                  type="number"
-                  value={aboutData.yearsExperience}
-                  onChange={(e) => setAboutData({ ...aboutData, yearsExperience: Number(e.target.value) })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ padding: '1.25rem', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc' }}>
-            <h4 style={{ margin: '0 0 1rem 0', color: '#0C2745', fontWeight: 800 }}>Counter Statistics (4 Items)</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-              {stats.map((stat, idx) => (
-                <div key={stat.id} style={{ background: '#ffffff', padding: '0.85rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>Label #{idx + 1}</label>
-                  <input
-                    type="text"
-                    value={stat.label}
-                    onChange={(e) => {
-                      const updated = [...stats];
-                      updated[idx].label = e.target.value;
-                      setStats(updated);
-                    }}
-                    style={{ width: '100%', padding: '0.4rem', marginBottom: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                  />
-
-                  <div style={{ display: 'flex', gap: '0.35rem' }}>
-                    <input
-                      type="number"
-                      value={stat.number}
-                      onChange={(e) => {
-                        const updated = [...stats];
-                        updated[idx].number = Number(e.target.value);
-                        setStats(updated);
-                      }}
-                      style={{ width: '60%', padding: '0.4rem', borderRadius: '4px', border: '1px solid #cbd5e1', fontWeight: 700 }}
-                    />
-                    <input
-                      type="text"
-                      value={stat.suffix}
-                      onChange={(e) => {
-                        const updated = [...stats];
-                        updated[idx].suffix = e.target.value;
-                        setStats(updated);
-                      }}
-                      style={{ width: '40%', padding: '0.4rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 4. Testimonials */}
       {activeSubTab === 'testimonials' && (

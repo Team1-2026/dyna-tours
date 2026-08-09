@@ -1027,7 +1027,7 @@ export default function AdminDashboard() {
           >
             <div className={styles.menuItemLabel}>
               <span>🏠</span>
-              <span>Home Page CMS</span>
+              <span>Home Page</span>
             </div>
           </div>
 

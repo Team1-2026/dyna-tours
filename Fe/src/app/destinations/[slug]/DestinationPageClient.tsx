@@ -338,7 +338,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                 />
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div className={styles.formRowGrid}>
                 <div className={styles.formGroup}>
                   <label htmlFor="phone">Phone Number *</label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -350,7 +350,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                       required
                       placeholder="Phone No."
                       className={styles.darkInput}
-                      style={{ flex: 1 }}
+                      style={{ flex: 1, minWidth: 0 }}
                       value={formData.phone}
                       onChange={handleInputChange}
                     />
@@ -372,7 +372,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div className={styles.formRowGrid}>
                 <div className={styles.formGroup}>
                   <label htmlFor="num_people">No. of Travellers</label>
                   <input

@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { groupToursApi, GroupTour, getImageUrl } from '@/lib/api';
+import { groupToursApi, GroupTour, GroupTourDetails, getImageUrl } from '@/lib/api';
 import styles from './admin.module.css';
 import RichTextEditor from '@/components/RichTextEditor';
+
+const parseDetails = (tour: GroupTour | null): GroupTourDetails => {
+  if (!tour || !tour.full_details) return {};
+  if (typeof tour.full_details === 'object') return tour.full_details as GroupTourDetails;
+  try {
+    return JSON.parse(tour.full_details);
+  } catch (e) {
+    return {};
+  }
+};
 
 export default function GroupToursAdmin() {
   const [tours, setTours] = useState<GroupTour[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingTour, setEditingTour] = useState<GroupTour | null>(null);
+  const [details, setDetails] = useState<GroupTourDetails>({});
   const [isCreating, setIsCreating] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [relatedSearch, setRelatedSearch] = useState('');
@@ -45,6 +56,8 @@ export default function GroupToursAdmin() {
 
   const handleAddNew = () => {
     setIsCreating(true);
+    setDetails({});
+    const maxOrder = tours.length > 0 ? Math.max(...tours.map(t => Number(t.featured_order || 0))) : 0;
     setEditingTour({
       name: '',
       destination: '',
@@ -54,7 +67,7 @@ export default function GroupToursAdmin() {
       status: 'Available',
       is_visible: true,
       is_featured: false,
-      featured_order: 0,
+      featured_order: maxOrder + 1,
       banner_image: '',
       banner_title: '',
       banner_tagline: '',
@@ -64,6 +77,7 @@ export default function GroupToursAdmin() {
 
   const handleEdit = (tour: GroupTour) => {
     setIsCreating(false);
+    setDetails(parseDetails(tour));
     setEditingTour({
       ...tour,
       gallery: Array.isArray(tour.gallery) ? tour.gallery : [],
@@ -93,6 +107,7 @@ export default function GroupToursAdmin() {
         starting_price: rawPrice !== '' ? Number(rawPrice) : 0,
         featured_order: rawOrder !== '' ? Number(rawOrder) : 0,
         gallery: Array.isArray(editingTour.gallery) ? editingTour.gallery : [],
+        full_details: JSON.stringify(details),
       };
 
       if (isCreating) {
@@ -108,6 +123,39 @@ export default function GroupToursAdmin() {
       console.error(err);
       setSaveStatus(`❌ ${err?.message || 'Error saving tour'}`);
       setTimeout(() => setSaveStatus(null), 6000);
+    }
+  };
+
+  const updateQuickInfo = (field: string, value: string) => {
+    setDetails(prev => ({
+      ...prev,
+      quick_info: {
+        ...(prev.quick_info || {}),
+        [field]: value,
+      }
+    }));
+  };
+
+  const updateFlightInfo = (leg: 'onward' | 'return', field: string, value: string) => {
+    setDetails(prev => ({
+      ...prev,
+      flight_details: {
+        ...(prev.flight_details || {}),
+        [leg]: {
+          ...(prev.flight_details?.[leg] || {}),
+          [field]: value,
+        }
+      }
+    }));
+  };
+
+  const handleOrderChange = async (tour: GroupTour, newOrder: number) => {
+    if (!tour.id) return;
+    try {
+      await groupToursApi.updateTour(tour.id, { ...tour, featured_order: newOrder });
+      setTours(prev => prev.map(t => t.id === tour.id ? { ...t, featured_order: newOrder } : t));
+    } catch (err) {
+      console.error('Failed to update featured order', err);
     }
   };
 
@@ -233,7 +281,15 @@ export default function GroupToursAdmin() {
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Featured Order (Lower is first)</label>
-              <input type="number" name="featured_order" value={editingTour.featured_order || 0} onChange={handleChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              <input 
+                type="number" 
+                name="featured_order" 
+                value={editingTour.featured_order !== undefined && editingTour.featured_order !== null ? editingTour.featured_order : ''} 
+                onChange={handleChange} 
+                min={0} 
+                placeholder="e.g. 1" 
+                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+              />
             </div>
             <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#0C2745' }}>👁️ Visibility & Home Page Controls</label>
@@ -341,6 +397,429 @@ export default function GroupToursAdmin() {
                 </div>
               ))}
             </div>
+          </div>
+
+
+          {/* Section 1: Quick Tour Information */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>⚡ Quick Tour Information</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Trip From</label>
+                <input 
+                  type="text" 
+                  value={details.quick_info?.trip_from || ''} 
+                  onChange={e => updateQuickInfo('trip_from', e.target.value)} 
+                  placeholder="e.g. Kochi (COK)" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Trip To</label>
+                <input 
+                  type="text" 
+                  value={details.quick_info?.trip_to || ''} 
+                  onChange={e => updateQuickInfo('trip_to', e.target.value)} 
+                  placeholder="e.g. France • Switzerland • Italy" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Group Size</label>
+                <input 
+                  type="text" 
+                  value={details.quick_info?.group_size || ''} 
+                  onChange={e => updateQuickInfo('group_size', e.target.value)} 
+                  placeholder="e.g. 20–30 Travellers" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Accommodation Category</label>
+                <input 
+                  type="text" 
+                  value={details.quick_info?.accommodation_type || ''} 
+                  onChange={e => updateQuickInfo('accommodation_type', e.target.value)} 
+                  placeholder="e.g. Premium 4★ Hotels" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+                />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Transportation Type</label>
+                <input 
+                  type="text" 
+                  value={details.quick_info?.transportation_type || ''} 
+                  onChange={e => updateQuickInfo('transportation_type', e.target.value)} 
+                  placeholder="e.g. Luxury Private A/C Coach" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Tour Overview */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>📝 Tour Overview</h4>
+            <textarea 
+              rows={4} 
+              value={details.overview || ''} 
+              onChange={e => setDetails(prev => ({ ...prev, overview: e.target.value }))} 
+              placeholder="Detailed tour narrative and overview..." 
+              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
+            />
+          </div>
+
+          {/* Section 3: Tour Highlights */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>⭐ Tour Highlights</h4>
+            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: '#64748b' }}>Enter each highlight on a new line</label>
+            <textarea 
+              rows={6} 
+              value={Array.isArray(details.highlights) ? details.highlights.join('\n') : ''} 
+              onChange={e => {
+                const lines = e.target.value.split('\n');
+                setDetails(prev => ({ ...prev, highlights: lines }));
+              }} 
+              placeholder="e.g. Visit the Eiffel Tower (2nd Level)&#10;Seine River Cruise&#10;Mt. Titlis Cable Car" 
+              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
+            />
+          </div>
+
+          {/* Section 4: Day-wise Itinerary Builder */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <h4 className={styles.formCardTitle} style={{ margin: 0 }}>📅 Day-wise Itinerary Builder</h4>
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                onClick={() => {
+                  const currentItin = details.itinerary || [];
+                  setDetails(prev => ({
+                    ...prev,
+                    itinerary: [
+                      ...currentItin,
+                      {
+                        day: currentItin.length + 1,
+                        title: '',
+                        desc: '',
+                        places: [],
+                        highlights: [],
+                        meals: 'Breakfast & Dinner',
+                        overnight: ''
+                      }
+                    ]
+                  }));
+                }}
+                style={{ padding: '6px 12px', fontSize: '0.875rem' }}
+              >
+                + Add Day
+              </button>
+            </div>
+
+            {(details.itinerary || []).map((day, idx) => (
+              <div key={idx} style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <span style={{ fontWeight: 800, color: '#0c2745' }}>Day {idx + 1}</span>
+                  <div>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        if (idx === 0) return;
+                        const current = [...(details.itinerary || [])];
+                        const temp = current[idx];
+                        current[idx] = current[idx - 1];
+                        current[idx - 1] = temp;
+                        current.forEach((d, i) => d.day = i + 1);
+                        setDetails(prev => ({ ...prev, itinerary: current }));
+                      }}
+                      disabled={idx === 0}
+                      style={{ marginRight: '6px', padding: '2px 8px', cursor: 'pointer' }}
+                    >
+                      ↑
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        const current = [...(details.itinerary || [])];
+                        if (idx === current.length - 1) return;
+                        const temp = current[idx];
+                        current[idx] = current[idx + 1];
+                        current[idx + 1] = temp;
+                        current.forEach((d, i) => d.day = i + 1);
+                        setDetails(prev => ({ ...prev, itinerary: current }));
+                      }}
+                      disabled={idx === (details.itinerary || []).length - 1}
+                      style={{ marginRight: '10px', padding: '2px 8px', cursor: 'pointer' }}
+                    >
+                      ↓
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        const current = (details.itinerary || []).filter((_, i) => i !== idx);
+                        current.forEach((d, i) => d.day = i + 1);
+                        setDetails(prev => ({ ...prev, itinerary: current }));
+                      }}
+                      style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer', fontSize: '0.8rem' }}
+                    >
+                      Delete Day
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Day Title (e.g. Arrival in Paris)" 
+                    value={day.title} 
+                    onChange={e => {
+                      const current = [...(details.itinerary || [])];
+                      current[idx].title = e.target.value;
+                      setDetails(prev => ({ ...prev, itinerary: current }));
+                    }}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Overnight Stay (e.g. Paris)" 
+                    value={day.overnight || ''} 
+                    onChange={e => {
+                      const current = [...(details.itinerary || [])];
+                      current[idx].overnight = e.target.value;
+                      setDetails(prev => ({ ...prev, itinerary: current }));
+                    }}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  />
+                </div>
+
+                <textarea 
+                  rows={2} 
+                  placeholder="Day Description..." 
+                  value={day.desc} 
+                  onChange={e => {
+                    const current = [...(details.itinerary || [])];
+                    current[idx].desc = e.target.value;
+                    setDetails(prev => ({ ...prev, itinerary: current }));
+                  }}
+                  style={{ width: '100%', padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px', marginBottom: '10px', resize: 'vertical' }}
+                />
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Places Covered (comma-separated)" 
+                    value={Array.isArray(day.places) ? day.places.join(', ') : ''} 
+                    onChange={e => {
+                      const current = [...(details.itinerary || [])];
+                      current[idx].places = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                      setDetails(prev => ({ ...prev, itinerary: current }));
+                    }}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Meals (e.g. Breakfast & Dinner)" 
+                    value={day.meals || ''} 
+                    onChange={e => {
+                      const current = [...(details.itinerary || [])];
+                      current[idx].meals = e.target.value;
+                      setDetails(prev => ({ ...prev, itinerary: current }));
+                    }}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Section 5: Flight Details */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>✈️ Flight Details</h4>
+            
+            <div style={{ marginBottom: '15px', padding: '12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+              <h5 style={{ margin: '0 0 10px 0', color: '#0c2745' }}>🛫 Onward Flight</h5>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                <input type="text" placeholder="From (e.g. Kochi COK)" value={details.flight_details?.onward?.from || ''} onChange={e => updateFlightInfo('onward', 'from', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                <input type="text" placeholder="To (e.g. Paris CDG)" value={details.flight_details?.onward?.to || ''} onChange={e => updateFlightInfo('onward', 'to', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                <input type="text" placeholder="Duration (e.g. 12h 45m)" value={details.flight_details?.onward?.duration || ''} onChange={e => updateFlightInfo('onward', 'duration', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <input type="text" placeholder="Departure Date/Time (e.g. 15 Sep 2026, 09:30 PM)" value={details.flight_details?.onward?.departure_date || ''} onChange={e => updateFlightInfo('onward', 'departure_date', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                <input type="text" placeholder="Arrival Date/Time (e.g. 16 Sep 2026, 08:15 AM)" value={details.flight_details?.onward?.arrival_date || ''} onChange={e => updateFlightInfo('onward', 'arrival_date', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              </div>
+            </div>
+
+            <div style={{ padding: '12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+              <h5 style={{ margin: '0 0 10px 0', color: '#0c2745' }}>🛬 Return Flight</h5>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                <input type="text" placeholder="From (e.g. Paris CDG)" value={details.flight_details?.return?.from || ''} onChange={e => updateFlightInfo('return', 'from', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                <input type="text" placeholder="To (e.g. Kochi COK)" value={details.flight_details?.return?.to || ''} onChange={e => updateFlightInfo('return', 'to', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                <input type="text" placeholder="Duration (e.g. 11h 55m)" value={details.flight_details?.return?.duration || ''} onChange={e => updateFlightInfo('return', 'duration', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <input type="text" placeholder="Departure Date/Time (e.g. 22 Sep 2026, 09:45 PM)" value={details.flight_details?.return?.departure_date || ''} onChange={e => updateFlightInfo('return', 'departure_date', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                <input type="text" placeholder="Arrival Date/Time (e.g. 23 Sep 2026, 01:55 PM)" value={details.flight_details?.return?.arrival_date || ''} onChange={e => updateFlightInfo('return', 'arrival_date', e.target.value)} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 6: Accommodation Details */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <h4 className={styles.formCardTitle} style={{ margin: 0 }}>🏨 Accommodation Details (Hotels Table)</h4>
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                onClick={() => {
+                  const current = details.hotels || [];
+                  setDetails(prev => ({
+                    ...prev,
+                    hotels: [...current, { city: '', hotel_name: '', rating: '★★★★', check_in: '', check_out: '' }]
+                  }));
+                }}
+                style={{ padding: '6px 12px', fontSize: '0.875rem' }}
+              >
+                + Add Hotel Row
+              </button>
+            </div>
+
+            {(details.hotels || []).map((hotel, idx) => (
+              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 0.8fr 1fr 1fr auto', gap: '8px', alignItems: 'center', marginBottom: '10px', background: '#f8fafc', padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                <input type="text" placeholder="City" value={hotel.city} onChange={e => {
+                  const current = [...(details.hotels || [])];
+                  current[idx].city = e.target.value;
+                  setDetails(prev => ({ ...prev, hotels: current }));
+                }} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                
+                <input type="text" placeholder="Hotel Name" value={hotel.hotel_name} onChange={e => {
+                  const current = [...(details.hotels || [])];
+                  current[idx].hotel_name = e.target.value;
+                  setDetails(prev => ({ ...prev, hotels: current }));
+                }} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                
+                <input type="text" placeholder="Rating (e.g. ★★★★)" value={hotel.rating} onChange={e => {
+                  const current = [...(details.hotels || [])];
+                  current[idx].rating = e.target.value;
+                  setDetails(prev => ({ ...prev, hotels: current }));
+                }} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                
+                <input type="text" placeholder="Check-in Date" value={hotel.check_in} onChange={e => {
+                  const current = [...(details.hotels || [])];
+                  current[idx].check_in = e.target.value;
+                  setDetails(prev => ({ ...prev, hotels: current }));
+                }} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                
+                <input type="text" placeholder="Check-out Date" value={hotel.check_out} onChange={e => {
+                  const current = [...(details.hotels || [])];
+                  current[idx].check_out = e.target.value;
+                  setDetails(prev => ({ ...prev, hotels: current }));
+                }} style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }} />
+
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    const current = (details.hotels || []).filter((_, i) => i !== idx);
+                    setDetails(prev => ({ ...prev, hotels: current }));
+                  }}
+                  style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', width: '28px', height: '28px', cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Section 7: Package Inclusions & Exclusions */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>✓ Package Inclusions & Exclusions</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#16a34a' }}>✓ Package Inclusions (One per line)</label>
+                <textarea 
+                  rows={6} 
+                  value={Array.isArray(details.inclusions) ? details.inclusions.join('\n') : ''} 
+                  onChange={e => {
+                    const lines = e.target.value.split('\n');
+                    setDetails(prev => ({ ...prev, inclusions: lines }));
+                  }} 
+                  placeholder="Return Economy Airfare&#10;Daily Breakfast&#10;Luxury Coach Transfers" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#dc2626' }}>✕ Package Exclusions (One per line)</label>
+                <textarea 
+                  rows={6} 
+                  value={Array.isArray(details.exclusions) ? details.exclusions.join('\n') : ''} 
+                  onChange={e => {
+                    const lines = e.target.value.split('\n');
+                    setDetails(prev => ({ ...prev, exclusions: lines }));
+                  }} 
+                  placeholder="Personal Expenses&#10;Tips & Porterage&#10;GST / TCS" 
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 8: Need to Know Policies */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <h4 className={styles.formCardTitle} style={{ margin: 0 }}>📌 Need to Know Policies</h4>
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                onClick={() => {
+                  const current = details.need_to_know || [];
+                  setDetails(prev => ({
+                    ...prev,
+                    need_to_know: [...current, { title: '', rules: [] }]
+                  }));
+                }}
+                style={{ padding: '6px 12px', fontSize: '0.875rem' }}
+              >
+                + Add Policy Topic
+              </button>
+            </div>
+
+            {(details.need_to_know || []).map((topic, idx) => (
+              <div key={idx} style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Topic Title (e.g. 📌 Check-in & Reporting Times)" 
+                    value={topic.title} 
+                    onChange={e => {
+                      const current = [...(details.need_to_know || [])];
+                      current[idx].title = e.target.value;
+                      setDetails(prev => ({ ...prev, need_to_know: current }));
+                    }}
+                    style={{ flex: 1, padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      const current = (details.need_to_know || []).filter((_, i) => i !== idx);
+                      setDetails(prev => ({ ...prev, need_to_know: current }));
+                    }}
+                    style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer' }}
+                  >
+                    Delete Topic
+                  </button>
+                </div>
+                <textarea 
+                  rows={3} 
+                  placeholder="Topic Rules/Points (One rule per line)" 
+                  value={Array.isArray(topic.rules) ? topic.rules.join('\n') : ''} 
+                  onChange={e => {
+                    const current = [...(details.need_to_know || [])];
+                    current[idx].rules = e.target.value.split('\n');
+                    setDetails(prev => ({ ...prev, need_to_know: current }));
+                  }}
+                  style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }}
+                />
+              </div>
+            ))}
           </div>
 
           {/* Related Group Tours Mapping */}
@@ -486,6 +965,7 @@ export default function GroupToursAdmin() {
                       <th>Price</th>
                       <th>Status</th>
                       <th>Featured</th>
+                      <th>Featured Order</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -509,6 +989,20 @@ export default function GroupToursAdmin() {
                           </span>
                         </td>
                         <td>{tour.is_featured ? '⭐ Yes' : 'No'}</td>
+                        <td>
+                          <input 
+                            type="number" 
+                            defaultValue={tour.featured_order ?? 0}
+                            min={0}
+                            onBlur={(e) => {
+                              const val = Number(e.target.value);
+                              if (val !== tour.featured_order) {
+                                handleOrderChange(tour, val);
+                              }
+                            }}
+                            style={{ width: '65px', padding: '4px 6px', border: '1px solid #cbd5e1', borderRadius: '4px', fontWeight: 700, textAlign: 'center' }}
+                          />
+                        </td>
                         <td>
                           <a 
                             href={`/group-tours/${tour.url_slug || tour.id}`} 
