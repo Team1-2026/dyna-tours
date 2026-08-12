@@ -16,12 +16,12 @@ return new class extends Migration
             $table->string('name');
             $table->string('destination');
             $table->enum('type', ['domestic', 'international']);
-            $table->string('image')->nullable();
+            $table->longText('image')->nullable();
             $table->string('duration');
             $table->date('departure_date')->nullable();
             $table->decimal('starting_price', 10, 2);
             $table->enum('status', ['Filling Fast', 'Limited Seats', 'Available', 'Sold Out'])->default('Available');
-            $table->text('full_details')->nullable();
+            $table->longText('full_details')->nullable();
             $table->boolean('is_visible')->default(true);
             $table->boolean('is_featured')->default(false);
             $table->integer('featured_order')->default(0);

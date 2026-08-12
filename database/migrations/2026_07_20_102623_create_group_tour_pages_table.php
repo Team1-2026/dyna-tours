@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('title')->nullable();
             $table->string('tagline')->nullable();
-            $table->string('banner_image')->nullable();
+            $table->longText('banner_image')->nullable();
             $table->string('overview_heading')->nullable();
             $table->text('overview_description')->nullable();
-            $table->string('overview_image')->nullable();
+            $table->longText('overview_image')->nullable();
             $table->timestamps();
         });
     }

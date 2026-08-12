@@ -1586,6 +1586,8 @@ export interface GroupTourDetails {
   }[];
   inclusions?: string[];
   exclusions?: string[];
+  terms_and_conditions?: string[];
+  features?: string[];
   need_to_know?: {
     title: string;
     rules: string[];

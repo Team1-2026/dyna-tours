@@ -25,6 +25,42 @@ export default function GroupToursAdmin() {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [customServiceInput, setCustomServiceInput] = useState('');
+
+  const DEFAULT_AVAILABLE_SERVICES = [
+    '🥐 Breakfast Included',
+    '🏨 Hotel Stay',
+    '🚌 Transportation',
+    '🏞️ Sightseeing',
+    '📞 Tour Assistance 24x7',
+    '📄 Visa Assistance',
+    '✈️ Flight Included',
+    '🎟️ Entry Tickets & Passes',
+    '🧭 Professional Tour Manager',
+    '🛡️ Travel Insurance',
+    '🍽️ Daily Meals (Lunch & Dinner)',
+    '🚢 Boat / Cruise Rides',
+    '🚆 Train Transfers',
+  ];
+
+  const clearFormState = () => {
+    setEditingTour(null);
+    setIsCreating(false);
+    setDetails({});
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('group_tour_is_creating');
+      sessionStorage.removeItem('group_tour_editing_id');
+      sessionStorage.removeItem('group_tour_draft_editing_tour');
+      sessionStorage.removeItem('group_tour_draft_details');
+      if (window.location.hash) {
+        try {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        } catch (e) {
+          window.location.hash = '';
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     loadTours();
@@ -32,7 +68,7 @@ export default function GroupToursAdmin() {
       handleAddNew();
     };
     const onViewAll = () => {
-      setEditingTour(null);
+      clearFormState();
     };
     window.addEventListener('admin:add-new-group-tour', onAddNew);
     window.addEventListener('admin:view-group-tours', onViewAll);
@@ -42,11 +78,50 @@ export default function GroupToursAdmin() {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && editingTour) {
+      sessionStorage.setItem('group_tour_draft_editing_tour', JSON.stringify(editingTour));
+      sessionStorage.setItem('group_tour_draft_details', JSON.stringify(details));
+    }
+  }, [editingTour, details]);
+
   const loadTours = async () => {
     setLoading(true);
     try {
       const data = await groupToursApi.getTours();
       setTours(data);
+
+      if (typeof window !== 'undefined') {
+        const isCreatingSaved = sessionStorage.getItem('group_tour_is_creating') === 'true' || window.location.hash === '#add-group-tour';
+        const editingIdSaved = sessionStorage.getItem('group_tour_editing_id') || (window.location.hash.startsWith('#edit-group-tour-') ? window.location.hash.replace('#edit-group-tour-', '') : null);
+        const savedDraftTour = sessionStorage.getItem('group_tour_draft_editing_tour');
+        const savedDraftDetails = sessionStorage.getItem('group_tour_draft_details');
+
+        if (isCreatingSaved) {
+          setIsCreating(true);
+          if (savedDraftTour) {
+            try { setEditingTour(JSON.parse(savedDraftTour)); } catch(e) { handleAddNew(); }
+          } else {
+            handleAddNew();
+          }
+          if (savedDraftDetails) {
+            try { setDetails(JSON.parse(savedDraftDetails)); } catch(e) {}
+          }
+        } else if (editingIdSaved) {
+          const found = data.find(t => String(t.id) === String(editingIdSaved));
+          if (found) {
+            setIsCreating(false);
+            if (savedDraftTour) {
+              try { setEditingTour(JSON.parse(savedDraftTour)); } catch(e) { handleEdit(found); }
+            } else {
+              handleEdit(found);
+            }
+            if (savedDraftDetails) {
+              try { setDetails(JSON.parse(savedDraftDetails)); } catch(e) {}
+            }
+          }
+        }
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -56,9 +131,72 @@ export default function GroupToursAdmin() {
 
   const handleAddNew = () => {
     setIsCreating(true);
-    setDetails({});
+    const initialDetails: GroupTourDetails = {
+      quick_info: {
+        trip_from: 'Kochi (COK)',
+        trip_to: '',
+        group_size: '20–30 Travellers',
+        accommodation_type: 'Deluxe / Premium Hotels',
+        transportation_type: 'A/C Coach / Private Vehicle',
+      },
+      overview: '',
+      features: [
+        '🥐 Breakfast Included',
+        '🏨 Hotel Stay',
+        '🚌 Transportation',
+        '🏞️ Sightseeing',
+        '📞 Tour Assistance 24x7',
+        '📄 Visa Assistance',
+        '✈️ Flight Included'
+      ],
+      highlights: [],
+      itinerary: [
+        {
+          day: 1,
+          title: 'Arrival & Tour Commencement',
+          desc: 'Arrive at destination, meet your tour representative, transfer to hotel and check-in.',
+          places: [],
+          highlights: ['Meet & Greet', 'Hotel Check-in'],
+          meals: 'Dinner',
+          overnight: ''
+        }
+      ],
+      flight_details: {
+        onward: { from: '', to: '', departure_date: '', departure_time: '', arrival_date: '', arrival_time: '', duration: '' },
+        return: { from: '', to: '', departure_date: '', departure_time: '', arrival_date: '', arrival_time: '', duration: '' }
+      },
+      hotels: [],
+      inclusions: [
+        'Hotel Accommodation',
+        'Daily Breakfast & Specified Meals',
+        'Sightseeing & Transfers as per itinerary',
+        'Professional Tour Manager / Guide Assistance',
+        'All Applicable Driver Allowances & Tolls'
+      ],
+      exclusions: [
+        'Personal Expenses (Laundry, Telephone, Minibar)',
+        'Optional Tours & Entrance Fees Not Mentioned',
+        'Tips & Gratuities',
+        'GST / TCS as per government regulations'
+      ],
+      terms_and_conditions: [
+        'Advance booking amount is non-refundable upon confirmation.',
+        'Full balance payment must be cleared prior to departure.',
+        'Itinerary is subject to change due to weather or operational conditions.'
+      ],
+      need_to_know: [
+        {
+          title: '📌 Reporting & Check-in',
+          rules: [
+            'Standard hotel check-in time: 02:00 PM. Check-out time: 11:00 AM.',
+            'Report at airport 3 hours prior to departure.'
+          ]
+        }
+      ]
+    };
+    setDetails(initialDetails);
     const maxOrder = tours.length > 0 ? Math.max(...tours.map(t => Number(t.featured_order || 0))) : 0;
-    setEditingTour({
+    const newTour: GroupTour = {
       name: '',
       destination: '',
       type: 'international',
@@ -72,22 +210,41 @@ export default function GroupToursAdmin() {
       banner_title: '',
       banner_tagline: '',
       gallery: [],
-    } as GroupTour);
+    } as GroupTour;
+
+    setEditingTour(newTour);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('group_tour_is_creating', 'true');
+      sessionStorage.removeItem('group_tour_editing_id');
+      sessionStorage.setItem('group_tour_draft_editing_tour', JSON.stringify(newTour));
+      sessionStorage.setItem('group_tour_draft_details', JSON.stringify(initialDetails));
+      window.location.hash = 'add-group-tour';
+    }
   };
 
   const handleEdit = (tour: GroupTour) => {
     setIsCreating(false);
-    setDetails(parseDetails(tour));
-    setEditingTour({
+    const parsedDet = parseDetails(tour);
+    const editTourObj = {
       ...tour,
       gallery: Array.isArray(tour.gallery) ? tour.gallery : [],
-    });
+    };
+    setDetails(parsedDet);
+    setEditingTour(editTourObj);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('group_tour_editing_id', String(tour.id));
+      sessionStorage.removeItem('group_tour_is_creating');
+      sessionStorage.setItem('group_tour_draft_editing_tour', JSON.stringify(editTourObj));
+      sessionStorage.setItem('group_tour_draft_details', JSON.stringify(parsedDet));
+      window.location.hash = `edit-group-tour-${tour.id}`;
+    }
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this group tour?')) return;
     try {
       await groupToursApi.deleteTour(id);
+      clearFormState();
       loadTours();
     } catch (err) {
       console.error(err);
@@ -117,7 +274,7 @@ export default function GroupToursAdmin() {
       }
       setSaveStatus('Saved successfully!');
       setTimeout(() => setSaveStatus(null), 3000);
-      setEditingTour(null);
+      clearFormState();
       loadTours();
     } catch (err: any) {
       console.error(err);
@@ -239,7 +396,7 @@ export default function GroupToursAdmin() {
         <form onSubmit={handleSave} style={{ background: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
             <h3 style={{ margin: 0 }}>{isCreating ? 'Create New Tour' : 'Edit Tour'}</h3>
-            <button type="button" onClick={() => setEditingTour(null)} style={{ background: '#ccc', border: 'none', padding: '5px 15px', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+            <button type="button" onClick={() => clearFormState()} style={{ background: '#ccc', border: 'none', padding: '5px 15px', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
@@ -400,9 +557,110 @@ export default function GroupToursAdmin() {
           </div>
 
 
-          {/* Section 1: Quick Tour Information */}
+          {/* Section 1: Tour Overview */}
           <div className={styles.formCard} style={{ marginTop: '20px' }}>
-            <h4 className={styles.formCardTitle}>⚡ Quick Tour Information</h4>
+            <h4 className={styles.formCardTitle}>📝 Tour Overview</h4>
+            <textarea 
+              rows={4} 
+              value={details.overview || ''} 
+              onChange={e => setDetails(prev => ({ ...prev, overview: e.target.value }))} 
+              placeholder="Detailed tour narrative and overview..." 
+              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
+            />
+          </div>
+
+          {/* Section 2: Included Services */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>🛡️ Included Services (Checklist Mapping)</h4>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '0.85rem', color: '#64748b' }}>
+              Select the included services for this group tour package (checked items will be displayed on the website):
+            </label>
+
+            {(() => {
+              const selectedFeatures = Array.isArray(details.features) ? details.features.filter(Boolean) : [];
+              const combinedServices = Array.from(new Set([...DEFAULT_AVAILABLE_SERVICES, ...selectedFeatures]));
+
+              const handleToggleService = (service: string, isChecked: boolean) => {
+                const updated = isChecked
+                  ? [...selectedFeatures, service]
+                  : selectedFeatures.filter(s => s !== service);
+                setDetails(prev => ({ ...prev, features: updated }));
+              };
+
+              const handleAddCustomService = () => {
+                const trimmed = customServiceInput.trim();
+                if (!trimmed) return;
+                if (!selectedFeatures.includes(trimmed)) {
+                  setDetails(prev => ({ ...prev, features: [...selectedFeatures, trimmed] }));
+                }
+                setCustomServiceInput('');
+              };
+
+              return (
+                <>
+                  <div className={styles.checklistGrid}>
+                    {combinedServices.map((service) => {
+                      const checked = selectedFeatures.includes(service);
+                      return (
+                        <label key={service} className={styles.checklistItem}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => handleToggleService(service, e.target.checked)}
+                          />
+                          <span>{service}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ marginTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      placeholder="Add custom service (e.g. 🍷 Welcome Drink, 🕌 Temple Pass)..."
+                      value={customServiceInput}
+                      onChange={(e) => setCustomServiceInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomService();
+                        }
+                      }}
+                      style={{ flex: 1, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.9rem' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleAddCustomService}
+                      style={{ padding: '8px 16px', whiteSpace: 'nowrap', fontSize: '0.9rem' }}
+                    >
+                      + Add Custom Service
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+
+          {/* Section 3: Key Highlights */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>⭐ Key Highlights</h4>
+            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: '#64748b' }}>Enter each key highlight on a new line</label>
+            <textarea 
+              rows={6} 
+              value={Array.isArray(details.highlights) ? details.highlights.join('\n') : ''} 
+              onChange={e => {
+                const lines = e.target.value.split('\n');
+                setDetails(prev => ({ ...prev, highlights: lines }));
+              }} 
+              placeholder="e.g. Visit the Eiffel Tower (2nd Level)&#10;Seine River Cruise&#10;Mt. Titlis Cable Car" 
+              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
+            />
+          </div>
+
+          {/* Section 4: Quick Tour Info */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>⚡ Quick Tour Info</h4>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Trip From</label>
@@ -457,35 +715,7 @@ export default function GroupToursAdmin() {
             </div>
           </div>
 
-          {/* Section 2: Tour Overview */}
-          <div className={styles.formCard} style={{ marginTop: '20px' }}>
-            <h4 className={styles.formCardTitle}>📝 Tour Overview</h4>
-            <textarea 
-              rows={4} 
-              value={details.overview || ''} 
-              onChange={e => setDetails(prev => ({ ...prev, overview: e.target.value }))} 
-              placeholder="Detailed tour narrative and overview..." 
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
-            />
-          </div>
-
-          {/* Section 3: Tour Highlights */}
-          <div className={styles.formCard} style={{ marginTop: '20px' }}>
-            <h4 className={styles.formCardTitle}>⭐ Tour Highlights</h4>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: '#64748b' }}>Enter each highlight on a new line</label>
-            <textarea 
-              rows={6} 
-              value={Array.isArray(details.highlights) ? details.highlights.join('\n') : ''} 
-              onChange={e => {
-                const lines = e.target.value.split('\n');
-                setDetails(prev => ({ ...prev, highlights: lines }));
-              }} 
-              placeholder="e.g. Visit the Eiffel Tower (2nd Level)&#10;Seine River Cruise&#10;Mt. Titlis Cable Car" 
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
-            />
-          </div>
-
-          {/* Section 4: Day-wise Itinerary Builder */}
+          {/* Section 5: Day-wise Itinerary Builder */}
           <div className={styles.formCard} style={{ marginTop: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
               <h4 className={styles.formCardTitle} style={{ margin: 0 }}>📅 Day-wise Itinerary Builder</h4>
@@ -632,7 +862,7 @@ export default function GroupToursAdmin() {
             ))}
           </div>
 
-          {/* Section 5: Flight Details */}
+          {/* Section 6: Flight Details */}
           <div className={styles.formCard} style={{ marginTop: '20px' }}>
             <h4 className={styles.formCardTitle}>✈️ Flight Details</h4>
             
@@ -663,7 +893,7 @@ export default function GroupToursAdmin() {
             </div>
           </div>
 
-          {/* Section 6: Accommodation Details */}
+          {/* Section 7: Accommodation Details */}
           <div className={styles.formCard} style={{ marginTop: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
               <h4 className={styles.formCardTitle} style={{ margin: 0 }}>🏨 Accommodation Details (Hotels Table)</h4>
@@ -729,7 +959,7 @@ export default function GroupToursAdmin() {
             ))}
           </div>
 
-          {/* Section 7: Package Inclusions & Exclusions */}
+          {/* Section 8: Package Inclusions & Exclusions */}
           <div className={styles.formCard} style={{ marginTop: '20px' }}>
             <h4 className={styles.formCardTitle}>✓ Package Inclusions & Exclusions</h4>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
@@ -762,7 +992,23 @@ export default function GroupToursAdmin() {
             </div>
           </div>
 
-          {/* Section 8: Need to Know Policies */}
+          {/* Section 9: Terms & Conditions */}
+          <div className={styles.formCard} style={{ marginTop: '20px' }}>
+            <h4 className={styles.formCardTitle}>📜 Terms & Conditions</h4>
+            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: '#64748b' }}>Enter each booking term / condition on a new line</label>
+            <textarea 
+              rows={5} 
+              value={Array.isArray(details.terms_and_conditions) ? details.terms_and_conditions.join('\n') : ''} 
+              onChange={e => {
+                const lines = e.target.value.split('\n');
+                setDetails(prev => ({ ...prev, terms_and_conditions: lines }));
+              }} 
+              placeholder="Advance booking amount of ₹10,000 per seat is non-refundable upon confirmation.&#10;Full payment must be completed at least 21 days prior to departure.&#10;Visa approval is subject to embassy discretion." 
+              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }} 
+            />
+          </div>
+
+          {/* Section 10: Need to Know Policies */}
           <div className={styles.formCard} style={{ marginTop: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
               <h4 className={styles.formCardTitle} style={{ margin: 0 }}>📌 Need to Know Policies</h4>
