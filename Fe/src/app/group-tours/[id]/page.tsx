@@ -26,6 +26,8 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
   const id = resolvedParams.id;
 
   const [activeDay, setActiveDay] = useState<number | null>(1);
+  const [activeTab1, setActiveTab1] = useState<'itinerary' | 'inclusions' | 'terms'>('itinerary');
+  const [activeTab2, setActiveTab2] = useState<'flights' | 'hotels' | 'needToKnow'>('flights');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -160,16 +162,24 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
         'Tours are subject to weather, operational, and local government regulations.'
       ];
 
+  const cleanServiceText = (text: string) => {
+    if (!text) return '';
+    return text
+      .replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F1E6}-\u{1F1FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]|[\u{200D}]/gu, '')
+      .replace(/^[^\w\d\(\)\-\.]+/u, '')
+      .trim();
+  };
+
   const featuresList = (Array.isArray(details.features) && details.features.filter(Boolean).length > 0)
     ? details.features.filter(Boolean)
     : [
-        '🥐 Breakfast Included',
-        '🏨 Hotel Stay',
-        '🚌 Transportation',
-        '🏞️ Sightseeing',
-        '📞 Tour Assistance 24x7',
-        '📄 Visa Assistance',
-        '✈️ Flight Included'
+        'Breakfast Included',
+        'Hotel Stay',
+        'Transportation',
+        'Sightseeing',
+        'Tour Assistance 24x7',
+        'Visa Assistance',
+        'Flight Included'
       ];
 
   return (
@@ -258,16 +268,20 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
               </p>
             </div>
 
-            {/* 2. 24/7 Support, Hotel, Sightseeing, Flight, Visa Included Features */}
-            <div className={styles.sectionCard} style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%)', border: '1px solid #cbd5e1' }}>
+            {/* 2. Included Services */}
+            <div className={styles.sectionCard} style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
               <h2 className={styles.sectionHeaderTitle}>Included Services</h2>
-              <div className={styles.inclusionsGrid} style={{ marginTop: '0.75rem' }}>
-                {featuresList.map((feature, idx) => (
-                  <div key={idx} className={styles.inclusionItem} style={{ background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                    <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }}>{feature}</span>
-                  </div>
-                ))}
-              </div>
+              <ul className={styles.includedServicesList}>
+                {featuresList.map((feature, idx) => {
+                  const cleaned = cleanServiceText(feature);
+                  if (!cleaned) return null;
+                  return (
+                    <li key={idx} style={{ listStyleType: 'disc' }}>
+                      {cleaned}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
 
             {/* 3. Key Highlights */}
@@ -318,214 +332,304 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* 5. Day-wise Itinerary */}
-            {itineraryList.length > 0 && (
-              <div className={styles.sectionCard}>
-                <h2 className={styles.sectionHeaderTitle}>Day-wise Itinerary</h2>
-                <div className={styles.itineraryList}>
-                  {itineraryList.map((item) => (
-                    <div 
-                      key={item.day} 
-                      className={`${styles.itineraryDayItem} ${activeDay === item.day ? styles.itineraryDayItemActive : ''}`}
-                    >
-                      <div 
-                        className={styles.itineraryHeader}
-                        onClick={() => toggleDay(item.day)}
-                      >
-                        <div className={styles.dayBadgeTitle}>
-                          <span className={styles.dayBadge}>Day {item.day}</span>
-                          <h3 className={styles.dayTitle}>{item.title}</h3>
-                        </div>
-                        <span style={{ fontSize: '1.25rem', color: '#64748b', fontWeight: 800 }}>
-                          {activeDay === item.day ? '−' : '+'}
-                        </span>
-                      </div>
+            {/* Tab Section 1: Itinerary, Inclusions & Terms */}
+            <div className={styles.tabsContainer}>
+              <ul className={styles.tabList}>
+                <li>
+                  <button 
+                    className={`${styles.tabBtn} ${activeTab1 === 'itinerary' ? styles.activeTabBtn : ''}`}
+                    onClick={() => setActiveTab1('itinerary')}
+                  >
+                    Day-wise Itinerary
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    className={`${styles.tabBtn} ${activeTab1 === 'inclusions' ? styles.activeTabBtn : ''}`}
+                    onClick={() => setActiveTab1('inclusions')}
+                  >
+                    Package Inclusions & Exclusions
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    className={`${styles.tabBtn} ${activeTab1 === 'terms' ? styles.activeTabBtn : ''}`}
+                    onClick={() => setActiveTab1('terms')}
+                  >
+                    Terms & Conditions
+                  </button>
+                </li>
+              </ul>
 
-                      {activeDay === item.day && (
-                        <div className={styles.itineraryBody}>
-                          <p className={styles.itineraryDesc}>{item.desc}</p>
-                          
-                          {item.places && item.places.length > 0 && (
-                            <div>
-                              <div className={styles.itinerarySubHeader}>Places Covered</div>
-                              <ul className={styles.placesList}>
-                                {item.places.map((p, idx) => (
-                                  <li key={idx} className={styles.placeChip}>{p}</li>
-                                ))}
-                              </ul>
+              {/* Tab Section 1 Content */}
+              <div className={styles.tabContent}>
+                {/* 1. Day-wise Itinerary Tab */}
+                {activeTab1 === 'itinerary' && (
+                  <div className={styles.sectionCard}>
+                    <h2 className={styles.sectionHeaderTitle}>Day-wise Itinerary</h2>
+                    {itineraryList.length > 0 ? (
+                      <div className={styles.itineraryList}>
+                        {itineraryList.map((item) => (
+                          <div 
+                            key={item.day} 
+                            className={`${styles.itineraryDayItem} ${activeDay === item.day ? styles.itineraryDayItemActive : ''}`}
+                          >
+                            <div 
+                              className={styles.itineraryHeader}
+                              onClick={() => toggleDay(item.day)}
+                            >
+                              <div className={styles.dayBadgeTitle}>
+                                <span className={styles.dayBadge}>Day {item.day}</span>
+                                <h3 className={styles.dayTitle}>{item.title}</h3>
+                              </div>
+                              <span style={{ fontSize: '1.25rem', color: '#64748b', fontWeight: 800 }}>
+                                {activeDay === item.day ? '−' : '+'}
+                              </span>
                             </div>
-                          )}
 
-                          {item.highlights && item.highlights.length > 0 && (
-                            <div>
-                              <div className={styles.itinerarySubHeader}>Highlights</div>
-                              <ul className={styles.placesList}>
-                                {item.highlights.map((h, idx) => (
-                                  <li key={idx} className={styles.placeChip}>✨ {h}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
+                            {activeDay === item.day && (
+                              <div className={styles.itineraryBody}>
+                                <p className={styles.itineraryDesc}>{item.desc}</p>
+                                
+                                {item.places && item.places.length > 0 && (
+                                  <div>
+                                    <div className={styles.itinerarySubHeader}>Places Covered</div>
+                                    <ul className={styles.placesList}>
+                                      {item.places.map((p, idx) => (
+                                        <li key={idx} className={styles.placeChip}>{p}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
 
-                          {item.optional && (
-                            <div style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#64748b' }}>
-                              <strong>Optional:</strong> {item.optional}
-                            </div>
-                          )}
+                                {item.highlights && item.highlights.length > 0 && (
+                                  <div>
+                                    <div className={styles.itinerarySubHeader}>Highlights</div>
+                                    <ul className={styles.placesList}>
+                                      {item.highlights.map((h, idx) => (
+                                        <li key={idx} className={styles.placeChip}>✨ {h}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
 
-                          <div className={styles.metaRow}>
-                            {item.meals && <span>🍽️ <strong>Meals:</strong> {item.meals}</span>}
-                            {item.overnight && <span>🏨 <strong>Overnight:</strong> {item.overnight}</span>}
+                                {item.optional && (
+                                  <div style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#64748b' }}>
+                                    <strong>Optional:</strong> {item.optional}
+                                  </div>
+                                )}
+
+                                <div className={styles.metaRow}>
+                                  {item.meals && <span>🍽️ <strong>Meals:</strong> {item.meals}</span>}
+                                  {item.overnight && <span>🏨 <strong>Overnight:</strong> {item.overnight}</span>}
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 6. Flight Details Section */}
-            {(onwardFlight || returnFlight) && (
-              <div className={styles.sectionCard}>
-                <h2 className={styles.sectionHeaderTitle}>Flight Details</h2>
-                <div className={styles.flightGrid}>
-                  {/* Onward Flight */}
-                  {onwardFlight && (
-                    <div className={styles.flightCard}>
-                      <div className={styles.flightCardHeader}>
-                        <span className={styles.flightTypeLabel}>🛫 Onward Journey</span>
-                        {onwardFlight.duration && <span className={styles.flightDurationBadge}>✈️ {onwardFlight.duration}</span>}
+                        ))}
                       </div>
-                      <div className={styles.flightRoute}>
-                        <div>
-                          <div className={styles.cityName}>{onwardFlight.from || 'Departure'}</div>
-                          {onwardFlight.departure_time && <div className={styles.flightTime}>{onwardFlight.departure_time}</div>}
-                          {onwardFlight.departure_date && <div className={styles.flightDate}>{onwardFlight.departure_date}</div>}
-                        </div>
-                        <div style={{ textAlign: 'center', color: '#64748b', fontSize: '1.25rem' }}>➔</div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div className={styles.cityName}>{onwardFlight.to || 'Arrival'}</div>
-                          {onwardFlight.arrival_time && <div className={styles.flightTime}>{onwardFlight.arrival_time}</div>}
-                          {onwardFlight.arrival_date && <div className={styles.flightDate}>{onwardFlight.arrival_date}</div>}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Return Flight */}
-                  {returnFlight && (
-                    <div className={styles.flightCard}>
-                      <div className={styles.flightCardHeader}>
-                        <span className={styles.flightTypeLabel}>🛬 Return Journey</span>
-                        {returnFlight.duration && <span className={styles.flightDurationBadge}>✈️ {returnFlight.duration}</span>}
-                      </div>
-                      <div className={styles.flightRoute}>
-                        <div>
-                          <div className={styles.cityName}>{returnFlight.from || 'Departure'}</div>
-                          {returnFlight.departure_time && <div className={styles.flightTime}>{returnFlight.departure_time}</div>}
-                          {returnFlight.departure_date && <div className={styles.flightDate}>{returnFlight.departure_date}</div>}
-                        </div>
-                        <div style={{ textAlign: 'center', color: '#64748b', fontSize: '1.25rem' }}>➔</div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div className={styles.cityName}>{returnFlight.to || 'Arrival'}</div>
-                          {returnFlight.arrival_time && <div className={styles.flightTime}>{returnFlight.arrival_time}</div>}
-                          {returnFlight.arrival_date && <div className={styles.flightDate}>{returnFlight.arrival_date}</div>}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* 7. Accommodation Details Table */}
-            {hotelList.length > 0 && (
-              <div className={styles.sectionCard}>
-                <h2 className={styles.sectionHeaderTitle}>Accommodation Details</h2>
-                <div className={styles.tableResponsive}>
-                  <table className={styles.hotelTable}>
-                    <thead>
-                      <tr>
-                        <th>City</th>
-                        <th>Hotel</th>
-                        <th>Category</th>
-                        <th>Check-in</th>
-                        <th>Check-out</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {hotelList.map((hotel, idx) => (
-                        <tr key={idx}>
-                          <td><strong>{hotel.city}</strong></td>
-                          <td>{hotel.hotel_name}</td>
-                          <td><span className={styles.stars}>{hotel.rating}</span></td>
-                          <td>{hotel.check_in}</td>
-                          <td>{hotel.check_out}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* 8. Package Inclusions & Exclusions */}
-            <div className={styles.sectionCard}>
-              <h2 className={styles.sectionHeaderTitle}>Package Inclusions & Exclusions</h2>
-              <div className={styles.incExcGrid}>
-                <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#16a34a', marginBottom: '1rem' }}>✓ Package Includes</h3>
-                  <ul className={styles.incList}>
-                    {inclusionsList.map((inc, idx) => (
-                      <li key={idx}>
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>{inc}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#dc2626', marginBottom: '1rem' }}>✕ Package Excludes</h3>
-                  <ul className={styles.excList}>
-                    {exclusionsList.map((exc, idx) => (
-                      <li key={idx}>
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        <span>{exc}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* 9. Terms and Conditions */}
-            <div className={styles.sectionCard}>
-              <h2 className={styles.sectionHeaderTitle}>Terms & Conditions</h2>
-              <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                <ul style={{ margin: 0, paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.65rem', color: '#475569', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                  {termsList.map((term, idx) => (
-                    <li key={idx} style={{ listStyleType: 'disc' }}>{term}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* 10. Need to Know Section */}
-            <div className={styles.sectionCard}>
-              <h2 className={styles.sectionHeaderTitle}>Need to Know</h2>
-              <div className={styles.needToKnowBox}>
-                {needToKnowTopics.map((topic, idx) => (
-                  <div key={idx} className={styles.needToKnowTopic}>
-                    <h3 className={styles.topicTitle}>{topic.title}</h3>
-                    <ul className={styles.topicList}>
-                      {(Array.isArray(topic.rules) ? topic.rules : []).map((rule, rIdx) => (
-                        <li key={rIdx}>{rule}</li>
-                      ))}
-                    </ul>
+                    ) : (
+                      <p style={{ color: '#64748b' }}>Day-wise itinerary schedule will be shared upon booking request.</p>
+                    )}
                   </div>
-                ))}
+                )}
+
+                {/* 2. Package Inclusions & Exclusions Tab */}
+                {activeTab1 === 'inclusions' && (
+                  <div className={styles.sectionCard}>
+                    <h2 className={styles.sectionHeaderTitle}>Package Inclusions & Exclusions</h2>
+                    <div className={styles.incExcGrid}>
+                      <div>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#16a34a', marginBottom: '1rem' }}>✓ Package Includes</h3>
+                        <ul className={styles.incList}>
+                          {inclusionsList.map((inc, idx) => (
+                            <li key={idx}>
+                              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                              <span>{inc}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#dc2626', marginBottom: '1rem' }}>✕ Package Excludes</h3>
+                        <ul className={styles.excList}>
+                          {exclusionsList.map((exc, idx) => (
+                            <li key={idx}>
+                              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                              <span>{exc}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Terms & Conditions Tab */}
+                {activeTab1 === 'terms' && (
+                  <div className={styles.sectionCard}>
+                    <h2 className={styles.sectionHeaderTitle}>Terms & Conditions</h2>
+                    <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                      <ul style={{ margin: 0, paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.65rem', color: '#475569', fontSize: '0.95rem', lineHeight: 1.6 }}>
+                        {termsList.map((term, idx) => (
+                          <li key={idx} style={{ listStyleType: 'disc' }}>{term}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Tab Section 2: Flights, Accommodation & Need to Know */}
+            <div className={styles.tabsContainer}>
+              <ul className={styles.tabList}>
+                <li>
+                  <button 
+                    className={`${styles.tabBtn} ${activeTab2 === 'flights' ? styles.activeTabBtn : ''}`}
+                    onClick={() => setActiveTab2('flights')}
+                  >
+                    Flight Details
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    className={`${styles.tabBtn} ${activeTab2 === 'hotels' ? styles.activeTabBtn : ''}`}
+                    onClick={() => setActiveTab2('hotels')}
+                  >
+                    Accommodation Details
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    className={`${styles.tabBtn} ${activeTab2 === 'needToKnow' ? styles.activeTabBtn : ''}`}
+                    onClick={() => setActiveTab2('needToKnow')}
+                  >
+                    Need to Know
+                  </button>
+                </li>
+              </ul>
+
+              {/* Tab Section 2 Content */}
+              <div className={styles.tabContent}>
+                {/* 1. Flight Details Tab */}
+                {activeTab2 === 'flights' && (
+                  <div className={styles.sectionCard}>
+                    <h2 className={styles.sectionHeaderTitle}>Flight Details</h2>
+                    {(onwardFlight || returnFlight) ? (
+                      <div className={styles.flightGrid}>
+                        {/* Onward Flight */}
+                        {onwardFlight && (
+                          <div className={styles.flightCard}>
+                            <div className={styles.flightCardHeader}>
+                              <span className={styles.flightTypeLabel}>🛫 Onward Journey</span>
+                              {onwardFlight.duration && <span className={styles.flightDurationBadge}>✈️ {onwardFlight.duration}</span>}
+                            </div>
+                            <div className={styles.flightRoute}>
+                              <div>
+                                <div className={styles.cityName}>{onwardFlight.from || 'Departure'}</div>
+                                {onwardFlight.departure_time && <div className={styles.flightTime}>{onwardFlight.departure_time}</div>}
+                                {onwardFlight.departure_date && <div className={styles.flightDate}>{onwardFlight.departure_date}</div>}
+                              </div>
+                              <div style={{ textAlign: 'center', color: '#64748b', fontSize: '1.25rem' }}>➔</div>
+                              <div style={{ textAlign: 'right' }}>
+                                <div className={styles.cityName}>{onwardFlight.to || 'Arrival'}</div>
+                                {onwardFlight.arrival_time && <div className={styles.flightTime}>{onwardFlight.arrival_time}</div>}
+                                {onwardFlight.arrival_date && <div className={styles.flightDate}>{onwardFlight.arrival_date}</div>}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Return Flight */}
+                        {returnFlight && (
+                          <div className={styles.flightCard}>
+                            <div className={styles.flightCardHeader}>
+                              <span className={styles.flightTypeLabel}>🛬 Return Journey</span>
+                              {returnFlight.duration && <span className={styles.flightDurationBadge}>✈️ {returnFlight.duration}</span>}
+                            </div>
+                            <div className={styles.flightRoute}>
+                              <div>
+                                <div className={styles.cityName}>{returnFlight.from || 'Departure'}</div>
+                                {returnFlight.departure_time && <div className={styles.flightTime}>{returnFlight.departure_time}</div>}
+                                {returnFlight.departure_date && <div className={styles.flightDate}>{returnFlight.departure_date}</div>}
+                              </div>
+                              <div style={{ textAlign: 'center', color: '#64748b', fontSize: '1.25rem' }}>➔</div>
+                              <div style={{ textAlign: 'right' }}>
+                                <div className={styles.cityName}>{returnFlight.to || 'Arrival'}</div>
+                                {returnFlight.arrival_time && <div className={styles.flightTime}>{returnFlight.arrival_time}</div>}
+                                {returnFlight.arrival_date && <div className={styles.flightDate}>{returnFlight.arrival_date}</div>}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ background: '#f8fafc', padding: '2rem', textAlign: 'center', borderRadius: '12px', border: '1px solid #e2e8f0', color: '#64748b' }}>
+                        <p style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: '#334155' }}>✈️ Custom Flight Options Available</p>
+                        <p style={{ fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: 0 }}>Flight details will be provided based on your departure city and preferred dates upon booking confirmation.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 2. Accommodation Details Tab */}
+                {activeTab2 === 'hotels' && (
+                  <div className={styles.sectionCard}>
+                    <h2 className={styles.sectionHeaderTitle}>Accommodation Details</h2>
+                    {hotelList.length > 0 ? (
+                      <div className={styles.tableResponsive}>
+                        <table className={styles.hotelTable}>
+                          <thead>
+                            <tr>
+                              <th>City</th>
+                              <th>Hotel</th>
+                              <th>Category</th>
+                              <th>Check-in</th>
+                              <th>Check-out</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {hotelList.map((hotel, idx) => (
+                              <tr key={idx}>
+                                <td><strong>{hotel.city}</strong></td>
+                                <td>{hotel.hotel_name}</td>
+                                <td><span className={styles.stars}>{hotel.rating}</span></td>
+                                <td>{hotel.check_in}</td>
+                                <td>{hotel.check_out}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div style={{ background: '#f8fafc', padding: '2rem', textAlign: 'center', borderRadius: '12px', border: '1px solid #e2e8f0', color: '#64748b' }}>
+                        <p style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: '#334155' }}>🏨 Premium 3★ / 4★ Hotel Accommodation</p>
+                        <p style={{ fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: 0 }}>Confirmed hotel vouchers and property names will be shared upon reservation.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 3. Need to Know Tab */}
+                {activeTab2 === 'needToKnow' && (
+                  <div className={styles.sectionCard}>
+                    <h2 className={styles.sectionHeaderTitle}>Need to Know</h2>
+                    <div className={styles.needToKnowBox}>
+                      {needToKnowTopics.map((topic, idx) => (
+                        <div key={idx} className={styles.needToKnowTopic}>
+                          <h3 className={styles.topicTitle}>{topic.title}</h3>
+                          <ul className={styles.topicList}>
+                            {(Array.isArray(topic.rules) ? topic.rules : []).map((rule, rIdx) => (
+                              <li key={rIdx}>{rule}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

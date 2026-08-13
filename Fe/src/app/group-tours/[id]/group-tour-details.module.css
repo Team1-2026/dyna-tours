@@ -184,6 +184,30 @@
   gap: 1.25rem;
 }
 
+.includedServicesList {
+  margin: 0.75rem 0 0 0;
+  padding-left: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem 1.5rem;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .includedServicesList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .includedServicesList {
+    grid-template-columns: 1fr;
+  }
+}
+
 .inclusionItem {
   display: flex;
   align-items: center;
@@ -749,4 +773,62 @@
   .relatedGrid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Tab Navigation */
+.tabsContainer {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.tabList {
+  display: flex;
+  list-style: none;
+  border-bottom: 2px solid #e2e8f0;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #64748b;
+  padding: 0.85rem 0.25rem;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.tabBtn:hover {
+  color: #e11d48;
+}
+
+.activeTabBtn {
+  color: #e11d48;
+}
+
+.activeTabBtn::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #e11d48;
+  border-radius: 4px 4px 0 0;
+}
+
+.tabContent {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }

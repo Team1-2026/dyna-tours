@@ -28,19 +28,19 @@ export default function GroupToursAdmin() {
   const [customServiceInput, setCustomServiceInput] = useState('');
 
   const DEFAULT_AVAILABLE_SERVICES = [
-    '🥐 Breakfast Included',
-    '🏨 Hotel Stay',
-    '🚌 Transportation',
-    '🏞️ Sightseeing',
-    '📞 Tour Assistance 24x7',
-    '📄 Visa Assistance',
-    '✈️ Flight Included',
-    '🎟️ Entry Tickets & Passes',
-    '🧭 Professional Tour Manager',
-    '🛡️ Travel Insurance',
-    '🍽️ Daily Meals (Lunch & Dinner)',
-    '🚢 Boat / Cruise Rides',
-    '🚆 Train Transfers',
+    'Breakfast Included',
+    'Hotel Stay',
+    'Transportation',
+    'Sightseeing',
+    'Tour Assistance 24x7',
+    'Visa Assistance',
+    'Flight Included',
+    'Entry Tickets & Passes',
+    'Professional Tour Manager',
+    'Travel Insurance',
+    'Daily Meals (Lunch & Dinner)',
+    'Boat / Cruise Rides',
+    'Train Transfers',
   ];
 
   const clearFormState = () => {
@@ -141,13 +141,13 @@ export default function GroupToursAdmin() {
       },
       overview: '',
       features: [
-        '🥐 Breakfast Included',
-        '🏨 Hotel Stay',
-        '🚌 Transportation',
-        '🏞️ Sightseeing',
-        '📞 Tour Assistance 24x7',
-        '📄 Visa Assistance',
-        '✈️ Flight Included'
+        'Breakfast Included',
+        'Hotel Stay',
+        'Transportation',
+        'Sightseeing',
+        'Tour Assistance 24x7',
+        'Visa Assistance',
+        'Flight Included'
       ],
       highlights: [],
       itinerary: [
