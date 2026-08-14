@@ -95,29 +95,6 @@ export default function ContactEnquiryForm() {
           </div>
 
           <div className={styles.formField}>
-            <label className={styles.label}>Phone Number <span className="required-star">*</span></label>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
-              <CountryCodeSelect 
-                value={countryCode} 
-                onChange={(code) => setCountryCode(code)} 
-                style={{ flexShrink: 0 }}
-              />
-              <input 
-                type="tel" 
-                name="phone" 
-                required 
-                placeholder="98466 65005" 
-                value={formData.phone} 
-                onChange={handleInputChange} 
-                className={styles.input} 
-                style={{ flex: 1, minWidth: 0 }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.formGroupGrid}>
-          <div className={styles.formField}>
             <label className={styles.label}>Email Address <span>*</span></label>
             <input 
               type="email" 
@@ -129,6 +106,28 @@ export default function ContactEnquiryForm() {
               className={styles.input} 
             />
           </div>
+        </div>
+
+        <div className={styles.formField}>
+          <label className={styles.label}>Phone Number <span className="required-star">*</span></label>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
+            <CountryCodeSelect 
+              value={countryCode} 
+              onChange={(code) => setCountryCode(code)} 
+              style={{ flexShrink: 0 }}
+            />
+            <input 
+              type="tel" 
+              name="phone" 
+              required 
+              placeholder="Enter mobile number" 
+              value={formData.phone} 
+              onChange={handleInputChange} 
+              className={styles.input} 
+              style={{ flex: 1, minWidth: 0 }}
+            />
+          </div>
+        </div>
 
           <div className={styles.formField}>
             <label className={styles.label}>Number of Travellers</label>
@@ -141,7 +140,6 @@ export default function ContactEnquiryForm() {
               className={styles.input} 
             />
           </div>
-        </div>
 
         <div className={styles.formField}>
           <label className={styles.label}>Preferred Travel Dates</label>

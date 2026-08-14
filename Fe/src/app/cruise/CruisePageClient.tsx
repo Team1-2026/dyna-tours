@@ -16,6 +16,13 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
   const [pageData] = useState<CruisePageData>(initialPageData);
   const [cruises] = useState<Cruise[]>(initialCruises);
   const [countryCode, setCountryCode] = useState('+91');
+  const [expandedCruises, setExpandedCruises] = useState<string[]>([]);
+
+  const toggleDescription = (id: string) => {
+    setExpandedCruises(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
 
   // Enquiry Form State
   const [formData, setFormData] = useState({
@@ -227,22 +234,31 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
                   <div className={styles.cruiseMeta}>
                     <span>📍 {cruise.destination}</span>
                   </div>
-                  <p className={styles.cruiseDesc}>
-                    {cruise.short_description ? (cruise.short_description.length > 110 ? cruise.short_description.slice(0, 110) + '...' : cruise.short_description) : ''}
-                  </p>
+
+                  {expandedCruises.includes(String(cruise.id)) && cruise.short_description && (
+                    <p className={styles.cruiseDesc}>
+                      {cruise.short_description}
+                    </p>
+                  )}
 
                   <div className={styles.cardFooter}>
-                    {cruise.show_price && cruise.price ? (
-                      <div className={styles.priceBlock}>
-                        <span className={styles.priceLabel}>Starting From</span>
-                        <span className={styles.priceValue} suppressHydrationWarning>₹{Number(cruise.price).toLocaleString('en-IN')}</span>
-                      </div>
-                    ) : (
-                      <div className={styles.priceBlock}>
-                        <span className={styles.priceLabel}>Price</span>
-                        <span className={styles.priceValue} style={{ fontSize: '0.95rem' }}>On Request</span>
-                      </div>
-                    )}
+                    <button 
+                      type="button"
+                      onClick={() => toggleDescription(String(cruise.id))}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: 'var(--color-primary-red)', 
+                        padding: 0, 
+                        font: 'inherit', 
+                        cursor: 'pointer', 
+                        textDecoration: 'underline', 
+                        fontSize: '0.85rem',
+                        fontWeight: 600 
+                      }}
+                    >
+                      {expandedCruises.includes(String(cruise.id)) ? 'Hide Description' : 'Show Description'}
+                    </button>
 
                     <div className={styles.cardActions}>
                       <Link href={`/cruise/${cruise.url_slug || cruise.id}`} className="btn btn-secondary btn-sm">

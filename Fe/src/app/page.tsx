@@ -173,6 +173,7 @@ export default function Home() {
       {sectionVisibility.themes !== false && (
         <ThemePackages 
           themes={themes}
+          packages={packages}
           adminDescription={aboutData?.themes_description}
         />
       )}

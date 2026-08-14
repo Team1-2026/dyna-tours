@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, Destination, Hotel, Enquiry, Room, GalleryImage, Facility, getImageUrl } from '@/lib/api';
+import { api, groupToursApi, Destination, Hotel, Enquiry, GroupTourEnquiry, Room, GalleryImage, Facility, getImageUrl } from '@/lib/api';
 import { toursData } from '@/data/toursData';
 import { AmenityIcon } from '@/components/AmenityIcon';
 import styles from './admin.module.css';
@@ -78,6 +78,7 @@ export default function AdminDashboard() {
 
   // Core data states
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+  const [groupTourEnquiries, setGroupTourEnquiries] = useState<GroupTourEnquiry[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -421,12 +422,14 @@ export default function AdminDashboard() {
       api.getEnquiries(),
       api.getDestinations({ status: 'all' }),
       api.getHotels(),
-      api.getFacilities()
-    ]).then(([enqData, destData, hotelData, facData]) => {
+      api.getFacilities(),
+      groupToursApi.getEnquiries().catch(() => [])
+    ]).then(([enqData, destData, hotelData, facData, gtEnqData]) => {
       setEnquiries(enqData);
       setDestinations(destData);
       setHotels(hotelData);
       setFacilities(facData);
+      setGroupTourEnquiries(gtEnqData || []);
 
       // Restore selections if valid, otherwise keep empty
       if (selectedDestId) {
@@ -1197,8 +1200,12 @@ export default function AdminDashboard() {
               <div 
                 className={`${styles.subMenuItem} ${activeTab === 'groupTourEnquiries' ? styles.subMenuItemActive : ''}`}
                 onClick={() => { setActiveTab('groupTourEnquiries'); }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
               >
-                Enquiries
+                <span>Enquiries</span>
+                {groupTourEnquiries.length > 0 && (
+                  <span className={styles.menuBadge}>{groupTourEnquiries.length}</span>
+                )}
               </div>
             </div>
           )}
@@ -1458,16 +1465,16 @@ export default function AdminDashboard() {
                             {enq.type === 'flight' ? (
                               <div>
                                 <div>🛫 Route: {enq.from} &rarr; {enq.to}</div>
-                                <div>✈️ Type: {enq.trip_type} | Class: {enq.cabin_class}</div>
-                                <div>📅 Dep: {enq.departure_date} {enq.return_date ? `| Ret: ${enq.return_date}` : ''}</div>
-                                <div>🧑 Adults: {enq.num_adults} | Child: {enq.num_children} | Infants: {enq.num_infants}</div>
+                                <div>✈️ Type: {enq.trip_type} • Class: {enq.cabin_class}</div>
+                                <div>📅 Dep: {enq.departure_date} {enq.return_date ? `• Ret: ${enq.return_date}` : ''}</div>
+                                <div>🧑 Adults: {enq.num_adults} • Child: {enq.num_children} • Infants: {enq.num_infants}</div>
                                 {enq.preferred_airline && <div>Airline: {enq.preferred_airline}</div>}
                               </div>
                             ) : enq.type === 'hotel' ? (
                               <div>
                                 {enq.check_in && <div>📅 In: {enq.check_in}</div>}
                                 {enq.check_out && <div>📅 Out: {enq.check_out}</div>}
-                                <div>🧑 Adults: {enq.num_adults || 1} | Child: {enq.num_children || 0}</div>
+                                <div>🧑 Adults: {enq.num_adults || 1}, Child: {enq.num_children || 0}</div>
                               </div>
                             ) : (
                               <div>

@@ -108,15 +108,15 @@ export default function VisaEnquiryForm({ destinations, preselectedCountry = '',
               <input type="text" id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} required placeholder="Enter your full name" />
             </div>
 
-            <div className={styles.inputGroupHalf}>
+            <div className={styles.inputGroupFull}>
               <label htmlFor="mobileNumber">Mobile Number <span className="required-star">*</span></label>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', width: '100%' }}>
                 <CountryCodeSelect value={countryCode} onChange={setCountryCode} style={{ flexShrink: 0 }} />
-                <input type="tel" id="mobileNumber" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} required placeholder="Mobile number" style={{ flex: 1, minWidth: 0 }} />
+                <input type="tel" id="mobileNumber" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} required placeholder="Enter mobile number" style={{ flex: 1, minWidth: 0 }} />
               </div>
             </div>
 
-            <div className={styles.inputGroupHalf}>
+            <div className={styles.inputGroupFull}>
               <label htmlFor="emailAddress">Email Address</label>
               <input type="email" id="emailAddress" name="emailAddress" value={formData.emailAddress} onChange={handleChange} required placeholder="Enter your email address" />
             </div>

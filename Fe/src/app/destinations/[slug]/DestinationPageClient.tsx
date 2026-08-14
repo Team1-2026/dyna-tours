@@ -338,38 +338,36 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                 />
               </div>
               
-              <div className={styles.formRowGrid}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="phone">Phone Number *</label>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
-                    <input
-                      type="tel"
-                      name="phone"
-                      id="phone"
-                      required
-                      placeholder="Phone No."
-                      className={styles.darkInput}
-                      style={{ flex: 1, minWidth: 0 }}
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="email">Email Address *</label>
+              <div className={styles.formGroupFull}>
+                <label htmlFor="phone">Phone Number *</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
                   <input
-                    type="email"
-                    name="email"
-                    id="email"
+                    type="tel"
+                    name="phone"
+                    id="phone"
                     required
-                    placeholder="Email Address"
+                    placeholder="Enter mobile number"
                     className={styles.darkInput}
-                    value={formData.email}
+                    style={{ flex: 1, minWidth: 0 }}
+                    value={formData.phone}
                     onChange={handleInputChange}
                   />
                 </div>
+              </div>
+
+              <div className={styles.formGroupFull}>
+                <label htmlFor="email">Email Address *</label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  required
+                  placeholder="Email Address"
+                  className={styles.darkInput}
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
               </div>
 
               <div className={styles.formRowGrid}>

@@ -2,9 +2,19 @@
 
 import React, { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { groupToursApi, GroupTour, GroupTourPage } from '@/lib/api';
+import { groupToursApi, GroupTour, GroupTourPage, GroupTourDetails } from '@/lib/api';
 import styles from './group-tours.module.css';
 import Pagination from '@/components/Pagination';
+
+const parseDetails = (tour: GroupTour | null): GroupTourDetails => {
+  if (!tour || !tour.full_details) return {};
+  if (typeof tour.full_details === 'object') return tour.full_details as GroupTourDetails;
+  try {
+    return JSON.parse(tour.full_details);
+  } catch (e) {
+    return {};
+  }
+};
 
 const defaultTours: GroupTour[] = [
   {
@@ -324,49 +334,58 @@ function GroupToursContent() {
         <div className={styles.packagesGrid}>
           {filteredTours
             .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
-            .map(tour => (
-              <div key={tour.id} className={styles.tourCard}>
-                <div 
-                  className={styles.tourCardImage} 
-                  style={{ backgroundImage: `url(${tour.image || defaultBanner})` }}
-                >
-                  <span className={`${styles.statusBadge} ${getStatusClass(tour.status)}`}>
-                    {tour.status}
-                  </span>
-                </div>
-                <div className={styles.tourCardContent}>
-                  <h3 className={styles.tourTitle}>{tour.name}</h3>
-                  <div className={styles.tourMeta}>
-                    <span className={styles.tourMetaItem}>⏱️ {tour.duration}</span>
-                    {tour.departure_date && (
-                      <span className={styles.tourMetaItem} suppressHydrationWarning>📅 {formatDepartureDate(tour.departure_date)}</span>
-                    )}
+            .map(tour => {
+              const det = parseDetails(tour);
+              const isShowPrice = det.show_price !== false;
+
+              return (
+                <div key={tour.id} className={styles.tourCard}>
+                  <div 
+                    className={styles.tourCardImage} 
+                    style={{ backgroundImage: `url(${tour.image || defaultBanner})` }}
+                  >
+                    <span className={`${styles.statusBadge} ${getStatusClass(tour.status)}`}>
+                      {tour.status}
+                    </span>
                   </div>
-                  <div className={styles.tourPriceRow}>
-                    <span className={styles.priceLabel}>From</span>
-                    <span className={styles.priceValue}>₹{tour.starting_price.toLocaleString('en-IN')}/-</span>
-                  </div>
+                  <div className={styles.tourCardContent}>
+                    <h3 className={styles.tourTitle}>{tour.name}</h3>
+                    <div className={styles.tourMeta}>
+                      <span className={styles.tourMetaItem}>⏱️ {tour.duration}</span>
+                      {tour.departure_date && (
+                        <span className={styles.tourMetaItem} suppressHydrationWarning>📅 {formatDepartureDate(tour.departure_date)}</span>
+                      )}
+                    </div>
+                    <div className={styles.tourPriceRow}>
+                      <span className={styles.priceLabel}>{isShowPrice ? 'From' : 'Price'}</span>
+                      {isShowPrice ? (
+                        <span className={styles.priceValue}>₹{Number(tour.starting_price).toLocaleString('en-IN')}/-</span>
+                      ) : (
+                        <span className={styles.priceValue} style={{ fontSize: '1.05rem', color: '#2563eb' }}>On Request</span>
+                      )}
+                    </div>
                   
-                  <div className={styles.cardActionsRow}>
-                    <Link href={`/group-tours/${tour.id}`} className={styles.btnViewDetails}>
-                      View Details
-                    </Link>
-                    <button className={styles.btnEnquireNow} onClick={() => openEnquiryModal(tour)}>
-                      Enquire Now
-                    </button>
-                    <a 
-                      href={`https://wa.me/919846665005?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour.name)}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={styles.btnWhatsappIcon}
-                      title="Chat on WhatsApp"
-                    >
-                      💬
-                    </a>
+                    <div className={styles.cardActionsRow}>
+                      <Link href={`/group-tours/${tour.id}`} className={styles.btnViewDetails}>
+                        View Details
+                      </Link>
+                      <button className={styles.btnEnquireNow} onClick={() => openEnquiryModal(tour)}>
+                        Enquire Now
+                      </button>
+                      <a 
+                        href={`https://wa.me/919746470555?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour.name)}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={styles.btnWhatsappIcon}
+                        title="Chat on WhatsApp"
+                      >
+                        💬
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
 
         <Pagination
@@ -480,7 +499,7 @@ function GroupToursContent() {
                         value={formData.phone} 
                         onChange={handleFormChange} 
                         className={styles.formInput} 
-                        style={{ flex: 1 }}
+                        style={{ flex: 1, minWidth: 0 }}
                         required 
                       />
                     </div>
@@ -563,7 +582,7 @@ function GroupToursContent() {
                   </button>
 
                   <a 
-                    href="https://wa.me/919846665005?text=Hi,%20I'm%20interested%20in%20Group%20Tours" 
+                    href="https://wa.me/919746470555?text=Hi,%20I'm%20interested%20in%20Group%20Tours" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className={styles.btnWhatsappGreen}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Cruise, api } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
@@ -15,6 +15,35 @@ interface Props {
 export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
   const [openDay, setOpenDay] = useState<number | null>(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  const needToKnowTopics = useMemo(() => {
+    if (!cruise.need_to_know || !Array.isArray(cruise.need_to_know) || cruise.need_to_know.length === 0) {
+      return [];
+    }
+
+    const topics: Array<{ title: string; rules: string[] }> = [];
+    const plainRules: string[] = [];
+
+    for (const item of cruise.need_to_know) {
+      if (typeof item === 'string') {
+        plainRules.push(item);
+      } else if (item && typeof item === 'object' && 'title' in item) {
+        topics.push({
+          title: (item as any).title || '',
+          rules: Array.isArray((item as any).rules) ? (item as any).rules : []
+        });
+      }
+    }
+
+    if (plainRules.length > 0) {
+      topics.unshift({
+        title: '📌 Cruise Guidelines & Important Information',
+        rules: plainRules
+      });
+    }
+
+    return topics;
+  }, [cruise.need_to_know]);
 
   // Enquiry Form State
   const [formData, setFormData] = useState({
@@ -106,6 +135,80 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
       </section>
 
       <div className="container">
+        {/* Full-width Top Gallery Images (Above Overview Section) */}
+        {(() => {
+          const galleryImages = (cruise.gallery || []).filter(img => {
+            const imgUrl = typeof img === 'string' ? img : (img as any)?.url || '';
+            return Boolean(imgUrl);
+          });
+
+          if (galleryImages.length === 0) return null;
+
+          const count = galleryImages.length;
+
+          if (count === 1) {
+            const imgUrl = typeof galleryImages[0] === 'string' ? galleryImages[0] : (galleryImages[0] as any)?.url || '';
+            return (
+              <div className={styles.imageGallery}>
+                <div className={styles.galleryItemSingle}>
+                  <img src={imgUrl} alt={`${cruise.name} gallery view`} className={styles.galleryImg} />
+                </div>
+              </div>
+            );
+          }
+
+          if (count === 2) {
+            return (
+              <div className={styles.imageGallery}>
+                <div className={styles.galleryGridTwo}>
+                  {galleryImages.map((img, idx) => {
+                    const imgUrl = typeof img === 'string' ? img : (img as any)?.url || '';
+                    return (
+                      <div key={idx} className={styles.galleryItem}>
+                        <img src={imgUrl} alt={`${cruise.name} view ${idx + 1}`} className={styles.galleryImg} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
+
+          const hasMultiple = count > 2;
+
+          return (
+            <div className={styles.imageGallery}>
+              <div className={styles.galleryGrid}>
+                <div className={`${styles.galleryItem} ${hasMultiple ? styles.galleryItemLarge : ''}`}>
+                  <img 
+                    src={typeof galleryImages[0] === 'string' ? galleryImages[0] : (galleryImages[0] as any)?.url || ''} 
+                    alt={`${cruise.name} featured view`} 
+                    className={styles.galleryImg} 
+                  />
+                </div>
+                {galleryImages.slice(1, 3).map((img, idx) => {
+                  const imgUrl = typeof img === 'string' ? img : (img as any)?.url || '';
+                  if (!imgUrl) return null;
+                  return (
+                    <div key={idx} className={styles.galleryItem}>
+                      <img src={imgUrl} alt={`${cruise.name} view ${idx + 2}`} className={styles.galleryImg} />
+                    </div>
+                  );
+                })}
+                {galleryImages[3] && (
+                  <div className={styles.galleryItem} style={{ gridColumn: 'span 2' }}>
+                    <img 
+                      src={typeof galleryImages[3] === 'string' ? galleryImages[3] : (galleryImages[3] as any)?.url || ''} 
+                      alt={`${cruise.name} view 4`} 
+                      className={styles.galleryImg} 
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
         <div className={styles.detailLayout}>
           {/* Main Content Area */}
           <div>
@@ -115,15 +218,6 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
               <p style={{ fontSize: '1.05rem', color: '#475569', lineHeight: 1.8 }}>
                 {cruise.about || cruise.short_description}
               </p>
-
-              {/* Cruise Gallery */}
-              {cruise.gallery && cruise.gallery.length > 0 && (
-                <div className={styles.galleryGrid}>
-                  {cruise.gallery.slice(0, 4).map((imgUrl, idx) => (
-                    <img key={idx} src={imgUrl} alt={`${cruise.name} gallery ${idx + 1}`} className={styles.galleryThumb} />
-                  ))}
-                </div>
-              )}
             </section>
 
             {/* 3. Cruise Highlights */}
@@ -146,19 +240,25 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
               <section className={styles.sectionBlock}>
                 <h2 className={styles.blockTitle}>Day-wise Cruise Itinerary</h2>
                 <div className={styles.itineraryList}>
-                  {cruise.itinerary.map((dayItem, idx) => (
-                    <div key={idx} className={styles.itineraryDay}>
-                      <div className={styles.itineraryHeader} onClick={() => setOpenDay(openDay === idx ? null : idx)}>
-                        <span>{dayItem.day} – {dayItem.title}</span>
-                        <span>{openDay === idx ? '▲' : '▼'}</span>
-                      </div>
-                      {openDay === idx && (
-                        <div className={styles.itineraryContent}>
-                          <p>{dayItem.description}</p>
+                  {cruise.itinerary.map((dayItem, idx) => {
+                    const dayVal = dayItem.day || (idx + 1);
+                    const dayLabel = String(dayVal).trim().toLowerCase().startsWith('day')
+                      ? dayVal
+                      : `Day ${dayVal}`;
+                    return (
+                      <div key={idx} className={styles.itineraryDay}>
+                        <div className={styles.itineraryHeader} onClick={() => setOpenDay(openDay === idx ? null : idx)}>
+                          <span>{dayLabel}{dayItem.title ? ` – ${dayItem.title}` : ''}</span>
+                          <span>{openDay === idx ? '▲' : '▼'}</span>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        {openDay === idx && (
+                          <div className={styles.itineraryContent}>
+                            <p>{dayItem.description}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             )}
@@ -195,17 +295,21 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
             )}
 
             {/* 8. Need to Know */}
-            {cruise.need_to_know && cruise.need_to_know.length > 0 && (
+            {needToKnowTopics.length > 0 && (
               <section className={styles.sectionBlock}>
                 <h2 className={styles.blockTitle}>Need to Know</h2>
-                <ul className={styles.checkList}>
-                  {cruise.need_to_know.map((info, idx) => (
-                    <li key={idx} className={styles.checkItem}>
-                      <span>ℹ️</span>
-                      <span>{info}</span>
-                    </li>
+                <div className={styles.needToKnowBox}>
+                  {needToKnowTopics.map((topic, idx) => (
+                    <div key={idx} className={styles.needToKnowTopic}>
+                      {topic.title && <h3 className={styles.topicTitle}>{topic.title}</h3>}
+                      <ul className={styles.topicList}>
+                        {(Array.isArray(topic.rules) ? topic.rules : []).map((rule, rIdx) => (
+                          <li key={rIdx}>{rule}</li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </section>
             )}
 
@@ -324,8 +428,8 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
                           background: 'rgba(255, 255, 255, 0.07)', 
                           border: '1px solid rgba(255, 255, 255, 0.15)', 
                           color: '#ffffff', 
-                          padding: '0.65rem 0.4rem', 
-                          width: '100px',
+                          padding: '0.65rem 0.35rem', 
+                          width: '85px',
                           flexShrink: 0,
                           borderRadius: 'var(--radius-md, 8px)'
                         }} 
@@ -337,18 +441,18 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
                         required 
                         value={formData.phone} 
                         onChange={handleInputChange} 
-                        placeholder="Phone No." 
+                        placeholder="Enter mobile number" 
                         style={{ 
                           flex: 1, 
-                          minWidth: 0,
-                          width: '100%',
-                          padding: '0.65rem 0.85rem',
-                          background: 'rgba(255, 255, 255, 0.07)',
-                          border: '1px solid rgba(255, 255, 255, 0.15)',
-                          color: '#ffffff',
-                          borderRadius: 'var(--radius-md, 8px)',
-                          fontSize: '0.9rem',
-                          boxSizing: 'border-box'
+                          minWidth: 0, 
+                          padding: '0.65rem 0.75rem', 
+                          borderRadius: 'var(--radius-md, 8px)', 
+                          border: '1px solid rgba(255, 255, 255, 0.15)', 
+                          background: 'rgba(255, 255, 255, 0.07)', 
+                          color: '#ffffff', 
+                          outline: 'none', 
+                          fontSize: '0.9rem', 
+                          boxSizing: 'border-box' 
                         }} 
                       />
                     </div>

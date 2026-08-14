@@ -17,6 +17,17 @@ const parseDetails = (tour: GroupTour | null): GroupTourDetails => {
   }
 };
 
+const formatDepartureDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch (e) {
+    return dateStr;
+  }
+};
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -51,7 +62,7 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
           const matched = allTours.filter(t => String(t.id) !== String(id) && relIds.includes(String(t.id)));
           setRelatedTours(matched);
         } else {
-          setRelatedTours(allTours.filter(t => String(t.id) !== String(id)).slice(0, 4));
+          setRelatedTours([]);
         }
       }
     }).catch(err => console.error(err));
@@ -203,17 +214,29 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
             <div className={styles.badgesRow}>
               <span className={`${styles.statusBadge} ${styles.badgeFilling}`}>🔥 {tour?.status || 'Available'}</span>
               <span className={`${styles.statusBadge} ${styles.badgeDuration}`}>⏱️ {tour?.duration || '7 Nights / 8 Days'}</span>
+              {tour?.departure_date && (
+                <span className={`${styles.statusBadge} ${styles.badgeDuration}`} style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#bfdbfe', borderColor: 'rgba(59, 130, 246, 0.4)' }} suppressHydrationWarning>
+                  📅 Departure: {formatDepartureDate(tour.departure_date)}
+                </span>
+              )}
               <span className={`${styles.statusBadge} ${styles.badgeSeats}`}>👥 Max 30 Seats</span>
             </div>
 
             <h1 className={styles.heroTitle}>{tour?.banner_title || tour?.name || 'Panoramic Europe – Alpine Grandeur & Cultural Treasures'}</h1>
             <p className={styles.heroSubtitle}>{tour?.banner_tagline || 'Discover the Best of Europe in One Unforgettable Journey'}</p>
 
-            <div className={styles.priceTag}>
-              <span className={styles.priceLabel}>Starting From</span>
-              <span className={styles.priceValue}>₹{Number(tour?.starting_price || 0).toLocaleString('en-IN')}/-</span>
-              <span style={{ color: '#cbd5e1', fontSize: '0.875rem' }}>per person</span>
-            </div>
+            {details.show_price !== false ? (
+              <div className={styles.priceTag}>
+                <span className={styles.priceLabel}>Starting From</span>
+                <span className={styles.priceValue}>₹{Number(tour?.starting_price || 0).toLocaleString('en-IN')}/-</span>
+                <span style={{ color: '#cbd5e1', fontSize: '0.875rem' }}>per person</span>
+              </div>
+            ) : (
+              <div className={styles.priceTag}>
+                <span className={styles.priceLabel}>Pricing</span>
+                <span className={styles.priceValue} style={{ fontSize: '1.25rem' }}>On Request</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -634,28 +657,43 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
             </div>
 
             {/* Related Packages */}
-            <div className={styles.relatedSection}>
-              <h2 className={styles.sectionHeaderTitle}>Related Group Tour Packages</h2>
-              <div className={styles.relatedGrid}>
-                {relatedTours.length > 0 ? (
-                  relatedTours.map((rel) => (
-                    <div key={rel.id} style={{ background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                      <div style={{ height: '160px', backgroundImage: `url(${getImageUrl(rel.image || '')})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                      <div style={{ padding: '1rem' }}>
-                        <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.35rem' }}>{rel.name}</h4>
-                        <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '0.75rem' }}>⏱️ {rel.duration}</p>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#dc2626' }}>₹{Number(rel.starting_price || 0).toLocaleString('en-IN')}</span>
-                          <Link href={`/group-tours/${rel.id}`} style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#2563eb', textDecoration: 'none' }}>View Tour →</Link>
+            {relatedTours.length > 0 && (
+              <div className={styles.relatedSection}>
+                <h2 className={styles.sectionHeaderTitle}>Related Group Tour Packages</h2>
+                <div className={styles.relatedGrid}>
+                  {relatedTours.map((rel) => {
+                    const relDet = parseDetails(rel);
+                    const relShowPrice = relDet.show_price !== false;
+
+                    return (
+                      <div key={rel.id} className={styles.relatedCard}>
+                        <div 
+                          className={styles.relatedCardImg} 
+                          style={{ backgroundImage: `url(${getImageUrl(rel.image || '')})` }} 
+                        />
+                        <div className={styles.relatedCardBody}>
+                          <h4 className={styles.relatedCardTitle}>{rel.name}</h4>
+                          <p className={styles.relatedCardMeta}>⏱️ {rel.duration}</p>
+                          <div className={styles.relatedCardFooter}>
+                            <div className={styles.relatedPriceRow}>
+                              <span className={styles.priceLabel}>{relShowPrice ? 'Starting from' : 'Price'}</span>
+                              {relShowPrice ? (
+                                <span className={styles.relatedPrice}>₹{Number(rel.starting_price || 0).toLocaleString('en-IN')}</span>
+                              ) : (
+                                <span className={styles.relatedPrice} style={{ fontSize: '0.95rem', color: '#2563eb' }}>On Request</span>
+                              )}
+                            </div>
+                            <Link href={`/group-tours/${rel.id}`} className={styles.btnViewTour}>
+                              View Tour →
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <p style={{ color: '#64748b' }}>No related tour packages have been selected for this tour yet.</p>
-                )}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
           </div>
 
@@ -694,15 +732,15 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
                             background: 'rgba(255, 255, 255, 0.07)', 
                             border: '1px solid rgba(255, 255, 255, 0.15)', 
                             color: '#ffffff', 
-                            padding: '0.65rem 0.4rem', 
-                            width: '100px',
+                            padding: '0.65rem 0.35rem', 
+                            width: '85px',
                             flexShrink: 0,
                             borderRadius: 'var(--radius-md, 8px)'
                           }} 
                         />
                         <input 
                           type="tel" 
-                          placeholder="Phone Number *" 
+                          placeholder="Enter mobile number" 
                           className={styles.formControl} 
                           style={{ flex: 1, minWidth: 0, marginBottom: 0 }}
                           value={formData.phone} 
@@ -765,7 +803,7 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
                       Submit Enquiry
                     </button>
                     <a 
-                      href={`https://wa.me/919846665005?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour?.name || 'Group Tour')}`} 
+                      href={`https://wa.me/919746470555?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour?.name || 'Group Tour')}`} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className={styles.btnWhatsapp}

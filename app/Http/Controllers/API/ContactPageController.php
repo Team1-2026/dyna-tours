@@ -27,7 +27,7 @@ class ContactPageController extends Controller
                 'hero_cta_primary_text' => 'Enquire Now',
                 'hero_cta_primary_url' => '#enquiry-form',
                 'hero_cta_secondary_text' => 'Call Us',
-                'hero_cta_secondary_url' => 'tel:+919846665005',
+                'hero_cta_secondary_url' => 'tel:+919746470555',
 
                 // Office Details
                 'office_name' => 'Dyna Tours India Head Office',
@@ -35,7 +35,7 @@ class ContactPageController extends Controller
                 'google_maps_url' => 'https://maps.google.com/?q=Dyna+Tours+India+Changanassery',
                 
                 'phone_numbers' => [
-                    ['label' => 'Primary Support', 'number' => '+91 98466 65005'],
+                    ['label' => 'Primary Support', 'number' => '+91 97464 70555'],
                     ['label' => 'WhatsApp Support', 'number' => '+91 97464 70555'],
                     ['label' => 'Reservations', 'number' => '+91 98461 50005'],
                     ['label' => 'Customer Care', 'number' => '+91 94952 02727']
@@ -95,6 +95,15 @@ class ContactPageController extends Controller
                 // Map Embed
                 'map_embed_url' => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3936.574488349272!2d76.5412!3d9.4442!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b062548ad7281f7%3A0x6b44c8033ef6691c!2sChanganassery%2C%20Kerala!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin'
             ]);
+        } else {
+            $pNums = $page->phone_numbers;
+            if (is_array($pNums) && count($pNums) > 0) {
+                if (isset($pNums[0]['number']) && str_contains($pNums[0]['number'], '98466')) {
+                    $pNums[0]['number'] = '+91 97464 70555';
+                    $page->phone_numbers = $pNums;
+                    $page->save();
+                }
+            }
         }
 
         return response()->json($page);

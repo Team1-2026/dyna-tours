@@ -132,6 +132,7 @@ export default function GroupToursAdmin() {
   const handleAddNew = () => {
     setIsCreating(true);
     const initialDetails: GroupTourDetails = {
+      show_price: true,
       quick_info: {
         trip_from: 'Kochi (COK)',
         trip_to: '',
@@ -422,6 +423,15 @@ export default function GroupToursAdmin() {
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Starting Price <span className="required-star">*</span></label>
               <input type="text" name="starting_price" value={editingTour.starting_price ?? ''} onChange={handleChange} required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginTop: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                <input 
+                  type="checkbox" 
+                  checked={details.show_price !== false} 
+                  onChange={e => setDetails(prev => ({ ...prev, show_price: e.target.checked }))} 
+                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                />
+                <span>Display price on website</span>
+              </label>
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Departure Date</label>
@@ -449,7 +459,7 @@ export default function GroupToursAdmin() {
               />
             </div>
             <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#0C2745' }}>👁️ Visibility & Home Page Controls</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#0C2745' }}>👁️ Visibility & Price Controls</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
                 <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#15803d', margin: 0 }}>
                   <input 
@@ -462,7 +472,17 @@ export default function GroupToursAdmin() {
                   <span>Enable / Show on Site</span>
                 </label>
 
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#15803d', margin: 0 }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#0369a1', margin: 0 }}>
+                  <input 
+                    type="checkbox" 
+                    checked={details.show_price !== false} 
+                    onChange={e => setDetails(prev => ({ ...prev, show_price: e.target.checked }))} 
+                    style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                  />
+                  <span>🏷️ Display Price on Website</span>
+                </label>
+
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#4338ca', margin: 0 }}>
                   <input 
                     type="checkbox" 
                     name="is_featured" 
@@ -1228,7 +1248,18 @@ export default function GroupToursAdmin() {
                           </div>
                         </td>
                         <td>📍 {tour.destination}</td>
-                        <td style={{ fontWeight: 700, color: 'var(--color-primary-red)' }}>₹{Number(tour.starting_price).toLocaleString('en-IN')}</td>
+                        <td>
+                          {(() => {
+                            const pDet = parseDetails(tour);
+                            const isShowP = pDet.show_price !== false;
+                            return (
+                              <div>
+                                <span style={{ fontWeight: 700, color: 'var(--color-primary-red)' }}>₹{Number(tour.starting_price).toLocaleString('en-IN')}</span>
+                                {!isShowP && <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>(Hidden on site)</span>}
+                              </div>
+                            );
+                          })()}
+                        </td>
                         <td>
                           <span className={`${styles.statusPill} ${tour.status === 'Available' ? styles.statusActive : styles.statusDraft}`}>
                             {tour.status}

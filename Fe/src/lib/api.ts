@@ -1538,6 +1538,7 @@ export const deletePackage = async (id: string): Promise<void> => {
 
 // --- Group Tours ---
 export interface GroupTourDetails {
+  show_price?: boolean;
   quick_info?: {
     trip_from?: string;
     trip_to?: string;

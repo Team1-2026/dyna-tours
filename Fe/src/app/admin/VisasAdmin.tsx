@@ -1,26 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import styles from './admin.module.css';
 import { api } from '@/lib/api';
 import { VisaCountry, eVisaDestinations, schengenCountries, otherCountries } from '@/data/visaData';
 import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
-const WysiwygEditor = dynamic(
-  () => import('react-simple-wysiwyg').then((mod) => {
-    const EditorProvider = mod.EditorProvider;
-    const Editor = mod.Editor;
-    return function WrappedEditor({ value, onChange }: { value: string, onChange: (e: any) => void }) {
-      return (
-        <EditorProvider>
-          <Editor value={value} onChange={onChange} style={{ minHeight: '200px', backgroundColor: 'white' }} />
-        </EditorProvider>
-      );
-    }
-  }),
-  { ssr: false, loading: () => <p>Loading editor...</p> }
-);
+import RichTextEditor from '@/components/RichTextEditor';
 
 const FLAG_OPTIONS = [
   { name: 'Australia', flag: '🇦🇺' }, { name: 'Austria', flag: '🇦🇹' }, { name: 'Belgium', flag: '🇧🇪' },
@@ -396,9 +382,10 @@ export default function VisasAdmin() {
 
             <div className={styles.formGroup} style={{ marginTop: '1.5rem' }}>
               <label>Description (Rich Text)</label>
-              <WysiwygEditor 
+              <RichTextEditor 
                 value={selectedVisa?.description || ''} 
-                onChange={e => setSelectedVisa({...selectedVisa, description: e.target.value})}
+                onChange={(val) => setSelectedVisa({ ...selectedVisa, description: val })}
+                placeholder="Enter detailed visa description, guidelines, and overview..."
               />
             </div>
 

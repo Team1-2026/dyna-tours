@@ -237,6 +237,9 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
         </div>
       </section>
 
+      {/* FAQ specific to country */}
+      <VisaFAQ faqs={countryData.faqs} />
+
       {/* Start Your Visa Enquiry Section */}
       <section className="section bg-white" id="enquiry-form" style={{ paddingTop: '3.5rem', paddingBottom: '3.5rem', borderTop: '1px solid #e2e8f0' }}>
         <div className="container">
@@ -246,9 +249,6 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
           />
         </div>
       </section>
-
-      {/* FAQ specific to country */}
-      <VisaFAQ faqs={countryData.faqs} />
     </main>
   );
 }

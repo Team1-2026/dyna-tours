@@ -34,17 +34,17 @@ export default function CountryCodeSelect({ value, onChange, className, style }:
       onChange={(e) => onChange(e.target.value)}
       className={className}
       style={{
-        padding: '0.75rem 0.5rem',
+        padding: '0.65rem 0.35rem',
         borderRadius: 'var(--radius-md, 8px)',
         border: '1px solid var(--color-border, #cbd5e1)',
         backgroundColor: '#ffffff',
-        fontSize: '0.9rem',
+        fontSize: '0.85rem',
         fontWeight: 600,
         color: 'var(--color-secondary-navy, #0f172a)',
         cursor: 'pointer',
         outline: 'none',
         flexShrink: 0,
-        width: '105px',
+        width: '85px',
         ...style
       }}
       aria-label="Country phone code"

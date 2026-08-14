@@ -697,8 +697,8 @@ export default function TourDetailsPage({ params }: PageProps) {
                       background: 'rgba(255, 255, 255, 0.07)', 
                       border: '1px solid rgba(255, 255, 255, 0.15)', 
                       color: '#ffffff', 
-                      padding: '0.65rem 0.4rem', 
-                      width: '100px',
+                      padding: '0.65rem 0.35rem', 
+                      width: '85px',
                       flexShrink: 0,
                       borderRadius: 'var(--radius-md, 8px)'
                     }} 

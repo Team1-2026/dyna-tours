@@ -459,8 +459,8 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                         background: 'rgba(255, 255, 255, 0.07)', 
                         border: '1px solid rgba(255, 255, 255, 0.15)', 
                         color: '#ffffff', 
-                        padding: '0.65rem 0.4rem', 
-                        width: '100px',
+                        padding: '0.65rem 0.35rem', 
+                        width: '85px',
                         flexShrink: 0,
                         borderRadius: 'var(--radius-md, 8px)'
                       }} 
@@ -474,7 +474,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                       style={{ flex: 1, minWidth: 0 }}
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="Phone No."
+                      placeholder="Enter mobile number"
                     />
                   </div>
                 </div>

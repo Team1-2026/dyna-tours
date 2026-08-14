@@ -43,6 +43,7 @@
 .cruiseTitle {
   font-size: 2.75rem;
   font-weight: 800;
+  color: #ffffff;
   margin-bottom: 0.75rem;
   line-height: 1.2;
 }
@@ -86,24 +87,66 @@
   padding-bottom: 0.75rem;
 }
 
-/* Gallery */
+/* Top Gallery (Matching Hotels layout) */
+.imageGallery {
+  margin: 1.5rem 0 2.5rem 0;
+}
+
+.galleryItemSingle {
+  border-radius: var(--radius-md, 12px);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.1));
+  height: 260px;
+  width: 100%;
+}
+
+.galleryGridTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.galleryGridTwo .galleryItem {
+  height: 220px;
+}
+
 .galleryGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: auto;
   gap: 1rem;
-  margin-top: 1.5rem;
 }
 
-.galleryThumb {
+@media (max-width: 768px) {
+  .galleryGrid, .galleryGridTwo {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+  .galleryItemSingle {
+    height: 200px;
+  }
+}
+
+.galleryItem {
+  border-radius: var(--radius-md, 12px);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.1));
+  height: 180px;
+}
+
+.galleryItemLarge {
+  grid-row: span 2;
+  height: 376px;
+}
+
+.galleryImg {
   width: 100%;
-  height: 140px;
+  height: 100%;
   object-fit: cover;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-fast, 0.2s ease);
 }
 
-.galleryThumb:hover {
+.galleryImg:hover {
   transform: scale(1.03);
 }
 
@@ -245,4 +288,41 @@
   margin-top: 0.75rem;
   color: #475569;
   line-height: 1.6;
+}
+
+/* Need to Know Text Box (matching Group Tour layout) */
+.needToKnowBox {
+  background: #fff8f8;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 1.75rem;
+}
+
+.needToKnowTopic {
+  margin-bottom: 1.5rem;
+}
+
+.needToKnowTopic:last-child {
+  margin-bottom: 0;
+}
+
+.topicTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topicList {
+  padding-left: 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: #475569;
+}
+
+.topicList li {
+  margin-bottom: 0.4rem;
 }
