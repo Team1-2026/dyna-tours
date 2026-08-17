@@ -70,19 +70,20 @@ class HotelController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'short_description' => 'sometimes|string',
-            'about' => 'sometimes|string',
-            'location' => 'sometimes|string',
+            'destination_id' => 'sometimes|string|exists:destinations,id',
+            'short_description' => 'sometimes|string|nullable',
+            'about' => 'sometimes|string|nullable',
+            'location' => 'sometimes|string|nullable',
             'distance_from_attractions' => 'sometimes|string|nullable',
-            'category' => 'sometimes|string',
+            'category' => 'sometimes|string|nullable',
             'price' => 'sometimes|numeric|nullable',
             'offer_label' => 'sometimes|string|nullable',
             'featured' => 'sometimes|boolean',
             'show_rooms' => 'sometimes|boolean',
             'show_offer_label' => 'sometimes|boolean',
             'show_price' => 'sometimes|boolean',
-            'gallery' => 'sometimes|array',
-            'facilities' => 'sometimes|array',
+            'gallery' => 'sometimes|array|nullable',
+            'facilities' => 'sometimes|array|nullable',
             // Hotel management fields
             'order_no' => 'sometimes|integer|min:0|nullable',
             'status' => 'sometimes|string',
@@ -118,6 +119,13 @@ class HotelController extends Controller
                     ->where('order_no', '>=', $newOrder)
                     ->increment('order_no');
             }
+
+            if (array_key_exists('short_description', $validated) && $validated['short_description'] === null) $validated['short_description'] = '';
+            if (array_key_exists('about', $validated) && $validated['about'] === null) $validated['about'] = '';
+            if (array_key_exists('location', $validated) && $validated['location'] === null) $validated['location'] = '';
+            if (array_key_exists('category', $validated) && $validated['category'] === null) $validated['category'] = '4-Star';
+            if (array_key_exists('gallery', $validated) && $validated['gallery'] === null) $validated['gallery'] = [];
+            if (array_key_exists('facilities', $validated) && $validated['facilities'] === null) $validated['facilities'] = [];
 
             $rooms = $validated['rooms'] ?? null;
             unset($validated['rooms']);

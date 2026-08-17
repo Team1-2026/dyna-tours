@@ -102,7 +102,7 @@ class DestinationController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'overview' => 'sometimes|string',
+            'overview' => 'sometimes|string|nullable',
             'how_to_reach' => 'sometimes|string|nullable',
             'best_time_to_visit' => 'sometimes|string|nullable',
             'show_packages' => 'sometimes|boolean',
