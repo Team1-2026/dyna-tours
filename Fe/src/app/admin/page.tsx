@@ -1112,6 +1112,10 @@ export default function AdminDashboard() {
           related_hotels: dataToSave.related_hotels,
           rooms: roomsToSave,
           video_url: dataToSave.video_url,
+          is_visible: dataToSave.is_visible,
+          show_details: dataToSave.show_details,
+          banner_heading: dataToSave.banner_heading,
+          banner_tagline: dataToSave.banner_tagline,
         });
         setSaveStatus('✓ Hotel updated successfully!');
         refreshData();
