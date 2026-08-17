@@ -614,12 +614,13 @@
 /* Rich Itinerary Layout */
 .itineraryGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 1.5rem;
+  align-items: start;
   margin-top: 1rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .itineraryGrid {
     grid-template-columns: 1fr;
   }
@@ -635,39 +636,23 @@
 }
 
 .infoBoxGrid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
   margin-top: 1.5rem;
-}
-
-@media (max-width: 800px) {
-  .infoBoxGrid {
-    flex-wrap: wrap;
-  }
-  .infoBox {
-    flex: 1 1 45%;
-  }
-}
-
-@media (max-width: 600px) {
-  .infoBoxGrid {
-    flex-direction: column;
-  }
-  .infoBox {
-    flex: 1 1 100%;
-  }
+  width: 100%;
 }
 
 .infoBox {
-  flex: 1;
   background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
   border-radius: 0.5rem;
-  padding: 0.8rem 1rem;
+  padding: 0.75rem 0.85rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .infoBoxIcon {
@@ -685,18 +670,23 @@
 .infoBoxContent {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .infoBoxTitle {
   font-weight: 700;
   font-size: 0.85rem;
   color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .infoBoxSubtitle {
   font-size: 0.75rem;
   color: #64748b;
   margin-top: 0.1rem;
+  word-break: break-word;
 }
 
 .logisticsBox {

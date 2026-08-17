@@ -22,7 +22,7 @@ class FacilityController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:facilities,name',
             'icon' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
@@ -47,7 +47,7 @@ class FacilityController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
+            'name' => 'sometimes|required|string|max:255|unique:facilities,name,' . $id,
             'icon' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
         ]);

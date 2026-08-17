@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { VisaCountry } from '@/data/visaData';
+import VisaFlag from '@/components/visa/VisaFlag';
 import styles from '../../app/visa/page.module.css';
 
 interface EVisaGridProps {
@@ -19,7 +20,7 @@ export default function EVisaGrid({ destinations }: EVisaGridProps) {
         <div className={styles.gridContainer}>
           {destinations.map((country) => (
             <Link key={country.id} href={`/visa/${country.id}`} className={styles.visaCard}>
-              <div className={styles.flagIcon}>{country.flag}</div>
+              <VisaFlag flag={country.flag} countryName={country.name} size="md" />
               <div className={styles.visaCardContent}>
                 <h3 className={styles.countryName}>{country.name}</h3>
                 <div className={styles.visaPrice}>

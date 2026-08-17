@@ -39,15 +39,20 @@ class DatabaseSeeder extends Seeder
 
         $dbFacilities = [];
         foreach ($facilitiesData as $fac) {
-            $dbFacilities[$fac['name']] = Facility::create($fac);
+            $dbFacilities[$fac['name']] = Facility::firstOrCreate(
+                ['name' => $fac['name']],
+                $fac
+            );
         }
 
         // 0b. Seed Admin User
-        User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@dynatours.com',
-            'password' => bcrypt('password'),
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@dynatours.com'],
+            [
+                'name' => 'Admin User',
+                'password' => bcrypt('password'),
+            ]
+        );
 
         // 1. Seed Domestic States / Main Destinations
         $kerala = Destination::create([

@@ -7,6 +7,7 @@ import { VisaCountry, eVisaDestinations, schengenCountries, otherCountries } fro
 import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
 import RichTextEditor from '@/components/RichTextEditor';
+import VisaFlag, { countryNameToCode } from '@/components/visa/VisaFlag';
 
 const FLAG_OPTIONS = [
   { name: 'Australia', flag: '🇦🇺' }, { name: 'Austria', flag: '🇦🇹' }, { name: 'Belgium', flag: '🇧🇪' },
@@ -98,42 +99,104 @@ export default function VisasAdmin() {
     setIsLoading(true);
     let successCount = 0;
     
-    // Load full detailed e-visas
-    for (const visa of eVisaDestinations) {
-      try {
-        await api.createVisa(visa);
-        successCount++;
-      } catch (err) {
-        console.error('Failed to create visa:', visa.name, err);
+    try {
+      // Get existing visas from backend to avoid duplicate ID errors
+      const existing = await api.getVisas();
+      const existingIds = new Set((existing || []).map(v => v.id.toLowerCase()));
+      const createdIds = new Set<string>();
+
+      // Load full detailed e-visas
+      for (const visa of eVisaDestinations) {
+        const cleanId = visa.id.toLowerCase();
+        if (existingIds.has(cleanId) || createdIds.has(cleanId)) {
+          continue;
+        }
+        try {
+          await api.createVisa({ ...visa, type: 'e-visa', region: 'e-visa' });
+          createdIds.add(cleanId);
+          successCount++;
+        } catch (err) {
+          console.warn('Visa already exists or failed to create:', visa.name);
+        }
       }
+      
+      // Load stubs for Schengen countries
+      for (const country of schengenCountries) {
+        const countryId = country.id || (country.name ? country.name.toLowerCase().replace(/\s+/g, '-') : 'unknown');
+        const cleanId = countryId.toLowerCase();
+
+        if (existingIds.has(cleanId) || createdIds.has(cleanId)) {
+          continue;
+        }
+
+        try {
+          const stub = {
+            id: countryId,
+            name: country.name || 'Unknown',
+            flag: country.flag || '🌍',
+            type: 'stamped' as const,
+            region: 'schengen',
+            price: country.price,
+            processingTime: 'Please update in admin',
+            validity: 'Please update in admin',
+            biometric: 'Yes' as const,
+            requirements: ['Passport copy', 'Schengen visa application form', 'Flight & Hotel itineraries'],
+            importantNotes: ['Biometrics enrolment required at VFS center'],
+            terms: ['Visa fee is non-refundable'],
+            faqs: [{ question: 'Is biometric enrolment required?', answer: 'Yes, biometric enrolment is mandatory for Schengen visas.' }]
+          };
+          await api.createVisa(stub);
+          createdIds.add(cleanId);
+          successCount++;
+        } catch (err) {
+          console.warn('Stub visa already exists or failed to create:', country.name);
+        }
+      }
+
+      // Load stubs for Other countries
+      for (const country of otherCountries) {
+        const countryId = country.id || (country.name ? country.name.toLowerCase().replace(/\s+/g, '-') : 'unknown');
+        const cleanId = countryId.toLowerCase();
+
+        if (existingIds.has(cleanId) || createdIds.has(cleanId)) {
+          continue;
+        }
+
+        try {
+          const stub = {
+            id: countryId,
+            name: country.name || 'Unknown',
+            flag: country.flag || '🌍',
+            type: 'stamped' as const,
+            region: 'other',
+            price: country.price,
+            processingTime: 'Please update in admin',
+            validity: 'Please update in admin',
+            biometric: 'Yes' as const,
+            requirements: ['Passport copy', 'Visa application form', 'Flight & Hotel itineraries'],
+            importantNotes: ['Subject to embassy approval'],
+            terms: ['Visa fee is non-refundable'],
+            faqs: [{ question: 'How long does processing take?', answer: 'Processing time varies depending on the consulate.' }]
+          };
+          await api.createVisa(stub);
+          createdIds.add(cleanId);
+          successCount++;
+        } catch (err) {
+          console.warn('Stub visa already exists or failed to create:', country.name);
+        }
+      }
+      
+      setMessage({ 
+        type: 'success', 
+        text: successCount > 0 
+          ? `Successfully loaded ${successCount} new visa(s). You can now edit them!` 
+          : 'All sample visas are already loaded in your database.' 
+      });
+    } catch (err) {
+      console.warn('Failed to load sample data:', err);
+      setMessage({ type: 'error', text: 'Failed to process sample visas' });
     }
     
-    // Load stubs for Schengen and Other countries for the user to edit later
-    const allOtherCountries = [...schengenCountries, ...otherCountries];
-    for (const country of allOtherCountries) {
-      try {
-        const stub = {
-          id: country.id || (country.name ? country.name.toLowerCase().replace(/\s+/g, '-') : 'unknown'),
-          name: country.name || 'Unknown',
-          flag: country.flag || '🌍', // Generic globe flag
-          type: 'stamped' as const,
-          price: country.price,
-          processingTime: 'Please update in admin',
-          validity: 'Please update in admin',
-          biometric: 'Yes' as const,
-          requirements: ['Please update this requirement'],
-          importantNotes: ['Please update this note'],
-          terms: ['Please update this term'],
-          faqs: [{ question: 'Please update FAQ?', answer: 'Please update answer' }]
-        };
-        await api.createVisa(stub);
-        successCount++;
-      } catch (err) {
-        console.error('Failed to create stub visa:', country, err);
-      }
-    }
-    
-    setMessage({ type: 'success', text: `Successfully loaded ${successCount} visas. You can now edit them!` });
     fetchVisas();
   };
 
@@ -219,6 +282,7 @@ export default function VisasAdmin() {
                   <th>Flag</th>
                   <th>Country Name</th>
                   <th>Type</th>
+                  <th>Region / Section</th>
                   <th>Processing Time</th>
                   <th>Price</th>
                   <th>Actions</th>
@@ -227,9 +291,10 @@ export default function VisasAdmin() {
               <tbody>
                 {visas.map((visa) => (
                   <tr key={visa.id}>
-                    <td style={{ fontSize: '1.5rem' }}>{visa.flag}</td>
+                    <td><VisaFlag flag={visa.flag} countryName={visa.name} size="sm" /></td>
                     <td><strong>{visa.name}</strong></td>
-                    <td>{visa.type.toUpperCase()}</td>
+                    <td>{visa.type?.toUpperCase() || 'E-VISA'}</td>
+                    <td><span className="badge" style={{ background: visa.region === 'schengen' ? '#e0e7ff' : visa.region === 'other' ? '#fef3c7' : '#dcfce7', color: visa.region === 'schengen' ? '#3730a3' : visa.region === 'other' ? '#92400e' : '#166534', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600 }}>{visa.region === 'schengen' ? 'Schengen' : visa.region === 'other' ? 'Other Stamped' : visa.region || 'E-Visa'}</span></td>
                     <td>{visa.processingTime}</td>
                     <td>{visa.price || '-'}</td>
                     <td>
@@ -273,33 +338,80 @@ export default function VisasAdmin() {
                 <input 
                   type="text" 
                   value={selectedVisa?.name || ''} 
-                  onChange={e => setSelectedVisa({...selectedVisa, name: e.target.value})}
+                  onChange={e => {
+                    const name = e.target.value;
+                    const updates: any = { name };
+                    if (isCreating) {
+                      updates.id = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+                    }
+                    const matchedCode = countryNameToCode(name);
+                    if (matchedCode && !selectedVisa?.flag) {
+                      const matchedOpt = FLAG_OPTIONS.find(opt => opt.name.toLowerCase() === name.toLowerCase());
+                      if (matchedOpt) {
+                        updates.flag = matchedOpt.flag;
+                      } else {
+                        updates.flag = matchedCode;
+                      }
+                    }
+                    setSelectedVisa({ ...selectedVisa, ...updates });
+                  }}
                   required 
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Flag Emoji <span className="required-star">*</span></label>
-                <select 
-                  value={selectedVisa?.flag || ''} 
-                  onChange={e => setSelectedVisa({...selectedVisa, flag: e.target.value})}
-                  required 
-                >
-                  <option value="" disabled>Select a flag</option>
-                  {FLAG_OPTIONS.map(opt => (
-                    <option key={opt.name} value={opt.flag}>
-                      {opt.flag} {opt.name}
-                    </option>
-                  ))}
-                </select>
+                <label>Flag (Emoji / ISO Code / Image URL) <span className="required-star">*</span></label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <VisaFlag flag={selectedVisa?.flag} countryName={selectedVisa?.name} size="md" />
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 🇸🇬 or sg or https://flagcdn.com/w160/sg.png"
+                    value={selectedVisa?.flag || ''} 
+                    onChange={e => setSelectedVisa({...selectedVisa, flag: e.target.value})}
+                    style={{ flex: 1 }}
+                    required 
+                  />
+                  <select 
+                    value=""
+                    onChange={e => {
+                      if (e.target.value) {
+                        setSelectedVisa({...selectedVisa, flag: e.target.value});
+                      }
+                    }}
+                    style={{ width: '130px' }}
+                  >
+                    <option value="">Quick Select...</option>
+                    {FLAG_OPTIONS.map(opt => (
+                      <option key={opt.name} value={opt.flag}>
+                        {opt.flag} {opt.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className={styles.formGroup}>
-                <label>Visa Type</label>
+                <label>Visa Type <span className="required-star">*</span></label>
                 <select 
                   value={selectedVisa?.type || 'e-visa'} 
                   onChange={e => setSelectedVisa({...selectedVisa, type: e.target.value as any})}
                 >
-                  <option value="e-visa">e-Visa</option>
-                  <option value="stamped">Stamped Visa</option>
+                  <option value="e-visa">e-Visa (Online Visa)</option>
+                  <option value="stamped">Stamped Visa (Offline / Embassy Visa)</option>
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Region / Section Category</label>
+                <select 
+                  value={selectedVisa?.region || ''} 
+                  onChange={e => setSelectedVisa({...selectedVisa, region: e.target.value})}
+                >
+                  <option value="">Standard / Auto</option>
+                  <option value="schengen">Stamped Visa - Schengen Countries</option>
+                  <option value="other">Stamped Visa - Other Countries</option>
+                  <option value="e-visa">E-Visa Destinations</option>
+                  <option value="asia">Asia</option>
+                  <option value="middle-east">Middle East</option>
+                  <option value="europe">Europe</option>
+                  <option value="americas">Americas</option>
                 </select>
               </div>
               <div className={styles.formGroup}>

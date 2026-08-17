@@ -178,6 +178,7 @@ export default function RichTextEditor({
         {/* Formatting Buttons */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('bold')}
           title="Bold (Ctrl+B)"
           style={btnStyle}
@@ -187,6 +188,7 @@ export default function RichTextEditor({
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('italic')}
           title="Italics (Ctrl+I)"
           style={btnStyle}
@@ -199,6 +201,7 @@ export default function RichTextEditor({
         {/* Lists */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('insertUnorderedList')}
           title="Bullet Points"
           style={btnStyle}
@@ -208,6 +211,7 @@ export default function RichTextEditor({
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('insertOrderedList')}
           title="Numbered List"
           style={btnStyle}
@@ -220,6 +224,7 @@ export default function RichTextEditor({
         {/* Text Alignments */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('justifyLeft')}
           title="Align Left"
           style={btnStyle}
@@ -229,6 +234,7 @@ export default function RichTextEditor({
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('justifyCenter')}
           title="Align Center"
           style={btnStyle}
@@ -238,6 +244,7 @@ export default function RichTextEditor({
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('justifyRight')}
           title="Align Right"
           style={btnStyle}
@@ -247,6 +254,7 @@ export default function RichTextEditor({
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('justifyFull')}
           title="Justify Text"
           style={btnStyle}
@@ -259,6 +267,7 @@ export default function RichTextEditor({
         {/* Hyperlink */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={openLinkDialog}
           title="Insert / Edit Link"
           style={{ ...btnStyle, background: '#eff6ff', color: '#1d4ed8', borderColor: '#bfdbfe' }}
@@ -268,6 +277,7 @@ export default function RichTextEditor({
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCommand('removeFormat')}
           title="Clear Formatting"
           style={{ ...btnStyle, color: '#64748b' }}

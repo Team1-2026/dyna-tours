@@ -8,7 +8,11 @@ export const getBaseUrl = () => {
     const hostname = window.location.hostname;
     if (
       hostname === 'localhost' || 
-      hostname === '127.0.0.1' || 
+      hostname === '127.0.0.1'
+    ) {
+      return 'http://127.0.0.1:8000/api';
+    }
+    if (
       hostname.startsWith('192.168.') || 
       hostname.startsWith('10.') || 
       hostname.startsWith('172.') ||
@@ -615,7 +619,14 @@ export const api = {
 
   getFacilities: async (): Promise<Facility[]> => {
     try {
-      return await apiFetch<Facility[]>('/facilities');
+      const data = await apiFetch<Facility[]>('/facilities');
+      const seen = new Set<string>();
+      return (data || []).filter(item => {
+        const key = item.name ? item.name.toLowerCase().trim() : String(item.id);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
     } catch {
       return mockFacilities;
     }

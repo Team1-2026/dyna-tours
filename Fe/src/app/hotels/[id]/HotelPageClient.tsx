@@ -178,7 +178,47 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
 
   const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
 
-  const topBannerUrl = getImageUrl(hotel.banner_image || (typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : hotel.gallery?.[0]?.url)) || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80';
+  // 1. Resolve banner image (stored in gallery as section === 'banner' or hotel.banner_image)
+  const bannerImgObj = Array.isArray(hotel.gallery)
+    ? hotel.gallery.find(img => typeof img !== 'string' && img?.section === 'banner')
+    : null;
+  const rawBannerUrl = hotel.banner_image || (typeof bannerImgObj === 'object' && bannerImgObj !== null ? (bannerImgObj as any).url : null);
+
+  // 2. Resolve featured image (stored in gallery as section === 'featured')
+  const featuredImgObj = Array.isArray(hotel.gallery)
+    ? hotel.gallery.find(img => typeof img !== 'string' && img?.section === 'featured')
+    : null;
+  const rawFeaturedUrl = typeof featuredImgObj === 'object' && featuredImgObj !== null ? (featuredImgObj as any).url : null;
+
+  // 3. Resolve gallery images ONLY (stored in gallery as section === 'gallery')
+  const galleryImgObjs = (hotel.gallery || []).filter(img => {
+    if (typeof img === 'string') {
+      if (rawBannerUrl && (img === rawBannerUrl || img.endsWith(rawBannerUrl))) return false;
+      if (rawFeaturedUrl && (img === rawFeaturedUrl || img.endsWith(rawFeaturedUrl))) return false;
+      return true;
+    }
+    return img?.section === 'gallery';
+  });
+
+  // displayGallery contains ONLY the uploaded gallery images
+  let displayGallery: (string | any)[] = [...galleryImgObjs];
+
+  // Fallback: If no gallery images were uploaded at all, fallback to non-banner images
+  if (displayGallery.length === 0 && Array.isArray(hotel.gallery) && hotel.gallery.length > 0) {
+    displayGallery = hotel.gallery.filter(img => {
+      const url = typeof img === 'string' ? img : img?.url || '';
+      if (!url) return false;
+      if (typeof img === 'object' && img?.section === 'banner') return false;
+      if (rawBannerUrl && (url === rawBannerUrl || url.endsWith(rawBannerUrl))) return false;
+      return true;
+    });
+  }
+
+  const topBannerUrl = getImageUrl(
+    rawBannerUrl || 
+    rawFeaturedUrl || 
+    (typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : hotel.gallery?.[0]?.url)
+  ) || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80';
 
   return (
     <div className={styles.pageContainer}>
@@ -207,22 +247,15 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
       <div className="container">
         {/* Full-width Top Gallery Images (Excludes main banner) */}
         {(() => {
-          const displayGallery = (hotel.gallery || []).filter(img => {
-            const imgUrl = typeof img === 'string' ? img : img?.url || '';
-            if (!imgUrl) return false;
-            if (hotel.banner_image && (imgUrl === hotel.banner_image || imgUrl.endsWith(hotel.banner_image))) return false;
-            return true;
-          });
-
           if (displayGallery.length === 0) return null;
-          const hasMultiple = displayGallery.length > 2;
 
           return (
             <div className={styles.imageGallery}>
-              <div className={styles.galleryGrid}>
+              {/* Single Image */}
+              {displayGallery.length === 1 && (
                 <div 
-                  className={`${styles.galleryItem} ${hasMultiple ? styles.galleryItemLarge : ''}`}
-                  style={{ cursor: 'pointer' }}
+                  className={styles.galleryItem}
+                  style={{ cursor: 'pointer', height: '360px' }}
                   onClick={() => {
                     setZoomedIndex(0);
                     setIsZoomOpen(true);
@@ -230,44 +263,144 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                 >
                   <img 
                     src={getImageUrl(typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || '')} 
-                    alt={`${hotel.name} featured view`} 
+                    alt={`${hotel.name} gallery view`} 
                     className={styles.galleryImg} 
                   />
                 </div>
-                {displayGallery.slice(1, 3).map((img, idx) => {
-                  const imgUrl = typeof img === 'string' ? img : img?.url || '';
-                  if (!imgUrl) return null;
-                  return (
-                    <div 
-                      key={idx} 
-                      className={styles.galleryItem}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        setZoomedIndex(idx + 1);
-                        setIsZoomOpen(true);
-                      }}
-                    >
-                      <img src={getImageUrl(imgUrl)} alt={`${hotel.name} view ${idx + 2}`} className={styles.galleryImg} />
-                    </div>
-                  );
-                })}
-                {displayGallery[3] && (
+              )}
+
+              {/* Exactly 2 Images (Side by Side) */}
+              {displayGallery.length === 2 && (
+                <div className={styles.galleryGridTwo} style={{ height: '320px' }}>
+                  {displayGallery.map((img, idx) => {
+                    const imgUrl = typeof img === 'string' ? img : img?.url || '';
+                    if (!imgUrl) return null;
+                    return (
+                      <div 
+                        key={idx}
+                        className={styles.galleryItem}
+                        style={{ cursor: 'pointer', height: '100%' }}
+                        onClick={() => {
+                          setZoomedIndex(idx);
+                          setIsZoomOpen(true);
+                        }}
+                      >
+                        <img 
+                          src={getImageUrl(imgUrl)} 
+                          alt={`${hotel.name} gallery view ${idx + 1}`} 
+                          className={styles.galleryImg} 
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Exactly 3 Images */}
+              {displayGallery.length === 3 && (
+                <div className={styles.galleryGrid}>
                   <div 
-                    className={styles.galleryItem} 
-                    style={{ gridColumn: 'span 2', cursor: 'pointer' }}
+                    className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
+                    style={{ cursor: 'pointer' }}
                     onClick={() => {
-                      setZoomedIndex(3);
+                      setZoomedIndex(0);
                       setIsZoomOpen(true);
                     }}
                   >
                     <img 
-                      src={getImageUrl(typeof displayGallery[3] === 'string' ? displayGallery[3] : displayGallery[3]?.url || '')} 
-                      alt={`${hotel.name} view 4`} 
+                      src={getImageUrl(typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || '')} 
+                      alt={`${hotel.name} gallery view 1`} 
                       className={styles.galleryImg} 
                     />
                   </div>
-                )}
-              </div>
+                  {displayGallery.slice(1, 3).map((img, idx) => {
+                    const imgUrl = typeof img === 'string' ? img : img?.url || '';
+                    if (!imgUrl) return null;
+                    return (
+                      <div 
+                        key={idx} 
+                        className={styles.galleryItem}
+                        style={{ cursor: 'pointer', gridColumn: 'span 2', height: '180px' }}
+                        onClick={() => {
+                          setZoomedIndex(idx + 1);
+                          setIsZoomOpen(true);
+                        }}
+                      >
+                        <img src={getImageUrl(imgUrl)} alt={`${hotel.name} gallery view ${idx + 2}`} className={styles.galleryImg} />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* 4 or More Images */}
+              {displayGallery.length >= 4 && (
+                <div className={styles.galleryGrid}>
+                  <div 
+                    className={`${styles.galleryItem} ${styles.galleryItemLarge}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      setZoomedIndex(0);
+                      setIsZoomOpen(true);
+                    }}
+                  >
+                    <img 
+                      src={getImageUrl(typeof displayGallery[0] === 'string' ? displayGallery[0] : displayGallery[0]?.url || '')} 
+                      alt={`${hotel.name} gallery view 1`} 
+                      className={styles.galleryImg} 
+                    />
+                  </div>
+                  {displayGallery.slice(1, 3).map((img, idx) => {
+                    const imgUrl = typeof img === 'string' ? img : img?.url || '';
+                    if (!imgUrl) return null;
+                    return (
+                      <div 
+                        key={idx} 
+                        className={styles.galleryItem}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          setZoomedIndex(idx + 1);
+                          setIsZoomOpen(true);
+                        }}
+                      >
+                        <img src={getImageUrl(imgUrl)} alt={`${hotel.name} gallery view ${idx + 2}`} className={styles.galleryImg} />
+                      </div>
+                    );
+                  })}
+                  {displayGallery[3] && (
+                    <div 
+                      className={styles.galleryItem} 
+                      style={{ gridColumn: 'span 2', cursor: 'pointer', position: 'relative' }}
+                      onClick={() => {
+                        setZoomedIndex(3);
+                        setIsZoomOpen(true);
+                      }}
+                    >
+                      <img 
+                        src={getImageUrl(typeof displayGallery[3] === 'string' ? displayGallery[3] : displayGallery[3]?.url || '')} 
+                        alt={`${hotel.name} gallery view 4`} 
+                        className={styles.galleryImg} 
+                      />
+                      {displayGallery.length > 4 && (
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'rgba(0, 0, 0, 0.5)',
+                          color: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.25rem',
+                          fontWeight: 700,
+                          backdropFilter: 'blur(2px)'
+                        }}>
+                          +{displayGallery.length - 4} More Photos
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })()}
@@ -933,7 +1066,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
       <ImageZoomModal
         isOpen={isZoomOpen}
         onClose={() => setIsZoomOpen(false)}
-        images={(hotel.gallery || [])
+        images={displayGallery
           .map((img: any) => (typeof img === 'string' ? img : img?.url || ''))
           .filter(Boolean)}
         initialIndex={zoomedIndex}

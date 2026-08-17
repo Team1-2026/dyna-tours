@@ -431,6 +431,22 @@ export default function AdminDashboard() {
       setFacilities(facData);
       setGroupTourEnquiries(gtEnqData || []);
 
+      const nextHotelOrder = (hotelData && hotelData.length > 0)
+        ? Math.max(0, ...hotelData.map(h => Number(h.order_no) || 0)) + 1
+        : 1;
+      setNewHotel(prev => ({
+        ...prev,
+        order_no: (prev.order_no && prev.order_no > 1) ? prev.order_no : nextHotelOrder
+      }));
+
+      const nextDestOrder = (destData && destData.length > 0)
+        ? Math.max(0, ...destData.map(d => Number(d.order_no) || 0)) + 1
+        : 1;
+      setNewDest(prev => ({
+        ...prev,
+        order_no: (prev.order_no && prev.order_no > 1) ? prev.order_no : nextDestOrder
+      }));
+
       // Restore selections if valid, otherwise keep empty
       if (selectedDestId) {
         const found = destData.find(d => d.id === selectedDestId);
@@ -452,6 +468,43 @@ export default function AdminDashboard() {
       setLoading(false);
     });
   };
+
+  // Helper to compute next sequential order_no
+  const getNextHotelOrder = (list = hotels) => {
+    if (!list || list.length === 0) return 1;
+    return Math.max(0, ...list.map(h => Number(h.order_no) || 0)) + 1;
+  };
+
+  const getNextDestOrder = (list = destinations) => {
+    if (!list || list.length === 0) return 1;
+    return Math.max(0, ...list.map(d => Number(d.order_no) || 0)) + 1;
+  };
+
+  // Auto-populate default order_no for new hotel if empty or upon data load
+  useEffect(() => {
+    if (isCreatingHotel && hotels.length > 0) {
+      const nextOrder = getNextHotelOrder(hotels);
+      setNewHotel(prev => {
+        if (prev.order_no === null || prev.order_no === undefined || (prev.order_no === 1 && nextOrder > 1 && !prev.id && !prev.name)) {
+          return { ...prev, order_no: nextOrder };
+        }
+        return prev;
+      });
+    }
+  }, [isCreatingHotel, hotels]);
+
+  // Auto-populate default order_no for new destination if empty or upon data load
+  useEffect(() => {
+    if (isCreatingDest && destinations.length > 0) {
+      const nextOrder = getNextDestOrder(destinations);
+      setNewDest(prev => {
+        if (prev.order_no === null || prev.order_no === undefined || (prev.order_no === 1 && nextOrder > 1 && !prev.id && !prev.name)) {
+          return { ...prev, order_no: nextOrder };
+        }
+        return prev;
+      });
+    }
+  }, [isCreatingDest, destinations]);
 
   // Fetch full single destination details when ID changes
   useEffect(() => {
@@ -490,8 +543,25 @@ export default function AdminDashboard() {
     if (isCreatingDest) {
       setNewDest(prev => {
         const updated = { ...prev, [name]: parsedValue };
-        if (name === 'name' && !prev.url_slug) {
-          updated.url_slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        if (name === 'name') {
+          const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          const prevAutoSlug = (prev.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          if (!prev.id || prev.id === prevAutoSlug) {
+            updated.id = slug;
+          }
+          if (!prev.url_slug || prev.url_slug === prevAutoSlug) {
+            updated.url_slug = slug;
+          }
+        }
+        if (name === 'id') {
+          if (!prev.url_slug || prev.url_slug === prev.id) {
+            updated.url_slug = value;
+          }
+        }
+        if (name === 'url_slug') {
+          if (!prev.id || prev.id === prev.url_slug) {
+            updated.id = value;
+          }
         }
         return updated;
       });
@@ -541,6 +611,53 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAddAttraction = () => {
+    const newAtt = { name: '', fee: '', timings: '', highlights: '', note: '' };
+    if (isCreatingDest) {
+      setNewDest(prev => ({
+        ...prev,
+        top_attractions: [...(prev.top_attractions || []), newAtt]
+      }));
+    } else if (selectedDest) {
+      setSelectedDest(prev => prev ? ({
+        ...prev,
+        top_attractions: [...(prev.top_attractions || []), newAtt]
+      }) : null);
+    }
+  };
+
+  const handleUpdateAttraction = (index: number, field: string, value: string) => {
+    if (isCreatingDest) {
+      setNewDest(prev => {
+        const list = [...(prev.top_attractions || [])];
+        list[index] = { ...list[index], [field]: value };
+        return { ...prev, top_attractions: list };
+      });
+    } else if (selectedDest) {
+      setSelectedDest(prev => {
+        if (!prev) return null;
+        const list = [...(prev.top_attractions || [])];
+        list[index] = { ...list[index], [field]: value };
+        return { ...prev, top_attractions: list };
+      });
+    }
+  };
+
+  const handleDeleteAttraction = (index: number) => {
+    if (isCreatingDest) {
+      setNewDest(prev => {
+        const list = (prev.top_attractions || []).filter((_, i) => i !== index);
+        return { ...prev, top_attractions: list };
+      });
+    } else if (selectedDest) {
+      setSelectedDest(prev => {
+        if (!prev) return null;
+        const list = (prev.top_attractions || []).filter((_, i) => i !== index);
+        return { ...prev, top_attractions: list };
+      });
+    }
+  };
+
   const saveDestinationSettings = async () => {
     const dataToSave = isCreatingDest ? newDest : selectedDest;
     if (!dataToSave || (!isCreatingDest && !selectedDestId)) return;
@@ -548,13 +665,26 @@ export default function AdminDashboard() {
     setSaveStatus('Saving destination details...');
     try {
       if (isCreatingDest) {
-        if (!dataToSave.id || !dataToSave.name) {
-          alert('Destination ID and Name are required!');
+        const destName = (dataToSave.name || '').trim();
+        const destId = (dataToSave.id || dataToSave.url_slug || destName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')).trim();
+        const destSlug = (dataToSave.url_slug || dataToSave.id || destName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')).trim();
+
+        if (!destName) {
+          alert('Destination Name is required!');
           setSaveStatus(null);
           return;
         }
+        if (!destId) {
+          alert('Destination ID / Slug is required!');
+          setSaveStatus(null);
+          return;
+        }
+
         const payloadToCreate = {
           ...dataToSave,
+          id: destId,
+          url_slug: destSlug,
+          name: destName,
           parent_id: dataToSave.parent_id ? dataToSave.parent_id : null,
           overview: dataToSave.overview || '',
           type: dataToSave.type || 'domestic',
@@ -632,8 +762,25 @@ export default function AdminDashboard() {
     if (isCreatingHotel) {
       setNewHotel(prev => {
         const updated = { ...prev, [name]: parsedVal };
-        if (name === 'name' && !prev.url_slug) {
-          updated.url_slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        if (name === 'name') {
+          const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          const prevAutoSlug = (prev.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          if (!prev.id || prev.id === prevAutoSlug) {
+            updated.id = slug;
+          }
+          if (!prev.url_slug || prev.url_slug === prevAutoSlug) {
+            updated.url_slug = slug;
+          }
+        }
+        if (name === 'id') {
+          if (!prev.url_slug || prev.url_slug === prev.id) {
+            updated.url_slug = value;
+          }
+        }
+        if (name === 'url_slug') {
+          if (!prev.id || prev.id === prev.url_slug) {
+            updated.id = value;
+          }
         }
         return updated;
       });
@@ -742,6 +889,7 @@ export default function AdminDashboard() {
       setNewHotel(prev => ({ ...prev, rooms: currentRooms }));
     } else {
       setSelectedHotel(prev => prev ? { ...prev, rooms: currentRooms } : null);
+      saveHotelSettings(currentRooms);
     }
 
     setIsRoomModalOpen(false);
@@ -759,6 +907,7 @@ export default function AdminDashboard() {
       setNewHotel(prev => ({ ...prev, rooms: updated }));
     } else {
       setSelectedHotel(prev => prev ? { ...prev, rooms: updated } : null);
+      saveHotelSettings(updated);
     }
   };
 
@@ -872,9 +1021,11 @@ export default function AdminDashboard() {
     }
   };
 
-  const saveHotelSettings = async () => {
+  const saveHotelSettings = async (overrideRooms?: Room[] | React.MouseEvent) => {
     const dataToSave = isCreatingHotel ? newHotel : selectedHotel;
     if (!dataToSave || (!isCreatingHotel && !selectedHotelId)) return;
+
+    const roomsToSave = (Array.isArray(overrideRooms) ? overrideRooms : undefined) ?? dataToSave.rooms ?? [];
 
     setSaveStatus('Saving hotel details...');
     try {
@@ -882,21 +1033,42 @@ export default function AdminDashboard() {
       const facilityIds = currentFacilities.map(f => typeof f === 'object' && f !== null ? f.id : f) as number[];
 
       if (isCreatingHotel) {
-        if (!dataToSave.id || !dataToSave.name || !dataToSave.destination_id) {
-          alert('Hotel ID (Slug), Name, and Destination are required!');
+        const hotelName = (dataToSave.name || '').trim();
+        const hotelId = (dataToSave.id || dataToSave.url_slug || hotelName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')).trim();
+        const hotelSlug = (dataToSave.url_slug || dataToSave.id || hotelName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')).trim();
+        const destId = (dataToSave.destination_id || destinations[0]?.id || '').trim();
+
+        if (!hotelName) {
+          alert('Hotel Name is required!');
           setSaveStatus(null);
           return;
         }
+        if (!destId) {
+          alert('Please select which Destination/Place this hotel belongs to!');
+          setSaveStatus(null);
+          return;
+        }
+        if (!hotelId) {
+          alert('Hotel ID / Slug is required!');
+          setSaveStatus(null);
+          return;
+        }
+
         const response = await api.createHotel({
           ...dataToSave,
-          facilities: facilityIds as any
+          id: hotelId,
+          url_slug: hotelSlug,
+          name: hotelName,
+          destination_id: destId,
+          facilities: facilityIds as any,
+          rooms: roomsToSave
         });
         setSaveStatus('✓ Hotel created successfully!');
         setIsCreatingHotel(false);
         setSelectedHotelId(response.hotel.id);
         refreshData();
       } else {
-        console.log("PAYLOAD TO SEND:", dataToSave.rooms); const response = await api.updateHotel(selectedHotelId, {
+        const response = await api.updateHotel(selectedHotelId, {
           name: dataToSave.name,
           destination_id: dataToSave.destination_id,
           short_description: dataToSave.short_description,
@@ -927,17 +1099,18 @@ export default function AdminDashboard() {
           exclusions: dataToSave.exclusions,
           terms_conditions: dataToSave.terms_conditions,
           related_hotels: dataToSave.related_hotels,
-          rooms: dataToSave.rooms, // backend recreates rooms automatically
+          rooms: roomsToSave,
           video_url: dataToSave.video_url,
         });
         setSaveStatus('✓ Hotel updated successfully!');
-        setHotels(prev => prev.map(h => h.id === selectedHotelId ? response.hotel : h));
+        refreshData();
       }
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('❌ Failed to save hotel details.');
-      setTimeout(() => setSaveStatus(null), 4000);
+      const errMsg = err?.message || 'Failed to save hotel details.';
+      setSaveStatus(`❌ ${errMsg}`);
+      setTimeout(() => setSaveStatus(null), 5000);
     }
   };
 
@@ -1702,7 +1875,7 @@ export default function AdminDashboard() {
                             required
                             placeholder="e.g. blanket-hotel-spa-munnar"
                             disabled={!isCreatingHotel}
-                            value={isCreatingHotel ? newHotel.id : selectedHotel?.id || ''}
+                            value={isCreatingHotel ? (newHotel.id || newHotel.url_slug || '') : (selectedHotel?.id || '')}
                             onChange={handleHotelTextChange}
                           />
                         </div>
@@ -1817,7 +1990,7 @@ export default function AdminDashboard() {
                             name="order_no"
                             id="order_no"
                             placeholder="Enter display order number (serial position)"
-                            value={isCreatingHotel ? (newHotel.order_no ?? '') : (selectedHotel?.order_no ?? '')}
+                            value={isCreatingHotel ? (newHotel.order_no ?? (hotels.length > 0 ? Math.max(0, ...hotels.map(h => Number(h.order_no) || 0)) + 1 : 1)) : (selectedHotel?.order_no ?? '')}
                             onChange={handleHotelTextChange}
                           />
                         </div>
@@ -2124,7 +2297,7 @@ export default function AdminDashboard() {
                             id="url_slug"
                             placeholder="enter-url-slug"
                             style={{ borderRadius: '0 var(--radius-md) var(--radius-md) 0' }}
-                            value={isCreatingHotel ? newHotel.url_slug || '' : selectedHotel?.url_slug || ''}
+                            value={isCreatingHotel ? (newHotel.url_slug || newHotel.id || '') : (selectedHotel?.url_slug || '')}
                             onChange={handleHotelTextChange}
                           />
                         </div>
@@ -2219,11 +2392,17 @@ export default function AdminDashboard() {
                       {(isCreatingHotel ? newHotel.rooms || [] : selectedHotel?.rooms || []).map((room, index) => (
                         <div key={index} className={styles.roomRowCard}>
                           <div className={styles.roomRowInfo}>
-                            <img 
-                              src={room.image || (room.images && room.images[0]) || '/images/default_hotel.png'} 
-                              alt={room.type} 
-                              className={styles.roomRowImg} 
-                            />
+                            {room.image || (room.images && room.images.length > 0 && room.images[0]) ? (
+                              <img 
+                                src={getImageUrl(room.image || room.images![0])} 
+                                alt={room.type} 
+                                className={styles.roomRowImg} 
+                              />
+                            ) : (
+                              <div className={styles.roomRowPlaceholder}>
+                                🛏️
+                              </div>
+                            )}
                             <div className={styles.roomRowText}>
                               <span className={styles.roomRowName}>{room.type}</span>
                               <span className={styles.roomRowDetails}>
@@ -2538,7 +2717,7 @@ export default function AdminDashboard() {
                             required
                             placeholder="e.g. kerala, phuket"
                             disabled={!isCreatingDest}
-                            value={isCreatingDest ? newDest.id : selectedDest?.id || ''}
+                            value={isCreatingDest ? (newDest.id || newDest.url_slug || '') : (selectedDest?.id || '')}
                             onChange={handleDestTextChange}
                           />
                         </div>
@@ -2585,7 +2764,7 @@ export default function AdminDashboard() {
                             name="order_no"
                             id="order_no"
                             placeholder="e.g. 1"
-                            value={isCreatingDest ? (newDest.order_no ?? '') : (selectedDest?.order_no ?? '')}
+                            value={isCreatingDest ? (newDest.order_no ?? (destinations.length > 0 ? Math.max(0, ...destinations.map(d => Number(d.order_no) || 0)) + 1 : 1)) : (selectedDest?.order_no ?? '')}
                             onChange={handleDestTextChange}
                           />
                         </div>
@@ -2735,6 +2914,114 @@ export default function AdminDashboard() {
                           }
                         }}
                       />
+                    </div>
+
+                    {/* Top Places to Visit (Attractions) Card */}
+                    <div className={styles.formCard}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <div>
+                          <h4 className={styles.formCardTitle} style={{ margin: 0 }}>Top Places to Visit (Attractions)</h4>
+                          <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+                            Add tourist spots, parks, viewpoints, and monuments with timing, highlights, and fee details.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-outline"
+                          style={{ padding: '0.4rem 0.85rem', fontSize: '0.85rem' }}
+                          onClick={handleAddAttraction}
+                        >
+                          + Add New Place
+                        </button>
+                      </div>
+
+                      {((isCreatingDest ? newDest.top_attractions : selectedDest?.top_attractions) || []).length === 0 ? (
+                        <div style={{ padding: '2rem', textAlign: 'center', background: '#f8fafc', borderRadius: 'var(--radius-md)', border: '1px dashed var(--color-border)' }}>
+                          <p style={{ margin: 0, color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
+                            No attractions added yet. Click <strong>+ Add New Place</strong> to add popular places to visit.
+                          </p>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          {((isCreatingDest ? newDest.top_attractions : selectedDest?.top_attractions) || []).map((att, idx) => (
+                            <div 
+                              key={idx} 
+                              style={{ 
+                                background: '#f8fafc', 
+                                border: '1px solid var(--color-border)', 
+                                borderRadius: 'var(--radius-md)', 
+                                padding: '1rem',
+                                position: 'relative'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-secondary-navy)' }}>
+                                  Place #{idx + 1}
+                                </span>
+                                <button
+                                  type="button"
+                                  style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem' }}
+                                  onClick={() => handleDeleteAttraction(idx)}
+                                >
+                                  ✕ Remove Place
+                                </button>
+                              </div>
+
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                                <div className="formGroup" style={{ margin: 0 }}>
+                                  <label style={{ fontSize: '0.8rem' }}>Attraction / Place Name <span className="required-star">*</span></label>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g. Eravikulam National Park"
+                                    value={att.name || ''}
+                                    onChange={(e) => handleUpdateAttraction(idx, 'name', e.target.value)}
+                                  />
+                                </div>
+                                <div className="formGroup" style={{ margin: 0 }}>
+                                  <label style={{ fontSize: '0.8rem' }}>Entry Fee</label>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g. INR 125 (Indian adults), INR 420 (foreign tourists)"
+                                    value={att.fee || ''}
+                                    onChange={(e) => handleUpdateAttraction(idx, 'fee', e.target.value)}
+                                  />
+                                </div>
+                              </div>
+
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                                <div className="formGroup" style={{ margin: 0 }}>
+                                  <label style={{ fontSize: '0.8rem' }}>Timings</label>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g. 07:30 AM – 04:00 PM"
+                                    value={att.timings || ''}
+                                    onChange={(e) => handleUpdateAttraction(idx, 'timings', e.target.value)}
+                                  />
+                                </div>
+                                <div className="formGroup" style={{ margin: 0 }}>
+                                  <label style={{ fontSize: '0.8rem' }}>Highlights</label>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g. Nilgiri Tahr spotting, Anamudi Peak views, trekking routes"
+                                    value={att.highlights || ''}
+                                    onChange={(e) => handleUpdateAttraction(idx, 'highlights', e.target.value)}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="formGroup" style={{ margin: 0 }}>
+                                <label style={{ fontSize: '0.8rem' }}>Special Note (Optional)</label>
+                                <input
+                                  type="text"
+                                  placeholder="e.g. Entry is controlled and tickets are issued in time slots during peak season"
+                                  value={att.note || ''}
+                                  onChange={(e) => handleUpdateAttraction(idx, 'note', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {/* Related Tour Packages mapping */}
@@ -2965,7 +3252,7 @@ export default function AdminDashboard() {
                           name="url_slug"
                           id="url_slug"
                           placeholder="e.g. kerala"
-                          value={isCreatingDest ? newDest.url_slug || '' : selectedDest?.url_slug || ''}
+                          value={isCreatingDest ? (newDest.url_slug || newDest.id || '') : (selectedDest?.url_slug || '')}
                           onChange={handleDestTextChange}
                         />
                       </div>

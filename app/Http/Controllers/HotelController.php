@@ -106,6 +106,7 @@ class HotelController extends Controller
             'show_details' => 'sometimes|boolean',
             'banner_heading' => 'sometimes|string|nullable',
             'banner_tagline' => 'sometimes|string|nullable',
+            'rooms' => 'sometimes|array|nullable',
         ]);
 
         if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $hotel->order_no) {
@@ -130,9 +131,13 @@ class HotelController extends Controller
                     unset($roomData['id'], $roomData['hotel_id'], $roomData['created_at'], $roomData['updated_at']);
                     if (isset($roomData['price']) && ($roomData['price'] === '' || $roomData['price'] === null)) {
                         $roomData['price'] = null;
+                    } elseif (isset($roomData['price']) && is_numeric($roomData['price'])) {
+                        $roomData['price'] = (float) $roomData['price'];
                     }
                     if (isset($roomData['remaining_rooms']) && ($roomData['remaining_rooms'] === '' || $roomData['remaining_rooms'] === null)) {
                         $roomData['remaining_rooms'] = null;
+                    } elseif (isset($roomData['remaining_rooms']) && is_numeric($roomData['remaining_rooms'])) {
+                        $roomData['remaining_rooms'] = (int) $roomData['remaining_rooms'];
                     }
                     if (!empty($roomData['type'])) {
                         $hotel->rooms()->create($roomData);
@@ -194,6 +199,7 @@ class HotelController extends Controller
             'show_details' => 'sometimes|boolean',
             'banner_heading' => 'nullable|string',
             'banner_tagline' => 'nullable|string',
+            'rooms' => 'nullable|array',
         ]);
 
         if (!isset($validated['short_description'])) $validated['short_description'] = '';
@@ -226,9 +232,13 @@ class HotelController extends Controller
                     unset($roomData['id'], $roomData['hotel_id'], $roomData['created_at'], $roomData['updated_at']);
                     if (isset($roomData['price']) && ($roomData['price'] === '' || $roomData['price'] === null)) {
                         $roomData['price'] = null;
+                    } elseif (isset($roomData['price']) && is_numeric($roomData['price'])) {
+                        $roomData['price'] = (float) $roomData['price'];
                     }
                     if (isset($roomData['remaining_rooms']) && ($roomData['remaining_rooms'] === '' || $roomData['remaining_rooms'] === null)) {
                         $roomData['remaining_rooms'] = null;
+                    } elseif (isset($roomData['remaining_rooms']) && is_numeric($roomData['remaining_rooms'])) {
+                        $roomData['remaining_rooms'] = (int) $roomData['remaining_rooms'];
                     }
                     if (!empty($roomData['type'])) {
                         $hotel->rooms()->create($roomData);

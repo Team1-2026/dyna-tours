@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import styles from './country.module.css';
 import VisaFAQ from '@/components/visa/VisaFAQ';
 import VisaEnquiryForm from '@/components/visa/VisaEnquiryForm';
+import VisaFlag from '@/components/visa/VisaFlag';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,7 +97,7 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
       <section className={styles.countryHeader}>
         <div className="container">
           <div className={styles.countryHeaderContent}>
-            <div className={styles.countryFlagLarge}>{countryData.flag}</div>
+            <VisaFlag flag={countryData.flag} countryName={countryData.name} size="xl" />
             <div>
               <h1 className={styles.countryHeaderTitle}>{countryData.name} Tourist Visa</h1>
               <span className={styles.countryTypeBadge}>{countryData.type.toUpperCase()}</span>

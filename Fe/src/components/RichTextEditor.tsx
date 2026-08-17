@@ -180,6 +180,14 @@ export default function RichTextEditor({ value, onChange, placeholder, label, id
           >
             Right ⟩
           </button>
+          <button
+            type="button"
+            onMouseDown={(e) => handleToolbarAction(e, 'justifyFull')}
+            title="Justify Text"
+            className={styles.toolBtn}
+          >
+            ≡ Justify
+          </button>
 
           <div className={styles.separator} />
           

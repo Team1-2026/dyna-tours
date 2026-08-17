@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { schengenCountries, otherCountries } from '@/data/visaData';
+import { eVisaDestinations as mockVisas, schengenCountries, otherCountries } from '@/data/visaData';
 import { api, getBaseUrl } from '@/lib/api';
 import VisaHeroBanner from '@/components/visa/VisaHeroBanner';
 import EVisaGrid from '@/components/visa/EVisaGrid';
@@ -56,9 +56,26 @@ export default async function VisaPage() {
   // Fetch dynamic visas from backend
   const allVisas = await api.getVisas();
   
-  // Separate into e-Visas for the grid if they have type 'e-visa'
-  // Or just pass all e-visas from the DB
-  const dynamicEVisas = allVisas.filter(v => v.type === 'e-visa' || !v.type);
+  // E-Visa Destinations (visas with type 'e-visa' or unassigned stamped region)
+  const dynamicEVisas = allVisas.filter(v => v.type === 'e-visa' || (!v.type && v.region !== 'schengen' && v.region !== 'other'));
+
+  // Set of known Schengen country IDs for automatic matching
+  const schengenIds = new Set(schengenCountries.map(c => c.id?.toLowerCase()));
+
+  // Stamped Visas - Schengen Countries
+  const dynamicSchengenVisas = allVisas.filter(v => 
+    v.type === 'stamped' && (v.region?.toLowerCase() === 'schengen' || (schengenIds.has(v.id.toLowerCase()) && v.region !== 'other'))
+  );
+
+  // Stamped Visas - Other Countries
+  const dynamicOtherVisas = allVisas.filter(v => 
+    v.type === 'stamped' && v.region?.toLowerCase() !== 'schengen' && !schengenIds.has(v.id.toLowerCase())
+  );
+
+  // Final arrays with fallback to defaults if database section has 0 items
+  const finalEVisas = dynamicEVisas.length > 0 ? dynamicEVisas : mockVisas;
+  const finalSchengenVisas = dynamicSchengenVisas.length > 0 ? dynamicSchengenVisas : schengenCountries;
+  const finalOtherVisas = dynamicOtherVisas.length > 0 ? dynamicOtherVisas : otherCountries;
 
   const allDestinations = allVisas.map(d => ({ id: d.id, name: d.name }));
 
@@ -71,13 +88,11 @@ export default async function VisaPage() {
       
       <VisaHeroBanner countries={allDestinations} />
       
-      {/* Intro section implicitly covered by banner text but we can add a bit more here if needed */}
-      
-      <EVisaGrid destinations={dynamicEVisas} />
+      <EVisaGrid destinations={finalEVisas} />
       
       <StampedVisaSection 
-        schengenCountries={schengenCountries} 
-        otherCountries={otherCountries} 
+        schengenCountries={finalSchengenVisas} 
+        otherCountries={finalOtherVisas} 
       />
       
       <WhyChooseUsVisa />
