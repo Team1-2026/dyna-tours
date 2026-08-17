@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hotel;
+use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HotelController extends Controller
 {
@@ -109,47 +111,55 @@ class HotelController extends Controller
             'rooms' => 'sometimes|array|nullable',
         ]);
 
-        if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $hotel->order_no) {
-            $newOrder = (int) $validated['order_no'];
-            Hotel::where('id', '!=', $id)
-                ->where('order_no', '>=', $newOrder)
-                ->increment('order_no');
-        }
+        return DB::transaction(function () use ($request, $validated, $hotel, $id) {
+            if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $hotel->order_no) {
+                $newOrder = (int) $validated['order_no'];
+                Hotel::where('id', '!=', $id)
+                    ->where('order_no', '>=', $newOrder)
+                    ->increment('order_no');
+            }
 
-        $hotel->update($validated);
+            $rooms = $validated['rooms'] ?? null;
+            unset($validated['rooms']);
 
-        if ($request->has('facilities')) {
-            $hotel->facilities()->sync($request->facilities);
-        }
+            $hotel->update($validated);
 
-        \Illuminate\Support\Facades\Log::info("Hotel update payload rooms:", ["rooms" => $request->rooms]);
-        // Update rooms if provided
-        if ($request->has('rooms') && is_array($request->rooms)) {
-            $hotel->rooms()->delete();
-            foreach ($request->rooms as $roomData) {
-                if (is_array($roomData)) {
-                    unset($roomData['id'], $roomData['hotel_id'], $roomData['created_at'], $roomData['updated_at']);
-                    if (isset($roomData['price']) && ($roomData['price'] === '' || $roomData['price'] === null)) {
-                        $roomData['price'] = null;
-                    } elseif (isset($roomData['price']) && is_numeric($roomData['price'])) {
-                        $roomData['price'] = (float) $roomData['price'];
-                    }
-                    if (isset($roomData['remaining_rooms']) && ($roomData['remaining_rooms'] === '' || $roomData['remaining_rooms'] === null)) {
-                        $roomData['remaining_rooms'] = null;
-                    } elseif (isset($roomData['remaining_rooms']) && is_numeric($roomData['remaining_rooms'])) {
-                        $roomData['remaining_rooms'] = (int) $roomData['remaining_rooms'];
-                    }
-                    if (!empty($roomData['type'])) {
-                        $hotel->rooms()->create($roomData);
+            if ($request->has('facilities')) {
+                $hotel->facilities()->sync($request->facilities);
+            }
+
+            if ($rooms !== null && is_array($rooms)) {
+                $hotel->rooms()->delete();
+                foreach ($rooms as $roomData) {
+                    if (is_array($roomData) && !empty($roomData['type'])) {
+                        unset($roomData['id'], $roomData['hotel_id'], $roomData['created_at'], $roomData['updated_at']);
+                        if (isset($roomData['price']) && ($roomData['price'] === '' || $roomData['price'] === null)) {
+                            $roomData['price'] = null;
+                        } elseif (isset($roomData['price']) && is_numeric($roomData['price'])) {
+                            $roomData['price'] = (float) $roomData['price'];
+                        }
+                        if (isset($roomData['remaining_rooms']) && ($roomData['remaining_rooms'] === '' || $roomData['remaining_rooms'] === null)) {
+                            $roomData['remaining_rooms'] = null;
+                        } elseif (isset($roomData['remaining_rooms']) && is_numeric($roomData['remaining_rooms'])) {
+                            $roomData['remaining_rooms'] = (int) $roomData['remaining_rooms'];
+                        }
+                        if (!isset($roomData['images']) || !is_array($roomData['images'])) {
+                            $roomData['images'] = !empty($roomData['image']) ? [$roomData['image']] : [];
+                        }
+                        if (!isset($roomData['amenities']) || !is_array($roomData['amenities'])) {
+                            $roomData['amenities'] = [];
+                        }
+                        $roomData['hotel_id'] = $hotel->id;
+                        Room::create($roomData);
                     }
                 }
             }
-        }
 
-        return response()->json([
-            'message' => 'Hotel updated successfully',
-            'hotel' => $hotel->load(['rooms', 'facilities'])
-        ]);
+            return response()->json([
+                'message' => 'Hotel updated successfully',
+                'hotel' => $hotel->fresh(['rooms', 'facilities'])
+            ]);
+        });
     }
 
     /**
@@ -202,55 +212,63 @@ class HotelController extends Controller
             'rooms' => 'nullable|array',
         ]);
 
-        if (!isset($validated['short_description'])) $validated['short_description'] = '';
-        if (!isset($validated['about'])) $validated['about'] = '';
-        if (!isset($validated['location'])) $validated['location'] = '';
-        if (!isset($validated['category'])) $validated['category'] = '4-Star';
-        if (!isset($validated['gallery'])) $validated['gallery'] = [];
-        if (!isset($validated['facilities'])) $validated['facilities'] = [];
+        return DB::transaction(function () use ($request, $validated) {
+            if (!isset($validated['short_description'])) $validated['short_description'] = '';
+            if (!isset($validated['about'])) $validated['about'] = '';
+            if (!isset($validated['location'])) $validated['location'] = '';
+            if (!isset($validated['category'])) $validated['category'] = '4-Star';
+            if (!isset($validated['gallery'])) $validated['gallery'] = [];
+            if (!isset($validated['facilities'])) $validated['facilities'] = [];
 
-        if (!isset($validated['order_no']) || $validated['order_no'] === null) {
-            $maxOrder = Hotel::max('order_no');
-            $validated['order_no'] = ($maxOrder !== null) ? $maxOrder + 1 : 1;
-        } else {
-            $newOrder = (int) $validated['order_no'];
-            Hotel::where('order_no', '>=', $newOrder)
-                ->increment('order_no');
-        }
+            if (!isset($validated['order_no']) || $validated['order_no'] === null) {
+                $maxOrder = Hotel::max('order_no');
+                $validated['order_no'] = ($maxOrder !== null) ? $maxOrder + 1 : 1;
+            } else {
+                $newOrder = (int) $validated['order_no'];
+                Hotel::where('order_no', '>=', $newOrder)
+                    ->increment('order_no');
+            }
 
-        $hotel = Hotel::create($validated);
+            $rooms = $validated['rooms'] ?? [];
+            unset($validated['rooms']);
 
-        if ($request->has('facilities')) {
-            $hotel->facilities()->sync($request->facilities);
-        }
+            $hotel = Hotel::create($validated);
 
-        \Illuminate\Support\Facades\Log::info("Hotel update payload rooms:", ["rooms" => $request->rooms]);
-        // Update rooms if provided at creation
-        if ($request->has('rooms') && is_array($request->rooms)) {
-            foreach ($request->rooms as $roomData) {
-                if (is_array($roomData)) {
-                    unset($roomData['id'], $roomData['hotel_id'], $roomData['created_at'], $roomData['updated_at']);
-                    if (isset($roomData['price']) && ($roomData['price'] === '' || $roomData['price'] === null)) {
-                        $roomData['price'] = null;
-                    } elseif (isset($roomData['price']) && is_numeric($roomData['price'])) {
-                        $roomData['price'] = (float) $roomData['price'];
-                    }
-                    if (isset($roomData['remaining_rooms']) && ($roomData['remaining_rooms'] === '' || $roomData['remaining_rooms'] === null)) {
-                        $roomData['remaining_rooms'] = null;
-                    } elseif (isset($roomData['remaining_rooms']) && is_numeric($roomData['remaining_rooms'])) {
-                        $roomData['remaining_rooms'] = (int) $roomData['remaining_rooms'];
-                    }
-                    if (!empty($roomData['type'])) {
-                        $hotel->rooms()->create($roomData);
+            if ($request->has('facilities')) {
+                $hotel->facilities()->sync($request->facilities);
+            }
+
+            if (!empty($rooms) && is_array($rooms)) {
+                foreach ($rooms as $roomData) {
+                    if (is_array($roomData) && !empty($roomData['type'])) {
+                        unset($roomData['id'], $roomData['hotel_id'], $roomData['created_at'], $roomData['updated_at']);
+                        if (isset($roomData['price']) && ($roomData['price'] === '' || $roomData['price'] === null)) {
+                            $roomData['price'] = null;
+                        } elseif (isset($roomData['price']) && is_numeric($roomData['price'])) {
+                            $roomData['price'] = (float) $roomData['price'];
+                        }
+                        if (isset($roomData['remaining_rooms']) && ($roomData['remaining_rooms'] === '' || $roomData['remaining_rooms'] === null)) {
+                            $roomData['remaining_rooms'] = null;
+                        } elseif (isset($roomData['remaining_rooms']) && is_numeric($roomData['remaining_rooms'])) {
+                            $roomData['remaining_rooms'] = (int) $roomData['remaining_rooms'];
+                        }
+                        if (!isset($roomData['images']) || !is_array($roomData['images'])) {
+                            $roomData['images'] = !empty($roomData['image']) ? [$roomData['image']] : [];
+                        }
+                        if (!isset($roomData['amenities']) || !is_array($roomData['amenities'])) {
+                            $roomData['amenities'] = [];
+                        }
+                        $roomData['hotel_id'] = $hotel->id;
+                        Room::create($roomData);
                     }
                 }
             }
-        }
 
-        return response()->json([
-            'message' => 'Hotel created successfully',
-            'hotel' => $hotel->load(['rooms', 'facilities'])
-        ], 201);
+            return response()->json([
+                'message' => 'Hotel created successfully',
+                'hotel' => $hotel->fresh(['rooms', 'facilities'])
+            ], 201);
+        });
     }
 
     /**
