@@ -167,6 +167,10 @@ class HotelController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->filled('id') && Hotel::where('id', $request->id)->exists()) {
+            return $this->update($request, $request->id);
+        }
+
         $validated = $request->validate([
             'id' => 'required|string|unique:hotels,id',
             'name' => 'required|string|max:255',

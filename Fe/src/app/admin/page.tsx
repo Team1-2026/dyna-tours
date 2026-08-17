@@ -1054,16 +1054,27 @@ export default function AdminDashboard() {
           return;
         }
 
-        const response = await api.createHotel({
-          ...dataToSave,
-          id: hotelId,
-          url_slug: hotelSlug,
-          name: hotelName,
-          destination_id: destId,
-          facilities: facilityIds as any,
-          rooms: roomsToSave
-        });
-        setSaveStatus('✓ Hotel created successfully!');
+        const isExisting = hotels.some(h => h.id === hotelId);
+        const response = isExisting
+          ? await api.updateHotel(hotelId, {
+              ...dataToSave,
+              id: hotelId,
+              url_slug: hotelSlug,
+              name: hotelName,
+              destination_id: destId,
+              facilities: facilityIds as any,
+              rooms: roomsToSave
+            })
+          : await api.createHotel({
+              ...dataToSave,
+              id: hotelId,
+              url_slug: hotelSlug,
+              name: hotelName,
+              destination_id: destId,
+              facilities: facilityIds as any,
+              rooms: roomsToSave
+            });
+        setSaveStatus('✓ Hotel saved successfully!');
         setIsCreatingHotel(false);
         setSelectedHotelId(response.hotel.id);
         refreshData();
