@@ -109,6 +109,7 @@ export default function Home() {
             processingTime: v.processing_time || v.processingTime || '3-5 Days',
             startingPrice: v.price ? formatPrice(v.price) : '₹3,499',
             popular: Boolean(v.popular),
+            urlSlug: v.url_slug || v.id,
           }));
           setVisaCountries(formattedVisas);
         }

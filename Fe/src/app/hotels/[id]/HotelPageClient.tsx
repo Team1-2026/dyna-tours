@@ -109,6 +109,28 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+
+    if (name === 'check_in') {
+      setFormData(prev => ({
+        ...prev,
+        check_in: value,
+        // If check_out exists and is earlier than the new check_in date, update check_out to the new check_in date
+        check_out: (prev.check_out && prev.check_out < value) ? value : prev.check_out
+      }));
+      return;
+    }
+
+    if (name === 'check_out') {
+      if (formData.check_in && value && value < formData.check_in) {
+        alert('Check-out date must be equal to or greater than Check-in date.');
+        setFormData(prev => ({
+          ...prev,
+          check_out: prev.check_in
+        }));
+        return;
+      }
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -122,6 +144,13 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
       alert(phoneCheck.message || 'Please enter a valid phone number.');
       return;
     }
+
+    // Validation: Check-out date must be equal to or greater than check-in date
+    if (formData.check_in && formData.check_out && formData.check_out < formData.check_in) {
+      alert('Check-out date must be equal to or greater than Check-in date.');
+      return;
+    }
+
     setFormSubmitting(true);
     setFormSuccess(false);
 
@@ -638,6 +667,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                       name="check_in"
                       id="check_in"
                       required
+                      min={new Date().toISOString().split('T')[0]}
                       className={styles.formInput}
                       value={formData.check_in}
                       onChange={handleInputChange}
@@ -652,6 +682,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                       name="check_out"
                       id="check_out"
                       required
+                      min={formData.check_in || new Date().toISOString().split('T')[0]}
                       className={styles.formInput}
                       value={formData.check_out}
                       onChange={handleInputChange}
@@ -754,17 +785,21 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                   <div key={room.id} className={`${styles.roomCard} ${room.image || (room.images && room.images.length > 0) ? styles.hasImage : ''}`}>
                     
                     {/* Room Image */}
-                    {room.images && room.images.length > 0 ? (
+                    {(room.images && room.images.length > 0) ? (
                       <div className={styles.roomImgWrapper}>
-                        <div className={styles.roomImgSlider}>
-                          {room.images.map((imgUrl, imgIdx) => (
-                            <img key={imgIdx} src={getImageUrl(imgUrl)} alt={`${room.type} view ${imgIdx + 1}`} className={styles.roomImg} />
-                          ))}
-                        </div>
+                        <img 
+                          src={getImageUrl(room.images[0])} 
+                          alt={room.type} 
+                          className={styles.roomImg} 
+                        />
                       </div>
                     ) : room.image ? (
                       <div className={styles.roomImgWrapper}>
-                        <img src={getImageUrl(room.image)} alt={room.type} className={styles.roomImg} />
+                        <img 
+                          src={getImageUrl(room.image)} 
+                          alt={room.type} 
+                          className={styles.roomImg} 
+                        />
                       </div>
                     ) : null}
 
@@ -783,27 +818,27 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                         <div className={styles.roomSpecs}>
                           {room.size && (
                             <div className={styles.roomSpecItem}>
-                              <span className={styles.roomSpecLabel}>📐 Size:</span> {room.size}
+                              <span className={styles.roomSpecLabel}>Size:</span> {room.size}
                             </div>
                           )}
                           {room.view && (
                             <div className={styles.roomSpecItem}>
-                              <span className={styles.roomSpecLabel}>🏔️ View:</span> {room.view}
+                              <span className={styles.roomSpecLabel}>View:</span> {room.view}
                             </div>
                           )}
                           {room.bed_type && (
                             <div className={styles.roomSpecItem}>
-                              <span className={styles.roomSpecLabel}>🛏️ Bed:</span> {room.bed_type}
+                              <span className={styles.roomSpecLabel}>Bed:</span> {room.bed_type}
                             </div>
                           )}
                           {room.occupancy && (
                             <div className={styles.roomSpecItem}>
-                              <span className={styles.roomSpecLabel}>👥 Capacity:</span> {room.occupancy}
+                              <span className={styles.roomSpecLabel}>Capacity:</span> {room.occupancy}
                             </div>
                           )}
                           {room.breakfast && (
                             <div className={styles.roomSpecItem} style={{ gridColumn: 'span 2' }}>
-                              <span className={styles.roomSpecLabel}>☕ Meals:</span> {room.breakfast}
+                              <span className={styles.roomSpecLabel}>Meals:</span> {room.breakfast}
                             </div>
                           )}
                         </div>
@@ -811,7 +846,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
 
                       {/* Room Price & Action CTA */}
                       <div className={styles.roomRightSection}>
-                        {(room.price || hotel.price) && (
+                        {room.show_price !== false && (room.price || hotel.price) && (
                           <div className={styles.roomPriceWrapper}>
                             <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Starting From</span>
                             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary-navy)' }}>
@@ -907,17 +942,21 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                 <div key={room.id} className={`${styles.roomCard} ${room.image || (room.images && room.images.length > 0) ? styles.hasImage : ''}`}>
                   
                   {/* Room multiple image slider */}
-                  {room.images && room.images.length > 0 ? (
+                  {(room.images && room.images.length > 0) ? (
                     <div className={styles.roomImgWrapper}>
-                      <div className={styles.roomImgSlider}>
-                        {room.images.map((imgUrl, imgIdx) => (
-                          <img key={imgIdx} src={getImageUrl(imgUrl)} alt={`${room.type} view ${imgIdx + 1}`} className={styles.roomImg} />
-                        ))}
-                      </div>
+                      <img 
+                        src={getImageUrl(room.images[0])} 
+                        alt={room.type} 
+                        className={styles.roomImg} 
+                      />
                     </div>
                   ) : room.image ? (
                     <div className={styles.roomImgWrapper}>
-                      <img src={getImageUrl(room.image)} alt={room.type} className={styles.roomImg} />
+                      <img 
+                        src={getImageUrl(room.image)} 
+                        alt={room.type} 
+                        className={styles.roomImg} 
+                      />
                     </div>
                   ) : null}
 
@@ -975,7 +1014,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
 
                     <div className={styles.roomRightSection}>
                       <div className={styles.roomPriceWrapper}>
-                        {hotel.show_price && (room.price || hotel.price) && (
+                        {room.show_price !== false && hotel.show_price && (room.price || hotel.price) && (
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Avg / Night</span>
                             <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-primary-red)' }}>

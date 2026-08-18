@@ -113,8 +113,78 @@ export default function FlightsAdmin() {
             <textarea value={pageData.cta_text || ''} onChange={(e) => handleChange('cta_text', e.target.value)} className={styles.input} rows={3} />
           </div>
           <div className={styles.formGroup}>
-            <label>CTA Background Image URL</label>
-            <input type="text" value={pageData.cta_bg_image || ''} onChange={(e) => handleChange('cta_bg_image', e.target.value)} className={styles.input} />
+            <label>CTA Background Image</label>
+            <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+              {pageData.cta_bg_image && (
+                <div style={{ width: '48px', height: '36px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', flexShrink: 0 }}>
+                  <img
+                    src={pageData.cta_bg_image.startsWith('http') ? pageData.cta_bg_image : `http://127.0.0.1:8000${pageData.cta_bg_image}`}
+                    alt="CTA Preview"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </div>
+              )}
+              <input
+                type="file"
+                id="flight-cta-upload"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const token = localStorage.getItem('token');
+                    const res = await fetch('http://127.0.0.1:8000/api/upload', {
+                      method: 'POST',
+                      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                      body: formData,
+                    });
+                    if (res.ok) {
+                      const data = await res.json();
+                      handleChange('cta_bg_image', data.url);
+                    }
+                  } catch (err) {
+                    console.error('Failed to upload image:', err);
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => document.getElementById('flight-cta-upload')?.click()}
+                style={{
+                  padding: '0.55rem 1rem',
+                  background: '#0C2745',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: 600,
+                  fontSize: '0.825rem',
+                  cursor: 'pointer',
+                }}
+              >
+                {pageData.cta_bg_image ? '📤 Change Image' : '📁 Upload Image'}
+              </button>
+              {pageData.cta_bg_image && (
+                <button
+                  type="button"
+                  onClick={() => handleChange('cta_bg_image', '')}
+                  style={{
+                    padding: '0.55rem 0.65rem',
+                    background: '#fee2e2',
+                    color: '#dc2626',
+                    border: '1px solid #fecaca',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
           <div className={styles.formGroup}>
             <label>WhatsApp Number</label>

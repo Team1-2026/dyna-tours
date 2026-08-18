@@ -34,38 +34,49 @@
 }
 
 .keyInfoGrid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  width: 100%;
 }
 
 .keyInfoItem {
-  min-width: 180px;
-  max-width: 250px;
-  flex: 0 1 auto;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   background: #ffffff;
-  padding: 1.5rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  border: 1px solid #cbd5e1;
+  padding: 1.25rem 1rem;
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 4px 12px rgba(12, 39, 69, 0.06);
+  border: 1px solid #e2e8f0;
   border-top: 3px solid var(--color-primary-red);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  min-width: 0;
+}
+
+.keyInfoItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(12, 39, 69, 0.1);
 }
 
 .keyInfoLabel {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .keyInfoValue {
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: var(--color-secondary-navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .detailsContent {
@@ -126,5 +137,38 @@
   }
   .sidebarCard {
     position: static;
+  }
+  .keyInfoGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .countryHeaderContent {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  .countryHeaderTitle {
+    font-size: 2rem;
+  }
+  .countryFlagLarge {
+    font-size: 4rem;
+  }
+  .keyInfoGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .keyInfoItem {
+    padding: 1rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .countryHeaderTitle {
+    font-size: 1.6rem;
+  }
+  .keyInfoGrid {
+    grid-template-columns: 1fr;
   }
 }

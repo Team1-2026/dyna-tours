@@ -159,7 +159,7 @@ export default function AdminDashboard() {
   const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null); // null means adding a new room
   const [roomForm, setRoomForm] = useState<Partial<Room>>({
     type: '', size: '', view: '', bed_type: '', breakfast: 'Included',
-    occupancy: '2 Adults', image: '', description: '', images: [], amenities: [], price: 0, video_url: ''
+    occupancy: '2 Adults', image: '', description: '', images: [], amenities: [], price: 0, show_price: true, video_url: ''
   });
 
   // Temporary Image URLs inputs
@@ -842,7 +842,7 @@ export default function AdminDashboard() {
     setEditingRoomIndex(null);
     setRoomForm({
       type: '', size: '', view: '', bed_type: '', breakfast: 'Included',
-      occupancy: '2 Guests', image: '', description: '', images: [], amenities: [], price: 100, remaining_rooms: 5, video_url: ''
+      occupancy: '2 Guests', image: '', description: '', images: [], amenities: [], price: 100, show_price: true, remaining_rooms: 5, video_url: ''
     });
     setTempRoomImageUrl('');
     setIsRoomModalOpen(true);
@@ -854,6 +854,7 @@ export default function AdminDashboard() {
     const room = roomsList[roomIdx];
     setRoomForm({
       ...room,
+      show_price: room.show_price !== undefined ? Boolean(room.show_price) : true,
       images: room.images || [],
       amenities: room.amenities || []
     });
@@ -875,6 +876,7 @@ export default function AdminDashboard() {
     const roomPayload: Room = {
       ...roomForm,
       type: roomForm.type,
+      show_price: roomForm.show_price !== undefined ? Boolean(roomForm.show_price) : true,
       image: roomForm.images && roomForm.images.length > 0 ? roomForm.images[0] : roomForm.image
     } as Room;
 
@@ -2441,7 +2443,7 @@ export default function AdminDashboard() {
                             <div className={styles.roomRowText}>
                               <span className={styles.roomRowName}>{room.type}</span>
                               <span className={styles.roomRowDetails}>
-                                Occupancy: {room.occupancy} | Price: {room.price ? `₹${room.price}/night` : 'Contact for Rates'}
+                                Occupancy: {room.occupancy} | Price: {room.show_price === false ? <span style={{ color: '#64748b', fontStyle: 'italic' }}>Hidden on site (Custom Rates)</span> : (room.price ? `₹${room.price}/night` : 'Contact for Rates')}
                               </span>
                             </div>
                           </div>
@@ -3549,11 +3551,23 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="formGroup">
-                  <label>Room Price ($ per night, optional)</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={{ margin: 0 }}>Room Price ($ per night, optional)</label>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, color: roomForm.show_price !== false ? '#166534' : '#64748b' }}>
+                      <input
+                        type="checkbox"
+                        checked={roomForm.show_price !== false}
+                        onChange={(e) => setRoomForm(prev => ({ ...prev, show_price: e.target.checked }))}
+                        style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#E7282B' }}
+                      />
+                      <span>Show Price</span>
+                    </label>
+                  </div>
                   <input
                     type="text"
                     placeholder="e.g. 240"
                     className="formInput"
+                    style={{ marginTop: '0.35rem' }}
                     value={roomForm.price || ''}
                     onChange={(e) => setRoomForm(prev => ({ ...prev, price: e.target.value ? Number(e.target.value) : undefined }))}
                   />

@@ -30,7 +30,23 @@ export default function FlightEnquiryForm() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'departure_date') {
+      setFormData(prev => ({
+        ...prev,
+        departure_date: value,
+        return_date: (prev.return_date && prev.return_date < value) ? value : prev.return_date
+      }));
+      return;
+    }
+    if (name === 'return_date') {
+      if (formData.departure_date && value && value < formData.departure_date) {
+        alert('Return date must be equal to or greater than departure date.');
+        setFormData(prev => ({ ...prev, return_date: prev.departure_date }));
+        return;
+      }
+    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,6 +54,10 @@ export default function FlightEnquiryForm() {
     const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
     if (!phoneCheck.isValid) {
       alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
+    if (formData.trip_type !== 'One Way' && formData.departure_date && formData.return_date && formData.return_date < formData.departure_date) {
+      alert('Return date must be equal to or greater than departure date.');
       return;
     }
     setLoading(true);
@@ -145,11 +165,11 @@ export default function FlightEnquiryForm() {
         <div className={styles.formRowGrid}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Departure Date *</label>
-            <input required type="date" name="departure_date" value={formData.departure_date} onChange={handleChange} className={styles.darkInput} />
+            <input required min={new Date().toISOString().split('T')[0]} type="date" name="departure_date" value={formData.departure_date} onChange={handleChange} className={styles.darkInput} />
           </div>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Return Date {formData.trip_type === 'One Way' ? '' : '*'}</label>
-            <input required={formData.trip_type !== 'One Way'} disabled={formData.trip_type === 'One Way'} type="date" name="return_date" value={formData.return_date} onChange={handleChange} className={styles.darkInput} />
+            <input required={formData.trip_type !== 'One Way'} disabled={formData.trip_type === 'One Way'} min={formData.departure_date || new Date().toISOString().split('T')[0]} type="date" name="return_date" value={formData.return_date} onChange={handleChange} className={styles.darkInput} />
           </div>
         </div>
 

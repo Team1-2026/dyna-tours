@@ -157,6 +157,11 @@ class HotelController extends Controller
                         if (!isset($roomData['amenities']) || !is_array($roomData['amenities'])) {
                             $roomData['amenities'] = [];
                         }
+                        if (isset($roomData['show_price'])) {
+                            $roomData['show_price'] = filter_var($roomData['show_price'], FILTER_VALIDATE_BOOLEAN);
+                        } else {
+                            $roomData['show_price'] = true;
+                        }
                         $roomData['hotel_id'] = $hotel->id;
                         Room::create($roomData);
                     }
@@ -269,6 +274,11 @@ class HotelController extends Controller
                         }
                         if (!isset($roomData['amenities']) || !is_array($roomData['amenities'])) {
                             $roomData['amenities'] = [];
+                        }
+                        if (isset($roomData['show_price'])) {
+                            $roomData['show_price'] = filter_var($roomData['show_price'], FILTER_VALIDATE_BOOLEAN);
+                        } else {
+                            $roomData['show_price'] = true;
                         }
                         $roomData['hotel_id'] = $hotel->id;
                         Room::create($roomData);

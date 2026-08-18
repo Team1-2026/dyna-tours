@@ -55,6 +55,16 @@ class EnquiryController extends Controller
             'emailAddress' => 'nullable|email|max:255',
         ]);
 
+        if ($request->filled('check_in') && $request->filled('check_out')) {
+            $checkIn = strtotime($request->input('check_in'));
+            $checkOut = strtotime($request->input('check_out'));
+            if ($checkIn && $checkOut && $checkOut < $checkIn) {
+                return response()->json([
+                    'message' => 'Check-out date must be equal to or greater than Check-in date.'
+                ], 422);
+            }
+        }
+
         if (empty($validated['target_id'])) {
             $validated['target_id'] = $validated['type'] . '_service';
         }

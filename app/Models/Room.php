@@ -24,12 +24,14 @@ class Room extends Model
         'price',
         'remaining_rooms',
         'video_url',
+        'show_price',
     ];
 
     protected $casts = [
         'images' => 'array',
         'amenities' => 'array',
         'price' => 'float',
+        'show_price' => 'boolean',
     ];
 
     public function hotel()

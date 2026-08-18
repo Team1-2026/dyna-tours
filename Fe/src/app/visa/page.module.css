@@ -730,7 +730,7 @@
 
 /* FAQ */
 .faqContainer {
-  max-width: 800px;
+  max-width: 860px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -739,46 +739,95 @@
 
 .faqItem {
   background: white;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast, 0.2s ease);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
 .faqItemOpen {
-  border-color: var(--color-border-focus);
-  box-shadow: var(--shadow-sm);
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
 }
 
 .faqQuestion {
   width: 100%;
   text-align: left;
   padding: 1.25rem 1.5rem;
-  background: none;
+  background: white;
   border: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
+  color: #1e293b;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.faqQuestion svg {
-  transition: transform var(--transition-fast);
+.faqQuestion:hover {
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
-.faqQuestion[aria-expanded="true"] svg {
+.faqQuestionText {
+  flex: 1;
+  text-align: left;
+  line-height: 1.5;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.faqIconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.faqQuestion:hover .faqIconWrapper {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.faqIconRotated {
   transform: rotate(180deg);
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
 .faqAnswer {
-  transition: all var(--transition-normal);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
 }
 
-.faqAnswer p {
-  padding-bottom: 1.5rem;
-  color: var(--color-text-secondary);
+.faqAnswerOpen {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.faqAnswerContent {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.faqAnswerContent p {
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0;
+  text-align: left;
 }
 
 /* Enquiry Form */

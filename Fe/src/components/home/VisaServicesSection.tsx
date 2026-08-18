@@ -45,6 +45,26 @@ export const getCountryFlagUrl = (countryName: string, code?: string): string =>
   return 'https://flagcdn.com/w160/un.png';
 };
 
+export const getVisaCountryDetailUrl = (item: VisaCountryCard): string => {
+  if (item.urlSlug) return `/visa/${item.urlSlug}`;
+  
+  // If item.id is a string slug (e.g. 'singapore', 'newzealand', 'vietnam', 'japan', 'cambodia', 'malaysia')
+  if (item.id && isNaN(Number(item.id))) {
+    return `/visa/${item.id}`;
+  }
+
+  // Slugify country name
+  const name = item.country || '';
+  const cleanSlug = name
+    .toLowerCase()
+    .replace(/\(.*?\)/g, '')
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return `/visa/${cleanSlug || item.id}`;
+};
+
 export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
   countries,
   adminDescription = 'Hassle-free international visa processing with 99.4% approval rate and dedicated visa concierge.',
@@ -81,6 +101,7 @@ export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {countries.slice(0, 6).map((item, idx) => {
             const flagUrl = getCountryFlagUrl(item.country, item.code);
+            const visaUrl = getVisaCountryDetailUrl(item);
 
             return (
               <motion.div
@@ -96,15 +117,19 @@ export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
                   {/* Flag & Popular Tag */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={flagUrl}
-                        alt={`${item.country} flag`}
-                        className="h-9 w-12 rounded-lg object-cover shadow-sm border border-white/20"
-                      />
+                      <Link href={visaUrl} className="block shrink-0">
+                        <img
+                          src={flagUrl}
+                          alt={`${item.country} flag`}
+                          className="h-9 w-12 rounded-lg object-cover shadow-sm border border-white/20 transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </Link>
                       <div>
-                        <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
-                          {item.country}
-                        </h3>
+                        <Link href={visaUrl} className="block">
+                          <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
+                            {item.country}
+                          </h3>
+                        </Link>
                         <span className="text-xs font-medium text-slate-300">
                           {item.visaType}
                         </span>
@@ -144,7 +169,7 @@ export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
                   </div>
 
                   <Link
-                    href={`/visa?country=${encodeURIComponent(item.country)}`}
+                    href={visaUrl}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-red-600/30 transition-all hover:from-red-500 hover:to-rose-500 group-hover:scale-105"
                   >
                     <span>Apply Now</span>

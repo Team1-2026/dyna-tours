@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { COUNTRIES_LIST } from '@/data/countries';
 
-interface VisaFlagProps {
+export interface VisaFlagProps {
   flag?: string;
   countryName?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -36,83 +37,34 @@ export const countryNameToCode = (name?: string): string | null => {
   if (!name) return null;
   const clean = name.toLowerCase().trim();
 
-  const map: Record<string, string> = {
-    'singapore': 'sg',
-    'vietnam': 'vn',
-    'thailand': 'th',
-    'malaysia': 'my',
-    'united arab emirates': 'ae',
+  const aliasMap: Record<string, string> = {
     'uae': 'ae',
     'dubai': 'ae',
-    'united kingdom': 'gb',
     'uk': 'gb',
     'great britain': 'gb',
     'england': 'gb',
-    'united states': 'us',
+    'scotland': 'gb',
+    'wales': 'gb',
     'usa': 'us',
     'america': 'us',
-    'japan': 'jp',
-    'cambodia': 'kh',
-    'china': 'cn',
-    'south korea': 'kr',
     'korea': 'kr',
-    'indonesia': 'id',
     'bali': 'id',
-    'turkey': 'tr',
     'türkiye': 'tr',
-    'egypt': 'eg',
-    'sri lanka': 'lk',
-    'maldives': 'mv',
-    'azerbaijan': 'az',
-    'georgia': 'ge',
-    'france': 'fr',
-    'germany': 'de',
-    'italy': 'it',
-    'spain': 'es',
-    'switzerland': 'ch',
-    'netherlands': 'nl',
-    'belgium': 'be',
-    'austria': 'at',
-    'canada': 'ca',
-    'australia': 'au',
     'schengen': 'eu',
     'europe': 'eu',
-    'bhutan': 'bt',
-    'brazil': 'br',
-    'denmark': 'dk',
-    'fiji': 'fj',
-    'greece': 'gr',
-    'hong kong': 'hk',
-    'hungary': 'hu',
-    'india': 'in',
-    'kenya': 'ke',
-    'mauritius': 'mu',
-    'mexico': 'mx',
-    'morocco': 'ma',
-    'nepal': 'np',
-    'new zealand': 'nz',
-    'norway': 'no',
-    'oman': 'om',
-    'philippines': 'ph',
-    'poland': 'pl',
-    'portugal': 'pt',
-    'qatar': 'qa',
-    'russia': 'ru',
-    'saudi arabia': 'sa',
-    'seychelles': 'sc',
-    'south africa': 'za',
-    'sweden': 'se',
-    'taiwan': 'tw',
-    'uzbekistan': 'uz',
-    'armenia': 'am',
-    'kazakhstan': 'kz',
   };
 
-  if (map[clean]) return map[clean];
+  if (aliasMap[clean]) return aliasMap[clean];
 
-  for (const [key, code] of Object.entries(map)) {
-    if (clean.includes(key)) return code;
+  const matched = COUNTRIES_LIST.find(c => c.name.toLowerCase() === clean);
+  if (matched) return matched.code.toLowerCase();
+
+  // Partial match fallback
+  for (const [alias, code] of Object.entries(aliasMap)) {
+    if (clean.includes(alias)) return code;
   }
+  const partial = COUNTRIES_LIST.find(c => c.name.toLowerCase().includes(clean) || clean.includes(c.name.toLowerCase()));
+  if (partial) return partial.code.toLowerCase();
 
   return null;
 };

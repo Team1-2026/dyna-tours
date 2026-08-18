@@ -46,6 +46,7 @@ export interface VisaCountryCard {
   processingTime: string;
   startingPrice: string;
   popular?: boolean;
+  urlSlug?: string;
 }
 
 export interface StatCounter {
@@ -287,6 +288,7 @@ export const defaultVisaCountries: VisaCountryCard[] = [
     processingTime: '24-48 Hours',
     startingPrice: '₹6,499',
     popular: true,
+    urlSlug: 'united-arab-emirates',
   },
   {
     id: '2',
@@ -297,6 +299,7 @@ export const defaultVisaCountries: VisaCountryCard[] = [
     processingTime: '5-10 Business Days',
     startingPrice: '₹9,999',
     popular: true,
+    urlSlug: 'schengen',
   },
   {
     id: '3',
@@ -307,6 +310,7 @@ export const defaultVisaCountries: VisaCountryCard[] = [
     processingTime: '7-12 Business Days',
     startingPrice: '₹14,500',
     popular: true,
+    urlSlug: 'united-kingdom',
   },
   {
     id: '4',
@@ -317,6 +321,7 @@ export const defaultVisaCountries: VisaCountryCard[] = [
     processingTime: '3-4 Business Days',
     startingPrice: '₹2,999',
     popular: true,
+    urlSlug: 'singapore',
   },
   {
     id: '5',
@@ -327,6 +332,7 @@ export const defaultVisaCountries: VisaCountryCard[] = [
     processingTime: '24 Hours',
     startingPrice: '₹2,499',
     popular: true,
+    urlSlug: 'thailand',
   },
   {
     id: '6',
@@ -337,6 +343,7 @@ export const defaultVisaCountries: VisaCountryCard[] = [
     processingTime: '2-3 Business Days',
     startingPrice: '₹2,199',
     popular: false,
+    urlSlug: 'malaysia',
   },
   {
     id: '7',
@@ -347,6 +354,7 @@ export const defaultVisaCountries: VisaCountryCard[] = [
     processingTime: '4-6 Business Days',
     startingPrice: '₹3,499',
     popular: false,
+    urlSlug: 'japan',
   },
   {
     id: '8',
@@ -357,6 +365,7 @@ export const defaultVisaCountries: VisaCountryCard[] = [
     processingTime: 'Appointment Assistance',
     startingPrice: '₹16,999',
     popular: true,
+    urlSlug: 'united-states',
   },
   {
     id: '9',

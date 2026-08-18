@@ -134,6 +134,7 @@ export interface Room {
   price?: number | null;
   remaining_rooms?: number | null;
   video_url?: string | null;
+  show_price?: boolean;
 }
 
 export interface Facility {
