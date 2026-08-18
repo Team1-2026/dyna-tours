@@ -60,13 +60,13 @@ export default function RichTextEditor({ value, onChange, placeholder, label, id
     fetchInternalItems();
   }, [isMounted]);
 
-  // Sync value if it is modified externally (e.g. when selected hotel/destination changes)
+  // Sync value if it is modified externally (e.g. when selected hotel/destination changes or data loads)
   useEffect(() => {
-    if (editorRef.current && value !== lastHtmlRef.current) {
+    if (editorRef.current && (value !== lastHtmlRef.current || editorRef.current.innerHTML !== (value || ''))) {
       editorRef.current.innerHTML = value || '';
       lastHtmlRef.current = value || '';
     }
-  }, [value]);
+  }, [value, isMounted]);
 
   const handleInput = () => {
     if (editorRef.current) {
@@ -274,7 +274,10 @@ export default function RichTextEditor({ value, onChange, placeholder, label, id
           id={id}
           className={styles.editor}
           contentEditable
+          suppressContentEditableWarning
           onInput={handleInput}
+          onBlur={handleInput}
+          onKeyUp={handleInput}
           data-placeholder={placeholder || 'Start typing details...'}
         />
       </div>

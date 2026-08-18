@@ -297,27 +297,35 @@ function GroupToursContent() {
           <h2 className={styles.overviewHeading}>{pageData?.overview_heading || 'The Ultimate Way to Experience Global Adventures'}</h2>
           
           <div className={styles.overviewText}>
-            <p>
-              Group Tours transform how you experience the world, bringing together like-minded travelers for journeys filled with convenience, connection, and carefully curated experiences.
-            </p>
-            {isOverviewExpanded && (
+            {pageData?.overview_description ? (
+              <div dangerouslySetInnerHTML={{ __html: pageData.overview_description }} />
+            ) : (
               <>
-                <p style={{ marginTop: '1rem' }}>
-                  Our specialized Group Tour Packages accommodate diverse interests, perfect whether you're setting out with family, friends, or colleagues.
+                <p>
+                  Group Tours transform how you experience the world, bringing together like-minded travelers for journeys filled with convenience, connection, and carefully curated experiences.
                 </p>
-                <p style={{ marginTop: '1rem' }}>
-                  Well-planned itineraries and supervised tours at their core, these adventures celebrate togetherness while creating lasting memories.
-                </p>
+                {isOverviewExpanded && (
+                  <>
+                    <p style={{ marginTop: '1rem' }}>
+                      Our specialized Group Tour Packages accommodate diverse interests, perfect whether you're setting out with family, friends, or colleagues.
+                    </p>
+                    <p style={{ marginTop: '1rem' }}>
+                      Well-planned itineraries and supervised tours at their core, these adventures celebrate togetherness while creating lasting memories.
+                    </p>
+                  </>
+                )}
               </>
             )}
           </div>
           
-          <button 
-            className={styles.readMoreBtn} 
-            onClick={() => setIsOverviewExpanded(!isOverviewExpanded)}
-          >
-            {isOverviewExpanded ? 'Read Less ▲' : 'Read More ▼'}
-          </button>
+          {!pageData?.overview_description && (
+            <button 
+              className={styles.readMoreBtn} 
+              onClick={() => setIsOverviewExpanded(!isOverviewExpanded)}
+            >
+              {isOverviewExpanded ? 'Read Less ▲' : 'Read More ▼'}
+            </button>
+          )}
         </div>
       </section>
 
