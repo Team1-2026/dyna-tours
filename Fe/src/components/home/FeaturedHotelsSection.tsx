@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, MapPin, Hotel, ArrowRight } from 'lucide-react';
 import ResolvedImage from '@/components/ResolvedImage';
-import { formatPrice } from '@/lib/api';
+import { formatPrice, getImageUrl } from '@/lib/api';
 import { Hotel as HotelType } from '@/lib/api';
 
 interface FeaturedHotelsSectionProps {
@@ -24,7 +24,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Udaipur, Rajasthan',
       star_rating: 5,
       starting_price: 32000,
-      banner_image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+      banner_image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
       category: '5-Star',
     },
     {
@@ -33,7 +33,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Baa Atoll, Maldives',
       star_rating: 5,
       starting_price: 85000,
-      banner_image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+      banner_image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=800&q=80',
       category: '5-Star',
     },
     {
@@ -51,7 +51,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Benaulim, Goa',
       star_rating: 5,
       starting_price: 28000,
-      banner_image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+      banner_image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
       category: '5-Star',
     },
     {
@@ -92,6 +92,77 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       if (match) return parseInt(match[1], 10);
     }
     return 5;
+  };
+
+  const getHotelCardImage = (hotel: any): string => {
+    if (!hotel) return '/images/default_hotel.png';
+
+    // 1. Check if gallery contains section === 'featured' image object (as configured in Hotel Page Admin)
+    if (Array.isArray(hotel.gallery) && hotel.gallery.length > 0) {
+      const featuredObj = hotel.gallery.find(
+        (img: any) => typeof img === 'object' && img !== null && img.section === 'featured' && img.url
+      );
+      if (featuredObj && (featuredObj as any).url) {
+        return getImageUrl((featuredObj as any).url);
+      }
+    }
+
+    // 2. Check if banner image object exists in gallery
+    if (Array.isArray(hotel.gallery) && hotel.gallery.length > 0) {
+      const bannerObj = hotel.gallery.find(
+        (img: any) => typeof img === 'object' && img !== null && img.section === 'banner' && img.url
+      );
+      if (bannerObj && (bannerObj as any).url) {
+        return getImageUrl((bannerObj as any).url);
+      }
+    }
+
+    // 3. Direct banner_image or featured_image on hotel
+    if (hotel.banner_image && typeof hotel.banner_image === 'string') {
+      return getImageUrl(hotel.banner_image);
+    }
+    if (hotel.featured_image && typeof hotel.featured_image === 'string') {
+      return getImageUrl(hotel.featured_image);
+    }
+
+    // 4. Any first image in gallery
+    if (Array.isArray(hotel.gallery) && hotel.gallery.length > 0) {
+      const firstImg = hotel.gallery[0];
+      const url = typeof firstImg === 'string' ? firstImg : firstImg?.url;
+      if (url) return getImageUrl(url);
+    }
+
+    // 5. Check hotel room images
+    if (Array.isArray(hotel.rooms) && hotel.rooms.length > 0) {
+      for (const room of hotel.rooms) {
+        if (room.image) return getImageUrl(room.image);
+        if (Array.isArray(room.images) && room.images.length > 0 && room.images[0]) {
+          return getImageUrl(room.images[0]);
+        }
+      }
+    }
+
+    // 6. Check hotel destination banner or gallery
+    if (hotel.destination?.banner_image) {
+      return getImageUrl(hotel.destination.banner_image);
+    }
+    if (Array.isArray(hotel.destination?.gallery) && hotel.destination.gallery.length > 0) {
+      const destImg = hotel.destination.gallery[0];
+      const url = typeof destImg === 'string' ? destImg : destImg?.url;
+      if (url) return getImageUrl(url);
+    }
+
+    // 7. Contextual name matches for known hotels
+    const nameLower = (hotel.name || '').toLowerCase();
+    if (nameLower.includes('blanket')) return '/images/blanket_hotel_mist.jpg';
+    if (nameLower.includes('leela')) return 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80';
+    if (nameLower.includes('soneva') || nameLower.includes('maldives')) return '/images/maldives.png';
+    if (nameLower.includes('kumarakom')) return 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80';
+    if (nameLower.includes('taj exotica') || nameLower.includes('goa')) return 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80';
+    if (nameLower.includes('hyatt') || nameLower.includes('kochi')) return 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80';
+    if (nameLower.includes('spice tree') || nameLower.includes('munnar')) return '/images/blanket_camelia.jpg';
+
+    return '/images/default_hotel.png';
   };
 
   const combinedHotels = [...(hotels || [])];
@@ -158,10 +229,11 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {displayHotels.slice(0, 4).map((hotel: any, idx: number) => {
-              const imgUrl = hotel.banner_image || hotel.main_image || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
+              const imgUrl = getHotelCardImage(hotel);
               const price = hotel.starting_price || hotel.price || 18500;
               const rating = getHotelStarRating(hotel);
-              const location = hotel.city || hotel.location || 'Luxury Destination';
+              const location = hotel.city || hotel.location || hotel.destination?.name || 'Luxury Destination';
+              const hotelSlug = hotel.url_slug || hotel.id;
 
               return (
                 <motion.div
@@ -207,7 +279,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
                       </div>
 
                       <Link
-                        href={`/hotels/${hotel.id}`}
+                        href={`/hotels/${hotelSlug}`}
                         className="inline-flex items-center gap-1.5 rounded-xl bg-amber-400 px-4 py-2 text-xs font-bold text-black shadow-md transition-all hover:bg-amber-300 group-hover:scale-105"
                       >
                         <span>Book Now</span>

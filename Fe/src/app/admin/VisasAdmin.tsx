@@ -7,28 +7,8 @@ import { VisaCountry, eVisaDestinations, schengenCountries, otherCountries } fro
 import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
 import RichTextEditor from '@/components/RichTextEditor';
-import VisaFlag, { countryNameToCode } from '@/components/visa/VisaFlag';
-
-const FLAG_OPTIONS = [
-  { name: 'Australia', flag: '🇦🇺' }, { name: 'Austria', flag: '🇦🇹' }, { name: 'Belgium', flag: '🇧🇪' },
-  { name: 'Bhutan', flag: '🇧🇹' }, { name: 'Brazil', flag: '🇧🇷' }, { name: 'Cambodia', flag: '🇰🇭' },
-  { name: 'Canada', flag: '🇨🇦' }, { name: 'China', flag: '🇨🇳' }, { name: 'Denmark', flag: '🇩🇰' },
-  { name: 'Egypt', flag: '🇪🇬' }, { name: 'Fiji', flag: '🇫🇯' }, { name: 'France', flag: '🇫🇷' },
-  { name: 'Germany', flag: '🇩🇪' }, { name: 'Greece', flag: '🇬🇷' }, { name: 'Hong Kong', flag: '🇭🇰' },
-  { name: 'Hungary', flag: '🇭🇺' }, { name: 'India', flag: '🇮🇳' }, { name: 'Indonesia', flag: '🇮🇩' },
-  { name: 'Italy', flag: '🇮🇹' }, { name: 'Japan', flag: '🇯🇵' }, { name: 'Kenya', flag: '🇰🇪' },
-  { name: 'Malaysia', flag: '🇲🇾' }, { name: 'Maldives', flag: '🇲🇻' }, { name: 'Mauritius', flag: '🇲🇺' },
-  { name: 'Mexico', flag: '🇲🇽' }, { name: 'Morocco', flag: '🇲🇦' }, { name: 'Nepal', flag: '🇳🇵' },
-  { name: 'Netherlands', flag: '🇳🇱' }, { name: 'New Zealand', flag: '🇳🇿' }, { name: 'Norway', flag: '🇳🇴' },
-  { name: 'Oman', flag: '🇴🇲' }, { name: 'Philippines', flag: '🇵🇭' }, { name: 'Poland', flag: '🇵🇱' },
-  { name: 'Portugal', flag: '🇵🇹' }, { name: 'Qatar', flag: '🇶🇦' }, { name: 'Russia', flag: '🇷🇺' },
-  { name: 'Saudi Arabia', flag: '🇸🇦' }, { name: 'Seychelles', flag: '🇸🇨' }, { name: 'Singapore', flag: '🇸🇬' },
-  { name: 'South Africa', flag: '🇿🇦' }, { name: 'South Korea', flag: '🇰🇷' }, { name: 'Spain', flag: '🇪🇸' },
-  { name: 'Sri Lanka', flag: '🇱🇰' }, { name: 'Sweden', flag: '🇸🇪' }, { name: 'Switzerland', flag: '🇨🇭' },
-  { name: 'Taiwan', flag: '🇹🇼' }, { name: 'Thailand', flag: '🇹🇭' }, { name: 'Turkey', flag: '🇹🇷' },
-  { name: 'United Arab Emirates', flag: '🇦🇪' }, { name: 'United Kingdom', flag: '🇬🇧' },
-  { name: 'United States', flag: '🇺🇸' }, { name: 'Vietnam', flag: '🇻🇳' }, { name: 'Other', flag: '🏳️' }
-];
+import VisaFlag, { countryNameToCode, emojiToCountryCode } from '@/components/visa/VisaFlag';
+import { COUNTRIES_LIST } from '@/data/countries';
 
 export default function VisasAdmin() {
   const [visas, setVisas] = useState<VisaCountry[]>([]);
@@ -37,16 +17,113 @@ export default function VisasAdmin() {
   const [isCreating, setIsCreating] = useState(false);
   const [selectedVisa, setSelectedVisa] = useState<Partial<VisaCountry> | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showCustomCountryInput, setShowCustomCountryInput] = useState(false);
+  const [showCustomFlagInput, setShowCustomFlagInput] = useState(false);
+
+  const clearVisaFormState = () => {
+    setSelectedVisa(null);
+    setIsEditing(false);
+    setIsCreating(false);
+    setShowCustomCountryInput(false);
+    setShowCustomFlagInput(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('admin_visa_is_editing');
+      sessionStorage.removeItem('admin_visa_is_creating');
+      sessionStorage.removeItem('admin_visa_draft');
+      sessionStorage.removeItem('admin_visa_id');
+      if (window.location.hash.startsWith('#add-visa') || window.location.hash.startsWith('#edit-visa')) {
+        try {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        } catch (e) {
+          window.location.hash = '';
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     fetchVisas();
+
+    if (typeof window !== 'undefined') {
+      const isEditingSaved = sessionStorage.getItem('admin_visa_is_editing') === 'true' || 
+                             window.location.hash === '#add-visa' || 
+                             window.location.hash.startsWith('#edit-visa-');
+      const isCreatingSaved = sessionStorage.getItem('admin_visa_is_creating') === 'true' || 
+                              window.location.hash === '#add-visa';
+      const savedDraft = sessionStorage.getItem('admin_visa_draft');
+
+      if (isEditingSaved) {
+        if (savedDraft) {
+          try {
+            const parsed = JSON.parse(savedDraft);
+            setSelectedVisa(parsed);
+            setIsEditing(true);
+            setIsCreating(isCreatingSaved);
+          } catch (e) {
+            console.error('Failed to parse saved visa draft', e);
+          }
+        } else if (isCreatingSaved) {
+          handleCreateNew();
+        }
+      }
+    }
+
+    const onAddNew = () => {
+      handleCreateNew();
+    };
+    const onViewAll = () => {
+      clearVisaFormState();
+    };
+
+    window.addEventListener('admin:add-new-visa', onAddNew);
+    window.addEventListener('admin:view-visas', onViewAll);
+
+    return () => {
+      window.removeEventListener('admin:add-new-visa', onAddNew);
+      window.removeEventListener('admin:view-visas', onViewAll);
+    };
   }, []);
+
+  // Save active editing/creating draft into sessionStorage and sync URL hash
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (isEditing && selectedVisa) {
+        sessionStorage.setItem('admin_visa_is_editing', 'true');
+        sessionStorage.setItem('admin_visa_is_creating', String(isCreating));
+        sessionStorage.setItem('admin_visa_draft', JSON.stringify(selectedVisa));
+        sessionStorage.setItem('admin_visa_id', selectedVisa.id || '');
+
+        const expectedHash = isCreating ? '#add-visa' : (selectedVisa.id ? `#edit-visa-${selectedVisa.id}` : '#edit-visa');
+        if (window.location.hash !== expectedHash) {
+          try {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search + expectedHash);
+          } catch (e) {}
+        }
+      }
+    }
+  }, [isEditing, isCreating, selectedVisa]);
 
   const fetchVisas = async () => {
     setIsLoading(true);
     try {
       const data = await api.getVisas();
       setVisas(data);
+
+      if (typeof window !== 'undefined') {
+        const savedId = sessionStorage.getItem('admin_visa_id') || 
+          (window.location.hash.startsWith('#edit-visa-') ? window.location.hash.replace('#edit-visa-', '') : null);
+        const isEditingSaved = sessionStorage.getItem('admin_visa_is_editing') === 'true' || window.location.hash.startsWith('#edit-visa-');
+        const isCreatingSaved = sessionStorage.getItem('admin_visa_is_creating') === 'true' || window.location.hash === '#add-visa';
+
+        if (isEditingSaved && !isCreatingSaved && savedId && !selectedVisa) {
+          const found = (data || []).find((v: VisaCountry) => v.id.toLowerCase() === savedId.toLowerCase());
+          if (found) {
+            setSelectedVisa({ ...found });
+            setIsEditing(true);
+            setIsCreating(false);
+          }
+        }
+      }
     } catch (err) {
       console.error(err);
       setMessage({ type: 'error', text: 'Failed to load visas' });
@@ -56,6 +133,8 @@ export default function VisasAdmin() {
 
   const handleEdit = (visa: VisaCountry) => {
     setSelectedVisa({ ...visa });
+    setShowCustomCountryInput(false);
+    setShowCustomFlagInput(false);
     setIsEditing(true);
     setIsCreating(false);
   };
@@ -78,6 +157,8 @@ export default function VisasAdmin() {
       terms: [''],
       faqs: [{ question: '', answer: '' }]
     });
+    setShowCustomCountryInput(false);
+    setShowCustomFlagInput(false);
     setIsCreating(true);
     setIsEditing(true);
   };
@@ -87,6 +168,9 @@ export default function VisasAdmin() {
     try {
       await api.deleteVisa(id);
       setMessage({ type: 'success', text: 'Visa deleted successfully' });
+      if (selectedVisa?.id === id) {
+        clearVisaFormState();
+      }
       fetchVisas();
     } catch (err) {
       console.error(err);
@@ -212,7 +296,7 @@ export default function VisasAdmin() {
         await api.updateVisa(selectedVisa.id!, selectedVisa as VisaCountry);
         setMessage({ type: 'success', text: 'Visa updated successfully' });
       }
-      setIsEditing(false);
+      clearVisaFormState();
       fetchVisas();
     } catch (err) {
       console.error(err);
@@ -318,7 +402,7 @@ export default function VisasAdmin() {
         <div className={styles.formContainer}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>{isCreating ? 'Add New Visa' : `Edit Visa: ${selectedVisa?.name}`}</h2>
-            <button className="btn btn-primary" onClick={() => setIsEditing(false)}>Back to List</button>
+            <button className="btn btn-primary" onClick={clearVisaFormState}>Back to List</button>
           </div>
 
           <form onSubmit={handleSave} className={styles.adminForm}>
@@ -333,61 +417,156 @@ export default function VisasAdmin() {
                   required 
                 />
               </div>
-              <div className={styles.formGroup}>
-                <label>Country Name <span className="required-star">*</span></label>
-                <input 
-                  type="text" 
-                  value={selectedVisa?.name || ''} 
-                  onChange={e => {
-                    const name = e.target.value;
-                    const updates: any = { name };
-                    if (isCreating) {
-                      updates.id = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
-                    }
-                    const matchedCode = countryNameToCode(name);
-                    if (matchedCode && !selectedVisa?.flag) {
-                      const matchedOpt = FLAG_OPTIONS.find(opt => opt.name.toLowerCase() === name.toLowerCase());
-                      if (matchedOpt) {
-                        updates.flag = matchedOpt.flag;
-                      } else {
-                        updates.flag = matchedCode;
-                      }
-                    }
-                    setSelectedVisa({ ...selectedVisa, ...updates });
-                  }}
-                  required 
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label>Flag (Emoji / ISO Code / Image URL) <span className="required-star">*</span></label>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <VisaFlag flag={selectedVisa?.flag} countryName={selectedVisa?.name} size="md" />
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 🇸🇬 or sg or https://flagcdn.com/w160/sg.png"
-                    value={selectedVisa?.flag || ''} 
-                    onChange={e => setSelectedVisa({...selectedVisa, flag: e.target.value})}
-                    style={{ flex: 1 }}
-                    required 
-                  />
-                  <select 
-                    value=""
-                    onChange={e => {
-                      if (e.target.value) {
-                        setSelectedVisa({...selectedVisa, flag: e.target.value});
-                      }
-                    }}
-                    style={{ width: '130px' }}
-                  >
-                    <option value="">Quick Select...</option>
-                    {FLAG_OPTIONS.map(opt => (
-                      <option key={opt.name} value={opt.flag}>
-                        {opt.flag} {opt.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              {/* Country Name Dropdown */}
+              {(() => {
+                const currentName = selectedVisa?.name || '';
+                const codeFromName = countryNameToCode(currentName);
+                const matchedCountry = COUNTRIES_LIST.find(c => 
+                  c.name.toLowerCase() === currentName.toLowerCase() || 
+                  (codeFromName && c.code.toLowerCase() === codeFromName.toLowerCase())
+                );
+                const selectedCountryValue = matchedCountry
+                  ? matchedCountry.name
+                  : (currentName || showCustomCountryInput ? '__custom__' : '');
+                const isCustomCountry = showCustomCountryInput || (!matchedCountry && Boolean(currentName));
+
+                return (
+                  <div className={styles.formGroup}>
+                    <label>Country Name <span className="required-star">*</span></label>
+                    <select 
+                      value={selectedCountryValue} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === '__custom__') {
+                          setShowCustomCountryInput(true);
+                          setSelectedVisa({ ...selectedVisa, name: '' });
+                        } else if (val) {
+                          setShowCustomCountryInput(false);
+                          const found = COUNTRIES_LIST.find(c => c.name === val);
+                          const updates: Partial<VisaCountry> = { name: val };
+                          if (found) {
+                            updates.flag = found.flag;
+                          }
+                          if (isCreating) {
+                            const slug = val.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                            updates.id = slug;
+                            if (!selectedVisa?.meta_title) {
+                              updates.meta_title = `${val} Visa for Indians - Requirements, Process & Fees`;
+                            }
+                            if (!selectedVisa?.url_slug) {
+                              updates.url_slug = slug;
+                            }
+                          }
+                          setSelectedVisa({ ...selectedVisa, ...updates });
+                        } else {
+                          setShowCustomCountryInput(false);
+                          setSelectedVisa({ ...selectedVisa, name: '' });
+                        }
+                      }}
+                      required={!isCustomCountry}
+                    >
+                      <option value="">-- Select Country --</option>
+                      {COUNTRIES_LIST.map(c => (
+                        <option key={c.code} value={c.name}>
+                          {c.flag} {c.name}
+                        </option>
+                      ))}
+                      <option value="__custom__">➕ Other / Custom Country Name...</option>
+                    </select>
+
+                    {isCustomCountry && (
+                      <input 
+                        type="text" 
+                        placeholder="Enter custom country name..."
+                        value={selectedVisa?.name || ''} 
+                        onChange={e => {
+                          const name = e.target.value;
+                          const updates: any = { name };
+                          if (isCreating) {
+                            updates.id = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                          }
+                          const matched = COUNTRIES_LIST.find(c => c.name.toLowerCase() === name.toLowerCase());
+                          if (matched && (!selectedVisa?.flag || selectedVisa?.flag === '🏳️')) {
+                            updates.flag = matched.flag;
+                          }
+                          setSelectedVisa({ ...selectedVisa, ...updates });
+                        }}
+                        style={{ marginTop: '0.5rem' }}
+                        required 
+                      />
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Flag Dropdown */}
+              {(() => {
+                const currentFlag = selectedVisa?.flag || '';
+                const cdnCodeMatch = currentFlag.match(/flagcdn\.com\/[^/]+\/([a-zA-Z]{2})\.png/i);
+                const flagCode = emojiToCountryCode(currentFlag) || 
+                  (cdnCodeMatch ? cdnCodeMatch[1].toLowerCase() : null) || 
+                  (/^[a-zA-Z]{2}$/.test(currentFlag) ? currentFlag.toLowerCase() : null);
+                
+                const matchedCountry = COUNTRIES_LIST.find(c => 
+                  c.flag === currentFlag || 
+                  (flagCode && c.code.toLowerCase() === flagCode)
+                );
+
+                const isKnown = Boolean(matchedCountry) || currentFlag === '🏳️' || currentFlag === '🇪🇺' || currentFlag === '🌍';
+                const selectedFlagValue = matchedCountry 
+                  ? matchedCountry.flag 
+                  : (currentFlag === '🇪🇺' ? '🇪🇺' : (currentFlag === '🌍' ? '🌍' : (currentFlag === '🏳️' ? '🏳️' : (currentFlag || showCustomFlagInput ? '__custom__' : ''))));
+
+                const isCustomFlag = showCustomFlagInput || (!isKnown && Boolean(currentFlag));
+
+                return (
+                  <div className={styles.formGroup}>
+                    <label>Flag <span className="required-star">*</span></label>
+                    <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                      <VisaFlag flag={selectedVisa?.flag} countryName={selectedVisa?.name} size="md" />
+                      <select 
+                        value={selectedFlagValue}
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val === '__custom__') {
+                            setShowCustomFlagInput(true);
+                          } else if (val) {
+                            setShowCustomFlagInput(false);
+                            setSelectedVisa({ ...selectedVisa, flag: val });
+                          } else {
+                            setShowCustomFlagInput(false);
+                            setSelectedVisa({ ...selectedVisa, flag: '' });
+                          }
+                        }}
+                        style={{ flex: 1 }}
+                        required={!isCustomFlag}
+                      >
+                        <option value="">-- Select Flag --</option>
+                        <option value="🇪🇺">🇪🇺 European Union / Schengen (EU)</option>
+                        <option value="🌍">🌍 Global / World (All Regions)</option>
+                        {COUNTRIES_LIST.map(c => (
+                          <option key={c.code} value={c.flag}>
+                            {c.flag} {c.name} ({c.code})
+                          </option>
+                        ))}
+                        <option value="🏳️">🏳️ Neutral Flag (Other)</option>
+                        <option value="__custom__">➕ Custom Flag (Emoji / Image URL / Code...)</option>
+                      </select>
+                    </div>
+
+                    {isCustomFlag && (
+                      <input 
+                        type="text" 
+                        placeholder="e.g. 🇸🇬 or sg or https://flagcdn.com/w160/sg.png"
+                        value={selectedVisa?.flag || ''} 
+                        onChange={e => setSelectedVisa({ ...selectedVisa, flag: e.target.value })}
+                        style={{ marginTop: '0.5rem' }}
+                        required 
+                      />
+                    )}
+                  </div>
+                );
+              })()}
               <div className={styles.formGroup}>
                 <label>Visa Type <span className="required-star">*</span></label>
                 <select 
@@ -408,10 +587,6 @@ export default function VisasAdmin() {
                   <option value="schengen">Stamped Visa - Schengen Countries</option>
                   <option value="other">Stamped Visa - Other Countries</option>
                   <option value="e-visa">E-Visa Destinations</option>
-                  <option value="asia">Asia</option>
-                  <option value="middle-east">Middle East</option>
-                  <option value="europe">Europe</option>
-                  <option value="americas">Americas</option>
                 </select>
               </div>
               <div className={styles.formGroup}>
@@ -612,7 +787,7 @@ export default function VisasAdmin() {
             </div>
 
             <div className={styles.formActions} style={{ marginTop: '3rem' }}>
-              <button type="button" className="btn btn-primary" onClick={() => setIsEditing(false)} style={{ marginRight: '1rem', padding: '0.75rem 2rem', fontSize: '1.1rem', cursor: 'pointer' }}>Cancel</button>
+              <button type="button" className="btn btn-primary" onClick={clearVisaFormState} style={{ marginRight: '1rem', padding: '0.75rem 2rem', fontSize: '1.1rem', cursor: 'pointer' }}>Cancel</button>
               <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem', cursor: 'pointer' }}>Save Visa</button>
             </div>
           </form>

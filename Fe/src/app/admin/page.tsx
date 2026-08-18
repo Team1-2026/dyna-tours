@@ -179,6 +179,7 @@ export default function AdminDashboard() {
   const [isPackagesMenuOpen, setIsPackagesMenuOpen] = useState(true);
   const [isGroupToursMenuOpen, setIsGroupToursMenuOpen] = useState(true);
   const [isCruiseMenuOpen, setIsCruiseMenuOpen] = useState(true);
+  const [isVisasMenuOpen, setIsVisasMenuOpen] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Hotels List Management Table Filters
@@ -1437,14 +1438,33 @@ export default function AdminDashboard() {
           </div>
 
           <div 
-            className={`${styles.menuItem} ${activeTab === 'visas' ? styles.menuItemActive : ''}`}
-            onClick={() => { setActiveTab('visas'); }}
+            className={`${styles.menuItem}`}
+            onClick={() => setIsVisasMenuOpen(!isVisasMenuOpen)}
+            style={{ cursor: 'pointer' }}
           >
             <div className={styles.menuItemLabel}>
               <span>🛂</span>
               <span>Visa</span>
             </div>
+            <span style={{ fontSize: '0.75rem' }}>{isVisasMenuOpen ? '▼' : '▶'}</span>
           </div>
+
+          {isVisasMenuOpen && (
+            <div className={styles.subMenuContainer}>
+              <div 
+                className={`${styles.subMenuItem} ${activeTab === 'visas' ? styles.subMenuItemActive : ''}`}
+                onClick={() => { setActiveTab('visas'); window.dispatchEvent(new Event('admin:view-visas')); }}
+              >
+                All Visas
+              </div>
+              <div 
+                className={`${styles.subMenuItem}`}
+                onClick={() => { setActiveTab('visas'); setTimeout(() => window.dispatchEvent(new Event('admin:add-new-visa')), 50); }}
+              >
+                Add New Visa
+              </div>
+            </div>
+          )}
 
           <div 
             className={`${styles.menuItem} ${activeTab === 'staff' ? styles.menuItemActive : ''}`}

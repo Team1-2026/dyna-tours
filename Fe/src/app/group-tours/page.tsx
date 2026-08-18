@@ -298,7 +298,10 @@ function GroupToursContent() {
           
           <div className={styles.overviewText}>
             {pageData?.overview_description ? (
-              <div dangerouslySetInnerHTML={{ __html: pageData.overview_description }} />
+              <div 
+                className={!isOverviewExpanded ? styles.overviewDescriptionClamped : undefined}
+                dangerouslySetInnerHTML={{ __html: pageData.overview_description }} 
+              />
             ) : (
               <>
                 <p>
@@ -318,14 +321,12 @@ function GroupToursContent() {
             )}
           </div>
           
-          {!pageData?.overview_description && (
-            <button 
-              className={styles.readMoreBtn} 
-              onClick={() => setIsOverviewExpanded(!isOverviewExpanded)}
-            >
-              {isOverviewExpanded ? 'Read Less ▲' : 'Read More ▼'}
-            </button>
-          )}
+          <button 
+            className={styles.readMoreBtn} 
+            onClick={() => setIsOverviewExpanded(!isOverviewExpanded)}
+          >
+            {isOverviewExpanded ? 'Read Less ▲' : 'Read More ▼'}
+          </button>
         </div>
       </section>
 

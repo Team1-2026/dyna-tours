@@ -51,6 +51,7 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
   const [tour, setTour] = useState<GroupTour | null>(null);
   const [relatedTours, setRelatedTours] = useState<GroupTour[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
 
   useEffect(() => {
     groupToursApi.getTours().then(allTours => {
@@ -286,9 +287,33 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
             {/* 1. Tour Overview */}
             <div className={styles.sectionCard}>
               <h2 className={styles.sectionHeaderTitle}>Tour Overview</h2>
-              <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: '#475569', whiteSpace: 'pre-line' }}>
-                {overviewText}
-              </p>
+              <div style={{ fontSize: '1.05rem', lineHeight: 1.7, color: '#475569', whiteSpace: 'pre-line' }}>
+                <p>
+                  {isOverviewExpanded || overviewText.length <= 260 
+                    ? overviewText 
+                    : `${overviewText.slice(0, 260)}...`}
+                </p>
+                {overviewText.length > 260 && (
+                  <button 
+                    onClick={() => setIsOverviewExpanded(!isOverviewExpanded)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#dc2626',
+                      fontWeight: 700,
+                      fontSize: '0.9375rem',
+                      cursor: 'pointer',
+                      padding: 0,
+                      marginTop: '0.6rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}
+                  >
+                    {isOverviewExpanded ? 'Read Less ▲' : 'Read More ▼'}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 2. Included Services */}

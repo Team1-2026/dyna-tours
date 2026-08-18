@@ -90,9 +90,11 @@ export default function Home() {
         }
 
         // Fetch Featured Hotels
-        const hotelData = await api.getHotels({ featured: true }).catch(() => []);
+        const hotelData = await api.getHotels().catch(() => []);
         if (isMounted && hotelData && hotelData.length > 0) {
-          setFeaturedHotels(hotelData);
+          const activeHotels = hotelData.filter(h => h.status !== 'Inactive');
+          const sorted = [...(activeHotels.length > 0 ? activeHotels : hotelData)].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+          setFeaturedHotels(sorted);
         }
 
         // Fetch Visas

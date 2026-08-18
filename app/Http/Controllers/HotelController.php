@@ -36,7 +36,7 @@ class HotelController extends Controller
             $query->where('featured', filter_var($request->featured, FILTER_VALIDATE_BOOLEAN));
         }
 
-        $hotels = $query->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC, id ASC')->with(['destination', 'facilities'])->get();
+        $hotels = $query->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC, id ASC')->with(['destination', 'facilities', 'rooms'])->get();
         return response()->json($hotels);
     }
 
