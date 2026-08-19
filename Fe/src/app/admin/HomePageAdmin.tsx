@@ -20,7 +20,7 @@ import RichTextEditor from '@/components/admin/RichTextEditor';
 import { defaultBottomContentHtml } from '@/components/home/HomeBottomContent';
 
 export default function HomePageAdmin() {
-  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'offers' | 'about' | 'testimonials' | 'cta' | 'reviews_content'>('hero');
+  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'offers' | 'testimonials' | 'cta' | 'reviews_content'>('hero');
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
@@ -34,7 +34,6 @@ export default function HomePageAdmin() {
   const [uploadingSlideIdx, setUploadingSlideIdx] = useState<number | null>(null);
   const [uploadingOfferIdx, setUploadingOfferIdx] = useState<number | null>(null);
   const [uploadingTestimonialIdx, setUploadingTestimonialIdx] = useState<number | null>(null);
-  const [uploadingAboutThumbnail, setUploadingAboutThumbnail] = useState<boolean>(false);
 
   const [aboutData, setAboutData] = useState({
     title: 'About Dyna Tours India',
@@ -163,31 +162,6 @@ export default function HomePageAdmin() {
     }
   };
 
-  const handleAboutThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image file size must be less than 5MB.');
-      return;
-    }
-
-    setUploadingAboutThumbnail(true);
-    setSaveStatus('Uploading video thumbnail...');
-    try {
-      const uploaded = await api.uploadImage(file);
-      setAboutData((prev) => ({ ...prev, videoThumbnail: uploaded.url }));
-      setSaveStatus('✓ Video thumbnail uploaded successfully!');
-      setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err: any) {
-      alert(err.message || 'Failed to upload thumbnail file');
-      setSaveStatus(null);
-    } finally {
-      setUploadingAboutThumbnail(false);
-      e.target.value = '';
-    }
-  };
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaveStatus('Saving changes...');
@@ -215,7 +189,7 @@ export default function HomePageAdmin() {
         <div>
           <h2 style={{ margin: 0, color: '#0C2745', fontWeight: 800, fontSize: '1.4rem' }}>Homepage Master CMS</h2>
           <p style={{ margin: '0.25rem 0 0 0', color: '#64748b', fontSize: '0.85rem' }}>
-            Customize hero slides, promotional offers, brand video, testimonials, and final CTA banners dynamically.
+            Customize hero slides, promotional offers, testimonials, and final CTA banners dynamically.
           </p>
         </div>
         <button
@@ -250,7 +224,6 @@ export default function HomePageAdmin() {
         {[
           { id: 'hero', label: '🎬 Hero Slides (4-6)' },
           { id: 'offers', label: '🏷️ Exclusive Deals' },
-          { id: 'about', label: '▶️ About & Brand Video' },
           { id: 'testimonials', label: '💬 Testimonials' },
         ].map((tab) => (
           <button
@@ -688,223 +661,7 @@ export default function HomePageAdmin() {
         </div>
       )}
 
-      {/* 3. About & Brand Video Editor */}
-      {activeSubTab === 'about' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div style={{ padding: '1.5rem', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc' }}>
-            <h4 style={{ margin: '0 0 1.25rem 0', color: '#0C2745', fontWeight: 800, fontSize: '1.1rem' }}>
-              🎥 Brand Video & About Dyna Tours Section
-            </h4>
-
-            {/* YouTube Video URL */}
-            <div style={{ marginBottom: '1.25rem', padding: '1rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e40af' }}>
-                  🔗 YouTube Video URL
-                </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const url = aboutData.youtubeUrl || '';
-                    let videoId = '';
-                    if (url.includes('youtu.be/')) {
-                      videoId = url.split('youtu.be/')[1]?.split('?')[0];
-                    } else if (url.includes('youtube.com/watch?v=')) {
-                      videoId = url.split('v=')[1]?.split('&')[0];
-                    }
-                    if (videoId) {
-                      setAboutData({
-                        ...aboutData,
-                        videoThumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-                      });
-                      setSaveStatus('✓ YouTube video thumbnail applied!');
-                      setTimeout(() => setSaveStatus(null), 3000);
-                    } else {
-                      alert('Please enter a valid YouTube URL first.');
-                    }
-                  }}
-                  style={{
-                    padding: '0.25rem 0.65rem',
-                    background: '#1e40af',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  ⚡ Auto-Set Thumbnail from YouTube
-                </button>
-              </div>
-              <input
-                type="text"
-                value={aboutData.youtubeUrl || ''}
-                placeholder="e.g. https://youtu.be/oH89HVptUpY or https://www.youtube.com/watch?v=..."
-                onChange={(e) => {
-                  const newUrl = e.target.value;
-                  let videoId = '';
-                  if (newUrl.includes('youtu.be/')) {
-                    videoId = newUrl.split('youtu.be/')[1]?.split('?')[0];
-                  } else if (newUrl.includes('youtube.com/watch?v=')) {
-                    videoId = newUrl.split('v=')[1]?.split('&')[0];
-                  }
-                  setAboutData({
-                    ...aboutData,
-                    youtubeUrl: newUrl,
-                    ...(videoId ? { videoThumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` } : {}),
-                  });
-                }}
-                style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '6px', border: '1px solid #93c5fd', background: '#ffffff', fontWeight: 600, fontSize: '0.9rem' }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', color: '#3b82f6' }}>
-                  This video opens in an interactive modal when users click the play button or thumbnail on the homepage About section.
-                </span>
-                {aboutData.youtubeUrl && (
-                  <a
-                    href={aboutData.youtubeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ fontSize: '0.75rem', color: '#1d4ed8', fontWeight: 700, textDecoration: 'underline' }}
-                  >
-                    ▶️ Test Video Link
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Title, Subtitle, Years of Experience */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Main Title</label>
-                <input
-                  type="text"
-                  value={aboutData.title}
-                  onChange={(e) => setAboutData({ ...aboutData, title: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Subtitle</label>
-                <input
-                  type="text"
-                  value={aboutData.subtitle}
-                  onChange={(e) => setAboutData({ ...aboutData, subtitle: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Years of Experience</label>
-                <input
-                  type="number"
-                  value={aboutData.yearsExperience}
-                  onChange={(e) => setAboutData({ ...aboutData, yearsExperience: parseInt(e.target.value) || 0 })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-            </div>
-
-            {/* Descriptions */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Primary Paragraph</label>
-                <textarea
-                  rows={3}
-                  value={aboutData.description1}
-                  onChange={(e) => setAboutData({ ...aboutData, description1: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Secondary Paragraph</label>
-                <textarea
-                  rows={3}
-                  value={aboutData.description2}
-                  onChange={(e) => setAboutData({ ...aboutData, description2: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-            </div>
-
-            {/* Video Thumbnail Image */}
-            <div>
-              <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
-                <span>Video Thumbnail Poster Image</span>
-                <span style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.75rem' }}>Size: 1200 × 800 px (3:2 / landscape)</span>
-              </label>
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                {aboutData.videoThumbnail && (
-                  <div style={{ position: 'relative', width: '70px', height: '48px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', flexShrink: 0 }}>
-                    <img
-                      src={getImageUrl(aboutData.videoThumbnail)}
-                      alt="Brand Video Thumbnail"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </div>
-                )}
-
-                <input
-                  type="file"
-                  id="about-thumbnail-file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handleAboutThumbnailUpload}
-                />
-
-                <button
-                  type="button"
-                  disabled={uploadingAboutThumbnail}
-                  onClick={() => document.getElementById('about-thumbnail-file')?.click()}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.35rem',
-                    padding: '0.6rem 1rem',
-                    background: uploadingAboutThumbnail ? '#94a3b8' : '#0C2745',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontWeight: 600,
-                    fontSize: '0.8rem',
-                    cursor: uploadingAboutThumbnail ? 'not-allowed' : 'pointer',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <span>{uploadingAboutThumbnail ? '⏳ Uploading...' : (aboutData.videoThumbnail ? '📤 Change Thumbnail' : '📁 Upload Thumbnail')}</span>
-                </button>
-
-                {aboutData.videoThumbnail && (
-                  <button
-                    type="button"
-                    onClick={() => setAboutData({ ...aboutData, videoThumbnail: '' })}
-                    title="Remove image"
-                    style={{
-                      padding: '0.6rem 0.75rem',
-                      background: '#fee2e2',
-                      color: '#dc2626',
-                      border: '1px solid #fecaca',
-                      borderRadius: '6px',
-                      fontWeight: 700,
-                      fontSize: '0.8rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-              <span style={{ display: 'block', fontSize: '0.72rem', color: '#64748b', marginTop: '0.3rem' }}>
-                Recommended size: <strong>1200 × 800 px</strong> (or 1600 × 900 px, max 5MB).
-              </span>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* 4. Testimonials */}
+      {/* 3. Testimonials */}
       {activeSubTab === 'testimonials' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {testimonials.map((t, idx) => (
