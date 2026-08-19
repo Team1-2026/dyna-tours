@@ -28,17 +28,35 @@ const getStatIcon = (iconName: string) => {
   }
 };
 
+const getYouTubeThumbnail = (url?: string) => {
+  if (!url) return null;
+  let videoId = '';
+  if (url.includes('youtu.be/')) {
+    videoId = url.split('youtu.be/')[1]?.split('?')[0];
+  } else if (url.includes('youtube.com/watch?v=')) {
+    videoId = url.split('v=')[1]?.split('&')[0];
+  }
+  if (videoId) {
+    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  }
+  return null;
+};
+
 export const AboutSection: React.FC<AboutSectionProps> = ({
   stats,
   title = 'About Dyna Tours India',
   subtitle = 'EXCELLENCE IN TRAVEL SINCE 2010',
   description1 = 'Dyna Tours India is a premier luxury travel management company dedicated to curating extraordinary, customized international holidays, heritage domestic tours, express visas, and corporate travel experiences.',
   description2 = 'With a passionate team of travel architects, 24/7 global concierge support, and direct partnerships with world-class airlines and luxury resorts, we ensure every journey is effortless, unforgettable, and tailored to your exact desires.',
-  videoThumbnail = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80',
-  youtubeUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+  videoThumbnail,
+  youtubeUrl = 'https://youtu.be/oH89HVptUpY',
   yearsExperience = 16,
 }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const ytThumbnail = getYouTubeThumbnail(youtubeUrl);
+  const displayThumbnail = (videoThumbnail && !videoThumbnail.includes('unsplash.com'))
+    ? videoThumbnail
+    : (ytThumbnail || 'https://img.youtube.com/vi/oH89HVptUpY/maxresdefault.jpg');
 
   return (
     <>
@@ -55,16 +73,22 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               transition={{ duration: 0.8 }}
               className="lg:col-span-6 relative"
             >
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl group">
+              <div 
+                onClick={() => setIsVideoOpen(true)}
+                className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl group cursor-pointer"
+              >
                 <div
                   className="h-[420px] sm:h-[500px] w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                  style={{ backgroundImage: `url('${videoThumbnail}')` }}
+                  style={{ backgroundImage: `url('${displayThumbnail}')` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-950/30 to-transparent" />
 
                 {/* Circular Play Button */}
                 <button
-                  onClick={() => setIsVideoOpen(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsVideoOpen(true);
+                  }}
                   className="absolute inset-0 m-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-600/90 text-white shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-115 hover:bg-red-500 group-hover:shadow-red-600/40"
                   aria-label="Play Brand Video"
                 >

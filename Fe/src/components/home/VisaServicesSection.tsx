@@ -102,6 +102,7 @@ export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
           {countries.slice(0, 6).map((item, idx) => {
             const flagUrl = getCountryFlagUrl(item.country, item.code);
             const visaUrl = getVisaCountryDetailUrl(item);
+            const isShowPrice = item.showPrice !== false && Boolean(item.startingPrice) && item.startingPrice.trim() !== '' && item.startingPrice.trim() !== '0';
 
             return (
               <motion.div
@@ -162,11 +163,13 @@ export const VisaServicesSection: React.FC<VisaServicesSectionProps> = ({
                 </div>
 
                 {/* Price & Apply Button */}
-                <div className="mt-6 flex items-center justify-between pt-4 border-t border-white/10">
-                  <div>
-                    <span className="block text-[10px] uppercase font-semibold text-slate-400">Starting From</span>
-                    <span className="text-xl font-extrabold text-white">{formatPrice(item.startingPrice)}</span>
-                  </div>
+                <div className={`mt-6 flex items-center ${isShowPrice ? 'justify-between' : 'justify-end'} pt-4 border-t border-white/10`}>
+                  {isShowPrice && (
+                    <div>
+                      <span className="block text-[10px] uppercase font-semibold text-slate-400">Starting From</span>
+                      <span className="text-xl font-extrabold text-white">{formatPrice(item.startingPrice)}</span>
+                    </div>
+                  )}
 
                   <Link
                     href={visaUrl}

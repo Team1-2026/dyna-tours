@@ -22,6 +22,7 @@ use App\Http\Controllers\API\StaffController;
 use App\Http\Controllers\API\CruiseController;
 use App\Http\Controllers\API\CruisePageController;
 use App\Http\Controllers\API\VisaPageController;
+use App\Http\Controllers\API\HomePageController;
 
 use App\Http\Controllers\API\ImageUploadController;
 
@@ -38,6 +39,10 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 // Public routes
+
+Route::get('/home-page', [HomePageController::class, 'show']);
+Route::post('/home-page', [HomePageController::class, 'update']);
+Route::put('/home-page', [HomePageController::class, 'update']);
 
 Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/destinations/{id}', [DestinationController::class, 'show']);

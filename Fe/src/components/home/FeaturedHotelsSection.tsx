@@ -24,6 +24,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Udaipur, Rajasthan',
       star_rating: 5,
       starting_price: 32000,
+      show_price: true,
       banner_image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
       category: '5-Star',
     },
@@ -33,6 +34,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Baa Atoll, Maldives',
       star_rating: 5,
       starting_price: 85000,
+      show_price: true,
       banner_image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=800&q=80',
       category: '5-Star',
     },
@@ -42,6 +44,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Kumarakom, Kerala',
       star_rating: 4,
       starting_price: 24000,
+      show_price: true,
       banner_image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
       category: '4-Star',
     },
@@ -51,6 +54,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Benaulim, Goa',
       star_rating: 5,
       starting_price: 28000,
+      show_price: true,
       banner_image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
       category: '5-Star',
     },
@@ -60,6 +64,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Kochi, Kerala',
       star_rating: 4,
       starting_price: 18500,
+      show_price: true,
       banner_image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
       category: '4-Star',
     },
@@ -69,6 +74,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
       city: 'Munnar, Kerala',
       star_rating: 3,
       starting_price: 11500,
+      show_price: true,
       banner_image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
       category: '3-Star',
     },
@@ -230,7 +236,11 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
           >
             {displayHotels.slice(0, 4).map((hotel: any, idx: number) => {
               const imgUrl = getHotelCardImage(hotel);
-              const price = hotel.starting_price || hotel.price || 18500;
+              const isShowPrice = hotel.show_price !== false && hotel.show_price !== 0 && String(hotel.show_price) !== '0' && String(hotel.show_price) !== 'false';
+              const rawPrice = hotel.price !== undefined && hotel.price !== null && hotel.price !== '' 
+                ? Number(hotel.price) 
+                : (hotel.starting_price !== undefined && hotel.starting_price !== null && hotel.starting_price !== '' ? Number(hotel.starting_price) : 0);
+              const shouldShowPrice = isShowPrice && rawPrice > 0;
               const rating = getHotelStarRating(hotel);
               const location = hotel.city || hotel.location || hotel.destination?.name || 'Luxury Destination';
               const hotelSlug = hotel.url_slug || hotel.id;
@@ -272,11 +282,13 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
                       </h3>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-100">
-                      <div>
-                        <span className="block text-[10px] uppercase font-semibold text-slate-500">Per Night</span>
-                        <span className="text-lg font-extrabold text-slate-900">{formatPrice(price)}</span>
-                      </div>
+                    <div className={`mt-6 flex items-center ${shouldShowPrice ? 'justify-between' : 'justify-end'} pt-4 border-t border-slate-100`}>
+                      {shouldShowPrice && (
+                        <div>
+                          <span className="block text-[10px] uppercase font-semibold text-slate-500">Per Night</span>
+                          <span className="text-lg font-extrabold text-slate-900">{formatPrice(rawPrice)}</span>
+                        </div>
+                      )}
 
                       <Link
                         href={`/hotels/${hotelSlug}`}

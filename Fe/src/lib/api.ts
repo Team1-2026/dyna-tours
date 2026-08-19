@@ -671,19 +671,67 @@ export const api = {
 
   // Visa operations
   getFallbackVisa: (id: string): VisaCountry => {
-    const cleanId = (id || '').toLowerCase().trim();
-    const found = mockVisas.find(v => v.id.toLowerCase() === cleanId || v.name.toLowerCase() === cleanId);
-    if (found) return found;
+    const raw = (id || '').toLowerCase().trim();
+    const cleanId = raw
+      .replace(/\(.*?\)/g, '')
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
 
-    const schengen = schengenCountries.find(s => s.id?.toLowerCase() === cleanId || s.name?.toLowerCase() === cleanId);
+    const aliasMap: Record<string, string> = {
+      'united-arab-emirates': 'uae',
+      'uae': 'uae',
+      'dubai': 'uae',
+      'united-kingdom': 'united-kingdom',
+      'uk': 'united-kingdom',
+      'great-britain': 'united-kingdom',
+      'united-states': 'united-states',
+      'united-states-of-america': 'united-states',
+      'usa': 'united-states',
+      'america': 'united-states',
+      'new-zealand': 'new-zealand',
+      'newzealand': 'new-zealand',
+      'south-korea': 'south-korea',
+      'southkorea': 'south-korea',
+      'south-africa': 'south-africa',
+      'southafrica': 'south-africa',
+      'schengen': 'france',
+      'europe': 'france',
+    };
+
+    const targetKey = aliasMap[cleanId] || cleanId;
+
+    const findMatch = (list: Partial<VisaCountry>[]) => {
+      return list.find(v => {
+        const vId = (v.id || '').toLowerCase();
+        const vSlug = (v.url_slug || '').toLowerCase();
+        const vName = (v.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        return (
+          vId === cleanId ||
+          vId === targetKey ||
+          vSlug === cleanId ||
+          vSlug === targetKey ||
+          vName === cleanId ||
+          vName === targetKey ||
+          (v.name || '').toLowerCase() === raw ||
+          (v.id || '').toLowerCase() === raw
+        );
+      });
+    };
+
+    const found = findMatch(mockVisas);
+    if (found) return found as VisaCountry;
+
+    const schengen = findMatch(schengenCountries);
     if (schengen) {
       return {
         id: schengen.id || cleanId,
-        name: schengen.name || cleanId,
+        name: schengen.name || 'Schengen (Europe)',
         flag: schengen.flag || '🇪🇺',
         type: 'stamped',
         price: schengen.price || '₹7,500',
-        processingTime: '10–15 Working Days',
+        show_price: schengen.show_price !== false,
+        processingTime: '5–10 Working Days',
         validity: 'Up to 90 Days',
         biometric: 'Required',
         requirements: [
@@ -706,22 +754,23 @@ export const api = {
         ],
         faqs: [
           { question: 'Is biometric appointment mandatory?', answer: 'Yes, biometric enrolment at VFS center is required for Schengen visa processing.' },
-          { question: 'How long does processing take?', answer: 'Normal processing time is 10 to 15 working days after submission.' }
+          { question: 'How long does processing take?', answer: 'Normal processing time is 5 to 10 working days after submission.' }
         ]
       };
     }
 
-    const other = otherCountries.find(o => o.id?.toLowerCase() === cleanId || o.name?.toLowerCase() === cleanId);
+    const other = findMatch(otherCountries);
     if (other) {
       return {
         id: other.id || cleanId,
         name: other.name || cleanId,
         flag: other.flag || '✈️',
-        type: 'stamped',
-        price: other.price || '₹8,500',
-        processingTime: '7–12 Working Days',
-        validity: 'Up to 180 Days',
-        biometric: 'Required',
+        type: (other.type as any) || 'stamped',
+        price: other.price || '₹6,500',
+        show_price: other.show_price !== false,
+        processingTime: other.processingTime || '5–7 Working Days',
+        validity: other.validity || '30 to 90 Days',
+        biometric: (other.biometric as any) || 'Required',
         requirements: [
           'Original Passport with minimum 6 months validity',
           'Visa application form duly filled and signed',
@@ -731,13 +780,14 @@ export const api = {
           'Employment proof / NOC / Leave approval letter'
         ],
         importantNotes: [
-          'Document details must match passport records exactly.'
+          'Document details must match passport records exactly.',
+          'Visa approval and validity are subject to immigration authority discretion.'
         ],
         terms: [
-          'Visa fees are non-refundable once submitted.'
+          'Visa fees are strictly non-refundable once submitted.'
         ],
         faqs: [
-          { question: 'How to apply?', answer: 'Contact Dyna Tours India for complete documentation and application assistance.' }
+          { question: 'How do I apply?', answer: `Contact Dyna Tours India for assistance with your ${other.name} visa.` }
         ]
       };
     }
@@ -749,7 +799,8 @@ export const api = {
       name: formattedName || 'Tourist',
       flag: '🌍',
       type: 'e-visa',
-      price: '₹3,500',
+      price: '₹2,999',
+      show_price: true,
       processingTime: '3–5 Working Days',
       validity: '30 Days',
       biometric: 'Not Required',
@@ -776,6 +827,7 @@ export const api = {
       if (data && data.length > 0) {
         return data.map(v => ({
           ...v,
+          show_price: v.show_price !== undefined ? Boolean(v.show_price) : true,
           processingTime: v.processing_time || v.processingTime || '3–5 Working Days',
           entryType: v.entry_type || v.entryType,
           stayPeriod: v.stay_period || v.stayPeriod,
@@ -797,6 +849,7 @@ export const api = {
       if (v && v.name) {
         return {
           ...v,
+          show_price: v.show_price !== undefined ? Boolean(v.show_price) : true,
           processingTime: v.processing_time || v.processingTime || '3–5 Working Days',
           entryType: v.entry_type || v.entryType,
           stayPeriod: v.stay_period || v.stayPeriod,
@@ -815,6 +868,7 @@ export const api = {
   createVisa: async (data: Partial<VisaCountry>): Promise<{ message: string; visa: VisaCountry }> => {
     const payload = {
       ...data,
+      show_price: data.show_price !== undefined ? Boolean(data.show_price) : true,
       processing_time: data.processingTime,
       entry_type: data.entryType,
       stay_period: data.stayPeriod,
@@ -829,6 +883,7 @@ export const api = {
   updateVisa: async (id: string, data: Partial<VisaCountry>): Promise<{ message: string; visa: VisaCountry }> => {
     const payload = {
       ...data,
+      show_price: data.show_price !== undefined ? Boolean(data.show_price) : true,
       processing_time: data.processingTime,
       entry_type: data.entryType,
       stay_period: data.stayPeriod,
@@ -1921,20 +1976,29 @@ export const contactPageApi = {
 export const homePageApi = {
   getHomePageData: async (): Promise<any> => {
     try {
+      const remote = await apiFetch<any>('/home-page').catch(() => null);
       if (typeof window !== 'undefined') {
         const local = localStorage.getItem('dyna_home_cms_data');
         if (local) {
           try {
             const parsed = JSON.parse(local);
-            const remote = await apiFetch<any>('/home-page').catch(() => null);
             return { ...(remote || {}), ...parsed };
           } catch {}
         }
       }
-      return await apiFetch<any>('/home-page');
+      return remote;
     } catch {
       return null;
     }
+  },
+  updateHomePageData: async (data: any): Promise<any> => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dyna_home_cms_data', JSON.stringify(data));
+    }
+    return await apiFetch<any>('/home-page', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }).catch(() => ({ message: 'Saved locally' }));
   },
 };
 

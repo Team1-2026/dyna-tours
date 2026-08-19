@@ -19,6 +19,7 @@ class Visa extends Model
         'flag',
         'type',
         'price',
+        'show_price',
         'processing_time',
         'validity',
         'biometric',
@@ -48,5 +49,6 @@ class Visa extends Model
         'terms' => 'array',
         'faqs' => 'array',
         'is_active' => 'boolean',
+        'show_price' => 'boolean',
     ];
 }

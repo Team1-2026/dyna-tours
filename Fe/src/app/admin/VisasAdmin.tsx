@@ -146,6 +146,7 @@ export default function VisasAdmin() {
       flag: '',
       type: 'e-visa',
       price: '',
+      show_price: true,
       processingTime: '',
       validity: '',
       biometric: 'No',
@@ -221,6 +222,7 @@ export default function VisasAdmin() {
             type: 'stamped' as const,
             region: 'schengen',
             price: country.price,
+            show_price: country.show_price !== false,
             processingTime: 'Please update in admin',
             validity: 'Please update in admin',
             biometric: 'Yes' as const,
@@ -254,6 +256,7 @@ export default function VisasAdmin() {
             type: 'stamped' as const,
             region: 'other',
             price: country.price,
+            show_price: country.show_price !== false,
             processingTime: 'Please update in admin',
             validity: 'Please update in admin',
             biometric: 'Yes' as const,
@@ -380,7 +383,7 @@ export default function VisasAdmin() {
                     <td>{visa.type?.toUpperCase() || 'E-VISA'}</td>
                     <td><span className="badge" style={{ background: visa.region === 'schengen' ? '#e0e7ff' : visa.region === 'other' ? '#fef3c7' : '#dcfce7', color: visa.region === 'schengen' ? '#3730a3' : visa.region === 'other' ? '#92400e' : '#166534', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600 }}>{visa.region === 'schengen' ? 'Schengen' : visa.region === 'other' ? 'Other Stamped' : visa.region || 'E-Visa'}</span></td>
                     <td>{visa.processingTime}</td>
-                    <td>{visa.price || '-'}</td>
+                    <td>{visa.show_price === false ? <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Hidden ({visa.price || '-'})</span> : (visa.price || '-')}</td>
                     <td>
                       <div className={styles.actionButtons}>
                         <button onClick={() => handleEdit(visa)} className="btn btn-primary" style={{ padding: '0.5rem 1rem', marginRight: '0.5rem', cursor: 'pointer' }}>Edit</button>
@@ -652,6 +655,16 @@ export default function VisasAdmin() {
                       style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
                     />
                     <span>Show on Home Page (Popular Visa Service)</span>
+                  </label>
+
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: '#0369a1', margin: 0 }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedVisa?.show_price !== false} 
+                      onChange={e => setSelectedVisa({ ...selectedVisa, show_price: e.target.checked })} 
+                      style={{ width: '18px', height: '18px', margin: 0, flexShrink: 0 }}
+                    />
+                    <span>Show Price (Display Starting Price on Website)</span>
                   </label>
 
                   <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, color: '#334155', margin: 0 }}>

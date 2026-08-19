@@ -64,6 +64,8 @@ export const ExclusiveDeals: React.FC<ExclusiveDealsProps> = ({ offers }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {offers.map((offer, idx) => {
             const isFeatured = idx === activeIndex;
+            const targetUrl = offer.linkTo || offer.ctaLink || '/contact';
+
             return (
               <motion.div
                 key={offer.id}
@@ -78,7 +80,7 @@ export const ExclusiveDeals: React.FC<ExclusiveDealsProps> = ({ offers }) => {
                 } bg-neutral-900`}
               >
                 {/* Background Image with Dark Overlay */}
-                <div className="relative h-64 w-full overflow-hidden">
+                <Link href={targetUrl} className="block relative h-64 w-full overflow-hidden cursor-pointer">
                   <div
                     className="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                     style={{ backgroundImage: `url('${offer.bgImage}')` }}
@@ -90,7 +92,7 @@ export const ExclusiveDeals: React.FC<ExclusiveDealsProps> = ({ offers }) => {
                     <Tag className="h-3.5 w-3.5" />
                     <span>{offer.discountBadge}</span>
                   </div>
-                </div>
+                </Link>
 
                 {/* Offer Details */}
                 <div className="p-6 flex flex-col justify-between h-[210px]">
@@ -99,9 +101,11 @@ export const ExclusiveDeals: React.FC<ExclusiveDealsProps> = ({ offers }) => {
                       <Clock className="h-3.5 w-3.5" />
                       <span>{offer.validity}</span>
                     </div>
-                    <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-1">
-                      {offer.title}
-                    </h3>
+                    <Link href={targetUrl} className="block">
+                      <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-1">
+                        {offer.title}
+                      </h3>
+                    </Link>
                     <p className="mt-2 text-xs text-neutral-400 line-clamp-2 leading-relaxed">
                       {offer.description}
                     </p>
@@ -114,10 +118,10 @@ export const ExclusiveDeals: React.FC<ExclusiveDealsProps> = ({ offers }) => {
                       </span>
                     )}
                     <Link
-                      href={offer.ctaLink}
+                      href={targetUrl}
                       className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors"
                     >
-                      <span>{offer.ctaText}</span>
+                      <span>{offer.ctaText || 'Claim Offer'}</span>
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </div>

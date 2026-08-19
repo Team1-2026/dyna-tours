@@ -560,7 +560,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
           {/* Right Side: Price block & Contact Form */}
           <div className={styles.sidebarSticky}>
             {/* Price Display and Offer Label Block */}
-            {((hotel.show_offer_label && hotel.offer_label) || (hotel.show_price && hotel.price)) && (
+            {((hotel.show_offer_label && hotel.offer_label) || (hotel.show_price !== false && Boolean(hotel.price) && Number(hotel.price) > 0)) && (
               <div className={styles.priceDisplayBlock}>
                 {hotel.show_offer_label && hotel.offer_label && (
                   <div>
@@ -569,7 +569,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     </span>
                   </div>
                 )}
-                {hotel.show_price && hotel.price && (
+                {hotel.show_price !== false && Boolean(hotel.price) && Number(hotel.price) > 0 && (
                   <div style={{ marginTop: '0.5rem' }}>
                     <span className={styles.priceLabel}>Best Available Price</span>
                     <div className={styles.priceNumber}>
@@ -770,21 +770,21 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
         {/* Full-width Sections Below Top Grid */}
         <div style={{ marginTop: '2.5rem' }}>
 
-          {/* 3. Room Categories Section */}
+          {/* 3. Available Room Categories Section */}
           {hotel.show_rooms && hotel.rooms && hotel.rooms.length > 0 && (
-            <div style={{ background: '#ffffff', padding: '2.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-premium)', marginBottom: '2.5rem', border: '1px solid var(--color-border)' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary-navy)', marginBottom: '0.5rem' }}>
-                Categories & Accommodations
+            <div className={styles.roomsSection} style={{ marginBottom: '3rem' }}>
+              <h2 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-secondary-navy)' }}>
+                Available Room Categories
               </h2>
-              <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
-                Select from our room categories and luxury suites.
+              <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>
+                Select from our premium accommodations. Rates include breakfast.
               </p>
 
               <div className={styles.roomsGrid}>
                 {hotel.rooms.map((room) => (
                   <div key={room.id} className={`${styles.roomCard} ${room.image || (room.images && room.images.length > 0) ? styles.hasImage : ''}`}>
                     
-                    {/* Room Image */}
+                    {/* Room multiple image slider */}
                     {(room.images && room.images.length > 0) ? (
                       <div className={styles.roomImgWrapper}>
                         <img 
@@ -803,69 +803,109 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                       </div>
                     ) : null}
 
-                    {/* Room Content */}
                     <div className={room.image || (room.images && room.images.length > 0) ? styles.roomContent : styles.roomContentDirect}>
                       <div style={{ flex: 1 }}>
                         <h3 className={styles.roomTitle}>{room.type}</h3>
                         
                         {room.description && (
-                          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '1.25rem', lineHeight: '1.6' }}>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '1rem', lineHeight: '1.6' }}>
                             {room.description}
                           </p>
                         )}
 
-                        {/* Specifications Badges */}
                         <div className={styles.roomSpecs}>
                           {room.size && (
                             <div className={styles.roomSpecItem}>
-                              <span className={styles.roomSpecLabel}>Size:</span> {room.size}
+                              <span className={styles.roomSpecLabel}>Size:</span>
+                              <span>{room.size}</span>
                             </div>
                           )}
                           {room.view && (
                             <div className={styles.roomSpecItem}>
-                              <span className={styles.roomSpecLabel}>View:</span> {room.view}
+                              <span className={styles.roomSpecLabel}>View:</span>
+                              <span>{room.view}</span>
                             </div>
                           )}
                           {room.bed_type && (
                             <div className={styles.roomSpecItem}>
-                              <span className={styles.roomSpecLabel}>Bed:</span> {room.bed_type}
+                              <span className={styles.roomSpecLabel}>Bed:</span>
+                              <span>{room.bed_type}</span>
                             </div>
                           )}
-                          {room.occupancy && (
-                            <div className={styles.roomSpecItem}>
-                              <span className={styles.roomSpecLabel}>Capacity:</span> {room.occupancy}
-                            </div>
-                          )}
-                          {room.breakfast && (
-                            <div className={styles.roomSpecItem} style={{ gridColumn: 'span 2' }}>
-                              <span className={styles.roomSpecLabel}>Meals:</span> {room.breakfast}
+                          <div className={styles.roomSpecItem}>
+                            <span className={styles.roomSpecLabel}>Breakfast:</span>
+                            <span>{room.breakfast || 'Included'}</span>
+                          </div>
+                          <div className={styles.roomSpecItem} style={{ gridColumn: 'span 2' }}>
+                            <span className={styles.roomSpecLabel}>Max Occupancy:</span>
+                            <span>{room.occupancy}</span>
+                          </div>
+                        </div>
+
+                        {/* Room specific amenities list */}
+                        {room.amenities && room.amenities.length > 0 && (
+                          <div style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {room.amenities.map(am => (
+                              <div key={am} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#f1f5f9', padding: '0.35rem 0.75rem', borderRadius: '1rem', border: '1px solid var(--color-border)', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-secondary-navy)' }}>
+                                <AmenityIcon name={am} size={16} />
+                                <span>{am}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className={styles.roomRightSection}>
+                        <div className={styles.roomPriceWrapper}>
+                          {room.show_price !== false && hotel.show_price !== false && (room.price || hotel.price) && (
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Avg / Night</span>
+                              <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-primary-red)' }}>
+                                ₹{room.price || hotel.price}
+                              </span>
+                              {room.remaining_rooms !== undefined && room.remaining_rooms !== null && (
+                                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#dc2626', background: '#fee2e2', padding: '0.2rem 0.5rem', borderRadius: '4px', marginTop: '0.25rem', display: 'inline-block', textAlign: 'center' }}>
+                                  Only {room.remaining_rooms} {room.remaining_rooms === 1 ? 'room' : 'rooms'} left!
+                                </span>
+                              )}
                             </div>
                           )}
                         </div>
-                      </div>
 
-                      {/* Room Price & Action CTA */}
-                      <div className={styles.roomRightSection}>
-                        {room.show_price !== false && (room.price || hotel.price) && (
-                          <div className={styles.roomPriceWrapper}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Starting From</span>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary-navy)' }}>
-                              ₹{room.price || hotel.price}
-                              <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}> / night</span>
-                            </div>
-                          </div>
+                        {room.video_url && (
+                          <button 
+                            type="button"
+                            className="btn btn-secondary roomVideoCTA" 
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.35rem',
+                              padding: '0.5rem 1rem',
+                              fontSize: '0.85rem',
+                              fontWeight: 700,
+                              borderRadius: 'var(--radius-sm)',
+                              border: '1px solid var(--color-border)',
+                              background: '#ffffff',
+                              color: 'var(--color-secondary-navy)',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              width: '100%'
+                            }}
+                            onClick={() => setActiveVideoUrl(room.video_url || null)}
+                          >
+                            🎥 Watch Video
+                          </button>
                         )}
-                        <a
-                          href="#enquiry-form"
-                          className="btn btn-primary btn-sm"
-                          style={{ minWidth: '130px', textAlign: 'center' }}
+
+                        <button 
+                          className="btn btn-primary roomCTA" 
                           onClick={() => {
-                            const enquirySection = document.getElementById('enquiry-form');
-                            enquirySection?.scrollIntoView({ behavior: 'smooth' });
+                            document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' });
                           }}
                         >
                           Enquire Room
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -874,7 +914,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
             </div>
           )}
 
-          {/* 4. Inclusions, Exclusions, and Privacy Policy / Terms */}
+          {/* 4. Inclusions & Exclusions */}
           {((hotel.inclusions && hotel.inclusions !== '<ul></ul>') || (hotel.exclusions && hotel.exclusions !== '<ul></ul>')) && (
             <div className={styles.inclusionsExclusionsGrid} style={{ marginBottom: '2.5rem' }}>
               {hotel.inclusions && hotel.inclusions !== '<ul></ul>' && (
@@ -904,12 +944,12 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
             </div>
           )}
 
-          {/* Terms & Conditions / Privacy Policy Section */}
+          {/* 5. Hotel Specific Policies, Terms & Privacy Section */}
           {hotel.terms_conditions && hotel.terms_conditions !== '<ul></ul>' && (
             <div className={styles.termsAccordion} style={{ marginBottom: '4rem' }}>
               <div className={styles.termsHeader} onClick={() => setIsTermsOpen(!isTermsOpen)}>
                 <h3 className={styles.termsTitle}>
-                  📝 Hotel Specific Policies, Terms & Privacy
+                  Hotel Specific Policies, Terms & Privacy
                 </h3>
                 <svg 
                   style={{ transform: isTermsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
@@ -926,150 +966,6 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
             </div>
           )}
         </div>
-
-        {/* Room Categories Section */}
-        {hotel.show_rooms && hotel.rooms && hotel.rooms.length > 0 && (
-          <div className={styles.roomsSection}>
-            <h2 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-secondary-navy)' }}>
-              Available Room Categories
-            </h2>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>
-              Select from our premium accommodations. Rates include breakfast.
-            </p>
-
-            <div className={styles.roomsGrid}>
-              {hotel.rooms.map((room) => (
-                <div key={room.id} className={`${styles.roomCard} ${room.image || (room.images && room.images.length > 0) ? styles.hasImage : ''}`}>
-                  
-                  {/* Room multiple image slider */}
-                  {(room.images && room.images.length > 0) ? (
-                    <div className={styles.roomImgWrapper}>
-                      <img 
-                        src={getImageUrl(room.images[0])} 
-                        alt={room.type} 
-                        className={styles.roomImg} 
-                      />
-                    </div>
-                  ) : room.image ? (
-                    <div className={styles.roomImgWrapper}>
-                      <img 
-                        src={getImageUrl(room.image)} 
-                        alt={room.type} 
-                        className={styles.roomImg} 
-                      />
-                    </div>
-                  ) : null}
-
-                  <div className={room.image || (room.images && room.images.length > 0) ? styles.roomContent : styles.roomContentDirect}>
-                    <div style={{ flex: 1 }}>
-                      <h3 className={styles.roomTitle}>{room.type}</h3>
-                      
-                      {room.description && (
-                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '1rem', lineHeight: '1.6' }}>
-                          {room.description}
-                        </p>
-                      )}
-
-                      <div className={styles.roomSpecs}>
-                        {room.size && (
-                          <div className={styles.roomSpecItem}>
-                            <span className={styles.roomSpecLabel}>Size:</span>
-                            <span>{room.size}</span>
-                          </div>
-                        )}
-                        {room.view && (
-                          <div className={styles.roomSpecItem}>
-                            <span className={styles.roomSpecLabel}>View:</span>
-                            <span>{room.view}</span>
-                          </div>
-                        )}
-                        {room.bed_type && (
-                          <div className={styles.roomSpecItem}>
-                            <span className={styles.roomSpecLabel}>Bedding:</span>
-                            <span>{room.bed_type}</span>
-                          </div>
-                        )}
-                        <div className={styles.roomSpecItem}>
-                          <span className={styles.roomSpecLabel}>Breakfast:</span>
-                          <span>{room.breakfast || 'Included'}</span>
-                        </div>
-                        <div className={styles.roomSpecItem} style={{ gridColumn: 'span 2' }}>
-                          <span className={styles.roomSpecLabel}>Max Occupancy:</span>
-                          <span>{room.occupancy}</span>
-                        </div>
-                      </div>
-
-                      {/* Room specific amenities list */}
-                      {room.amenities && room.amenities.length > 0 && (
-                        <div style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                          {room.amenities.map(am => (
-                            <div key={am} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#f1f5f9', padding: '0.35rem 0.75rem', borderRadius: '1rem', border: '1px solid var(--color-border)', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-secondary-navy)' }}>
-                              <AmenityIcon name={am} size={16} />
-                              <span>{am}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={styles.roomRightSection}>
-                      <div className={styles.roomPriceWrapper}>
-                        {room.show_price !== false && hotel.show_price && (room.price || hotel.price) && (
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Avg / Night</span>
-                            <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-primary-red)' }}>
-                              ₹{room.price || hotel.price}
-                            </span>
-                            {room.remaining_rooms !== undefined && room.remaining_rooms !== null && (
-                              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#dc2626', background: '#fee2e2', padding: '0.2rem 0.5rem', borderRadius: '4px', marginTop: '0.25rem', display: 'inline-block', textAlign: 'center' }}>
-                                Only {room.remaining_rooms} {room.remaining_rooms === 1 ? 'room' : 'rooms'} left!
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {room.video_url && (
-                        <button 
-                          type="button"
-                          className="btn btn-secondary roomVideoCTA" 
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.35rem',
-                            padding: '0.5rem 1rem',
-                            fontSize: '0.85rem',
-                            fontWeight: 700,
-                            borderRadius: 'var(--radius-sm)',
-                            border: '1px solid var(--color-border)',
-                            background: '#ffffff',
-                            color: 'var(--color-secondary-navy)',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            width: '100%'
-                          }}
-                          onClick={() => setActiveVideoUrl(room.video_url || null)}
-                        >
-                          🎥 Watch Video
-                        </button>
-                      )}
-
-                      <button 
-                        className="btn btn-primary roomCTA" 
-                        onClick={() => {
-                          document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                      >
-                        Book Now
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* RELATED HOTELS SECTION */}
         {relatedHotels.length > 0 && (

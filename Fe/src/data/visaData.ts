@@ -4,6 +4,7 @@ export interface VisaCountry {
   flag: string;
   type: 'e-visa' | 'stamped';
   price?: string;
+  show_price?: boolean;
   processingTime: string;
   validity: string;
   biometric: 'Required' | 'Not Required' | 'No' | 'Yes';
@@ -35,6 +36,7 @@ export const eVisaDestinations: VisaCountry[] = [
     flag: '🇸🇬',
     type: 'e-visa',
     price: '₹2,999',
+    show_price: true,
     processingTime: '3–5 Working Days',
     validity: '30 Days',
     biometric: 'Not Required',
@@ -71,6 +73,7 @@ export const eVisaDestinations: VisaCountry[] = [
     flag: '🇻🇳',
     type: 'e-visa',
     price: '₹2,499',
+    show_price: true,
     processingTime: '3–4 Working Days',
     validity: '30 Days',
     biometric: 'Not Required',
@@ -99,6 +102,7 @@ export const eVisaDestinations: VisaCountry[] = [
     flag: '🇯🇵',
     type: 'e-visa',
     price: '₹4,999',
+    show_price: true,
     processingTime: '5–7 Working Days',
     validity: '90 Days',
     biometric: 'Not Required',
@@ -129,6 +133,7 @@ export const eVisaDestinations: VisaCountry[] = [
     flag: '🇲🇾',
     type: 'e-visa',
     price: '₹2,199',
+    show_price: true,
     processingTime: '2–4 Working Days',
     validity: '30 Days',
     biometric: 'Not Required',
@@ -157,6 +162,7 @@ export const eVisaDestinations: VisaCountry[] = [
     flag: '🇰🇭',
     type: 'e-visa',
     price: '₹2,799',
+    show_price: true,
     processingTime: '3–5 Working Days',
     validity: '90 Days',
     biometric: 'No',
@@ -201,25 +207,31 @@ export const eVisaDestinations: VisaCountry[] = [
 ];
 
 export const schengenCountries: Partial<VisaCountry>[] = [
-  { id: 'france', name: 'France', flag: '🇫🇷', price: '₹7,500' },
-  { id: 'germany', name: 'Germany', flag: '🇩🇪', price: '₹7,500' },
-  { id: 'italy', name: 'Italy', flag: '🇮🇹', price: '₹7,500' },
-  { id: 'spain', name: 'Spain', flag: '🇪🇸', price: '₹7,500' },
-  { id: 'switzerland', name: 'Switzerland', flag: '🇨🇭', price: '₹7,500' },
-  { id: 'netherlands', name: 'Netherlands', flag: '🇳🇱', price: '₹7,500' },
-  { id: 'belgium', name: 'Belgium', flag: '🇧🇪', price: '₹7,500' },
-  { id: 'austria', name: 'Austria', flag: '🇦🇹', price: '₹7,500' }
+  { id: 'france', name: 'France', flag: '🇫🇷', price: '₹7,500', show_price: true },
+  { id: 'germany', name: 'Germany', flag: '🇩🇪', price: '₹7,500', show_price: true },
+  { id: 'italy', name: 'Italy', flag: '🇮🇹', price: '₹7,500', show_price: true },
+  { id: 'spain', name: 'Spain', flag: '🇪🇸', price: '₹7,500', show_price: true },
+  { id: 'switzerland', name: 'Switzerland', flag: '🇨🇭', price: '₹7,500', show_price: true },
+  { id: 'netherlands', name: 'Netherlands', flag: '🇳🇱', price: '₹7,500', show_price: true },
+  { id: 'belgium', name: 'Belgium', flag: '🇧🇪', price: '₹7,500', show_price: true },
+  { id: 'austria', name: 'Austria', flag: '🇦🇹', price: '₹7,500', show_price: true },
+  { id: 'greece', name: 'Greece', flag: '🇬🇷', price: '₹7,500', show_price: true },
+  { id: 'portugal', name: 'Portugal', flag: '🇵🇹', price: '₹7,500', show_price: true },
+  { id: 'sweden', name: 'Sweden', flag: '🇸🇪', price: '₹7,500', show_price: true },
 ];
 
 export const otherCountries: Partial<VisaCountry>[] = [
-  { id: 'uk', name: 'United Kingdom', flag: '🇬🇧', price: '₹12,000' },
-  { id: 'usa', name: 'United States', flag: '🇺🇸', price: '₹14,500' },
-  { id: 'canada', name: 'Canada', flag: '🇨🇦', price: '₹11,000' },
-  { id: 'australia', name: 'Australia', flag: '🇦🇺', price: '₹10,500' },
-  { id: 'japan', name: 'Japan', flag: '🇯🇵', price: '₹3,500' },
-  { id: 'south-korea', name: 'South Korea', flag: '🇰🇷', price: '₹4,000' },
-  { id: 'china', name: 'China', flag: '🇨🇳', price: '₹4,500' },
-  { id: 'uae', name: 'UAE', flag: '🇦🇪', price: '₹6,500' }
+  { id: 'united-states', name: 'United States', flag: '🇺🇸', price: '₹14,500', show_price: true },
+  { id: 'united-kingdom', name: 'United Kingdom', flag: '🇬🇧', price: '₹12,000', show_price: true },
+  { id: 'canada', name: 'Canada', flag: '🇨🇦', price: '₹11,000', show_price: true },
+  { id: 'australia', name: 'Australia', flag: '🇦🇺', price: '₹10,500', show_price: true },
+  { id: 'new-zealand', name: 'New Zealand', flag: '🇳🇿', price: '₹13,500', show_price: true },
+  { id: 'china', name: 'China', flag: '🇨🇳', price: '₹4,500', show_price: true },
+  { id: 'south-korea', name: 'South Korea', flag: '🇰🇷', price: '₹4,000', show_price: true },
+  { id: 'uae', name: 'United Arab Emirates (UAE)', flag: '🇦🇪', price: '₹6,500', show_price: true },
+  { id: 'turkey', name: 'Turkey', flag: '🇹🇷', price: '₹5,500', show_price: true },
+  { id: 'egypt', name: 'Egypt', flag: '🇪🇬', price: '₹4,500', show_price: true },
+  { id: 'south-africa', name: 'South Africa', flag: '🇿🇦', price: '₹6,500', show_price: true },
 ];
 
 export const generalFaqs = [

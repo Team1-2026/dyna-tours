@@ -105,13 +105,15 @@ export default function Home() {
             country: v.country || v.name,
             code: v.code || '',
             flagUrl: v.flag_url || v.flagUrl || `https://flagcdn.com/w160/${(v.code || 'in').toLowerCase()}.png`,
-            visaType: v.visa_type || v.visaType || 'Tourist Visa',
+            visaType: v.visa_type || v.visaType || (v.type === 'e-visa' ? 'Tourist / Express eVisa' : 'Stamped / Embassy Visa'),
             processingTime: v.processing_time || v.processingTime || '3-5 Days',
-            startingPrice: v.price ? formatPrice(v.price) : '₹3,499',
+            startingPrice: v.price ? formatPrice(v.price) : '',
+            showPrice: v.show_price !== false && (v.show_price as any) !== 0 && (v.show_price as any) !== '0' && (v.show_price as any) !== 'false',
             popular: Boolean(v.popular),
             urlSlug: v.url_slug || v.id,
           }));
-          setVisaCountries(formattedVisas);
+          const sortedVisas = [...formattedVisas].sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
+          setVisaCountries(sortedVisas);
         }
 
         // Fetch CMS Home Data if configured in Laravel Admin Panel

@@ -147,7 +147,7 @@ export default function AdminDashboard() {
 
   const [newHotel, setNewHotel] = useState<Partial<Hotel>>({
     id: '', name: '', destination_id: '', short_description: '', about: '',
-    location: '', distance_from_attractions: '', category: '5-Star', price: 100,
+    location: '', distance_from_attractions: '', category: '5-Star', price: 0,
     offer_label: '', featured: false, show_rooms: true, show_offer_label: true,
     show_price: true, order_no: null, status: 'Active', country: '', state: '',
     city: '', inclusions: '', exclusions: '', terms_conditions: '',
@@ -792,9 +792,9 @@ export default function AdminDashboard() {
 
   const handleHotelToggle = (field: 'featured' | 'show_rooms' | 'show_offer_label' | 'show_price') => {
     if (isCreatingHotel) {
-      setNewHotel(prev => ({ ...prev, [field]: !prev[field] }));
+      setNewHotel(prev => ({ ...prev, [field]: prev[field] === undefined ? false : !prev[field] }));
     } else if (selectedHotel) {
-      setSelectedHotel(prev => prev ? { ...prev, [field]: !prev[field] } : null);
+      setSelectedHotel(prev => prev ? { ...prev, [field]: prev[field] === undefined ? false : !prev[field] } : null);
     }
   };
 
@@ -1058,6 +1058,9 @@ export default function AdminDashboard() {
         }
 
         const isExisting = hotels.some(h => h.id === hotelId);
+        const showPriceVal = dataToSave.show_price !== false && (dataToSave.show_price as any) !== 0 && (dataToSave.show_price as any) !== '0';
+        const priceVal = dataToSave.price !== null && dataToSave.price !== undefined && (dataToSave.price as any) !== '' ? Number(dataToSave.price) : null;
+        
         const response = isExisting
           ? await api.updateHotel(hotelId, {
               ...dataToSave,
@@ -1066,7 +1069,9 @@ export default function AdminDashboard() {
               name: hotelName,
               destination_id: destId,
               facilities: facilityIds as any,
-              rooms: roomsToSave
+              rooms: roomsToSave,
+              show_price: showPriceVal,
+              price: priceVal,
             })
           : await api.createHotel({
               ...dataToSave,
@@ -1075,13 +1080,18 @@ export default function AdminDashboard() {
               name: hotelName,
               destination_id: destId,
               facilities: facilityIds as any,
-              rooms: roomsToSave
+              rooms: roomsToSave,
+              show_price: showPriceVal,
+              price: priceVal,
             });
         setSaveStatus('✓ Hotel saved successfully!');
         setIsCreatingHotel(false);
         setSelectedHotelId(response.hotel.id);
         refreshData();
       } else {
+        const showPriceVal = dataToSave.show_price !== false && (dataToSave.show_price as any) !== 0 && (dataToSave.show_price as any) !== '0';
+        const priceVal = dataToSave.price !== null && dataToSave.price !== undefined && (dataToSave.price as any) !== '' ? Number(dataToSave.price) : null;
+
         const response = await api.updateHotel(selectedHotelId, {
           name: dataToSave.name,
           destination_id: dataToSave.destination_id,
@@ -1093,8 +1103,8 @@ export default function AdminDashboard() {
           featured: dataToSave.featured,
           show_rooms: dataToSave.show_rooms,
           show_offer_label: dataToSave.show_offer_label,
-          show_price: dataToSave.show_price,
-          price: dataToSave.price,
+          show_price: showPriceVal,
+          price: priceVal,
           offer_label: dataToSave.offer_label,
           gallery: dataToSave.gallery,
           facilities: facilityIds as any,
@@ -1267,7 +1277,7 @@ export default function AdminDashboard() {
                   setSelectedHotel(null);
                   setNewHotel({
                     id: '', name: '', destination_id: destinations[0]?.id || '', short_description: '', about: '',
-                    location: '', distance_from_attractions: '', category: '5-Star', price: 100,
+                    location: '', distance_from_attractions: '', category: '5-Star', price: 0,
                     offer_label: '', featured: false, show_rooms: true, show_offer_label: true,
                     show_price: true, order_no: nextHotelOrder, status: 'Active', country: 'India', state: 'Kerala',
                     city: 'Munnar', inclusions: '', exclusions: '', terms_conditions: '',
@@ -1782,7 +1792,7 @@ export default function AdminDashboard() {
                         setIsCreatingHotel(true);
                         setNewHotel({
                           id: '', name: '', destination_id: destinations[0]?.id || '', short_description: '', about: '',
-                          location: '', distance_from_attractions: '', category: '5-Star', price: 100,
+                          location: '', distance_from_attractions: '', category: '5-Star', price: 0,
                           offer_label: '', featured: false, show_rooms: true, show_offer_label: true,
                           show_price: true, order_no: nextHotelOrder, status: 'Active', country: 'India', state: 'Kerala',
                           city: 'Munnar', inclusions: '', exclusions: '', terms_conditions: '',
@@ -2050,16 +2060,16 @@ export default function AdminDashboard() {
 
                       <div className={styles.formRow}>
                         <div className="formGroup">
-                          <label htmlFor="price">Price Starting From <span className="required-star">*</span></label>
+                          <label htmlFor="price">Price Starting From</label>
                           <div style={{ display: 'flex', alignItems: 'center' }}>
                             <span style={{ padding: '0.75rem', background: '#f1f5f9', border: '1px solid var(--color-border)', borderRight: 'none', borderRadius: 'var(--radius-md) 0 0 var(--radius-md)', fontWeight: 700 }}>₹</span>
                             <input
                               type="text"
                               name="price"
                               id="price"
-                              placeholder="Enter price"
+                              placeholder="Enter price (optional)"
                               style={{ borderRadius: '0 var(--radius-md) var(--radius-md) 0' }}
-                              value={isCreatingHotel ? newHotel.price || '' : selectedHotel?.price || ''}
+                              value={isCreatingHotel ? (newHotel.price ?? '') : (selectedHotel?.price ?? '')}
                               onChange={handleHotelTextChange}
                             />
                           </div>
@@ -2117,7 +2127,7 @@ export default function AdminDashboard() {
                           <label className={styles.checklistItem}>
                             <input
                               type="checkbox"
-                              checked={isCreatingHotel ? newHotel.show_price : selectedHotel?.show_price || false}
+                              checked={isCreatingHotel ? (newHotel.show_price !== false && (newHotel.show_price as any) !== 0 && (newHotel.show_price as any) !== '0') : (selectedHotel?.show_price !== false && (selectedHotel?.show_price as any) !== 0 && (selectedHotel?.show_price as any) !== '0')}
                               onChange={() => handleHotelToggle('show_price')}
                             />
                             <span>Show Price</span>

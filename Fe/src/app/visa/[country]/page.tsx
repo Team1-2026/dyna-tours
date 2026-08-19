@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, formatPrice } from '@/lib/api';
 import styles from './country.module.css';
 import VisaFAQ from '@/components/visa/VisaFAQ';
 import VisaEnquiryForm from '@/components/visa/VisaEnquiryForm';
@@ -134,10 +134,10 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
                 <span className={styles.keyInfoValue}>{countryData.stayPeriod}</span>
               </div>
             )}
-            {countryData.price && (
+            {countryData.show_price !== false && (countryData.show_price as any) !== 0 && (countryData.show_price as any) !== '0' && countryData.price && (
               <div className={styles.keyInfoItem}>
                 <span className={styles.keyInfoLabel}>Starting Price</span>
-                <span className={styles.keyInfoValue}>{countryData.price}</span>
+                <span className={styles.keyInfoValue}>{formatPrice(countryData.price)}</span>
               </div>
             )}
           </div>

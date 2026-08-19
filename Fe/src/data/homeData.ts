@@ -22,6 +22,7 @@ export interface ExclusiveOffer {
   bgImage: string;
   ctaText: string;
   ctaLink: string;
+  linkTo?: string;
   code?: string;
 }
 
@@ -45,6 +46,7 @@ export interface VisaCountryCard {
   visaType: string;
   processingTime: string;
   startingPrice: string;
+  showPrice?: boolean;
   popular?: boolean;
   urlSlug?: string;
 }
@@ -169,6 +171,7 @@ export const defaultOffers: ExclusiveOffer[] = [
     bgImage: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1000&q=80',
     ctaText: 'Claim Offer',
     ctaLink: '/holidays?offer=europe-summer',
+    linkTo: '/holidays?offer=europe-summer',
     code: 'SUMMER2026',
   },
   {
@@ -181,6 +184,7 @@ export const defaultOffers: ExclusiveOffer[] = [
     bgImage: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
     ctaText: 'View Resort Deals',
     ctaLink: '/hotels?location=Maldives',
+    linkTo: '/hotels?location=Maldives',
     code: 'MALDIVESVIP',
   },
   {
@@ -193,6 +197,7 @@ export const defaultOffers: ExclusiveOffer[] = [
     bgImage: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1000&q=80',
     ctaText: 'Apply Now',
     ctaLink: '/visa',
+    linkTo: '/visa',
     code: 'EXPRESSVISA',
   },
   {
@@ -205,6 +210,7 @@ export const defaultOffers: ExclusiveOffer[] = [
     bgImage: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=1000&q=80',
     ctaText: 'Book Cruise',
     ctaLink: '/cruise',
+    linkTo: '/cruise',
     code: 'SAILFREE',
   },
 ];
@@ -280,102 +286,112 @@ export const defaultThemes: TravelTheme[] = [
 
 export const defaultVisaCountries: VisaCountryCard[] = [
   {
-    id: '1',
+    id: 'uae',
     country: 'United Arab Emirates (UAE)',
     code: 'AE',
     flagUrl: 'https://flagcdn.com/w160/ae.png',
     visaType: 'Tourist / Express eVisa',
     processingTime: '24-48 Hours',
-    startingPrice: '₹6,499',
+    startingPrice: '₹6,500',
+    showPrice: true,
     popular: true,
-    urlSlug: 'united-arab-emirates',
+    urlSlug: 'uae',
   },
   {
-    id: '2',
+    id: 'france',
     country: 'Schengen (Europe)',
     code: 'EU',
     flagUrl: 'https://flagcdn.com/w160/eu.png',
     visaType: 'Multiple Entry Tourist',
     processingTime: '5-10 Business Days',
-    startingPrice: '₹9,999',
+    startingPrice: '₹7,500',
+    showPrice: true,
     popular: true,
-    urlSlug: 'schengen',
+    urlSlug: 'france',
   },
   {
-    id: '3',
+    id: 'uk',
     country: 'United Kingdom',
     code: 'GB',
     flagUrl: 'https://flagcdn.com/w160/gb.png',
     visaType: 'Standard Visitor Visa',
     processingTime: '7-12 Business Days',
-    startingPrice: '₹14,500',
+    startingPrice: '₹12,000',
+    showPrice: true,
     popular: true,
-    urlSlug: 'united-kingdom',
+    urlSlug: 'uk',
   },
   {
-    id: '4',
+    id: 'singapore',
     country: 'Singapore',
     code: 'SG',
     flagUrl: 'https://flagcdn.com/w160/sg.png',
     visaType: 'E-Visa (30 Days)',
     processingTime: '3-4 Business Days',
     startingPrice: '₹2,999',
+    showPrice: true,
     popular: true,
     urlSlug: 'singapore',
   },
   {
-    id: '5',
+    id: 'thailand',
     country: 'Thailand',
     code: 'TH',
     flagUrl: 'https://flagcdn.com/w160/th.png',
     visaType: 'Visa on Arrival / eVisa',
     processingTime: '24 Hours',
     startingPrice: '₹2,499',
+    showPrice: true,
     popular: true,
     urlSlug: 'thailand',
   },
   {
-    id: '6',
+    id: 'malaysia',
     country: 'Malaysia',
     code: 'MY',
     flagUrl: 'https://flagcdn.com/w160/my.png',
     visaType: 'eNTRI / Tourist Visa',
     processingTime: '2-3 Business Days',
     startingPrice: '₹2,199',
+    showPrice: true,
     popular: false,
     urlSlug: 'malaysia',
   },
   {
-    id: '7',
+    id: 'japan',
     country: 'Japan',
     code: 'JP',
     flagUrl: 'https://flagcdn.com/w160/jp.png',
     visaType: 'Short-term Tourist',
     processingTime: '4-6 Business Days',
-    startingPrice: '₹3,499',
+    startingPrice: '₹4,999',
+    showPrice: true,
     popular: false,
     urlSlug: 'japan',
   },
   {
-    id: '8',
+    id: 'usa',
     country: 'United States of America',
     code: 'US',
     flagUrl: 'https://flagcdn.com/w160/us.png',
     visaType: 'B1/B2 Tourist Visa',
     processingTime: 'Appointment Assistance',
-    startingPrice: '₹16,999',
+    startingPrice: '₹14,500',
+    showPrice: true,
     popular: true,
-    urlSlug: 'united-states',
+    urlSlug: 'usa',
   },
   {
-    id: '9',
+    id: 'canada',
     country: 'Canada',
     code: 'CA',
     flagUrl: 'https://flagcdn.com/w160/ca.png',
     visaType: 'Visitor Visa (10 Yrs)',
     processingTime: '15-20 Business Days',
-    startingPrice: '₹12,499',
+    startingPrice: '₹11,000',
+    showPrice: true,
     popular: false,
+    urlSlug: 'canada',
   },
 ];
 

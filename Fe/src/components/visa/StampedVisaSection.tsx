@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { VisaCountry } from '@/data/visaData';
+import { formatPrice } from '@/lib/api';
 import VisaFlag from '@/components/visa/VisaFlag';
 import styles from '../../app/visa/page.module.css';
 
@@ -29,9 +30,11 @@ export default function StampedVisaSection({ schengenCountries, otherCountries }
                 <VisaFlag flag={country.flag} countryName={country.name} size="md" />
                 <div className={styles.visaCardContent}>
                   <h3 className={styles.countryName}>{country.name}</h3>
-                  <div className={styles.visaPrice}>
-                    Starting from <strong>{country.price}</strong>
-                  </div>
+                  {country.show_price !== false && (country.show_price as any) !== 0 && (country.show_price as any) !== '0' && country.price && (
+                    <div className={styles.visaPrice}>
+                      Starting from <strong>{formatPrice(country.price)}</strong>
+                    </div>
+                  )}
                   <div className={styles.learnMore}>
                     Learn More
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -55,9 +58,11 @@ export default function StampedVisaSection({ schengenCountries, otherCountries }
                 <VisaFlag flag={country.flag} countryName={country.name} size="md" />
                 <div className={styles.visaCardContent}>
                   <h3 className={styles.countryName}>{country.name}</h3>
-                  <div className={styles.visaPrice}>
-                    Starting from <strong>{country.price}</strong>
-                  </div>
+                  {country.show_price !== false && (country.show_price as any) !== 0 && (country.show_price as any) !== '0' && country.price && (
+                    <div className={styles.visaPrice}>
+                      Starting from <strong>{formatPrice(country.price)}</strong>
+                    </div>
+                  )}
                   <div className={styles.learnMore}>
                     Learn More
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
