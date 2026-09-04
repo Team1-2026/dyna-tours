@@ -85,7 +85,7 @@ function HotelsDirectoryContent() {
       {/* 1. Banner Image */}
       <div className={styles.bannerContainer}>
         <img 
-          src="/images/maldives.png" 
+          src="/images/hotels_banner.jpg" 
           alt="Luxury Resort Banner" 
           className={styles.bannerImage}
         />

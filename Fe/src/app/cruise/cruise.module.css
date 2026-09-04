@@ -6,8 +6,10 @@
 .heroBanner {
   position: relative;
   height: 480px;
+  min-height: 480px;
   background-size: cover;
-  background-position: center;
+  background-position: left center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,7 +20,7 @@
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.85) 100%);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.6) 100%);
 }
 
 .heroContent {
@@ -43,10 +45,12 @@
 }
 
 .heroTitle {
+  color: #ffffff;
   font-size: 3rem;
   font-weight: 800;
   margin-bottom: 1rem;
   line-height: 1.2;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
 }
 
 .heroSubtitle {

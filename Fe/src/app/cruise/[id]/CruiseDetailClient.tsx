@@ -112,7 +112,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
       {/* 1. Banner */}
       <section
         className={styles.heroBanner}
-        style={{ backgroundImage: `url(${cruise.banner_image || 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1920&q=80'})` }}
+        style={{ backgroundImage: `url(${(!cruise.banner_image || cruise.banner_image.includes('unsplash.com')) ? '/images/cruise_banner.jpg' : cruise.banner_image})` }}
       >
         <div className={styles.heroOverlay} />
         <div className="container">

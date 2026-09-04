@@ -235,7 +235,7 @@ export default async function AboutUsPage() {
   };
 
   // Default image fallbacks matching design
-  const heroBg = data?.hero_bg_image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80';
+  const heroBg = (!data?.hero_bg_image || data.hero_bg_image.includes('unsplash.com')) ? '/images/about_banner.jpg' : data.hero_bg_image;
   const circlePhoto = data?.overview_image_1 || '/images/story_circle.jpg';
   const director1Photo = '/images/jomy_milbin.jpg';
   const director2Photo = '/images/thomas_john.jpg';

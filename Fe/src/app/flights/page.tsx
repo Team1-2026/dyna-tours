@@ -67,7 +67,7 @@ export default async function FlightPage() {
     faqs
   } = pageData;
 
-  const bgStyle = hero_image ? { backgroundImage: `url(${hero_image})` } : { backgroundImage: 'url(https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop)' };
+  const bgStyle = hero_image ? { backgroundImage: `url(${hero_image})` } : { backgroundImage: 'url(/images/flights_banner.jpg)' };
   const ctaBgStyle = cta_bg_image ? { backgroundImage: `url(${cta_bg_image})` } : { backgroundImage: 'url(https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=2070&auto=format&fit=crop)' };
   
   const whatsappLink = whatsapp_number ? `https://wa.me/${whatsapp_number.replace(/\+/g, '')}` : 'https://wa.me/';

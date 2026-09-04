@@ -115,7 +115,7 @@ export default async function ContactUsPage() {
       {/* 1. Hero Banner */}
       <section 
         className={styles.heroSection}
-        style={{ backgroundImage: `url(${data.hero_bg_image})` }}
+        style={{ backgroundImage: `url(${(!data.hero_bg_image || data.hero_bg_image.includes('unsplash.com')) ? '/images/contact_banner.jpg' : data.hero_bg_image})` }}
       >
         <div className={styles.heroOverlay} />
         

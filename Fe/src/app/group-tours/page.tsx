@@ -223,7 +223,7 @@ function GroupToursContent() {
     }
   };
 
-  const defaultBanner = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=2000';
+  const defaultBanner = '/images/group_tours_banner.jpg';
   const defaultOverviewImage = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000';
 
   return (
@@ -232,7 +232,7 @@ function GroupToursContent() {
       {/* 1. Hero Section */}
       <section 
         className={styles.hero} 
-        style={{ backgroundImage: `url(${pageData?.banner_image || defaultBanner})` }}
+        style={{ backgroundImage: `url(${(!pageData?.banner_image || pageData.banner_image.includes('unsplash.com')) ? defaultBanner : pageData.banner_image})` }}
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>

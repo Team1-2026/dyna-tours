@@ -8,13 +8,12 @@
 /* 1. Hero Section */
 .hero {
   position: relative;
-  min-height: 440px;
+  min-height: 460px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background-position: center 35%;
   color: #ffffff;
   padding: 7rem 2rem 5rem;
 }
@@ -22,7 +21,7 @@
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.9) 100%);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.35) 0%, rgba(15, 23, 42, 0.65) 100%);
 }
 
 .heroContent {

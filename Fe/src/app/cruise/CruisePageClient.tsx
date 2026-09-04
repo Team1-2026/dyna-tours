@@ -87,12 +87,17 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
     }
   };
 
+  const getBannerUrl = (img?: string | null) => {
+    if (!img || img.includes('unsplash.com')) return '/images/cruise_banner.jpg';
+    return img.startsWith('http') ? img : `http://127.0.0.1:8000${img}`;
+  };
+
   return (
     <div className={styles.pageContainer}>
       {/* 1. Hero Banner */}
       <section
         className={styles.heroBanner}
-        style={{ backgroundImage: `url(${pageData.banner_image || 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1920&q=80'})` }}
+        style={{ backgroundImage: `url(${getBannerUrl(pageData.banner_image)})` }}
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>

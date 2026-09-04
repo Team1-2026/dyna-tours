@@ -13,7 +13,7 @@ export default async function CruisePage() {
   let pageData: CruisePageData = {
     banner_title: 'Cruise Holidays',
     banner_tagline: "Sail in Luxury – Discover the World's Most Spectacular Cruise Journeys",
-    banner_image: 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1920&q=80',
+    banner_image: '/images/cruise_banner.jpg',
     overview_heading: 'Experience Unrivalled Luxury on the High Seas',
     overview_description: 'Embark on unforgettable ocean and river cruise journeys tailored for comfort, romance, and adventure.',
     overview_image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1000&q=80',

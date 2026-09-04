@@ -295,7 +295,7 @@ export default function ToursPage() {
     <div>
       {/* Header Banner */}
       <section className={styles.pageHeader}>
-        <div className="container">
+        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <h1 className={styles.pageTitle}>Explore Destination Packages</h1>
           <p className={styles.pageSubtitle}>
             Find the perfect itinerary tailored to your travel preference and budget limits.

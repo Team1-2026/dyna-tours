@@ -90,13 +90,14 @@
 /* 1. HERO BANNER SECTION */
 .heroSection {
   position: relative;
-  min-height: 380px;
+  min-height: 480px;
   display: flex;
   align-items: center;
   background-size: cover;
-  background-position: center;
+  background-position: left center;
+  background-repeat: no-repeat;
   color: #ffffff;
-  padding: 4rem 0 3rem;
+  padding: 5rem 0 4rem;
   overflow: hidden;
 }
 
@@ -105,9 +106,9 @@
   inset: 0;
   background: linear-gradient(
     90deg,
-    rgba(15, 23, 42, 0.82) 0%,
-    rgba(15, 23, 42, 0.65) 50%,
-    rgba(15, 23, 42, 0.4) 100%
+    rgba(15, 23, 42, 0.75) 0%,
+    rgba(15, 23, 42, 0.5) 50%,
+    rgba(15, 23, 42, 0.3) 100%
   );
   z-index: 1;
 }

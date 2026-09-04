@@ -199,7 +199,7 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
       {/* Hero Banner */}
       <section 
         className={styles.heroSection}
-        style={{ backgroundImage: `url('${getImageUrl(tour?.banner_image || tour?.image || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=2000')}')` }}
+        style={{ backgroundImage: `url('${getImageUrl(tour?.banner_image || tour?.image || '/images/group_tours_banner.jpg')}')` }}
       >
         <div className={styles.heroOverlay} />
         <div className="container">

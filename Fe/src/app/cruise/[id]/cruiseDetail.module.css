@@ -6,9 +6,11 @@
 
 .heroBanner {
   position: relative;
-  height: 420px;
+  height: 440px;
+  min-height: 440px;
   background-size: cover;
-  background-position: center;
+  background-position: left center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   color: #ffffff;
