@@ -114,13 +114,18 @@ export default function TourCard({ tour, layout = 'vertical' }: TourCardProps) {
           <span>{tour.destination}</span>
         </p>
 
-        <p className={styles.description}>
-          {layout === 'horizontal' 
-            ? tour.description 
-            : (tour.description.length > 110 
-                ? `${tour.description.substring(0, 107)}...` 
-                : tour.description)}
-        </p>
+        {(() => {
+          const cleanDesc = (tour.description || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+          return (
+            <p className={styles.description}>
+              {layout === 'horizontal' 
+                ? cleanDesc 
+                : (cleanDesc.length > 110 
+                    ? `${cleanDesc.substring(0, 107)}...` 
+                    : cleanDesc)}
+            </p>
+          );
+        })()}
 
         {layout === 'horizontal' && (
           <div className={styles.highlightsContainer}>

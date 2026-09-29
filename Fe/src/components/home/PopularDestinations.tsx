@@ -50,6 +50,11 @@ const fallbackPool = [
   'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1000&q=80',
 ];
 
+const stripHtml = (html?: string | null) => {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+};
+
 const getDestinationImage = (item: DestinationItem, idx: number) => {
   const raw = item.banner_image || item.image;
   if (raw && !raw.startsWith('/images/')) {
@@ -256,7 +261,7 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
 
                     {item.overview && (
                       <p className="mt-2 text-xs text-neutral-200 line-clamp-2 max-w-lg leading-relaxed font-light">
-                        {item.overview}
+                        {stripHtml(item.overview)}
                       </p>
                     )}
 
