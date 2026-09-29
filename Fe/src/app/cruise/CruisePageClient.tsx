@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Cruise, CruisePageData, api } from '@/lib/api';
 import styles from './cruise.module.css';
-import CountryCodeSelect from '@/components/CountryCodeSelect';
-import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 
 interface Props {
   initialPageData: CruisePageData;
@@ -15,14 +13,6 @@ interface Props {
 export default function CruisePageClient({ initialPageData, initialCruises }: Props) {
   const [pageData] = useState<CruisePageData>(initialPageData);
   const [cruises] = useState<Cruise[]>(initialCruises);
-  const [countryCode, setCountryCode] = useState('+91');
-  const [expandedCruises, setExpandedCruises] = useState<string[]>([]);
-
-  const toggleDescription = (id: string) => {
-    setExpandedCruises(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
-  };
 
   // Enquiry Form State
   const [formData, setFormData] = useState({
@@ -32,8 +22,6 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
     destination: '',
     travel_date: '',
     num_people: 2,
-    num_children: 0,
-    children_ages: '',
     message: ''
   });
   const [submitting, setSubmitting] = useState(false);
@@ -46,11 +34,6 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
 
   const handleSubmitEnquiry = async (e: React.FormEvent) => {
     e.preventDefault();
-    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
-    if (!phoneCheck.isValid) {
-      alert(phoneCheck.message || 'Please enter a valid phone number.');
-      return;
-    }
     setSubmitting(true);
     setSuccess(false);
 
@@ -60,12 +43,10 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
         target_id: 'general-cruise-enquiry',
         name: formData.name,
         email: formData.email,
-        phone: `${countryCode} ${formData.phone}`,
+        phone: formData.phone,
         travel_date: formData.travel_date,
         num_people: Number(formData.num_people),
-        num_children: Number(formData.num_children) || 0,
-        children_ages: formData.children_ages,
-        message: `Preferred Destination: ${formData.destination || 'Not Specified'}` + (formData.message ? ` | Note: ${formData.message}` : '')
+        message: `Preferred Destination: ${formData.destination || 'Not Specified'} | Message: ${formData.message}`
       });
       setSuccess(true);
       setFormData({
@@ -75,8 +56,6 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
         destination: '',
         travel_date: '',
         num_people: 2,
-        num_children: 0,
-        children_ages: '',
         message: ''
       });
     } catch (err) {
@@ -87,17 +66,12 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
     }
   };
 
-  const getBannerUrl = (img?: string | null) => {
-    if (!img || img.includes('unsplash.com')) return '/images/cruise_banner.jpg';
-    return img.startsWith('http') ? img : `http://127.0.0.1:8000${img}`;
-  };
-
   return (
     <div className={styles.pageContainer}>
       {/* 1. Hero Banner */}
       <section
         className={styles.heroBanner}
-        style={{ backgroundImage: `url(${getBannerUrl(pageData.banner_image)})` }}
+        style={{ backgroundImage: `url(${pageData.banner_image || 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1920&q=80'})` }}
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
@@ -111,104 +85,26 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
         </div>
       </section>
 
-      {/* 2. Cruise Overview & Quote Form */}
+      {/* 2. Cruise Overview */}
       <section className={styles.overviewSection}>
         <div className="container">
           <div className={styles.overviewGrid}>
-            {/* Left Column: Overview Details */}
-            <div className={styles.overviewContentBox}>
-              <div>
-                <h2 className={styles.overviewHeading}>{pageData.overview_heading || 'Experience Unrivalled Luxury on the High Seas'}</h2>
-                <div className={styles.overviewText}>
-                  {pageData.overview_description || 'Embark on unforgettable ocean and river cruise journeys tailored for comfort, romance, and adventure.'}
-                </div>
-                <div className={styles.cruiseHighlightsList}>
-                  <div className={styles.cruiseHighlightItem}>
-                    🚢 <strong>World's Top Cruise Lines:</strong> Royal Caribbean, MSC, Costa, Viking & Celebrity.
-                  </div>
-                  <div className={styles.cruiseHighlightItem}>
-                    📍 <strong>Exclusive Destinations:</strong> Mediterranean, Caribbean, Alaska, Singapore & Kerala Backwaters.
-                  </div>
-                  <div className={styles.cruiseHighlightItem}>
-                    🍷 <strong>All-Inclusive Luxury:</strong> Fine dining, entertainment, shore tours & dedicated butler service.
-                  </div>
-                </div>
+            <div>
+              <h2 className={styles.overviewHeading}>{pageData.overview_heading || 'Experience Unrivalled Luxury on the High Seas'}</h2>
+              <div className={styles.overviewText}>
+                {pageData.overview_description || 'Embark on unforgettable ocean and river cruise journeys tailored for comfort, romance, and adventure.'}
               </div>
-              <div style={{ marginTop: '1.5rem' }}>
-                <a href="#featured-cruises" className="btn btn-primary btn-lg">
-                  {pageData.overview_cta_text || 'View Cruise Packages'}
-                </a>
-              </div>
+              <a href="#featured-cruises" className="btn btn-primary btn-lg">
+                {pageData.overview_cta_text || 'View Cruise Packages'}
+              </a>
             </div>
 
-            {/* Right Column: Request a Cruise Quote Form (Navy Background matching Hotel enquiry form) */}
-            <div className={styles.formCard} id="enquiry-form">
-              <h3 className={styles.formTitle}>Request a Cruise Quote</h3>
-              <p className={styles.formSubtitle}>Fill in your details and our cruise specialist will send you tailored options & best offers.</p>
-
-              {success && (
-                <div className={styles.alertSuccess}>
-                  ✓ Thank you! Your cruise enquiry has been submitted. Our team will contact you shortly.
-                </div>
-              )}
-
-              <form onSubmit={handleSubmitEnquiry}>
-                <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="name" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Full Name *</label>
-                    <input type="text" id="name" name="name" required value={formData.name} onChange={handleInputChange} placeholder="John Doe" className={styles.darkInput} />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="phone" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Phone Number *</label>
-                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
-                      <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="9876543210" className={styles.darkInput} style={{ flex: 1 }} />
-                    </div>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="email" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Email Address *</label>
-                    <input type="email" id="email" name="email" required value={formData.email} onChange={handleInputChange} placeholder="john@example.com" className={styles.darkInput} />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="destination" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Preferred Destination</label>
-                    <input type="text" id="destination" name="destination" value={formData.destination} onChange={handleInputChange} placeholder="e.g. Mediterranean, Singapore" className={styles.darkInput} />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="travel_date" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Travel Date</label>
-                    <input type="date" id="travel_date" name="travel_date" value={formData.travel_date} onChange={handleInputChange} className={styles.darkInput} />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="num_people" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>No. of Travellers</label>
-                    <input type="number" id="num_people" name="num_people" min="1" value={formData.num_people} onChange={handleInputChange} className={styles.darkInput} />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="num_children" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>No. of Children</label>
-                    <input type="number" id="num_children" name="num_children" min="0" value={formData.num_children} onChange={handleInputChange} className={styles.darkInput} />
-                  </div>
-
-                  {Number(formData.num_children) > 0 && (
-                    <div className={styles.formGroup}>
-                      <label htmlFor="children_ages" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Children Ages (e.g. 5, 8)</label>
-                      <input type="text" id="children_ages" name="children_ages" value={formData.children_ages} onChange={handleInputChange} placeholder="e.g. 5, 8" className={styles.darkInput} />
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.formGroup} style={{ marginTop: '0.5rem' }}>
-                  <label htmlFor="message" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.25rem' }}>Message / Special Requirements</label>
-                  <textarea id="message" name="message" rows={2} value={formData.message} onChange={handleInputChange} placeholder="Preferred cruise line, cabin type..." className={styles.darkTextarea} />
-                </div>
-
-                <button type="submit" className={styles.redSubmitBtn} disabled={submitting} style={{ marginTop: '0.75rem', padding: '0.75rem 1rem' }}>
-                  {submitting ? 'Sending Request...' : 'Request a Quote'}
-                </button>
-              </form>
+            <div className={styles.overviewImgWrapper}>
+              <img
+                src={pageData.overview_image || 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1000&q=80'}
+                alt="Travellers on a Cruise Ship Deck"
+                className={styles.overviewImg}
+              />
             </div>
           </div>
         </div>
@@ -239,31 +135,22 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
                   <div className={styles.cruiseMeta}>
                     <span>📍 {cruise.destination}</span>
                   </div>
-
-                  {expandedCruises.includes(String(cruise.id)) && cruise.short_description && (
-                    <p className={styles.cruiseDesc}>
-                      {cruise.short_description}
-                    </p>
-                  )}
+                  <p className={styles.cruiseDesc}>
+                    {cruise.short_description ? (cruise.short_description.length > 110 ? cruise.short_description.slice(0, 110) + '...' : cruise.short_description) : ''}
+                  </p>
 
                   <div className={styles.cardFooter}>
-                    <button 
-                      type="button"
-                      onClick={() => toggleDescription(String(cruise.id))}
-                      style={{ 
-                        background: 'none', 
-                        border: 'none', 
-                        color: 'var(--color-primary-red)', 
-                        padding: 0, 
-                        font: 'inherit', 
-                        cursor: 'pointer', 
-                        textDecoration: 'underline', 
-                        fontSize: '0.85rem',
-                        fontWeight: 600 
-                      }}
-                    >
-                      {expandedCruises.includes(String(cruise.id)) ? 'Hide Description' : 'Show Description'}
-                    </button>
+                    {cruise.show_price && cruise.price ? (
+                      <div className={styles.priceBlock}>
+                        <span className={styles.priceLabel}>Starting From</span>
+                        <span className={styles.priceValue}>₹{Number(cruise.price).toLocaleString()}</span>
+                      </div>
+                    ) : (
+                      <div className={styles.priceBlock}>
+                        <span className={styles.priceLabel}>Price</span>
+                        <span className={styles.priceValue} style={{ fontSize: '0.95rem' }}>On Request</span>
+                      </div>
+                    )}
 
                     <div className={styles.cardActions}>
                       <Link href={`/cruise/${cruise.url_slug || cruise.id}`} className="btn btn-secondary btn-sm">
@@ -294,6 +181,67 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
             <a href="tel:+919847000000" className="btn btn-secondary btn-lg" style={{ color: '#fff', borderColor: '#fff' }}>
               {pageData.cta_button2_text || 'Talk to Expert'}
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Enquiry Form Section */}
+      <section id="enquiry-form" className={styles.enquirySection}>
+        <div className="container">
+          <div className={styles.formCard}>
+            <h2 className={styles.sectionTitle} style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Request a Cruise Quote</h2>
+            <p className={styles.sectionSubtitle} style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              Fill in your details and our cruise specialist will send you tailored options & best offers.
+            </p>
+
+            {success && (
+              <div style={{ padding: '1rem', backgroundColor: '#dcfce7', color: '#166534', borderRadius: '8px', marginBottom: '1.5rem', textAlign: 'center', fontWeight: 600 }}>
+                ✓ Thank you! Your cruise enquiry has been submitted. Our team will contact you shortly.
+              </div>
+            )}
+
+            <form onSubmit={handleSubmitEnquiry}>
+              <div className={styles.formGrid}>
+                <div className="formGroup">
+                  <label htmlFor="name">Full Name *</label>
+                  <input type="text" id="name" name="name" required value={formData.name} onChange={handleInputChange} placeholder="John Doe" />
+                </div>
+
+                <div className="formGroup">
+                  <label htmlFor="phone">Phone Number *</label>
+                  <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="+91 9876543210" />
+                </div>
+
+                <div className="formGroup">
+                  <label htmlFor="email">Email Address *</label>
+                  <input type="email" id="email" name="email" required value={formData.email} onChange={handleInputChange} placeholder="john@example.com" />
+                </div>
+
+                <div className="formGroup">
+                  <label htmlFor="destination">Preferred Destination</label>
+                  <input type="text" id="destination" name="destination" value={formData.destination} onChange={handleInputChange} placeholder="e.g. Mediterranean, Singapore, Backwaters" />
+                </div>
+
+                <div className="formGroup">
+                  <label htmlFor="travel_date">Travel Date</label>
+                  <input type="date" id="travel_date" name="travel_date" value={formData.travel_date} onChange={handleInputChange} />
+                </div>
+
+                <div className="formGroup">
+                  <label htmlFor="num_people">Number of Travellers</label>
+                  <input type="number" id="num_people" name="num_people" min="1" value={formData.num_people} onChange={handleInputChange} />
+                </div>
+              </div>
+
+              <div className="formGroup" style={{ marginTop: '1.25rem' }}>
+                <label htmlFor="message">Message / Special Requirements</label>
+                <textarea id="message" name="message" rows={4} value={formData.message} onChange={handleInputChange} placeholder="Mention preferred cruise line, cabin type, or special celebration details..." />
+              </div>
+
+              <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: '1.5rem' }} disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Request a Quote'}
+              </button>
+            </form>
           </div>
         </div>
       </section>

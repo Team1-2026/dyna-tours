@@ -338,7 +338,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                 />
               </div>
               
-              <div className={styles.formGroupFull}>
+              <div className={`${styles.formGroup} ${styles.formGroupFull}`}>
                 <label htmlFor="phone">Phone Number *</label>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
@@ -356,7 +356,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                 </div>
               </div>
 
-              <div className={styles.formGroupFull}>
+              <div className={`${styles.formGroup} ${styles.formGroupFull}`}>
                 <label htmlFor="email">Email Address *</label>
                 <input
                   type="email"

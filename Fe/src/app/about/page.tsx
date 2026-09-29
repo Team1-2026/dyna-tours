@@ -4,8 +4,6 @@ import Link from 'next/link';
 import styles from './about.module.css';
 import { getBaseUrl, AboutPage as IAboutPage } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: 'About Us | Dyna Tours India - 16+ Years of Travel Excellence',
   description: 'Learn about Dyna Tours India, a premier travel management company with over 16 years of expertise in domestic and international holidays, flight bookings, visas, hotels, and corporate travel.',
@@ -235,10 +233,26 @@ export default async function AboutUsPage() {
   };
 
   // Default image fallbacks matching design
-  const heroBg = (!data?.hero_bg_image || data.hero_bg_image.includes('unsplash.com')) ? '/images/about_banner.jpg' : data.hero_bg_image;
-  const circlePhoto = data?.overview_image_1 || '/images/story_circle.jpg';
-  const director1Photo = '/images/jomy_milbin.jpg';
-  const director2Photo = '/images/thomas_john.jpg';
+  const heroBg = data?.hero_bg_image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80';
+  const circlePhoto = data?.overview_image_1 || 'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=1000&q=80';
+
+  const founderName = data?.founder_name || 'Jomy Milbin';
+  const founderTitle = data?.founder_title || 'Managing Director';
+  const founderImage = data?.founder_image || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80';
+  const founderSignature = data?.founder_signature || 'Jomy Milbin';
+  const founderQuote = data?.founder_quote || 'Travel is the only thing you buy that makes you richer.';
+  const founderMessage = data?.founder_message 
+    ? data.founder_message.replace(/<[^>]+>/g, '') 
+    : 'At Dyna Tours, we believe every journey has the power to inspire, transform and create lifelong memories. For over 16 years, we have been committed to delivering trusted travel solutions with a customer-first approach.';
+
+  const director2Name = data?.director2_name || 'Thomas John';
+  const director2Title = data?.director2_title || 'Director';
+  const director2Image = data?.director2_image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80';
+  const director2Signature = data?.director2_signature || 'Thomas John';
+  const director2Quote = data?.director2_quote || 'Travel is the only thing you buy that makes you richer.';
+  const director2Message = data?.director2_message 
+    ? data.director2_message.replace(/<[^>]+>/g, '') 
+    : 'Our dedicated team works passionately to design personalized experiences and ensure every detail of your trip is seamless. Thank you for trusting us as your travel partner. We look forward to being a part of your next adventure!';
 
   // 6 Why Choose Us Cards
   const whyChooseList = data?.why_choose_cards?.length ? data.why_choose_cards : [
@@ -312,7 +326,7 @@ export default async function AboutUsPage() {
             </div>
             
             <h1 className={styles.heroTitle}>
-              About <span className={styles.textRed}>Us</span>
+              About <span className={styles.textRed}>Dyna Tours India</span>
             </h1>
             
             <p className={styles.heroLead}>
@@ -343,7 +357,7 @@ export default async function AboutUsPage() {
               <h2 className={styles.storyTitle}>
                 Wander. Explore. <span className={styles.textRed}>Discover.</span>
                 <br />
-                <span className={styles.storySubheading}>{data?.story_subheading || 'Your Journey, Our Passion!'}</span>
+                <span className={styles.storySubheading}>Your Journey, Our Passion!</span>
               </h2>
 
               <p className={styles.storyParagraph}>
@@ -430,59 +444,45 @@ export default async function AboutUsPage() {
           <div className={styles.directorsCardBox}>
             <div className={styles.directorsGrid}>
               
-              {/* Director 1 */}
+              {/* Director 1: Managing Director (Tojo Thomas) */}
               <div className={styles.directorCol}>
                 <div className={styles.directorAvatarWrapper}>
-                  <img src={data?.founder_image || director1Photo} alt={data?.founder_name || 'Jomy Milbin'} />
+                  <img src={founderImage} alt={`${founderName} - ${founderTitle}`} />
                 </div>
                 <div className={styles.directorInfoBlock}>
                   <p className={styles.directorQuoteText}>
-                    “ {data?.founder_quote || 'Travel is the only thing you buy that makes you richer.'} ”
+                    “ {founderQuote} ”
                   </p>
-                  {data?.founder_message ? (
-                    <div 
-                      className={styles.directorBodyText}
-                      dangerouslySetInnerHTML={{ __html: data.founder_message }}
-                    />
-                  ) : (
-                    <p className={styles.directorBodyText}>
-                      At Dyna Tours, we believe every journey has the power to inspire, transform and create lifelong memories. For over 16 years, we have been committed to delivering trusted travel solutions with a customer-first approach.
-                    </p>
-                  )}
+                  <p className={styles.directorBodyText}>
+                    {founderMessage}
+                  </p>
                   <div className={styles.directorSignatureBox}>
-                    <div className={styles.signatureScript}>{data?.founder_signature || data?.founder_name || 'Jomy Milbin'}</div>
+                    <div className={styles.signatureScript}>{founderSignature}</div>
                     <div className={styles.directorNameTitle}>
-                      <strong>{data?.founder_name || 'Jomy Milbin'}</strong>
-                      <span>{data?.founder_title || 'Managing Director'}</span>
+                      <strong>{founderName}</strong>
+                      <span>{founderTitle}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Director 2 */}
+              {/* Director 2: Director (Rinchu Merry Rajan) */}
               <div className={styles.directorCol}>
                 <div className={styles.directorAvatarWrapper}>
-                  <img src={data?.director2_image || director2Photo} alt={data?.director2_name || 'Thomas John'} />
+                  <img src={director2Image} alt={`${director2Name} - ${director2Title}`} />
                 </div>
                 <div className={styles.directorInfoBlock}>
                   <p className={styles.directorQuoteText}>
-                    “ {data?.director2_quote || 'Travel is the only thing you buy that makes you richer.'} ”
+                    “ {director2Quote} ”
                   </p>
-                  {data?.director2_message ? (
-                    <div 
-                      className={styles.directorBodyText}
-                      dangerouslySetInnerHTML={{ __html: data.director2_message }}
-                    />
-                  ) : (
-                    <p className={styles.directorBodyText}>
-                      Our dedicated team works passionately to design personalized experiences and ensure every detail of your trip is seamless. Thank you for trusting us as your travel partner. We look forward to being a part of your next adventure!
-                    </p>
-                  )}
+                  <p className={styles.directorBodyText}>
+                    {director2Message}
+                  </p>
                   <div className={styles.directorSignatureBox}>
-                    <div className={styles.signatureScript}>{data?.director2_signature || data?.director2_name || 'Thomas John'}</div>
+                    <div className={styles.signatureScript}>{director2Signature}</div>
                     <div className={styles.directorNameTitle}>
-                      <strong>{data?.director2_name || 'Thomas John'}</strong>
-                      <span>{data?.director2_title || 'Director'}</span>
+                      <strong>{director2Name}</strong>
+                      <span>{director2Title}</span>
                     </div>
                   </div>
                 </div>
@@ -564,9 +564,9 @@ export default async function AboutUsPage() {
         <div className={styles.container}>
           
           <div className={styles.sectionHeaderCenterLight}>
-            <h2 className={styles.darkServicesHeading}>{data?.services_title || 'Our Services'}</h2>
+            <h2 className={styles.darkServicesHeading}>Our Services</h2>
             <p className={styles.darkServicesSubtext}>
-              {data?.services_subtext || 'Complete travel solutions across multiple categories'}
+              Complete travel solutions across multiple categories
             </p>
           </div>
 
@@ -593,41 +593,52 @@ export default async function AboutUsPage() {
             {/* Left Column: 3 Overlapping Vertical Images */}
             <div className={styles.partnerImagesWrapper}>
               <div className={styles.partnerImgCard1}>
-                <img src={data?.partner_image_1 || '/images/partner_1.jpg'} alt="Family Beach Vacation" />
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" alt="Family Beach Vacation" />
               </div>
               <div className={styles.partnerImgCard2}>
-                <img src={data?.partner_image_2 || '/images/partner_2.jpg'} alt="Luxury Cruise Ship" />
+                <img src="https://images.unsplash.com/photo-1548574505-5e2386903b87?auto=format&fit=crop&w=600&q=80" alt="Luxury Cruise Ship" />
               </div>
               <div className={styles.partnerImgCard3}>
-                <img src={data?.partner_image_3 || '/images/partner_3.jpg'} alt="Flight Sunset Flight" />
+                <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80" alt="Flight Sunset Flight" />
               </div>
             </div>
 
             {/* Right Column: Partner Text & Bullet Checklist */}
             <div className={styles.partnerContent}>
               <h2 className={styles.partnerHeading}>
-                {data?.trusted_partner_title ? data.trusted_partner_title : <>Your Trusted <span className={styles.textRed}>Travel Partner</span></>}
+                Your Trusted <span className={styles.textRed}>Travel Partner</span>
               </h2>
 
               <p className={styles.partnerLeadText}>
-                {data?.trusted_partner_description || 'From the misty hills of India to the vibrant cities of Europe, and from the tropical islands of Southeast Asia to the wonders of the world — we make every journey extraordinary. Explore the world with Dyna Tours India.'}
+                From the misty hills of India to the vibrant cities of Europe, and from the tropical islands of Southeast Asia to the wonders of the world — we make every journey extraordinary. Explore the world with <strong>Dyna Tours India</strong>.
               </p>
 
-              {/* Bullet Checklist Grid */}
+              {/* 6 Bullet Points Grid (2 Columns) */}
               <div className={styles.bulletCheckGrid}>
-                {(data?.trust_badges?.length ? data.trust_badges : [
-                  { title: 'Custom-designed group tours' },
-                  { title: 'Visa assistance services' },
-                  { title: 'Hotel bookings worldwide' },
-                  { title: 'FIT arrangements' },
-                  { title: 'Luxury cruise packages' },
-                  { title: 'International flight bookings' }
-                ]).map((badge, idx) => (
-                  <div key={idx} className={styles.checkItem}>
-                    <div className={styles.checkIconRed}>✓</div>
-                    <span>{badge.title}</span>
-                  </div>
-                ))}
+                <div className={styles.checkItem}>
+                  <div className={styles.checkIconRed}>✓</div>
+                  <span>Custom-designed group tours</span>
+                </div>
+                <div className={styles.checkItem}>
+                  <div className={styles.checkIconRed}>✓</div>
+                  <span>Visa assistance services</span>
+                </div>
+                <div className={styles.checkItem}>
+                  <div className={styles.checkIconRed}>✓</div>
+                  <span>Hotel bookings worldwide</span>
+                </div>
+                <div className={styles.checkItem}>
+                  <div className={styles.checkIconRed}>✓</div>
+                  <span>FIT arrangements</span>
+                </div>
+                <div className={styles.checkItem}>
+                  <div className={styles.checkIconRed}>✓</div>
+                  <span>Luxury cruise packages</span>
+                </div>
+                <div className={styles.checkItem}>
+                  <div className={styles.checkIconRed}>✓</div>
+                  <span>International flight bookings</span>
+                </div>
               </div>
             </div>
 
@@ -642,25 +653,46 @@ export default async function AboutUsPage() {
           
           <div className={styles.sectionSubtitleWhiteCenter}>
             <span className={styles.dashLineWhite}></span>
-            <span>{data?.achievements_title || 'Our Achievements'}</span>
+            <span>Our Achievements</span>
             <span className={styles.dashLineWhite}></span>
           </div>
 
           <div className={styles.achievementsRow}>
-            {(data?.achievement_counters?.length ? data.achievement_counters : [
-              { number: '16+', label: 'Years Experience', icon: 'Award' },
-              { number: '25,000+', label: 'Happy Customers', icon: 'Users' },
-              { number: '100+', label: 'Destinations', icon: 'Globe' },
-              { number: '20+', label: 'Travel Experts', icon: 'Expert' },
-              { number: 'Thousands', label: 'Of Visas Processed', icon: 'FileText' },
-              { number: 'Corporate', label: 'Clients Served', icon: 'Building' }
-            ]).map((cnt, idx) => (
-              <div key={idx} className={styles.achieveCol}>
-                <div className={styles.achieveIcon}>{renderIcon(cnt.icon)}</div>
-                <div className={styles.achieveNumber}>{cnt.number}{(cnt as any).suffix || ''}</div>
-                <div className={styles.achieveLabel}>{cnt.label}</div>
-              </div>
-            ))}
+            <div className={styles.achieveCol}>
+              <div className={styles.achieveIcon}>{renderIcon('Award')}</div>
+              <div className={styles.achieveNumber}>16+</div>
+              <div className={styles.achieveLabel}>Years Experience</div>
+            </div>
+
+            <div className={styles.achieveCol}>
+              <div className={styles.achieveIcon}>{renderIcon('Users')}</div>
+              <div className={styles.achieveNumber}>25,000+</div>
+              <div className={styles.achieveLabel}>Happy Customers</div>
+            </div>
+
+            <div className={styles.achieveCol}>
+              <div className={styles.achieveIcon}>{renderIcon('Globe')}</div>
+              <div className={styles.achieveNumber}>100+</div>
+              <div className={styles.achieveLabel}>Destinations</div>
+            </div>
+
+            <div className={styles.achieveCol}>
+              <div className={styles.achieveIcon}>{renderIcon('Expert')}</div>
+              <div className={styles.achieveNumber}>20+</div>
+              <div className={styles.achieveLabel}>Travel Experts</div>
+            </div>
+
+            <div className={styles.achieveCol}>
+              <div className={styles.achieveIcon}>{renderIcon('FileText')}</div>
+              <div className={styles.achieveNumber}>Thousands</div>
+              <div className={styles.achieveLabel}>Of Visas Processed</div>
+            </div>
+
+            <div className={styles.achieveCol}>
+              <div className={styles.achieveIcon}>{renderIcon('Building')}</div>
+              <div className={styles.achieveNumber}>Corporate</div>
+              <div className={styles.achieveLabel}>Clients Served</div>
+            </div>
           </div>
 
         </div>

@@ -6,12 +6,8 @@ import {
   api, 
   getPackages, 
   homePageApi, 
-  formatPrice,
   Hotel, 
-  Destination,
-  getSectionVisibility,
-  SectionVisibility,
-  defaultSectionVisibility
+  Destination 
 } from '@/lib/api';
 
 import {
@@ -42,7 +38,6 @@ import { FeaturedHotelsSection } from '@/components/home/FeaturedHotelsSection';
 import { AboutSection } from '@/components/home/AboutSection';
 import { LatestBlogs } from '@/components/home/LatestBlogs';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
-import { HomeBottomContent } from '@/components/home/HomeBottomContent';
 import { FinalCTA } from '@/components/home/FinalCTA';
 
 export default function Home() {
@@ -59,21 +54,11 @@ export default function Home() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
   const [aboutData, setAboutData] = useState<any>(null);
   const [ctaData, setCtaData] = useState<any>(null);
-  const [reviewsContentData, setReviewsContentData] = useState<any>(null);
-  const [sectionVisibility, setSectionVisibility] = useState<SectionVisibility>(defaultSectionVisibility);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
-
-    setSectionVisibility(getSectionVisibility());
-    const handleVisibilityChanged = () => {
-      if (isMounted) setSectionVisibility(getSectionVisibility());
-    };
-    if (typeof window !== 'undefined') {
-      window.addEventListener('dyna_section_visibility_changed', handleVisibilityChanged);
-    }
 
     async function loadHomeContent() {
       try {
@@ -90,11 +75,9 @@ export default function Home() {
         }
 
         // Fetch Featured Hotels
-        const hotelData = await api.getHotels().catch(() => []);
+        const hotelData = await api.getHotels({ featured: true }).catch(() => []);
         if (isMounted && hotelData && hotelData.length > 0) {
-          const activeHotels = hotelData.filter(h => h.status !== 'Inactive');
-          const sorted = [...(activeHotels.length > 0 ? activeHotels : hotelData)].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-          setFeaturedHotels(sorted);
+          setFeaturedHotels(hotelData);
         }
 
         // Fetch Visas
@@ -103,17 +86,14 @@ export default function Home() {
           const formattedVisas: VisaCountryCard[] = visaData.map((v: any) => ({
             id: String(v.id || v.country),
             country: v.country || v.name,
-            code: v.code || '',
+            code: v.code || 'GL',
             flagUrl: v.flag_url || v.flagUrl || `https://flagcdn.com/w160/${(v.code || 'in').toLowerCase()}.png`,
-            visaType: v.visa_type || v.visaType || (v.type === 'e-visa' ? 'Tourist / Express eVisa' : 'Stamped / Embassy Visa'),
+            visaType: v.visa_type || v.visaType || 'Tourist Visa',
             processingTime: v.processing_time || v.processingTime || '3-5 Days',
-            startingPrice: v.price ? formatPrice(v.price) : '',
-            showPrice: v.show_price !== false && (v.show_price as any) !== 0 && (v.show_price as any) !== '0' && (v.show_price as any) !== 'false',
+            startingPrice: v.price ? `₹${v.price}` : '₹3,499',
             popular: Boolean(v.popular),
-            urlSlug: v.url_slug || v.id,
           }));
-          const sortedVisas = [...formattedVisas].sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
-          setVisaCountries(sortedVisas);
+          setVisaCountries(formattedVisas);
         }
 
         // Fetch CMS Home Data if configured in Laravel Admin Panel
@@ -127,7 +107,6 @@ export default function Home() {
           if (homeCms.testimonials) setTestimonials(homeCms.testimonials);
           if (homeCms.about) setAboutData(homeCms.about);
           if (homeCms.cta) setCtaData(homeCms.cta);
-          if (homeCms.reviews_bottom_content) setReviewsContentData(homeCms.reviews_bottom_content);
         }
       } catch (error) {
         console.warn('Using default luxury home datasets:', error);
@@ -140,14 +119,11 @@ export default function Home() {
 
     return () => {
       isMounted = false;
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('dyna_section_visibility_changed', handleVisibilityChanged);
-      }
     };
   }, []);
 
   return (
-    <div className="bg-slate-50 text-slate-900 min-h-screen selection:bg-red-600 selection:text-white">
+    <div className="bg-neutral-950 text-white min-h-screen selection:bg-red-500 selection:text-white">
       
       {/* 1. Hero Banner */}
       <HeroBanner slides={heroSlides} />
@@ -159,42 +135,31 @@ export default function Home() {
       <ExclusiveDeals offers={offers} />
 
       {/* 4. Trending Holiday Packages */}
-      {sectionVisibility.packages !== false && (
-        <TrendingPackages 
-          packages={packages} 
-          adminDescription={aboutData?.trending_description}
-        />
-      )}
+      <TrendingPackages 
+        packages={packages} 
+        adminDescription={aboutData?.trending_description}
+      />
 
       {/* 5. Popular Destinations */}
-      {sectionVisibility.destinations !== false && (
-        <PopularDestinations 
-          destinations={destinations}
-          adminDescription={aboutData?.destinations_description}
-        />
-      )}
+      <PopularDestinations 
+        destinations={destinations}
+        adminDescription={aboutData?.destinations_description}
+      />
 
       {/* 6. Theme Packages Grid */}
-      {sectionVisibility.themes !== false && (
-        <ThemePackages 
-          themes={themes}
-          packages={packages}
-          adminDescription={aboutData?.themes_description}
-        />
-      )}
+      <ThemePackages 
+        themes={themes}
+        adminDescription={aboutData?.themes_description}
+      />
 
-      {/* 7. Visa Services */}
-      {sectionVisibility.visa !== false && (
-        <VisaServicesSection 
-          countries={visaCountries}
-          adminDescription={aboutData?.visa_description}
-        />
-      )}
+      {/* 7. Express Visa Services */}
+      <VisaServicesSection 
+        countries={visaCountries}
+        adminDescription={aboutData?.visa_description}
+      />
 
       {/* 8. Featured Luxury Hotels */}
-      {sectionVisibility.hotels !== false && (
-        <FeaturedHotelsSection hotels={featuredHotels} />
-      )}
+      <FeaturedHotelsSection hotels={featuredHotels} />
 
       {/* 9. About Dyna Tours India & Counter Stats */}
       <AboutSection 
@@ -209,10 +174,18 @@ export default function Home() {
       />
 
       {/* 10. Latest Blogs & Travel Guides */}
-      {/* <LatestBlogs blogs={blogs} /> */}
+      <LatestBlogs blogs={blogs} />
 
       {/* 11. Testimonials Slider */}
       <TestimonialsSection testimonials={testimonials} />
+
+      {/* 12. Final Call To Action Banner */}
+      <FinalCTA 
+        heading={ctaData?.heading}
+        description={ctaData?.description}
+        bgImage={ctaData?.bg_image}
+        whatsappNumber={ctaData?.whatsapp_number}
+      />
 
     </div>
   );

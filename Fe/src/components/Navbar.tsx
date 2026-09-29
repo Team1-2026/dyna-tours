@@ -289,6 +289,16 @@ export default function Navbar() {
               Cruise
             </Link>
           </li>
+          <li>
+            <Link href="/about" className={`${styles.mobileNavLink} ${pathname.startsWith('/about') ? styles.mobileActive : ''}`}>
+              About Us
+            </Link>
+          </li>
+          <li>
+            <Link href="/contact-us" className={`${styles.mobileNavLink} ${pathname.startsWith('/contact-us') ? styles.mobileActive : ''}`}>
+              Contact Us
+            </Link>
+          </li>
 
           <li className={styles.mobileCtaLi}>
             <Link href="/holidays" className="btn btn-primary btn-full">

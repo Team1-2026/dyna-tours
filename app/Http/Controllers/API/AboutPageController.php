@@ -229,6 +229,20 @@ class AboutPageController extends Controller
             $page->partner_image_3 = '/images/partner_3.jpg';
             $dirty = true;
         }
+        if ($page->founder_name !== 'Jomy Milbin' || $page->founder_image !== '/images/jomy_milbin.jpg') {
+            $page->founder_name = 'Jomy Milbin';
+            $page->founder_title = 'Managing Director';
+            $page->founder_signature = 'Jomy Milbin';
+            $page->founder_image = '/images/jomy_milbin.jpg';
+            $dirty = true;
+        }
+        if ($page->director2_name !== 'Thomas John' || $page->director2_image !== '/images/thomas_john.jpg') {
+            $page->director2_name = 'Thomas John';
+            $page->director2_title = 'Director';
+            $page->director2_signature = 'Thomas John';
+            $page->director2_image = '/images/thomas_john.jpg';
+            $dirty = true;
+        }
         if ($dirty) {
             $page->save();
         }
