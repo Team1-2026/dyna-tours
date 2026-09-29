@@ -229,18 +229,18 @@ class AboutPageController extends Controller
             $page->partner_image_3 = '/images/partner_3.jpg';
             $dirty = true;
         }
-        if ($page->founder_name !== 'Jomy Milbin' || $page->founder_image !== '/images/jomy_milbin.jpg') {
-            $page->founder_name = 'Jomy Milbin';
+        if ($page->founder_name !== 'Tojo Thomas' || $page->founder_image !== '/images/tojo_thomas.jpg') {
+            $page->founder_name = 'Tojo Thomas';
             $page->founder_title = 'Managing Director';
-            $page->founder_signature = 'Jomy Milbin';
-            $page->founder_image = '/images/jomy_milbin.jpg';
+            $page->founder_signature = 'Tojo Thomas';
+            $page->founder_image = '/images/tojo_thomas.jpg';
             $dirty = true;
         }
-        if ($page->director2_name !== 'Thomas John' || $page->director2_image !== '/images/thomas_john.jpg') {
-            $page->director2_name = 'Thomas John';
+        if ($page->director2_name !== 'Rinchu Merry Rajan' || $page->director2_image !== '/images/rinchu_merry_rajan.jpg') {
+            $page->director2_name = 'Rinchu Merry Rajan';
             $page->director2_title = 'Director';
-            $page->director2_signature = 'Thomas John';
-            $page->director2_image = '/images/thomas_john.jpg';
+            $page->director2_signature = 'Rinchu Merry Rajan';
+            $page->director2_image = '/images/rinchu_merry_rajan.jpg';
             $dirty = true;
         }
         if ($dirty) {

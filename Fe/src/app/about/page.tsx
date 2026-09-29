@@ -4,6 +4,8 @@ import Link from 'next/link';
 import styles from './about.module.css';
 import { getBaseUrl, AboutPage as IAboutPage } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'About Us | Dyna Tours India - 16+ Years of Travel Excellence',
   description: 'Learn about Dyna Tours India, a premier travel management company with over 16 years of expertise in domestic and international holidays, flight bookings, visas, hotels, and corporate travel.',
@@ -236,19 +238,19 @@ export default async function AboutUsPage() {
   const heroBg = data?.hero_bg_image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80';
   const circlePhoto = data?.overview_image_1 || 'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=1000&q=80';
 
-  const founderName = data?.founder_name || 'Jomy Milbin';
+  const founderName = data?.founder_name || 'Tojo Thomas';
   const founderTitle = data?.founder_title || 'Managing Director';
-  const founderImage = data?.founder_image || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80';
-  const founderSignature = data?.founder_signature || 'Jomy Milbin';
+  const founderImage = data?.founder_image || '/images/tojo_thomas.jpg';
+  const founderSignature = data?.founder_signature || 'Tojo Thomas';
   const founderQuote = data?.founder_quote || 'Travel is the only thing you buy that makes you richer.';
   const founderMessage = data?.founder_message 
     ? data.founder_message.replace(/<[^>]+>/g, '') 
     : 'At Dyna Tours, we believe every journey has the power to inspire, transform and create lifelong memories. For over 16 years, we have been committed to delivering trusted travel solutions with a customer-first approach.';
 
-  const director2Name = data?.director2_name || 'Thomas John';
+  const director2Name = data?.director2_name || 'Rinchu Merry Rajan';
   const director2Title = data?.director2_title || 'Director';
-  const director2Image = data?.director2_image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80';
-  const director2Signature = data?.director2_signature || 'Thomas John';
+  const director2Image = data?.director2_image || '/images/rinchu_merry_rajan.jpg';
+  const director2Signature = data?.director2_signature || 'Rinchu Merry Rajan';
   const director2Quote = data?.director2_quote || 'Travel is the only thing you buy that makes you richer.';
   const director2Message = data?.director2_message 
     ? data.director2_message.replace(/<[^>]+>/g, '') 
