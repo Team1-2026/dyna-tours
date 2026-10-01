@@ -36,18 +36,18 @@ class AboutPageController extends Controller
                 'partner_image_3' => '/images/partner_3.jpg',
 
                 // 3. Directors' Message
-                'founder_name' => 'Jomy Milbin',
+                'founder_name' => 'Tojo Thomas',
                 'founder_title' => 'Managing Director',
-                'founder_image' => '/images/jomy_milbin.jpg',
+                'founder_image' => '/images/tojo_thomas.jpg',
                 'founder_message' => '<p>At Dyna Tours, we believe every journey has the power to inspire, transform and create lifelong memories. For over 16 years, we have been committed to delivering trusted travel solutions with a customer-first approach.</p>',
                 'founder_quote' => 'Travel is the only thing you buy that makes you richer.',
-                'founder_signature' => 'Jomy Milbin',
-                'director2_name' => 'Thomas John',
+                'founder_signature' => 'Tojo Thomas',
+                'director2_name' => 'Rinchu Merry Rajan',
                 'director2_title' => 'Director',
-                'director2_image' => '/images/thomas_john.jpg',
+                'director2_image' => '/images/rinchu_merry_rajan.jpg',
                 'director2_message' => '<p>Our dedicated team works passionately to design personalized experiences and ensure every detail of your trip is seamless. Thank you for trusting us as your travel partner. We look forward to being a part of your next adventure!</p>',
                 'director2_quote' => 'Travel is the only thing you buy that makes you richer.',
-                'director2_signature' => 'Thomas John',
+                'director2_signature' => 'Rinchu Merry Rajan',
 
                 // 4. Mission & Vision
                 'mission_title' => 'Our Mission',

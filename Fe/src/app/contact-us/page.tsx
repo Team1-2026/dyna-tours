@@ -100,7 +100,7 @@ export default async function ContactUsPage() {
         addressCountry: 'IN'
       },
       telephone: data.phone_numbers?.[0]?.number || '+91 97464 70555',
-      email: data.email_addresses?.[0]?.email || 'info@dynatours.com',
+      email: data.email_addresses?.[0]?.email || 'info@dynatoursindia.com',
     }
   };
 

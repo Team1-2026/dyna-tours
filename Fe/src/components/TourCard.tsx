@@ -79,7 +79,7 @@ export default function TourCard({ tour, layout = 'vertical' }: TourCardProps) {
         {tour.show_price !== false && (
           <div className={styles.priceBadge}>
             <span className={styles.priceLabel}>From</span>
-            <span className={styles.priceValue}>₹{tour.price.toLocaleString()}</span>
+            <span className={styles.priceValue}>₹{tour.price.toLocaleString('en-IN')}</span>
           </div>
         )}
       </div>

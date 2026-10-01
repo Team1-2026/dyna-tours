@@ -35,15 +35,15 @@ class ContactPageController extends Controller
                 'google_maps_url' => 'https://maps.google.com/?q=Dyna+Tours+India+Changanassery',
                 
                 'phone_numbers' => [
-                    ['label' => 'Primary Support', 'number' => '+91 97464 70555'],
-                    ['label' => 'WhatsApp Support', 'number' => '+91 97464 70555'],
-                    ['label' => 'Reservations', 'number' => '+91 98461 50005'],
-                    ['label' => 'Customer Care', 'number' => '+91 94952 02727']
+                    ['label' => 'Primary Support', 'number' => '+91 98461 50005'],
+                    ['label' => 'Customer Care', 'number' => '+91 97464 70555'],
+                    ['label' => 'Reservations', 'number' => '+91 94952 02727'],
+                    ['label' => 'WhatsApp Support', 'number' => '+91 97464 70555']
                 ],
 
                 'email_addresses' => [
-                    ['label' => 'General Enquiries', 'email' => 'info@dynatours.com'],
-                    ['label' => 'Bookings', 'email' => 'explore@dynatours.com']
+                    ['label' => 'General Enquiries', 'email' => 'info@dynatoursindia.com'],
+                    ['label' => 'Bookings', 'email' => 'sales@dynatoursindia.com']
                 ],
 
                 'business_hours_weekday' => 'Monday – Saturday: 9:00 AM – 6:00 PM',
@@ -73,8 +73,8 @@ class ContactPageController extends Controller
                     [
                         'title' => 'Email Support',
                         'description' => 'Send us your detailed travel requirements anytime and receive a custom quote.',
-                        'action_text' => 'Email info@dynatours.com',
-                        'action_url' => 'mailto:info@dynatours.com',
+                        'action_text' => 'Email info@dynatoursindia.com',
+                        'action_url' => 'mailto:info@dynatoursindia.com',
                         'icon' => 'Mail'
                     ]
                 ],
@@ -95,15 +95,6 @@ class ContactPageController extends Controller
                 // Map Embed
                 'map_embed_url' => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3936.574488349272!2d76.5412!3d9.4442!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b062548ad7281f7%3A0x6b44c8033ef6691c!2sChanganassery%2C%20Kerala!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin'
             ]);
-        } else {
-            $pNums = $page->phone_numbers;
-            if (is_array($pNums) && count($pNums) > 0) {
-                if (isset($pNums[0]['number']) && str_contains($pNums[0]['number'], '98466')) {
-                    $pNums[0]['number'] = '+91 97464 70555';
-                    $page->phone_numbers = $pNums;
-                    $page->save();
-                }
-            }
         }
 
         return response()->json($page);
@@ -178,7 +169,7 @@ class ContactPageController extends Controller
         ]);
 
         // Optional Email Notification to Admin
-        $adminEmail = env('ADMIN_EMAIL', 'info@dynatours.com');
+        $adminEmail = env('ADMIN_EMAIL', 'info@dynatoursindia.com');
         try {
             Mail::raw(
                 "New Contact Us Enquiry Received!\n\n".

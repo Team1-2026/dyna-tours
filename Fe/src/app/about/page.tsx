@@ -234,13 +234,17 @@ export default async function AboutUsPage() {
     foundingDate: '2010'
   };
 
-  // Default image fallbacks matching design
-  const heroBg = data?.hero_bg_image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80';
-  const circlePhoto = data?.overview_image_1 || 'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=1000&q=80';
+  // Default image fallbacks from local public folder
+  const heroBg = (!data?.hero_bg_image || data.hero_bg_image.includes('unsplash')) ? '/images/about_banner.jpg' : data.hero_bg_image;
+  const circlePhoto = (!data?.overview_image_1 || data.overview_image_1.includes('unsplash')) ? '/images/story_circle.jpg' : data.overview_image_1;
+
+  const partnerImg1 = (!data?.partner_image_1 || data.partner_image_1.includes('unsplash')) ? '/images/partner_1.jpg' : data.partner_image_1;
+  const partnerImg2 = (!data?.partner_image_2 || data.partner_image_2.includes('unsplash')) ? '/images/partner_2.jpg' : data.partner_image_2;
+  const partnerImg3 = (!data?.partner_image_3 || data.partner_image_3.includes('unsplash')) ? '/images/partner_3.jpg' : data.partner_image_3;
 
   const founderName = data?.founder_name || 'Tojo Thomas';
   const founderTitle = data?.founder_title || 'Managing Director';
-  const founderImage = data?.founder_image || '/images/tojo_thomas.jpg';
+  const founderImage = '/images/tojo_thomas.jpg';
   const founderSignature = data?.founder_signature || 'Tojo Thomas';
   const founderQuote = data?.founder_quote || 'Travel is the only thing you buy that makes you richer.';
   const founderMessage = data?.founder_message 
@@ -249,7 +253,7 @@ export default async function AboutUsPage() {
 
   const director2Name = data?.director2_name || 'Rinchu Merry Rajan';
   const director2Title = data?.director2_title || 'Director';
-  const director2Image = data?.director2_image || '/images/rinchu_merry_rajan.jpg';
+  const director2Image = '/images/rinchu_merry_rajan.jpg';
   const director2Signature = data?.director2_signature || 'Rinchu Merry Rajan';
   const director2Quote = data?.director2_quote || 'Travel is the only thing you buy that makes you richer.';
   const director2Message = data?.director2_message 
@@ -595,13 +599,13 @@ export default async function AboutUsPage() {
             {/* Left Column: 3 Overlapping Vertical Images */}
             <div className={styles.partnerImagesWrapper}>
               <div className={styles.partnerImgCard1}>
-                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" alt="Family Beach Vacation" />
+                <img src={partnerImg1} alt="Family Beach Vacation" />
               </div>
               <div className={styles.partnerImgCard2}>
-                <img src="https://images.unsplash.com/photo-1548574505-5e2386903b87?auto=format&fit=crop&w=600&q=80" alt="Luxury Cruise Ship" />
+                <img src={partnerImg2} alt="Luxury Cruise Ship" />
               </div>
               <div className={styles.partnerImgCard3}>
-                <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80" alt="Flight Sunset Flight" />
+                <img src={partnerImg3} alt="Flight Sunset Flight" />
               </div>
             </div>
 

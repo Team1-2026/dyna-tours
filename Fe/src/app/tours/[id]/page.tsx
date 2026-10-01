@@ -376,7 +376,7 @@ export default function TourDetailsPage({ params }: PageProps) {
             <div className={styles.widgetHeader}>
               <span className={styles.widgetPriceLabel}>Cost estimate</span>
               <div>
-                <span className={styles.widgetPrice}>₹{tour.price.toLocaleString()}</span>
+                <span className={styles.widgetPrice}>₹{tour.price.toLocaleString('en-IN')}</span>
                 <span className={styles.widgetPriceUnit}> / guest</span>
               </div>
             </div>
@@ -449,7 +449,7 @@ export default function TourDetailsPage({ params }: PageProps) {
                 <div className={styles.summaryBlock}>
                   <div className={styles.summaryTotalRow}>
                     <span>Total cost</span>
-                    <span className={styles.summaryTotalVal}>₹{totalPrice.toLocaleString()}</span>
+                    <span className={styles.summaryTotalVal}>₹{totalPrice.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
               )}

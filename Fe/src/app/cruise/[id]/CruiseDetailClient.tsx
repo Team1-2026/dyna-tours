@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Cruise, api } from '@/lib/api';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { validatePhoneByCountry } from '@/lib/phoneValidation';
 import styles from './cruiseDetail.module.css';
 
 interface Props {
@@ -15,6 +17,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   // Enquiry Form State
+  const [countryCode, setCountryCode] = useState('+91');
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -33,6 +36,11 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setSubmitting(true);
     setSuccess(false);
 
@@ -42,7 +50,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
         target_id: cruise.id,
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        phone: `${countryCode} ${formData.phone}`,
         travel_date: formData.travel_date,
         num_people: Number(formData.num_people),
         message: `Cruise: ${cruise.name} | Message: ${formData.message}`
@@ -257,7 +265,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
                 </h3>
                 {cruise.show_price && cruise.price ? (
                   <div className={styles.sidebarPrice}>
-                    ₹{Number(cruise.price).toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>/ person</span>
+                    ₹{Number(cruise.price).toLocaleString('en-IN')} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>/ person</span>
                   </div>
                 ) : (
                   <div className={styles.sidebarPrice} style={{ fontSize: '1.25rem' }}>
@@ -279,7 +287,10 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
 
                   <div className="formGroup" style={{ marginBottom: '0.85rem' }}>
                     <label htmlFor="phone" style={{ fontSize: '0.85rem' }}>Phone Number *</label>
-                    <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="+91 9876543210" style={{ padding: '0.6rem' }} />
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} style={{ padding: '0.6rem 0.35rem' }} />
+                      <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="9876543210" style={{ padding: '0.6rem', flex: 1, minWidth: 0 }} />
+                    </div>
                   </div>
 
                   <div className="formGroup" style={{ marginBottom: '0.85rem' }}>

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Cruise, CruisePageData, api } from '@/lib/api';
+import CountryCodeSelect from '@/components/CountryCodeSelect';
+import { validatePhoneByCountry } from '@/lib/phoneValidation';
 import styles from './cruise.module.css';
 
 interface Props {
@@ -15,6 +17,7 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
   const [cruises] = useState<Cruise[]>(initialCruises);
 
   // Enquiry Form State
+  const [countryCode, setCountryCode] = useState('+91');
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -34,6 +37,11 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
 
   const handleSubmitEnquiry = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = validatePhoneByCountry(formData.phone, countryCode);
+    if (!phoneCheck.isValid) {
+      alert(phoneCheck.message || 'Please enter a valid phone number.');
+      return;
+    }
     setSubmitting(true);
     setSuccess(false);
 
@@ -43,7 +51,7 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
         target_id: 'general-cruise-enquiry',
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        phone: `${countryCode} ${formData.phone}`,
         travel_date: formData.travel_date,
         num_people: Number(formData.num_people),
         message: `Preferred Destination: ${formData.destination || 'Not Specified'} | Message: ${formData.message}`
@@ -101,7 +109,7 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
 
             <div className={styles.overviewImgWrapper}>
               <img
-                src={pageData.overview_image || 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1000&q=80'}
+                src={pageData.overview_image || 'https://images.unsplash.com/photo-1505852679233-d9fd70aff56d?auto=format&fit=crop&w=1000&q=80'}
                 alt="Travellers on a Cruise Ship Deck"
                 className={styles.overviewImg}
               />
@@ -143,7 +151,7 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
                     {cruise.show_price && cruise.price ? (
                       <div className={styles.priceBlock}>
                         <span className={styles.priceLabel}>Starting From</span>
-                        <span className={styles.priceValue}>₹{Number(cruise.price).toLocaleString()}</span>
+                        <span className={styles.priceValue}>₹{Number(cruise.price).toLocaleString('en-IN')}</span>
                       </div>
                     ) : (
                       <div className={styles.priceBlock}>
@@ -209,7 +217,10 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
 
                 <div className="formGroup">
                   <label htmlFor="phone">Phone Number *</label>
-                  <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="+91 9876543210" />
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <CountryCodeSelect value={countryCode} onChange={setCountryCode} />
+                    <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="9876543210" style={{ flex: 1, minWidth: 0 }} />
+                  </div>
                 </div>
 
                 <div className="formGroup">

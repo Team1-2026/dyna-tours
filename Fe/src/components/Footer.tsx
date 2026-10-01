@@ -10,7 +10,7 @@ export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [phone, setPhone] = useState('+91 97464 70555');
-  const [contactEmail, setContactEmail] = useState('info@dynatours.com');
+  const [contactEmail, setContactEmail] = useState('info@dynatoursindia.com');
   const [address, setAddress] = useState('First Floor, Marks Square Building, M C Road, Changanassery, Kerala – 686103');
   const [mapsUrl, setMapsUrl] = useState('https://maps.google.com/?q=Dyna+Tours+India+Changanassery');
 
