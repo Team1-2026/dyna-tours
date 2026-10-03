@@ -32,6 +32,11 @@ export const getBaseUrl = () => {
 
 export const BASE_URL = getBaseUrl();
 
+export const isPriceEnabled = (val: any): boolean => {
+  if (val === false || val === 0 || val === '0' || val === 'false') return false;
+  return true;
+};
+
 export const formatPrice = (val: any): string => {
   if (val === null || val === undefined || val === '') return '';
   let str = String(val).trim();

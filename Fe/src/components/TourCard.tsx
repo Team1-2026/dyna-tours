@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from './TourCard.module.css';
 import { Tour } from '@/data/toursData';
 import ResolvedImage from './ResolvedImage';
+import { isPriceEnabled } from '@/lib/api';
 
 interface TourCardProps {
   tour: Tour;
@@ -76,7 +77,7 @@ export default function TourCard({ tour, layout = 'vertical' }: TourCardProps) {
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
         <span className={styles.categoryBadge}>{tour.category}</span>
-        {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && (
+        {isPriceEnabled(tour.show_price) && (
           <div className={styles.priceBadge}>
             <span className={styles.priceLabel}>From</span>
             <span className={styles.priceValue}>₹{tour.price.toLocaleString('en-IN')}</span>

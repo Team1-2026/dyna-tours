@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './tour-details.module.css';
 import { toursData } from '@/data/toursData';
+import { isPriceEnabled } from '@/lib/api';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -373,7 +374,7 @@ export default function TourDetailsPage({ params }: PageProps) {
 
           {/* Right Column: Booking Widget */}
           <aside className={styles.widget}>
-            {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && (
+            {isPriceEnabled(tour.show_price) && (
               <div className={styles.widgetHeader}>
                 <span className={styles.widgetPriceLabel}>Cost estimate</span>
                 <div>
@@ -447,7 +448,7 @@ export default function TourDetailsPage({ params }: PageProps) {
               </div>
 
               {/* Pricing breakdown summary */}
-              {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && tour.show_price_breakdown !== false && (
+              {isPriceEnabled(tour.show_price) && tour.show_price_breakdown !== false && (
                 <div className={styles.summaryBlock}>
                   <div className={styles.summaryTotalRow}>
                     <span>Total cost</span>

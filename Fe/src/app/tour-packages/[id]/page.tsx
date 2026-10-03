@@ -8,7 +8,7 @@ import TourCard from '@/components/TourCard';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
 import styles from './tour-details.module.css';
-import { getPackageById, getPackages, api } from '@/lib/api';
+import { getPackageById, getPackages, api, isPriceEnabled } from '@/lib/api';
 
 import ResolvedImage from '@/components/ResolvedImage';
 
@@ -621,7 +621,7 @@ export default function TourDetailsPage({ params }: PageProps) {
 
           {/* Right Column: Booking Widget */}
           <aside className={styles.widget}>
-            {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && (
+            {isPriceEnabled(tour.show_price) && (
               <div className={styles.widgetHeader}>
                 <span className={styles.widgetPriceLabel}>Cost estimate</span>
                 <div>
@@ -757,7 +757,7 @@ export default function TourDetailsPage({ params }: PageProps) {
               </div>
 
               {/* Pricing breakdown summary */}
-              {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && tour.show_price_breakdown !== false && (
+              {isPriceEnabled(tour.show_price) && tour.show_price_breakdown !== false && (
                 <div className={styles.summaryBlock}>
                   <div className={styles.summaryTotalRow}>
                     <span>Total cost</span>

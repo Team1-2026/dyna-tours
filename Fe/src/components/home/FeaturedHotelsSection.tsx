@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, MapPin, Hotel, ArrowRight } from 'lucide-react';
 import ResolvedImage from '@/components/ResolvedImage';
-import { formatPrice, getImageUrl } from '@/lib/api';
+import { formatPrice, getImageUrl, isPriceEnabled } from '@/lib/api';
 import { Hotel as HotelType } from '@/lib/api';
 
 interface FeaturedHotelsSectionProps {
@@ -236,7 +236,7 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
           >
             {displayHotels.slice(0, 4).map((hotel: any, idx: number) => {
               const imgUrl = getHotelCardImage(hotel);
-              const isShowPrice = hotel.show_price !== false && hotel.show_price !== 0 && String(hotel.show_price) !== '0' && String(hotel.show_price) !== 'false';
+              const isShowPrice = isPriceEnabled(hotel.show_price);
               const rawPrice = hotel.price !== undefined && hotel.price !== null && hotel.price !== '' 
                 ? Number(hotel.price) 
                 : (hotel.starting_price !== undefined && hotel.starting_price !== null && hotel.starting_price !== '' ? Number(hotel.starting_price) : 0);
