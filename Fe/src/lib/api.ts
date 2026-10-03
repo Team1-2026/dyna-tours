@@ -1512,9 +1512,20 @@ const mockFacilities: Facility[] = [
 
 const mockEnquiries: Enquiry[] = [];
 // --- Holiday Packages ---
+const normalizeSlug = (str: string): string => {
+  if (!str) return '';
+  return str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
 export const getPackages = async (): Promise<any[]> => {
   if (typeof window === 'undefined') return [];
-  let data;
+  let data: any[] = [];
   const stored = localStorage.getItem('dyna_packages');
   if (stored) {
     let fixedStored = stored;
@@ -1527,12 +1538,22 @@ export const getPackages = async (): Promise<any[]> => {
     Object.entries(replacements).forEach(([oldStr, newStr]) => {
       fixedStored = fixedStored.split(oldStr).join(newStr);
     });
-    data = JSON.parse(fixedStored);
-  } else {
-    const { toursData } = await import('@/data/toursData');
-    data = toursData;
+    try {
+      data = JSON.parse(fixedStored) || [];
+    } catch (e) {
+      data = [];
+    }
   }
-  
+
+  // Always merge with static toursData to ensure built-in packages (like Kerala) are available
+  const { toursData } = await import('@/data/toursData');
+  const existingIds = new Set(data.map((p: any) => p.id || p.slug));
+  toursData.forEach((pkg: any) => {
+    if (!existingIds.has(pkg.id) && !existingIds.has(pkg.slug)) {
+      data.push(pkg);
+    }
+  });
+
   // Ensure all standard quickInfo items (including Tour Assistance 24x7) are applied to all packages
   const standardQuickInfo = [
     {icon:"🍽", text:"Breakfast Included"},
@@ -1543,7 +1564,6 @@ export const getPackages = async (): Promise<any[]> => {
   ];
 
   data = data.map((pkg: any) => {
-    // Strictly assign only the standard quick info items
     pkg.quickInfo = [...standardQuickInfo];
     if (!pkg.image || !pkg.image.trim()) {
       if (pkg.gallery && pkg.gallery.length > 0 && pkg.gallery[0]) {
@@ -1551,6 +1571,9 @@ export const getPackages = async (): Promise<any[]> => {
       } else {
         pkg.image = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
       }
+    }
+    if (!pkg.slug) {
+      pkg.slug = normalizeSlug(pkg.title || pkg.id);
     }
     return pkg;
   });
@@ -1560,7 +1583,19 @@ export const getPackages = async (): Promise<any[]> => {
 
 export const getPackageById = async (id: string): Promise<any | null> => {
   const packages = await getPackages();
-  return packages.find(p => p.id === id || p.slug === id) || null;
+  const target = decodeURIComponent(id || '').trim();
+  const normTarget = normalizeSlug(target);
+
+  let found = packages.find(p => p.id === target || p.slug === target);
+  if (!found && normTarget) {
+    found = packages.find(p => 
+      normalizeSlug(p.id) === normTarget || 
+      normalizeSlug(p.slug) === normTarget ||
+      normalizeSlug(p.title) === normTarget
+    );
+  }
+
+  return found || null;
 };
 
 export const createPackage = async (data: Omit<any, 'id'>): Promise<any> => {
@@ -1568,23 +1603,29 @@ export const createPackage = async (data: Omit<any, 'id'>): Promise<any> => {
     ? data.gallery[0]
     : 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
 
+  const cleanSlug = data.slug && data.slug.trim() ? normalizeSlug(data.slug) : normalizeSlug(data.title || `pkg-${Date.now()}`);
+
   const newPackage = {
     ...data,
     image: data.image && data.image.trim() ? data.image : defaultImg,
-    id: data.slug || `pkg-${Date.now()}`,
+    slug: cleanSlug,
+    id: cleanSlug,
   };
   const packages = await getPackages();
-  const updated = [newPackage, ...packages];
+  const updated = [newPackage, ...packages.filter(p => p.id !== cleanSlug && p.slug !== cleanSlug)];
   localStorage.setItem('dyna_packages', JSON.stringify(updated));
   return newPackage;
 };
 
 export const updatePackage = async (id: string, data: Partial<any>): Promise<any> => {
   const packages = await getPackages();
-  const index = packages.findIndex(p => p.id === id || p.slug === id);
-  if (index === -1) throw new Error('Package not found');
+  const normId = normalizeSlug(id);
+  const index = packages.findIndex(p => p.id === id || p.slug === id || normalizeSlug(p.id) === normId || normalizeSlug(p.slug) === normId);
   
-  const updatedPackage = { ...packages[index], ...data };
+  const cleanSlug = data.slug ? normalizeSlug(data.slug) : (data.title ? normalizeSlug(data.title) : (index !== -1 ? packages[index].slug : id));
+
+  const updatedPackage = index !== -1 ? { ...packages[index], ...data, slug: cleanSlug } : { ...data, id: cleanSlug, slug: cleanSlug };
+
   if (!updatedPackage.image || !updatedPackage.image.trim()) {
     if (updatedPackage.gallery && updatedPackage.gallery.length > 0 && updatedPackage.gallery[0]) {
       updatedPackage.image = updatedPackage.gallery[0];
@@ -1592,14 +1633,21 @@ export const updatePackage = async (id: string, data: Partial<any>): Promise<any
       updatedPackage.image = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
     }
   }
-  packages[index] = updatedPackage;
+
+  if (index !== -1) {
+    packages[index] = updatedPackage;
+  } else {
+    packages.unshift(updatedPackage);
+  }
+  
   localStorage.setItem('dyna_packages', JSON.stringify(packages));
   return updatedPackage;
 };
 
 export const deletePackage = async (id: string): Promise<void> => {
   const packages = await getPackages();
-  const updated = packages.filter(p => p.id !== id);
+  const normId = normalizeSlug(id);
+  const updated = packages.filter(p => p.id !== id && p.slug !== id && normalizeSlug(p.id) !== normId && normalizeSlug(p.slug) !== normId);
   localStorage.setItem('dyna_packages', JSON.stringify(updated));
 };
 

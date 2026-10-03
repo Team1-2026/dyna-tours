@@ -1537,6 +1537,109 @@ export const toursData: Tour[] = [
     gallery: ["/images/amalfi_coast.png"],
     holidayCategory: ["Domestic Tour Packages", "Kerala Tour Packages", "Honeymoon Tour Packages"],
     quickInfo: [{icon:"🍽", text:"Breakfast Included"}, {icon:"🏨", text:"Beach Resort"}, {icon:"🚗", text:"Transfers"}, {icon:"📞", text:"Tour Assistance 24x7"}]
+  },
+  {
+    id: "kerala-hills-lakes-backwater-escape",
+    slug: "kerala-hills-lakes-backwater-escape",
+    title: "Kerala Hills, Lakes & Backwater Escape",
+    destination: "Kerala, India",
+    category: "Nature",
+    price: 24999,
+    duration: "3 Nights / 4 Days",
+    durationDays: 4,
+    durationNights: 3,
+    rating: 4.9,
+    reviewsCount: 168,
+    show_price: true,
+    show_price_breakdown: true,
+    description: "Experience the pristine beauty of Kerala with this 3 Nights / 4 Days tour package covering Trivandrum, Kovalam beach, and Kanyakumari. Enjoy breathtaking sunsets, historic landmarks, comfortable accommodation, and hassle-free transfers.",
+    overview: {
+      introduction: "Arrive at Trivandrum Airport and transfer to Kovalam beach. Enjoy sightseeing, beach relaxation, Kovalam lighthouse, and a memorable trip to Kanyakumari for sunrise and sunset views.",
+      destinationsCovered: "Trivandrum, Kovalam, Kanyakumari",
+      idealTravelers: "Families, Couples, Nature Enthusiasts",
+      experienceSummary: "Beach Relaxation, Cultural Heritage & Breathtaking Coastal Views"
+    },
+    highlights: [
+      "Arrival in Trivandrum & Transfer to Kovalam",
+      "Kovalam Sightseeing & Beach Relaxation",
+      "Transfer to Kanyakumari & Sunset View",
+      "Sunrise & Departure"
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: "Arrival in Trivandrum & Transfer to Kovalam",
+        description: "Arrive at Trivandrum Airport/Railway Station. Transfer to Kovalam and relax on the beach.",
+        image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
+        gallery: [
+          "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
+          "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80"
+        ],
+        sightseeing: "Kovalam Beach, Lighthouse",
+        meals: "Welcome Drink",
+        hotel: "Kovalam Beach Resort",
+        transport: "Private Car Transfer"
+      },
+      {
+        day: 2,
+        title: "Kovalam Sightseeing",
+        description: "Explore Kovalam beaches, Samudra Beach, Hawa Beach, and local artisan markets.",
+        image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80",
+        gallery: [
+          "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80"
+        ],
+        sightseeing: "Samudra Beach, Hawa Beach",
+        meals: "Breakfast Included",
+        hotel: "Kovalam Beach Resort",
+        transport: "Private Vehicle"
+      },
+      {
+        day: 3,
+        title: "Transfer to Kanyakumari",
+        description: "Drive to Kanyakumari. Visit Vivekananda Rock Memorial, Thiruvalluvar Statue, and enjoy the sunset.",
+        image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+        gallery: [
+          "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+        ],
+        sightseeing: "Vivekananda Rock Memorial, Sunset View Point",
+        meals: "Breakfast Included",
+        hotel: "Kanyakumari Ocean View Hotel",
+        transport: "Private Vehicle"
+      },
+      {
+        day: 4,
+        title: "Sunrise & Departure",
+        description: "Watch the breathtaking sunrise at Kanyakumari beach. Transfer to Trivandrum Airport/Railway Station for departure.",
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+        gallery: [
+          "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+        ],
+        sightseeing: "Kanyakumari Sunrise Point",
+        meals: "Breakfast Included",
+        hotel: "N/A",
+        transport: "Departure Transfer"
+      }
+    ],
+    inclusions: [
+      "Accommodation in 3-Star / 4-Star Beach Hotels",
+      "Daily Breakfast Included",
+      "Private Air-Conditioned Vehicle for Transfers & Sightseeing",
+      "Driver Charges, Tolls, Parking & Taxes"
+    ],
+    exclusions: [
+      "Airfare or Trainfare",
+      "Entry fees to monuments & attractions",
+      "Personal expenses such as laundry, phone calls, tips",
+      "Anything not mentioned in Inclusions"
+    ],
+    image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+    ],
+    holidayCategory: ["Domestic Tour Packages", "Kerala Tour Packages", "Honeymoon Tour Packages"],
+    quickInfo: [{icon:"🍽", text:"Breakfast Included"}, {icon:"🏨", text:"Beach Resort"}, {icon:"🚗", text:"Transfers"}, {icon:"📞", text:"Tour Assistance 24x7"}]
   }
 ];
 

@@ -282,14 +282,18 @@ export default function TourDetailsPage({ params }: PageProps) {
             
             <div style={{ backgroundColor: '#fff', borderRadius: '1rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
               <h3 className={styles.contentTitle}>Key Highlights</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                {tour.highlights.map((highlight: string, index: number) => (
-                  <div key={index} style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <span style={{ fontSize: '1.25rem' }}>✨</span>
-                    <span style={{ color: 'var(--color-secondary-navy)', fontWeight: 500, fontSize: '0.95rem' }}>{highlight}</span>
-                  </div>
-                ))}
-              </div>
+              {tour.highlights && tour.highlights.filter((h: string) => h && h.trim()).length > 0 ? (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  {tour.highlights.filter((h: string) => h && h.trim()).map((highlight: string, index: number) => (
+                    <div key={index} style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                      <span style={{ fontSize: '1.25rem' }}>✨</span>
+                      <span style={{ color: 'var(--color-secondary-navy)', fontWeight: 500, fontSize: '0.95rem' }}>{highlight}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Key highlights for this tour will be updated shortly.</p>
+              )}
             </div>
 
             {/* Tab Navigation */}
@@ -355,8 +359,9 @@ export default function TourDetailsPage({ params }: PageProps) {
                       </div>
                     )}
                     <h2 className={styles.contentTitle}>Day-by-Day Schedule</h2>
-                    <div className={styles.accordion}>
-                      {tour.itinerary.map((day: any) => {
+                    {tour.itinerary && tour.itinerary.length > 0 ? (
+                      <div className={styles.accordion}>
+                        {tour.itinerary.map((day: any) => {
                         const isExpanded = activeDay === day.day;
                         const isTitleRedundant = day.title && (
                           day.title.toLowerCase().trim() === `day ${day.day}` ||
@@ -497,7 +502,10 @@ export default function TourDetailsPage({ params }: PageProps) {
                           </div>
                         );
                       })}
-                    </div>
+                      </div>
+                    ) : (
+                      <p style={{ color: '#64748b', fontSize: '0.95rem', padding: '1rem 0' }}>Detailed day-by-day schedule will be updated shortly. Contact us for custom itinerary details.</p>
+                    )}
                   </div>
                 )}
 
@@ -513,7 +521,7 @@ export default function TourDetailsPage({ params }: PageProps) {
                         <span>What's Included</span>
                       </h3>
                       <ul className={styles.incList}>
-                        {tour.inclusions.map((inc: string, i: number) => (
+                        {(tour.inclusions || []).filter((i: string) => i && i.trim()).map((inc: string, i: number) => (
                           <li key={i} className={styles.incItem}>
                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
                               <polyline points="20,6 9,17 4,12" />
@@ -534,7 +542,7 @@ export default function TourDetailsPage({ params }: PageProps) {
                         <span>What's Excluded</span>
                       </h3>
                       <ul className={styles.excList}>
-                        {tour.exclusions.map((exc: string, i: number) => (
+                        {(tour.exclusions || []).filter((e: string) => e && e.trim()).map((exc: string, i: number) => (
                           <li key={i} className={styles.excItem}>
                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
                               <line x1="18" y1="6" x2="6" y2="18" />
@@ -613,7 +621,7 @@ export default function TourDetailsPage({ params }: PageProps) {
 
           {/* Right Column: Booking Widget */}
           <aside className={styles.widget}>
-            {tour.show_price !== false && (
+            {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && (
               <div className={styles.widgetHeader}>
                 <span className={styles.widgetPriceLabel}>Cost estimate</span>
                 <div>
@@ -749,7 +757,7 @@ export default function TourDetailsPage({ params }: PageProps) {
               </div>
 
               {/* Pricing breakdown summary */}
-              {tour.show_price_breakdown !== false && (
+              {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && tour.show_price_breakdown !== false && (
                 <div className={styles.summaryBlock}>
                   <div className={styles.summaryTotalRow}>
                     <span>Total cost</span>

@@ -11,7 +11,24 @@ export default function ResolvedImage({ src, alt, className, style, onClick, fil
 
   useEffect(() => {
     setLoading(true);
-    if (src && typeof window !== 'undefined') {
+    if (!src || !src.trim()) {
+      const url = getImageUrl('');
+      setResolved(url);
+      setImgSrc(url);
+      setLoading(false);
+      return;
+    }
+
+    const trimmed = src.trim();
+    if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/') || trimmed.startsWith('blob:')) {
+      const url = getImageUrl(trimmed);
+      setResolved(url);
+      setImgSrc(url);
+      setLoading(false);
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
       try {
         const request = indexedDB.open("DynaToursImages", 1);
         request.onsuccess = (ev) => {

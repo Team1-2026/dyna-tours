@@ -373,13 +373,15 @@ export default function TourDetailsPage({ params }: PageProps) {
 
           {/* Right Column: Booking Widget */}
           <aside className={styles.widget}>
-            <div className={styles.widgetHeader}>
-              <span className={styles.widgetPriceLabel}>Cost estimate</span>
-              <div>
-                <span className={styles.widgetPrice}>₹{tour.price.toLocaleString('en-IN')}</span>
-                <span className={styles.widgetPriceUnit}> / guest</span>
+            {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && (
+              <div className={styles.widgetHeader}>
+                <span className={styles.widgetPriceLabel}>Cost estimate</span>
+                <div>
+                  <span className={styles.widgetPrice}>₹{(tour.price || 0).toLocaleString('en-IN')}</span>
+                  <span className={styles.widgetPriceUnit}> / guest</span>
+                </div>
               </div>
-            </div>
+            )}
 
             <form className={styles.bookingForm} onSubmit={handleBookingSubmit}>
               {/* Row 1: Travel Date & Guests */}
@@ -445,7 +447,7 @@ export default function TourDetailsPage({ params }: PageProps) {
               </div>
 
               {/* Pricing breakdown summary */}
-              {tour.show_price_breakdown !== false && (
+              {tour.show_price !== false && tour.show_price !== 0 && String(tour.show_price) !== '0' && String(tour.show_price) !== 'false' && tour.show_price_breakdown !== false && (
                 <div className={styles.summaryBlock}>
                   <div className={styles.summaryTotalRow}>
                     <span>Total cost</span>

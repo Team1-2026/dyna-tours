@@ -455,7 +455,17 @@ export default function PackagesAdmin() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
             <div>
               <label>Title <span className="required-star">*</span></label>
-              <input required type="text" className={styles.formInput} value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
+              <input 
+                required 
+                type="text" 
+                className={styles.formInput} 
+                value={formData.title} 
+                onChange={e => {
+                  const titleVal = e.target.value;
+                  const autoSlug = titleVal.toLowerCase().trim().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                  setFormData({...formData, title: titleVal, slug: formData.slug && formData.slug !== autoSlug ? formData.slug : autoSlug});
+                }} 
+              />
             </div>
             <div>
               <label>Slug (URL) <span className="required-star">*</span></label>
@@ -503,7 +513,12 @@ export default function PackagesAdmin() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      setFormData({...formData, image: file.name});
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const dataUrl = ev.target?.result as string;
+                        setFormData({...formData, image: dataUrl});
+                      };
+                      reader.readAsDataURL(file);
                       compressAndSaveImage(file, `uploaded_image_${file.name}`);
                     }
                   }} 
