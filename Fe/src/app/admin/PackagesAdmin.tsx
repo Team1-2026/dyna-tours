@@ -108,6 +108,7 @@ export default function PackagesAdmin() {
     reviewsCount: 0,
     description: '',
     overview: {
+      packageSummary: '',
       introduction: '',
       destinationsCovered: '',
       idealTravelers: '',
@@ -121,8 +122,8 @@ export default function PackagesAdmin() {
     image: '',
     gallery: [],
     holidayCategory: ['Domestic Tour Packages'],
-    termsAndConditions: '',
-    cancellationPolicy: '',
+    termsAndConditions: [''],
+    cancellationPolicy: [''],
     quickInfo: [],
     bannerCode: '',
     relatedTours: [],
@@ -151,6 +152,23 @@ export default function PackagesAdmin() {
     if (pkgCopy.meta_title === undefined) pkgCopy.meta_title = '';
     if (pkgCopy.meta_description === undefined) pkgCopy.meta_description = '';
     if (pkgCopy.canonical_url === undefined) pkgCopy.canonical_url = '';
+
+    let terms = pkgCopy.termsAndConditions !== undefined ? pkgCopy.termsAndConditions : (pkgCopy.terms_and_conditions || []);
+    if (typeof terms === 'string') {
+      terms = terms ? terms.split('\n').map((s: string) => s.trim()).filter(Boolean) : [''];
+    } else if (!Array.isArray(terms) || terms.length === 0) {
+      terms = [''];
+    }
+    pkgCopy.termsAndConditions = terms;
+
+    let cancel = pkgCopy.cancellationPolicy !== undefined ? pkgCopy.cancellationPolicy : (pkgCopy.cancellation_policy || []);
+    if (typeof cancel === 'string') {
+      cancel = cancel ? cancel.split('\n').map((s: string) => s.trim()).filter(Boolean) : [''];
+    } else if (!Array.isArray(cancel) || cancel.length === 0) {
+      cancel = [''];
+    }
+    pkgCopy.cancellationPolicy = cancel;
+
     setFormData(pkgCopy);
     setEditingId(pkg.id);
     setIsFormOpen(true);
@@ -159,7 +177,7 @@ export default function PackagesAdmin() {
   const handleDelete = async (id: string, title: string) => {
     if (confirm(`Are you sure you want to delete ${title}?`)) {
       await deletePackage(id);
-      fetchPackages();
+      await fetchPackages();
     }
   };
 
@@ -195,17 +213,17 @@ export default function PackagesAdmin() {
   };
 
   const handleArrayChange = (field: string, index: number, value: string) => {
-    const newArr = [...formData[field]];
+    const newArr = [...(formData[field] || [])];
     newArr[index] = value;
     setFormData({ ...formData, [field]: newArr });
   };
 
   const addArrayItem = (field: string) => {
-    setFormData({ ...formData, [field]: [...formData[field], ''] });
+    setFormData({ ...formData, [field]: [...(formData[field] || []), ''] });
   };
 
   const removeArrayItem = (field: string, index: number) => {
-    const newArr = [...formData[field]];
+    const newArr = [...(formData[field] || [])];
     newArr.splice(index, 1);
     setFormData({ ...formData, [field]: newArr });
   };
@@ -651,6 +669,16 @@ export default function PackagesAdmin() {
               <textarea className={styles.formInput} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={2} />
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
+              <label>Package Summary (Shown on package details page)</label>
+              <textarea 
+                className={styles.formInput} 
+                value={formData.overview?.packageSummary !== undefined ? formData.overview.packageSummary : (formData.overview?.summary || '')} 
+                onChange={e => setFormData({...formData, overview: {...(formData.overview || {}), packageSummary: e.target.value}})} 
+                rows={3} 
+                placeholder="Enter full package summary displayed on the package details page..." 
+              />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
               <label>Introduction</label>
               <textarea className={styles.formInput} value={formData.overview?.introduction || ''} onChange={e => setFormData({...formData, overview: {...formData.overview, introduction: e.target.value}})} rows={2} />
             </div>
@@ -743,7 +771,12 @@ export default function PackagesAdmin() {
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                              updateItineraryDay(idx, 'image', file.name);
+                              const reader = new FileReader();
+                              reader.onload = (ev) => {
+                                const dataUrl = ev.target?.result as string;
+                                updateItineraryDay(idx, 'image', dataUrl);
+                              };
+                              reader.readAsDataURL(file);
                               compressAndSaveImage(file, `uploaded_image_${file.name}`);
                             }
                           }} 
@@ -797,11 +830,19 @@ export default function PackagesAdmin() {
                             onChange={(e) => {
                               const files = Array.from(e.target.files || []);
                               if (files.length > 0) {
-                                const newNames = files.map(f => f.name);
-                                const currentGallery = [...(day.gallery || [])];
-                                updateItineraryDay(idx, 'gallery', [...currentGallery, ...newNames]);
-                                
                                 files.forEach(file => {
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    const dataUrl = ev.target?.result as string;
+                                    setFormData((prev: any) => {
+                                      const newItin = [...(prev.itinerary || [])];
+                                      const currentDay = newItin[idx];
+                                      const currentGallery = [...(currentDay.gallery || [])];
+                                      newItin[idx] = { ...currentDay, gallery: [...currentGallery, dataUrl] };
+                                      return { ...prev, itinerary: newItin };
+                                    });
+                                  };
+                                  reader.readAsDataURL(file);
                                   compressAndSaveImage(file, `uploaded_image_${file.name}`);
                                 });
                               }
@@ -861,7 +902,73 @@ export default function PackagesAdmin() {
               <button type="button" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }} onClick={() => addArrayItem('exclusions')}>+ Add</button>
             </div>
           </div>
-          
+
+          {/* Terms & Conditions and Cancellation Policy */}
+          <div className={styles.formCard} style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+            <h4 className={styles.formCardTitle}>📜 Terms & Conditions & Policies</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div>
+                <h5 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#1e293b' }}>Terms & Conditions</h5>
+                {((formData.termsAndConditions && formData.termsAndConditions.length > 0) ? formData.termsAndConditions : ['']).map((term: string, idx: number) => (
+                  <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <input 
+                      className={styles.formInput} 
+                      value={term} 
+                      placeholder="e.g. Booking amount is non-refundable upon confirmation."
+                      onChange={e => handleArrayChange('termsAndConditions', idx, e.target.value)} 
+                    />
+                    <button 
+                      type="button" 
+                      className="btn btn-primary"
+                      style={{ padding: '0.3rem 0.6rem', backgroundColor: '#e11d48', borderColor: '#e11d48' }}
+                      onClick={() => removeArrayItem('termsAndConditions', idx)}
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', marginTop: '0.25rem' }} 
+                  onClick={() => addArrayItem('termsAndConditions')}
+                >
+                  + Add Term
+                </button>
+              </div>
+
+              <div>
+                <h5 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#1e293b' }}>Cancellation Policy</h5>
+                {((formData.cancellationPolicy && formData.cancellationPolicy.length > 0) ? formData.cancellationPolicy : ['']).map((policy: string, idx: number) => (
+                  <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <input 
+                      className={styles.formInput} 
+                      value={policy} 
+                      placeholder="e.g. 100% refund if cancelled 30 days prior to departure."
+                      onChange={e => handleArrayChange('cancellationPolicy', idx, e.target.value)} 
+                    />
+                    <button 
+                      type="button" 
+                      className="btn btn-primary"
+                      style={{ padding: '0.3rem 0.6rem', backgroundColor: '#e11d48', borderColor: '#e11d48' }}
+                      onClick={() => removeArrayItem('cancellationPolicy', idx)}
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', marginTop: '0.25rem' }} 
+                  onClick={() => addArrayItem('cancellationPolicy')}
+                >
+                  + Add Policy
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Related Tour Packages mapping */}
           <div className={styles.formCard}>
             <h4 className={styles.formCardTitle}>Related Tour Packages Mapping</h4>

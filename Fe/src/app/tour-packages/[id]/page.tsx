@@ -277,7 +277,9 @@ export default function TourDetailsPage({ params }: PageProps) {
             {/* Package Summary & Highlights (Always visible) */}
             <div style={{ backgroundColor: '#fff', borderRadius: '1rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
               <h2 className={styles.contentTitle}>Package Summary</h2>
-              <p className={styles.overviewText}>{tour.description}</p>
+              <p className={styles.overviewText}>
+                {tour.overview?.packageSummary || tour.overview?.summary || tour.overview?.introduction || tour.description}
+              </p>
             </div>
             
             <div style={{ backgroundColor: '#fff', borderRadius: '1rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>

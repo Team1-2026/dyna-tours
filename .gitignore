@@ -73,3 +73,7 @@ Fe/tsconfig.json
 # Service Account Credentials
 *service-account*.json
 *service_account*.json
+
+# Archives
+*.zip
+

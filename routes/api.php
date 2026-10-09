@@ -23,6 +23,7 @@ use App\Http\Controllers\API\CruiseController;
 use App\Http\Controllers\API\CruisePageController;
 use App\Http\Controllers\API\VisaPageController;
 use App\Http\Controllers\API\HomePageController;
+use App\Http\Controllers\API\TourPackageController;
 
 use App\Http\Controllers\API\ImageUploadController;
 
@@ -43,6 +44,18 @@ Route::get('/user', function (Request $request) {
 Route::get('/home-page', [HomePageController::class, 'show']);
 Route::post('/home-page', [HomePageController::class, 'update']);
 Route::put('/home-page', [HomePageController::class, 'update']);
+
+Route::get('/tour-packages', [TourPackageController::class, 'index']);
+Route::get('/tour-packages/{id}', [TourPackageController::class, 'show']);
+Route::post('/tour-packages', [TourPackageController::class, 'store']);
+Route::put('/tour-packages/{id}', [TourPackageController::class, 'update']);
+Route::delete('/tour-packages/{id}', [TourPackageController::class, 'destroy']);
+
+Route::get('/packages', [TourPackageController::class, 'index']);
+Route::get('/packages/{id}', [TourPackageController::class, 'show']);
+Route::post('/packages', [TourPackageController::class, 'store']);
+Route::put('/packages/{id}', [TourPackageController::class, 'update']);
+Route::delete('/packages/{id}', [TourPackageController::class, 'destroy']);
 
 Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/destinations/{id}', [DestinationController::class, 'show']);

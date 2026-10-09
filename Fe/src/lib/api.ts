@@ -1529,37 +1529,84 @@ const normalizeSlug = (str: string): string => {
 };
 
 export const getPackages = async (): Promise<any[]> => {
+  let dbPackages: any[] = [];
+  try {
+    const res = await apiFetch<any[]>('/tour-packages').catch(() => null);
+    if (Array.isArray(res) && res.length > 0) {
+      dbPackages = res;
+    } else {
+      const resFallback = await apiFetch<any[]>('/packages').catch(() => null);
+      if (Array.isArray(resFallback) && resFallback.length > 0) {
+        dbPackages = resFallback;
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch packages from server API:', err);
+  }
+
+  const mapPackage = (p: any) => ({
+    ...p,
+    durationDays: p.duration_days ?? p.durationDays ?? 1,
+    durationNights: p.duration_nights ?? p.durationNights ?? 0,
+    reviewsCount: p.reviews_count ?? p.reviewsCount ?? 0,
+    show_price: p.show_price ?? true,
+    show_price_breakdown: p.show_price_breakdown ?? true,
+    routeOverview: p.route_overview ?? p.routeOverview ?? [],
+    holidayCategory: p.holiday_category ?? p.holidayCategory ?? [],
+    termsAndConditions: p.terms_and_conditions ?? p.termsAndConditions ?? [],
+    cancellationPolicy: p.cancellation_policy ?? p.cancellationPolicy ?? [],
+    quickInfo: p.quick_info ?? p.quickInfo ?? [],
+    relatedTours: p.related_tours ?? p.relatedTours ?? [],
+  });
+
+  if (dbPackages.length > 0) {
+    return dbPackages.map(mapPackage);
+  }
+
   if (typeof window === 'undefined') return [];
   let data: any[] = [];
+  const deletedIds = new Set<string>(JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]'));
+
   const stored = localStorage.getItem('dyna_packages');
   if (stored) {
-    let fixedStored = stored;
-    const replacements: Record<string, string> = {
-      '/images/kerala.jpg': '/images/amalfi_coast.png',
-      '/images/kerala_banner.png': '/images/kyoto_japan.png',
-      '/images/munnar_banner.png': '/images/maldives.png',
-      '/images/thailand_banner.png': '/images/swiss_alps.png'
-    };
-    Object.entries(replacements).forEach(([oldStr, newStr]) => {
-      fixedStored = fixedStored.split(oldStr).join(newStr);
-    });
     try {
-      data = JSON.parse(fixedStored) || [];
+      data = JSON.parse(stored) || [];
     } catch (e) {
       data = [];
     }
   }
 
-  // Always merge with static toursData to ensure built-in packages (like Kerala) are available
+  // Merge with static toursData only for items that have not been explicitly deleted
   const { toursData } = await import('@/data/toursData');
   const existingIds = new Set(data.map((p: any) => p.id || p.slug));
   toursData.forEach((pkg: any) => {
-    if (!existingIds.has(pkg.id) && !existingIds.has(pkg.slug)) {
+    const pkgId = pkg.id;
+    const pkgSlug = pkg.slug || normalizeSlug(pkg.title || pkg.id);
+    const normTitle = normalizeSlug(pkg.title || '');
+
+    const isDeleted = deletedIds.has(pkgId) || 
+                      deletedIds.has(pkgSlug) || 
+                      deletedIds.has(normTitle) ||
+                      deletedIds.has(pkg.id?.toLowerCase());
+
+    if (!isDeleted && !existingIds.has(pkgId) && !existingIds.has(pkgSlug)) {
       data.push(pkg);
     }
   });
 
-  // Ensure all standard quickInfo items (including Tour Assistance 24x7) are applied to all packages
+  // Filter out any deleted items from storage as well
+  data = data.filter((pkg: any) => {
+    const pkgId = pkg.id;
+    const pkgSlug = pkg.slug || normalizeSlug(pkg.title || pkg.id);
+    const normTitle = normalizeSlug(pkg.title || '');
+
+    return !deletedIds.has(pkgId) && 
+           !deletedIds.has(pkgSlug) && 
+           !deletedIds.has(normTitle) &&
+           !deletedIds.has(pkg.id?.toLowerCase());
+  });
+
+  // Ensure all standard quickInfo items are applied to all packages
   const standardQuickInfo = [
     {icon:"🍽", text:"Breakfast Included"},
     {icon:"🏨", text:"Hotel Stay"},
@@ -1568,7 +1615,7 @@ export const getPackages = async (): Promise<any[]> => {
     {icon:"📞", text:"Tour Assistance 24x7"}
   ];
 
-  data = data.map((pkg: any) => {
+  return data.map((pkg: any) => {
     pkg.quickInfo = [...standardQuickInfo];
     if (!pkg.image || !pkg.image.trim()) {
       if (pkg.gallery && pkg.gallery.length > 0 && pkg.gallery[0]) {
@@ -1580,15 +1627,31 @@ export const getPackages = async (): Promise<any[]> => {
     if (!pkg.slug) {
       pkg.slug = normalizeSlug(pkg.title || pkg.id);
     }
-    return pkg;
+    return mapPackage(pkg);
   });
-  
-  return data;
 };
 
 export const getPackageById = async (id: string): Promise<any | null> => {
-  const packages = await getPackages();
   const target = decodeURIComponent(id || '').trim();
+  try {
+    const serverPkg = await apiFetch<any>(`/tour-packages/${target}`).catch(() => null);
+    if (serverPkg && serverPkg.id) {
+      return {
+        ...serverPkg,
+        durationDays: serverPkg.duration_days ?? serverPkg.durationDays ?? 1,
+        durationNights: serverPkg.duration_nights ?? serverPkg.durationNights ?? 0,
+        reviewsCount: serverPkg.reviews_count ?? serverPkg.reviewsCount ?? 0,
+        routeOverview: serverPkg.route_overview ?? serverPkg.routeOverview ?? [],
+        holidayCategory: serverPkg.holiday_category ?? serverPkg.holidayCategory ?? [],
+        termsAndConditions: serverPkg.terms_and_conditions ?? serverPkg.termsAndConditions ?? [],
+        cancellationPolicy: serverPkg.cancellation_policy ?? serverPkg.cancellationPolicy ?? [],
+        quickInfo: serverPkg.quick_info ?? serverPkg.quickInfo ?? [],
+        relatedTours: serverPkg.related_tours ?? serverPkg.relatedTours ?? [],
+      };
+    }
+  } catch (err) {}
+
+  const packages = await getPackages();
   const normTarget = normalizeSlug(target);
 
   let found = packages.find(p => p.id === target || p.slug === target);
@@ -1610,25 +1673,74 @@ export const createPackage = async (data: Omit<any, 'id'>): Promise<any> => {
 
   const cleanSlug = data.slug && data.slug.trim() ? normalizeSlug(data.slug) : normalizeSlug(data.title || `pkg-${Date.now()}`);
 
-  const newPackage = {
+  const payload = {
     ...data,
-    image: data.image && data.image.trim() ? data.image : defaultImg,
-    slug: cleanSlug,
     id: cleanSlug,
+    slug: cleanSlug,
+    image: data.image && data.image.trim() ? data.image : defaultImg,
+    duration_days: data.durationDays ?? data.duration_days ?? 1,
+    duration_nights: data.durationNights ?? data.duration_nights ?? 0,
+    reviews_count: data.reviewsCount ?? data.reviews_count ?? 0,
+    route_overview: data.routeOverview ?? data.route_overview ?? [],
+    holiday_category: data.holidayCategory ?? data.holiday_category ?? [],
+    terms_and_conditions: data.termsAndConditions ?? data.terms_and_conditions ?? [],
+    cancellation_policy: data.cancellationPolicy ?? data.cancellation_policy ?? [],
+    quick_info: data.quickInfo ?? data.quick_info ?? [],
+    related_tours: data.relatedTours ?? data.related_tours ?? [],
   };
+
+  try {
+    const res = await apiFetch<{ message: string; package: any }>('/tour-packages', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }).catch(() => null);
+    if (res && res.package) return res.package;
+  } catch (err) {
+    console.warn('Backend createPackage endpoint failed, saving locally:', err);
+  }
+
   const packages = await getPackages();
-  const updated = [newPackage, ...packages.filter(p => p.id !== cleanSlug && p.slug !== cleanSlug)];
-  localStorage.setItem('dyna_packages', JSON.stringify(updated));
-  return newPackage;
+  const updated = [payload, ...packages.filter(p => p.id !== cleanSlug && p.slug !== cleanSlug)];
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('dyna_packages', JSON.stringify(updated));
+    const deletedIds: string[] = JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]');
+    const filteredDeleted = deletedIds.filter(d => d !== cleanSlug && d !== data.id && d !== normalizeSlug(data.title || ''));
+    localStorage.setItem('dyna_deleted_packages', JSON.stringify(filteredDeleted));
+  }
+
+  return payload;
 };
 
 export const updatePackage = async (id: string, data: Partial<any>): Promise<any> => {
-  const packages = await getPackages();
   const normId = normalizeSlug(id);
-  const index = packages.findIndex(p => p.id === id || p.slug === id || normalizeSlug(p.id) === normId || normalizeSlug(p.slug) === normId);
-  
-  const cleanSlug = data.slug ? normalizeSlug(data.slug) : (data.title ? normalizeSlug(data.title) : (index !== -1 ? packages[index].slug : id));
+  const cleanSlug = data.slug ? normalizeSlug(data.slug) : (data.title ? normalizeSlug(data.title) : id);
 
+  const payload = {
+    ...data,
+    slug: cleanSlug,
+    duration_days: data.durationDays ?? data.duration_days,
+    duration_nights: data.durationNights ?? data.duration_nights,
+    reviews_count: data.reviewsCount ?? data.reviews_count,
+    route_overview: data.routeOverview ?? data.route_overview,
+    holiday_category: data.holidayCategory ?? data.holiday_category,
+    terms_and_conditions: data.termsAndConditions ?? data.terms_and_conditions,
+    cancellation_policy: data.cancellationPolicy ?? data.cancellation_policy,
+    quick_info: data.quickInfo ?? data.quick_info,
+    related_tours: data.relatedTours ?? data.related_tours,
+  };
+
+  try {
+    const res = await apiFetch<{ message: string; package: any }>(`/tour-packages/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    }).catch(() => null);
+    if (res && res.package) return res.package;
+  } catch (err) {
+    console.warn('Backend updatePackage endpoint failed, saving locally:', err);
+  }
+
+  const packages = await getPackages();
+  const index = packages.findIndex(p => p.id === id || p.slug === id || normalizeSlug(p.id) === normId || normalizeSlug(p.slug) === normId);
   const updatedPackage = index !== -1 ? { ...packages[index], ...data, slug: cleanSlug } : { ...data, id: cleanSlug, slug: cleanSlug };
 
   if (!updatedPackage.image || !updatedPackage.image.trim()) {
@@ -1639,21 +1751,41 @@ export const updatePackage = async (id: string, data: Partial<any>): Promise<any
     }
   }
 
-  if (index !== -1) {
-    packages[index] = updatedPackage;
-  } else {
-    packages.unshift(updatedPackage);
+  if (typeof window !== 'undefined') {
+    if (index !== -1) {
+      packages[index] = updatedPackage;
+    } else {
+      packages.unshift(updatedPackage);
+    }
+    localStorage.setItem('dyna_packages', JSON.stringify(packages));
   }
-  
-  localStorage.setItem('dyna_packages', JSON.stringify(packages));
+
   return updatedPackage;
 };
 
 export const deletePackage = async (id: string): Promise<void> => {
-  const packages = await getPackages();
-  const normId = normalizeSlug(id);
-  const updated = packages.filter(p => p.id !== id && p.slug !== id && normalizeSlug(p.id) !== normId && normalizeSlug(p.slug) !== normId);
-  localStorage.setItem('dyna_packages', JSON.stringify(updated));
+  try {
+    await apiFetch(`/tour-packages/${id}`, { method: 'DELETE' }).catch(() => null);
+    await apiFetch(`/packages/${id}`, { method: 'DELETE' }).catch(() => null);
+  } catch (err) {
+    console.warn('Backend deletePackage endpoint error:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    const packages = await getPackages();
+    const normId = normalizeSlug(id);
+    const targetPkg = packages.find(p => p.id === id || p.slug === id || normalizeSlug(p.id) === normId || normalizeSlug(p.slug) === normId);
+
+    const updated = packages.filter(p => p.id !== id && p.slug !== id && normalizeSlug(p.id) !== normId && normalizeSlug(p.slug) !== normId);
+    localStorage.setItem('dyna_packages', JSON.stringify(updated));
+
+    const deletedIds: string[] = JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]');
+    if (id) deletedIds.push(id);
+    if (normId) deletedIds.push(normId);
+    if (targetPkg?.slug) deletedIds.push(targetPkg.slug);
+    if (targetPkg?.title) deletedIds.push(normalizeSlug(targetPkg.title));
+    localStorage.setItem('dyna_deleted_packages', JSON.stringify(Array.from(new Set(deletedIds))));
+  }
 };
 
 // --- Group Tours ---

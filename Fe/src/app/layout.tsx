@@ -18,6 +18,14 @@ export const metadata: Metadata = {
   description: 'Embark on unforgettable journeys across the globe with Dyna Tours. We design bespoke and premium travel packages featuring Zermatt, Kyoto, Amalfi Coast, and Serengeti.',
   keywords: ['travel agency', 'luxury tours', 'vacation packages', 'swiss alps tour', 'kyoto temple tour', 'amalfi coast travel', 'serengeti safari'],
   authors: [{ name: 'Dyna Tours Team' }],
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/images/logo-square.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/images/logo-square.png',
+  },
 };
 
 export default function RootLayout({
