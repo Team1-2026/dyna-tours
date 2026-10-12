@@ -35,6 +35,7 @@ export interface Tour {
   reviewsCount: number;
   description: string;
   overview?: {
+    packageSummary?: string;
     introduction?: string;
     destinationsCovered?: string;
     idealTravelers?: string;
@@ -352,6 +353,137 @@ export const toursData: Tour[] = [
     ],
     holidayCategory: ["Domestic Tour Packages", "Kerala Tour Packages", "Honeymoon Tour Packages"],
     quickInfo: [{icon:"🍽", text:"Breakfast Included"}, {icon:"🏨", text:"Beach Resort"}, {icon:"🚗", text:"Transfers"}, {icon:"📞", text:"Tour Assistance 24x7"}]
+  },
+  {
+    id: "golden-triangle-heritage-escape",
+    slug: "golden-triangle-heritage-escape",
+    title: "Golden Triangle Heritage Escape",
+    destination: "Delhi - Agra - Jaipur",
+    category: "Culture",
+    tourType: "Heritage & Luxury",
+    price: 29999,
+    show_price: true,
+    show_price_breakdown: true,
+    tax: 0,
+    duration: "5 Nights / 6 Days",
+    durationDays: 6,
+    durationNights: 5,
+    rating: 4.9,
+    reviewsCount: 195,
+    description: "Immerse yourself in India's golden heritage spanning Delhi, the Taj Mahal in Agra, and the majestic pink palaces of Jaipur with private guided tours.",
+    overview: {
+      packageSummary: "Explore the iconic Golden Triangle circuit with Delhi, Agra, and Jaipur.",
+      introduction: "Discover the magnificent architectural wonders of the Mughal and Rajput empires.",
+      destinationsCovered: "Delhi, Agra, Jaipur",
+      idealTravelers: "Couples, Families, Culture Buffs",
+      experienceSummary: "Iconic monuments, vibrant bazaars, and royal palatial hospitality."
+    },
+    highlights: [
+      "Private sunrise tour of the Taj Mahal",
+      "Amber Fort Elephant/Jeep experience",
+      "Qutub Minar and Old Delhi rickshaw ride",
+      "Chauffeured luxury air-conditioned sedan throughout"
+    ],
+    routeOverview: [
+      { destination: "Delhi", nights: 2, days: 2 },
+      { destination: "Agra", nights: 1, days: 2 },
+      { destination: "Jaipur", nights: 2, days: 2 }
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: "Arrival in Delhi & Heritage Welcome",
+        description: "Arrive in Delhi. Check into hotel and explore India Gate and Connaught Place.",
+        image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1200&q=80",
+        sightseeing: "India Gate, Connaught Place",
+        meals: "Welcome Dinner",
+        hotel: "5-Star Luxury Delhi Hotel",
+        transport: "Chauffeured Luxury Sedan"
+      }
+    ],
+    inclusions: [
+      "Luxury 5-Star Hotel Stays",
+      "Daily Buffet Breakfast",
+      "Private Monument Entry & Guided Tours",
+      "All Inter-city Transfers & Tolls"
+    ],
+    exclusions: [
+      "Flights",
+      "Personal Expenses",
+      "Gratuities"
+    ],
+    image: "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80"
+    ],
+    holidayCategory: ["Luxury Tour Packages", "Culture"],
+    quickInfo: [{icon:"🍽", text:"Breakfast Included"}, {icon:"🏨", text:"5-Star Hotels"}, {icon:"🚗", text:"Private Transfers"}, {icon:"📞", text:"24x7 Assistance"}]
+  },
+  {
+    id: "bhutan-himalayan-escape",
+    slug: "bhutan-himalayan-escape",
+    title: "Bhutan Himalayan Escape",
+    destination: "Bhutan",
+    category: "Leisure",
+    tourType: "Himalayan Expedition",
+    price: 54999,
+    show_price: true,
+    show_price_breakdown: true,
+    tax: 0,
+    duration: "6 Nights / 7 Days",
+    durationDays: 7,
+    durationNights: 6,
+    rating: 5.0,
+    reviewsCount: 88,
+    description: "Journey into the Land of the Thunder Dragon. Hike to Tiger's Nest monastery, explore Thimphu's vibrant Dzongs, and soak in pristine Himalayan mountain vistas.",
+    overview: {
+      packageSummary: "7-day serene expedition to Thimphu, Punakha, and Paro in mystical Bhutan.",
+      introduction: "Experience the serenity, peace, and rich Buddhist culture of high-altitude Bhutan.",
+      destinationsCovered: "Paro, Thimphu, Punakha",
+      idealTravelers: "Nature Lovers, Adventure Enthusiasts, Spiritual Seekers",
+      experienceSummary: "Ancient monasteries, pine-scented valleys, and gentle Bhutanese warmth."
+    },
+    highlights: [
+      "Trek to Tiger's Nest (Paro Taktsang)",
+      "Punakha Suspension Bridge and Dzong",
+      "Dochula Pass Himalayan Panorama",
+      "Sustainable Development Fee & Visa assistance included"
+    ],
+    routeOverview: [
+      { destination: "Thimphu", nights: 2, days: 2 },
+      { destination: "Punakha", nights: 2, days: 2 },
+      { destination: "Paro", nights: 2, days: 3 }
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: "Arrive in Paro - Transfer to Thimphu",
+        description: "Arrive at Paro International Airport. Scenic mountain drive to the capital city Thimphu.",
+        image: "https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1200&q=80",
+        sightseeing: "Buddha Dordenma, Memorial Chorten",
+        meals: "Dinner Included",
+        hotel: "Heritage Bhutanese Resort",
+        transport: "Private Mountain Vehicle"
+      }
+    ],
+    inclusions: [
+      "3-Star / 4-Star Certified Accommodations",
+      "All Meals (Breakfast, Lunch & Dinner)",
+      "Bhutan Entry Permits & Visa Processing",
+      "English-Speaking Licensed Bhutanese Guide",
+      "Private Transport with Chauffeur"
+    ],
+    exclusions: [
+      "International Airfare to Paro",
+      "Personal expenses",
+      "Travel Insurance"
+    ],
+    image: "https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1200&q=80"
+    ],
+    holidayCategory: ["International Tour Packages", "Leisure", "Culture"],
+    quickInfo: [{icon:"🍽", text:"All Meals Included"}, {icon:"🏨", text:"Resort Stay"}, {icon:"🚗", text:"All Transfers"}, {icon:"📞", text:"Local Guide"}]
   }
 ];
 

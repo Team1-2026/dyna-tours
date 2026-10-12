@@ -1,62 +1,130 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getPackages, createPackage, updatePackage, deletePackage } from '@/lib/api';
+import { getPackages, createPackage, updatePackage, deletePackage, uploadImage, getImageUrl } from '@/lib/api';
 import styles from './admin.module.css';
 import ResolvedImage from '@/components/ResolvedImage';
 
 import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle';
 
-export default function PackagesAdmin() {
-  const compressAndSaveImage = (file: File, key: string) => {
+// Helper to compress uploaded images via Canvas before storing/sending
+const compressImageFile = (file: File, maxWidth = 1600, quality = 0.75): Promise<string> => {
+  return new Promise((resolve) => {
+    if (file.type === 'image/svg+xml' || file.size < 40 * 1024) {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve((e.target?.result as string) || '');
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1200;
-        const MAX_HEIGHT = 1200;
         let width = img.width;
         let height = img.height;
-        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
-          width *= ratio;
-          height *= ratio;
+        if (width > maxWidth || height > maxWidth) {
+          const ratio = Math.min(maxWidth / width, maxWidth / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
         }
+        const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          // Save to IndexedDB to avoid localStorage quota limits
-          try {
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-            const request = indexedDB.open("DynaToursImages", 1);
-            request.onupgradeneeded = (ev) => {
-              (ev.target as any).result.createObjectStore("images");
-            };
-            request.onsuccess = (ev) => {
-              const db = (ev.target as any).result;
-              const tx = db.transaction("images", "readwrite");
-              tx.objectStore("images").put(dataUrl, key);
-            };
-          } catch (err) {
-            console.error("Failed to save image", err);
-          }
+        if (!ctx) {
+          resolve((e.target?.result as string) || '');
+          return;
         }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
       };
+      img.onerror = () => resolve((e.target?.result as string) || '');
       img.src = e.target?.result as string;
     };
+    reader.onerror = () => resolve('');
     reader.readAsDataURL(file);
-  };
+  });
+};
+
+const base64ToFile = (base64String: string, filename = 'image.png'): File => {
+  const arr = base64String.split(',');
+  const mime = arr[0]?.match(/:(.*?);/)?.[1] || 'image/png';
+  const bstr = atob(arr[1] || '');
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+};
+
+const ensureServerImageUrl = async (urlOrBase64?: string | null): Promise<string> => {
+  if (!urlOrBase64 || !urlOrBase64.startsWith('data:image/')) {
+    return urlOrBase64 || '';
+  }
+  try {
+    const file = base64ToFile(urlOrBase64, `migrated_${Date.now()}.png`);
+    const res = await uploadImage(file);
+    return res.url;
+  } catch (err) {
+    console.error('Failed to convert base64 image to server URL:', err);
+    return urlOrBase64;
+  }
+};
+
+const getEmptyPackage = () => ({
+  title: '',
+  slug: '',
+  destination: '',
+  category: 'Leisure',
+  tourType: '',
+  price: 0,
+  tax: 0,
+  show_price: true,
+  show_price_breakdown: true,
+  duration: '',
+  durationDays: 1,
+  durationNights: 0,
+  rating: 5,
+  reviewsCount: 0,
+  description: '',
+  overview: {
+    packageSummary: '',
+    introduction: '',
+    destinationsCovered: '',
+    idealTravelers: '',
+    experienceSummary: ''
+  },
+  routeOverview: [],
+  highlights: [''],
+  itinerary: [],
+  inclusions: [''],
+  exclusions: [''],
+  image: '',
+  gallery: [],
+  holidayCategory: ['Domestic Tour Packages'],
+  termsAndConditions: [''],
+  cancellationPolicy: [''],
+  quickInfo: [],
+  bannerCode: '',
+  relatedTours: [],
+  meta_title: '',
+  meta_description: '',
+  canonical_url: ''
+});
+
+export default function PackagesAdmin() {
   const [packages, setPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<any>(null);
+  const [formData, setFormData] = useState<any>(getEmptyPackage());
 
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
   const [relatedSearch, setRelatedSearch] = useState('');
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,47 +159,6 @@ export default function PackagesAdmin() {
     };
   }, []);
 
-  const getEmptyPackage = () => ({
-    title: '',
-    slug: '',
-    destination: '',
-    category: 'Leisure',
-    tourType: '',
-    price: 0,
-    tax: 0,
-    show_price: true,
-    show_price_breakdown: true,
-    duration: '',
-    durationDays: 1,
-    durationNights: 0,
-    rating: 5,
-    reviewsCount: 0,
-    description: '',
-    overview: {
-      packageSummary: '',
-      introduction: '',
-      destinationsCovered: '',
-      idealTravelers: '',
-      experienceSummary: ''
-    },
-    routeOverview: [],
-    highlights: [''],
-    itinerary: [],
-    inclusions: [''],
-    exclusions: [''],
-    image: '',
-    gallery: [],
-    holidayCategory: ['Domestic Tour Packages'],
-    termsAndConditions: [''],
-    cancellationPolicy: [''],
-    quickInfo: [],
-    bannerCode: '',
-    relatedTours: [],
-    meta_title: '',
-    meta_description: '',
-    canonical_url: ''
-  });
-
   const handleAddNew = () => {
     setFormData(getEmptyPackage());
     setEditingId(null);
@@ -140,34 +167,69 @@ export default function PackagesAdmin() {
 
   const handleEdit = (pkg: any) => {
     const pkgCopy = JSON.parse(JSON.stringify(pkg));
-    if (pkgCopy.slug === undefined) pkgCopy.slug = '';
-    if (pkgCopy.tourType === undefined) pkgCopy.tourType = '';
-    if (pkgCopy.image === undefined) pkgCopy.image = '';
-    if (pkgCopy.description === undefined) pkgCopy.description = '';
-    if (pkgCopy.show_price === undefined) pkgCopy.show_price = true;
-    if (pkgCopy.show_price_breakdown === undefined) pkgCopy.show_price_breakdown = true;
-    if (pkgCopy.tax === undefined) pkgCopy.tax = 0;
-    if (pkgCopy.durationNights === undefined) pkgCopy.durationNights = 0;
-    if (pkgCopy.relatedTours === undefined) pkgCopy.relatedTours = [];
-    if (pkgCopy.meta_title === undefined) pkgCopy.meta_title = '';
-    if (pkgCopy.meta_description === undefined) pkgCopy.meta_description = '';
-    if (pkgCopy.canonical_url === undefined) pkgCopy.canonical_url = '';
+    pkgCopy.title = pkgCopy.title ?? '';
+    pkgCopy.slug = pkgCopy.slug ?? '';
+    pkgCopy.destination = pkgCopy.destination ?? '';
+    pkgCopy.tourType = pkgCopy.tourType ?? '';
+    pkgCopy.image = pkgCopy.image ?? '';
+    pkgCopy.description = pkgCopy.description ?? '';
+    pkgCopy.bannerCode = pkgCopy.bannerCode ?? '';
+    pkgCopy.price = pkgCopy.price ?? 0;
+    pkgCopy.tax = pkgCopy.tax ?? 0;
+    pkgCopy.durationDays = pkgCopy.durationDays ?? 1;
+    pkgCopy.durationNights = pkgCopy.durationNights ?? 0;
+    pkgCopy.rating = pkgCopy.rating ?? 5;
+    pkgCopy.reviewsCount = pkgCopy.reviewsCount ?? 0;
+    pkgCopy.show_price = pkgCopy.show_price !== false;
+    pkgCopy.show_price_breakdown = pkgCopy.show_price_breakdown !== false;
+    pkgCopy.relatedTours = pkgCopy.relatedTours ?? [];
+    pkgCopy.meta_title = pkgCopy.meta_title ?? '';
+    pkgCopy.meta_description = pkgCopy.meta_description ?? '';
+    pkgCopy.canonical_url = pkgCopy.canonical_url ?? '';
 
-    let terms = pkgCopy.termsAndConditions !== undefined ? pkgCopy.termsAndConditions : (pkgCopy.terms_and_conditions || []);
-    if (typeof terms === 'string') {
-      terms = terms ? terms.split('\n').map((s: string) => s.trim()).filter(Boolean) : [''];
-    } else if (!Array.isArray(terms) || terms.length === 0) {
-      terms = [''];
-    }
-    pkgCopy.termsAndConditions = terms;
+    const sanitizeStringArray = (arr: any): string[] => {
+      if (typeof arr === 'string') {
+        const split = arr.split('\n').map((s: string) => s.trim()).filter(Boolean);
+        return split.length > 0 ? split : [''];
+      }
+      if (!Array.isArray(arr) || arr.length === 0) {
+        return [''];
+      }
+      const filtered = arr.map((item: any) => (item === null || item === undefined ? '' : String(item)));
+      return filtered.length > 0 ? filtered : [''];
+    };
 
-    let cancel = pkgCopy.cancellationPolicy !== undefined ? pkgCopy.cancellationPolicy : (pkgCopy.cancellation_policy || []);
-    if (typeof cancel === 'string') {
-      cancel = cancel ? cancel.split('\n').map((s: string) => s.trim()).filter(Boolean) : [''];
-    } else if (!Array.isArray(cancel) || cancel.length === 0) {
-      cancel = [''];
+    pkgCopy.highlights = sanitizeStringArray(pkgCopy.highlights);
+    pkgCopy.inclusions = sanitizeStringArray(pkgCopy.inclusions);
+    pkgCopy.exclusions = sanitizeStringArray(pkgCopy.exclusions);
+    pkgCopy.termsAndConditions = sanitizeStringArray(pkgCopy.termsAndConditions !== undefined ? pkgCopy.termsAndConditions : pkgCopy.terms_and_conditions);
+    pkgCopy.cancellationPolicy = sanitizeStringArray(pkgCopy.cancellationPolicy !== undefined ? pkgCopy.cancellationPolicy : pkgCopy.cancellation_policy);
+
+    if (!pkgCopy.overview || typeof pkgCopy.overview !== 'object') {
+      pkgCopy.overview = {
+        packageSummary: typeof pkgCopy.overview === 'string' ? pkgCopy.overview : '',
+        introduction: '',
+        destinationsCovered: '',
+        idealTravelers: '',
+        experienceSummary: ''
+      };
+    } else {
+      pkgCopy.overview = {
+        packageSummary: pkgCopy.overview.packageSummary ?? pkgCopy.overview.summary ?? '',
+        introduction: pkgCopy.overview.introduction ?? '',
+        destinationsCovered: pkgCopy.overview.destinationsCovered ?? '',
+        idealTravelers: pkgCopy.overview.idealTravelers ?? '',
+        experienceSummary: pkgCopy.overview.experienceSummary ?? ''
+      };
     }
-    pkgCopy.cancellationPolicy = cancel;
+
+    let holidayCat = pkgCopy.holidayCategory !== undefined ? pkgCopy.holidayCategory : (pkgCopy.holiday_category || []);
+    if (typeof holidayCat === 'string') {
+      holidayCat = [holidayCat];
+    } else if (!Array.isArray(holidayCat)) {
+      holidayCat = ['Domestic Tour Packages'];
+    }
+    pkgCopy.holidayCategory = holidayCat.filter(Boolean);
 
     setFormData(pkgCopy);
     setEditingId(pkg.id);
@@ -183,21 +245,56 @@ export default function PackagesAdmin() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaveStatus('Saving...');
-    
-    // Auto-generate duration string and parse numeric fields
-    const dataToSave = {
-      ...formData,
-      price: formData.price === '' || formData.price === null || formData.price === undefined ? 0 : Number(formData.price),
-      tax: formData.tax === '' || formData.tax === null || formData.tax === undefined ? 0 : Number(formData.tax),
-      durationDays: formData.durationDays === '' || formData.durationDays === null || formData.durationDays === undefined ? 1 : Number(formData.durationDays),
-      durationNights: formData.durationNights === '' || formData.durationNights === null || formData.durationNights === undefined ? 0 : Number(formData.durationNights),
-      rating: formData.rating === '' || formData.rating === null || formData.rating === undefined ? 5 : Number(formData.rating),
-      reviewsCount: formData.reviewsCount === '' || formData.reviewsCount === null || formData.reviewsCount === undefined ? 0 : Number(formData.reviewsCount),
-      duration: `${formData.durationDays || 1} Days / ${formData.durationNights || 0} Nights`
-    };
+    setSaveStatus('Preparing & uploading images...');
 
     try {
+      // Auto-migrate any base64 images to server URLs before saving
+      let cleanedImage = formData.image;
+      if (cleanedImage?.startsWith('data:image/')) {
+        cleanedImage = await ensureServerImageUrl(cleanedImage);
+      }
+
+      const cleanedItinerary = await Promise.all(
+        (formData.itinerary || []).map(async (day: any) => {
+          let dayImage = day.image;
+          if (dayImage?.startsWith('data:image/')) {
+            dayImage = await ensureServerImageUrl(dayImage);
+          }
+          let dayGallery = day.gallery || [];
+          if (Array.isArray(dayGallery)) {
+            dayGallery = await Promise.all(
+              dayGallery.map(async (gUrl: string) => {
+                if (gUrl?.startsWith('data:image/')) {
+                  return await ensureServerImageUrl(gUrl);
+                }
+                return gUrl;
+              })
+            );
+          }
+          return {
+            ...day,
+            image: dayImage,
+            gallery: dayGallery
+          };
+        })
+      );
+
+      setSaveStatus('Saving package...');
+
+      // Auto-generate duration string and parse numeric fields
+      const dataToSave = {
+        ...formData,
+        image: cleanedImage,
+        itinerary: cleanedItinerary,
+        price: formData.price === '' || formData.price === null || formData.price === undefined ? 0 : Number(formData.price),
+        tax: formData.tax === '' || formData.tax === null || formData.tax === undefined ? 0 : Number(formData.tax),
+        durationDays: formData.durationDays === '' || formData.durationDays === null || formData.durationDays === undefined ? 1 : Number(formData.durationDays),
+        durationNights: formData.durationNights === '' || formData.durationNights === null || formData.durationNights === undefined ? 0 : Number(formData.durationNights),
+        rating: formData.rating === '' || formData.rating === null || formData.rating === undefined ? 5 : Number(formData.rating),
+        reviewsCount: formData.reviewsCount === '' || formData.reviewsCount === null || formData.reviewsCount === undefined ? 0 : Number(formData.reviewsCount),
+        duration: `${formData.durationDays || 1} Days / ${formData.durationNights || 0} Nights`
+      };
+
       if (editingId) {
         await updatePackage(editingId, dataToSave);
       } else {
@@ -207,14 +304,15 @@ export default function PackagesAdmin() {
       setIsFormOpen(false);
       fetchPackages();
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err) {
-      setSaveStatus('Error saving package.');
+    } catch (err: any) {
+      console.error('Save package error:', err);
+      setSaveStatus(`Error saving package: ${err?.message || 'Please check input values'}`);
     }
   };
 
   const handleArrayChange = (field: string, index: number, value: string) => {
     const newArr = [...(formData[field] || [])];
-    newArr[index] = value;
+    newArr[index] = value ?? '';
     setFormData({ ...formData, [field]: newArr });
   };
 
@@ -437,7 +535,7 @@ export default function PackagesAdmin() {
                           </button>
                           <button 
                             type="button" 
-                            onClick={() => handleDelete(pkg.id, pkg.title)} 
+                            onClick={() => handleDelete(pkg.id || pkg.slug, pkg.title)} 
                             className={`${styles.tableActionBtn} ${styles.actionDelete}`}
                           >
                             Delete
@@ -477,7 +575,7 @@ export default function PackagesAdmin() {
                 required 
                 type="text" 
                 className={styles.formInput} 
-                value={formData.title} 
+                value={formData.title ?? ''} 
                 onChange={e => {
                   const titleVal = e.target.value;
                   const autoSlug = titleVal.toLowerCase().trim().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -487,11 +585,11 @@ export default function PackagesAdmin() {
             </div>
             <div>
               <label>Slug (URL) <span className="required-star">*</span></label>
-              <input required type="text" className={styles.formInput} value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} />
+              <input required type="text" className={styles.formInput} value={formData.slug ?? ''} onChange={e => setFormData({...formData, slug: e.target.value})} />
             </div>
             <div>
               <label>Destination</label>
-              <input type="text" className={styles.formInput} value={formData.destination} onChange={e => setFormData({...formData, destination: e.target.value})} />
+              <input type="text" className={styles.formInput} value={formData.destination ?? ''} onChange={e => setFormData({...formData, destination: e.target.value})} />
             </div>
             <div>
               <label>Price</label>
@@ -523,21 +621,71 @@ export default function PackagesAdmin() {
             </div>
             <div>
               <label>Upload Featured Image / Banner <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 'normal' }}>(Recommended size: 1920 × 460 px)</span></label>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <input type="text" className={styles.formInput} value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} placeholder="Image URL or upload below" style={{ flex: 1 }} />
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                {formData.image && (
+                  <div style={{ position: 'relative', width: '56px', height: '42px', flexShrink: 0, borderRadius: '4px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                    <img 
+                      src={getImageUrl(formData.image)} 
+                      alt="Featured preview" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
+                    />
+                  </div>
+                )}
+                <input 
+                  type="text" 
+                  className={styles.formInput} 
+                  value={formData.image ?? ''} 
+                  onChange={e => setFormData({...formData, image: e.target.value})} 
+                  placeholder="Image URL (e.g. /storage/uploads/... or https://...)" 
+                  style={{ flex: 1, marginBottom: 0 }} 
+                />
+                {formData.image?.startsWith('data:image/') && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', whiteSpace: 'nowrap', backgroundColor: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd' }}
+                    onClick={async () => {
+                      setUploadingField('featured');
+                      const cleanUrl = await ensureServerImageUrl(formData.image);
+                      setFormData((prev: any) => ({ ...prev, image: cleanUrl }));
+                      setUploadingField(null);
+                    }}
+                    title="Convert Base64 to Server URL"
+                  >
+                    ⚡ Convert to Server URL
+                  </button>
+                )}
+                {formData.image && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{ padding: '0.4rem 0.75rem', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}
+                    onClick={() => setFormData({ ...formData, image: '' })}
+                    title="Clear image"
+                  >
+                    ✕
+                  </button>
+                )}
                 <input 
                   type="file" 
                   accept="image/*" 
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
-                        const dataUrl = ev.target?.result as string;
-                        setFormData({...formData, image: dataUrl});
-                      };
-                      reader.readAsDataURL(file);
-                      compressAndSaveImage(file, `uploaded_image_${file.name}`);
+                      setUploadingField('featured');
+                      try {
+                        const res = await uploadImage(file);
+                        if (res && res.url) {
+                          setFormData((prev: any) => ({ ...prev, image: res.url }));
+                        }
+                      } catch (uploadErr: any) {
+                        console.error('Backend upload failed:', uploadErr);
+                        alert(`Upload failed: ${uploadErr?.message || 'Server error'}`);
+                      } finally {
+                        setUploadingField(null);
+                        e.target.value = '';
+                      }
                     }
                   }} 
                   style={{ display: 'none' }} 
@@ -546,9 +694,11 @@ export default function PackagesAdmin() {
                 <button 
                   type="button" 
                   className="btn btn-primary" 
+                  style={{ whiteSpace: 'nowrap' }}
+                  disabled={uploadingField === 'featured'}
                   onClick={() => document.getElementById('featured-image-upload')?.click()}
                 >
-                  Upload File
+                  {uploadingField === 'featured' ? 'Uploading...' : 'Upload File'}
                 </button>
               </div>
             </div>
@@ -608,22 +758,55 @@ export default function PackagesAdmin() {
                 placeholder="e.g. 128 Reviews"
               />
             </div>
-            <div>
-              <label>Holiday Categories</label>
-              <select 
-                className={styles.formInput} 
-                value={formData.holidayCategory?.[0] || ''} 
-                onChange={e => setFormData({...formData, holidayCategory: [e.target.value]})}
-              >
-                <option value="">Select Category</option>
-                <option value="International Tour Packages">International Tour Packages</option>
-                <option value="Domestic Tour Packages">Domestic Tour Packages</option>
-                <option value="Honeymoon Tour Packages">Honeymoon Tour Packages</option>
-                <option value="Luxury Tour Packages">Luxury Tour Packages</option>
-                <option value="Kerala Tour Packages">Kerala Tour Packages</option>
-                <option value="Family Tour Packages">Family Tour Packages</option>
-                <option value="Culture">Culture</option>
-              </select>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Holiday Categories (select all that apply)</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginTop: '0.25rem' }}>
+                {[
+                  'Domestic Tour Packages',
+                  'International Tour Packages',
+                  'Kerala Tour Packages',
+                  'Honeymoon Tour Packages',
+                  'Luxury Tour Packages',
+                  'Day Excursions',
+                  'Family Tour Packages',
+                  'Culture'
+                ].map(catName => {
+                  const isChecked = Array.isArray(formData.holidayCategory) && formData.holidayCategory.includes(catName);
+                  return (
+                    <label 
+                      key={catName} 
+                      style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '0.4rem', 
+                        padding: '0.45rem 0.85rem', 
+                        borderRadius: '6px', 
+                        fontSize: '0.875rem',
+                        cursor: 'pointer',
+                        border: isChecked ? '1.5px solid #dc2626' : '1px solid #cbd5e1',
+                        background: isChecked ? '#fef2f2' : '#ffffff',
+                        color: isChecked ? '#b91c1c' : '#334155',
+                        fontWeight: isChecked ? 600 : 500,
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <input 
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={e => {
+                          const current = Array.isArray(formData.holidayCategory) ? [...formData.holidayCategory] : [];
+                          const updated = e.target.checked 
+                            ? Array.from(new Set([...current, catName]))
+                            : current.filter(c => c !== catName);
+                          setFormData({ ...formData, holidayCategory: updated });
+                        }}
+                        style={{ margin: 0, width: '16px', height: '16px' }}
+                      />
+                      <span>{catName}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -666,7 +849,7 @@ export default function PackagesAdmin() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '8px' }}>
             <div style={{ gridColumn: '1 / -1' }}>
               <label>Short Description (Used in cards)</label>
-              <textarea className={styles.formInput} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={2} />
+              <textarea className={styles.formInput} value={formData.description ?? ''} onChange={e => setFormData({...formData, description: e.target.value})} rows={2} />
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
               <label>Package Summary (Shown on package details page)</label>
@@ -695,8 +878,8 @@ export default function PackagesAdmin() {
           <h4>Route Overview Timeline</h4>
           <div style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '8px' }}>
             {(formData.routeOverview || []).map((stop: any, idx: number) => (
-              <div key={idx} style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem', alignItems: 'center' }}>
-                <input placeholder="Destination" className={styles.formInput} value={stop.destination} onChange={e => updateRouteStop(idx, 'destination', e.target.value)} />
+              <div key={`stop-${idx}`} style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+                <input placeholder="Destination" className={styles.formInput} value={stop.destination ?? ''} onChange={e => updateRouteStop(idx, 'destination', e.target.value)} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <label style={{ fontSize: '0.9rem', color: '#666' }}>Days:</label>
                   <input type="text" className={styles.formInput} style={{ width: '80px' }} value={stop.days ?? ''} onChange={e => updateRouteStop(idx, 'days', e.target.value)} />
@@ -726,11 +909,11 @@ export default function PackagesAdmin() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label>Title</label>
-                    <input className={styles.formInput} value={day.title} onChange={e => updateItineraryDay(idx, 'title', e.target.value)} />
+                    <input className={styles.formInput} value={day.title ?? ''} onChange={e => updateItineraryDay(idx, 'title', e.target.value)} />
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <label>Description</label>
-                    <textarea className={styles.formInput} rows={3} value={day.description} onChange={e => updateItineraryDay(idx, 'description', e.target.value)} />
+                    <label>Day Description / Overview</label>
+                    <textarea className={styles.formInput} rows={3} value={day.description ?? ''} onChange={e => updateItineraryDay(idx, 'description', e.target.value)} />
                   </div>
                   <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
@@ -750,34 +933,68 @@ export default function PackagesAdmin() {
                       <input className={styles.formInput} value={day.meals || ''} onChange={e => updateItineraryDay(idx, 'meals', e.target.value)} />
                     </div>
                   </div>
+
                   <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
                       <label>Main Day Image URL <span style={{ fontSize: '0.8rem', color: '#666' }}>(Recommended size: 800 × 600 px)</span></label>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <input className={styles.formInput} value={day.image || ''} onChange={e => updateItineraryDay(idx, 'image', e.target.value)} style={{ flex: 1 }} />
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        {day.image && (
+                          <div style={{ position: 'relative', width: '48px', height: '36px', flexShrink: 0, borderRadius: '4px', overflow: 'hidden', border: '1px solid #cbd5e1', background: '#f8fafc' }}>
+                            <img 
+                              src={getImageUrl(day.image)} 
+                              alt="Day preview" 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                              onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
+                            />
+                          </div>
+                        )}
+                        <input className={styles.formInput} value={day.image || ''} onChange={e => updateItineraryDay(idx, 'image', e.target.value)} placeholder="Image URL (e.g. /storage/uploads/...)" style={{ flex: 1, marginBottom: 0 }} />
+                        {day.image?.startsWith('data:image/') && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{ padding: '0.4rem 0.6rem', fontSize: '0.75rem', whiteSpace: 'nowrap', backgroundColor: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd' }}
+                            onClick={async () => {
+                              setUploadingField(`day-${idx}`);
+                              const cleanUrl = await ensureServerImageUrl(day.image);
+                              updateItineraryDay(idx, 'image', cleanUrl);
+                              setUploadingField(null);
+                            }}
+                            title="Convert Base64 to Server URL"
+                          >
+                            ⚡ Convert
+                          </button>
+                        )}
                         {day.image && (
                           <button 
                             type="button"
-                            className="btn btn-primary"
-                            style={{ padding: '0.3rem 0.6rem', backgroundColor: '#e11d48', borderColor: '#e11d48' }}
+                            className="btn btn-secondary"
+                            style={{ padding: '0.4rem 0.6rem', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}
                             onClick={() => updateItineraryDay(idx, 'image', '')}
+                            title="Clear image"
                           >
-                            x
+                            ✕
                           </button>
                         )}
                         <input 
                           type="file" 
                           accept="image/*" 
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (ev) => {
-                                const dataUrl = ev.target?.result as string;
-                                updateItineraryDay(idx, 'image', dataUrl);
-                              };
-                              reader.readAsDataURL(file);
-                              compressAndSaveImage(file, `uploaded_image_${file.name}`);
+                              setUploadingField(`day-${idx}`);
+                              try {
+                                const res = await uploadImage(file);
+                                if (res && res.url) {
+                                  updateItineraryDay(idx, 'image', res.url);
+                                }
+                              } catch (uploadErr: any) {
+                                console.error('Backend upload failed:', uploadErr);
+                                alert(`Upload failed: ${uploadErr?.message || 'Server error'}`);
+                              } finally {
+                                setUploadingField(null);
+                                e.target.value = '';
+                              }
                             }
                           }} 
                           style={{ display: 'none' }} 
@@ -787,9 +1004,10 @@ export default function PackagesAdmin() {
                           type="button" 
                           className="btn btn-primary"
                           style={{ padding: '0.5rem 1rem', whiteSpace: 'nowrap' }} 
+                          disabled={uploadingField === `day-${idx}`}
                           onClick={() => document.getElementById(`day-image-upload-${idx}`)?.click()}
                         >
-                          Upload
+                          {uploadingField === `day-${idx}` ? 'Uploading...' : 'Upload'}
                         </button>
                       </div>
                     </div>
@@ -797,10 +1015,21 @@ export default function PackagesAdmin() {
                       <label>Gallery Images <span style={{ fontSize: '0.8rem', color: '#666' }}>(Recommended size: 1200 × 800 px)</span></label>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {(day.gallery || []).map((imgUrl: string, imgIdx: number) => (
-                          <div key={imgIdx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <div key={`day-gallery-${imgIdx}`} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            {imgUrl && (
+                              <div style={{ position: 'relative', width: '40px', height: '32px', flexShrink: 0, borderRadius: '4px', overflow: 'hidden', border: '1px solid #cbd5e1', background: '#f8fafc' }}>
+                                <img 
+                                  src={getImageUrl(imgUrl)} 
+                                  alt={`Gallery ${imgIdx + 1}`} 
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                  onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
+                                />
+                              </div>
+                            )}
                             <input 
                               className={styles.formInput} 
-                              value={imgUrl} 
+                              value={imgUrl ?? ''} 
+                              placeholder="Image URL (e.g. /storage/uploads/...)"
                               onChange={(e) => {
                                 const newGallery = [...(day.gallery || [])];
                                 newGallery[imgIdx] = e.target.value;
@@ -808,17 +1037,34 @@ export default function PackagesAdmin() {
                               }}
                               style={{ flex: 1, marginBottom: 0 }}
                             />
+                            {imgUrl?.startsWith('data:image/') && (
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                style={{ padding: '0.35rem 0.5rem', fontSize: '0.75rem', whiteSpace: 'nowrap', backgroundColor: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd' }}
+                                onClick={async () => {
+                                  const cleanUrl = await ensureServerImageUrl(imgUrl);
+                                  const newGallery = [...(day.gallery || [])];
+                                  newGallery[imgIdx] = cleanUrl;
+                                  updateItineraryDay(idx, 'gallery', newGallery);
+                                }}
+                                title="Convert Base64 to Server URL"
+                              >
+                                ⚡ Convert
+                              </button>
+                            )}
                             <button 
-                              type="button"
-                              className="btn btn-primary"
-                              style={{ padding: '0.3rem 0.6rem', backgroundColor: '#e11d48', borderColor: '#e11d48' }}
+                              type="button" 
+                              className="btn btn-secondary" 
+                              style={{ padding: '0.4rem 0.6rem', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }} 
                               onClick={() => {
                                 const newGallery = [...(day.gallery || [])];
                                 newGallery.splice(imgIdx, 1);
                                 updateItineraryDay(idx, 'gallery', newGallery);
                               }}
+                              title="Remove image"
                             >
-                              x
+                              ✕
                             </button>
                           </div>
                         ))}
@@ -827,24 +1073,33 @@ export default function PackagesAdmin() {
                             type="file" 
                             accept="image/*" 
                             multiple
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const files = Array.from(e.target.files || []);
                               if (files.length > 0) {
-                                files.forEach(file => {
-                                  const reader = new FileReader();
-                                  reader.onload = (ev) => {
-                                    const dataUrl = ev.target?.result as string;
-                                    setFormData((prev: any) => {
-                                      const newItin = [...(prev.itinerary || [])];
-                                      const currentDay = newItin[idx];
-                                      const currentGallery = [...(currentDay.gallery || [])];
-                                      newItin[idx] = { ...currentDay, gallery: [...currentGallery, dataUrl] };
-                                      return { ...prev, itinerary: newItin };
-                                    });
-                                  };
-                                  reader.readAsDataURL(file);
-                                  compressAndSaveImage(file, `uploaded_image_${file.name}`);
-                                });
+                                setUploadingField(`gallery-${idx}`);
+                                const uploadedUrls: string[] = [];
+                                for (const file of files) {
+                                  try {
+                                    const res = await uploadImage(file);
+                                    if (res && res.url) {
+                                      uploadedUrls.push(res.url);
+                                    }
+                                  } catch (uploadErr: any) {
+                                    console.error('Backend upload failed:', uploadErr);
+                                    alert(`Upload failed for ${file.name}: ${uploadErr?.message || 'Server error'}`);
+                                  }
+                                }
+                                if (uploadedUrls.length > 0) {
+                                  setFormData((prev: any) => {
+                                    const newItin = [...(prev.itinerary || [])];
+                                    const currentDay = newItin[idx] || {};
+                                    const currentGallery = [...(currentDay.gallery || [])];
+                                    newItin[idx] = { ...currentDay, gallery: [...currentGallery, ...uploadedUrls] };
+                                    return { ...prev, itinerary: newItin };
+                                  });
+                                }
+                                setUploadingField(null);
+                                e.target.value = '';
                               }
                             }} 
                             style={{ display: 'none' }} 
@@ -852,15 +1107,16 @@ export default function PackagesAdmin() {
                           />
                           <button 
                             type="button" 
-                            className="btn btn-primary"
+                            className="btn btn-primary" 
                             style={{ padding: '0.5rem 1rem', whiteSpace: 'nowrap', alignSelf: 'flex-start' }} 
+                            disabled={uploadingField === `gallery-${idx}`}
                             onClick={() => document.getElementById(`day-gallery-upload-${idx}`)?.click()}
                           >
-                            + Add
+                            {uploadingField === `gallery-${idx}` ? 'Uploading...' : '+ Add Images'}
                           </button>
-                        </div>
                       </div>
                     </div>
+                  </div>
                   </div>
 
                 </div>
@@ -874,8 +1130,8 @@ export default function PackagesAdmin() {
             <div>
               <h5>Highlights</h5>
               {(formData.highlights || []).map((h: string, idx: number) => (
-                <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <input className={styles.formInput} value={h} onChange={e => handleArrayChange('highlights', idx, e.target.value)} />
+                <div key={`hl-${idx}`} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <input className={styles.formInput} value={h ?? ''} onChange={e => handleArrayChange('highlights', idx, e.target.value)} />
                   <button type="button" onClick={() => removeArrayItem('highlights', idx)}>x</button>
                 </div>
               ))}
@@ -884,8 +1140,8 @@ export default function PackagesAdmin() {
             <div>
               <h5>Inclusions</h5>
               {(formData.inclusions || []).map((h: string, idx: number) => (
-                <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <input className={styles.formInput} value={h} onChange={e => handleArrayChange('inclusions', idx, e.target.value)} />
+                <div key={`inc-${idx}`} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <input className={styles.formInput} value={h ?? ''} onChange={e => handleArrayChange('inclusions', idx, e.target.value)} />
                   <button type="button" onClick={() => removeArrayItem('inclusions', idx)}>x</button>
                 </div>
               ))}
@@ -894,8 +1150,8 @@ export default function PackagesAdmin() {
             <div>
               <h5>Exclusions</h5>
               {(formData.exclusions || []).map((h: string, idx: number) => (
-                <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <input className={styles.formInput} value={h} onChange={e => handleArrayChange('exclusions', idx, e.target.value)} />
+                <div key={`exc-${idx}`} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <input className={styles.formInput} value={h ?? ''} onChange={e => handleArrayChange('exclusions', idx, e.target.value)} />
                   <button type="button" onClick={() => removeArrayItem('exclusions', idx)}>x</button>
                 </div>
               ))}
@@ -910,10 +1166,10 @@ export default function PackagesAdmin() {
               <div>
                 <h5 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#1e293b' }}>Terms & Conditions</h5>
                 {((formData.termsAndConditions && formData.termsAndConditions.length > 0) ? formData.termsAndConditions : ['']).map((term: string, idx: number) => (
-                  <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <div key={`tc-${idx}`} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <input 
                       className={styles.formInput} 
-                      value={term} 
+                      value={term ?? ''} 
                       placeholder="e.g. Booking amount is non-refundable upon confirmation."
                       onChange={e => handleArrayChange('termsAndConditions', idx, e.target.value)} 
                     />
@@ -940,10 +1196,10 @@ export default function PackagesAdmin() {
               <div>
                 <h5 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#1e293b' }}>Cancellation Policy</h5>
                 {((formData.cancellationPolicy && formData.cancellationPolicy.length > 0) ? formData.cancellationPolicy : ['']).map((policy: string, idx: number) => (
-                  <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <div key={`cp-${idx}`} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <input 
                       className={styles.formInput} 
-                      value={policy} 
+                      value={policy ?? ''} 
                       placeholder="e.g. 100% refund if cancelled 30 days prior to departure."
                       onChange={e => handleArrayChange('cancellationPolicy', idx, e.target.value)} 
                     />

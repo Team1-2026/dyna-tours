@@ -94,9 +94,11 @@ Route::post('/google-chat/webhook', GoogleChatWebhookController::class)
     ->middleware('verify.google.chat');
 
     
+// Image upload
+Route::post('/upload', [ImageUploadController::class, 'upload']);
+
 // Protected admin routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/upload', [ImageUploadController::class, 'upload']);
     Route::post('/conversations/start', [ConversationalAgentController::class, 'startConversation']);
     Route::post('/conversations/continue', [ConversationalAgentController::class, 'continueConversation']);
 

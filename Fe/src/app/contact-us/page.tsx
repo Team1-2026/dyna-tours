@@ -145,19 +145,19 @@ export default async function ContactUsPage() {
       {/* 2. Enquiry Section (Brand Card with Header + Form + Connect With Us) */}
       <section id="enquiry-form" className={styles.enquirySection}>
         <div className={styles.container} style={{ maxWidth: '900px' }}>
-          <div className={styles.brandCard} style={{ padding: '3rem 2.5rem' }}>
+          <div className={styles.brandCard}>
             <div className={styles.brandPattern} />
             
-            <div style={{ marginBottom: '2rem' }}>
+            <div className={styles.brandHeader}>
               <div className={styles.brandLogoWrapper}>
                 <img src="/images/logo.jpg" alt="Dyna Tours" className={styles.brandLogo} />
               </div>
-              <h3 className={styles.brandTagline} style={{ fontSize: '1.85rem', marginBottom: '0.75rem' }}>{data.brand_tagline}</h3>
-              <p className={styles.brandDesc} style={{ fontSize: '1rem', lineHeight: '1.7', marginBottom: '0' }}>{data.brand_description}</p>
+              <h3 className={styles.brandTagline}>{data.brand_tagline}</h3>
+              <p className={styles.brandDesc}>{data.brand_description}</p>
             </div>
 
             {/* Send Us a Message Enquiry Form - Placed Just Above Connect With Us */}
-            <div style={{ marginBottom: '2.5rem', background: '#ffffff', borderRadius: '1rem', padding: '2rem', color: '#1e293b', boxShadow: '0 10px 25px rgba(0,0,0,0.15)' }}>
+            <div className={styles.formWrapper}>
               <ContactEnquiryForm />
             </div>
 

@@ -274,13 +274,73 @@ export default function TourDetailsPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Package Summary & Highlights (Always visible) */}
-            <div style={{ backgroundColor: '#fff', borderRadius: '1rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
-              <h2 className={styles.contentTitle}>Package Summary</h2>
-              <p className={styles.overviewText}>
-                {tour.overview?.packageSummary || tour.overview?.summary || tour.overview?.introduction || tour.description}
-              </p>
-            </div>
+            {/* Package Overview & Highlights (Always visible) */}
+            {(() => {
+              const overviewObj = typeof tour.overview === 'object' && tour.overview !== null ? tour.overview : null;
+              const overviewString = typeof tour.overview === 'string' ? tour.overview : null;
+              const introText = overviewObj?.introduction || '';
+              const summaryText = overviewObj?.packageSummary || overviewObj?.summary || overviewString || (!introText ? tour.description : '');
+              const destinations = overviewObj?.destinationsCovered || '';
+              const idealTravelers = overviewObj?.idealTravelers || '';
+
+              return (
+                <div style={{ backgroundColor: '#fff', borderRadius: '1rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
+                  <h2 className={styles.contentTitle}>Package Overview</h2>
+
+                  {/* Introduction */}
+                  {introText && (
+                    <div style={{ marginBottom: (summaryText || tour.description) ? '1.25rem' : '0' }}>
+                      <div style={{ color: '#dc2626', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
+                        Introduction
+                      </div>
+                      <p className={styles.overviewText} style={{ whiteSpace: 'pre-wrap' }}>
+                        {introText}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Package Summary */}
+                  {(summaryText || (!introText && tour.description)) && (
+                    <div>
+                      {introText && (
+                        <div style={{ color: 'var(--color-secondary-navy)', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem', marginTop: '1.25rem' }}>
+                          Package Summary
+                        </div>
+                      )}
+                      <p className={styles.overviewText} style={{ whiteSpace: 'pre-wrap' }}>
+                        {summaryText || tour.description}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Destinations Covered & Ideal Travelers */}
+                  {(destinations || idealTravelers) && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid #f1f5f9' }}>
+                      {destinations && (
+                        <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem 1.25rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
+                            Destinations Covered
+                          </span>
+                          <span style={{ color: 'var(--color-secondary-navy)', fontWeight: 600, fontSize: '0.95rem' }}>
+                            {destinations}
+                          </span>
+                        </div>
+                      )}
+                      {idealTravelers && (
+                        <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem 1.25rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
+                            Ideal Travelers
+                          </span>
+                          <span style={{ color: 'var(--color-secondary-navy)', fontWeight: 600, fontSize: '0.95rem' }}>
+                            {idealTravelers}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             
             <div style={{ backgroundColor: '#fff', borderRadius: '1rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
               <h3 className={styles.contentTitle}>Key Highlights</h3>
@@ -400,7 +460,7 @@ export default function TourDetailsPage({ params }: PageProps) {
                             <div className={`${styles.accordionContent} ${isExpanded ? styles.contentExpanded : ''}`}>
                               <div className={styles.itineraryGrid}>
                                 <div className={styles.itineraryLeft}>
-                                  <div className={styles.introOverline}>Introduction</div>
+                                  <div className={styles.introOverline}>Day Overview</div>
                                   <p className={styles.accordionDesc}>{day.description}</p>
                                   
                                   {(day.sightseeing || day.meals || day.hotel || day.transport) && (

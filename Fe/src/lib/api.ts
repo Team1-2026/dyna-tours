@@ -20,7 +20,12 @@ export const getBaseUrl = () => {
     ) {
       return `http://${hostname}:8000/api`;
     }
-    if (hostname.endsWith('logiclabz.in') || hostname.endsWith('prds.in.net')) {
+    if (
+      hostname.endsWith('logiclabz.in') || 
+      hostname.endsWith('prds.in.net') || 
+      hostname.endsWith('dynatours.com') ||
+      hostname === 'dynatours.com'
+    ) {
       return 'https://backdyna.logiclabz.in/api';
     }
   }
@@ -388,31 +393,33 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 }
 
+export const uploadImage = async (file: File): Promise<{ message: string; url: string; full_url?: string }> => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const token = authHelper.getToken();
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${getBaseUrl()}/upload`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Image upload failed: ${res.statusText} (${errText})`);
+  }
+
+  return await res.json();
+};
+
 export const api = {
   // Image Upload helper
-  uploadImage: async (file: File): Promise<{ message: string; url: string }> => {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const token = authHelper.getToken();
-    const headers: Record<string, string> = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const res = await fetch(`${BASE_URL}/upload`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Image upload failed: ${res.statusText} (${errText})`);
-    }
-
-    return await res.json();
-  },
+  uploadImage,
 
   // Authentication operations
   login: async (email: string, password: string): Promise<{ token: string; user: { name: string; email: string } }> => {
@@ -1559,54 +1566,90 @@ export const getPackages = async (): Promise<any[]> => {
     relatedTours: p.related_tours ?? p.relatedTours ?? [],
   });
 
-  if (dbPackages.length > 0) {
-    return dbPackages.map(mapPackage);
-  }
+  const merged: any[] = [];
+  const seenKeys = new Set<string>();
 
-  if (typeof window === 'undefined') return [];
-  let data: any[] = [];
-  const deletedIds = new Set<string>(JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]'));
+  const deletedIds = typeof window !== 'undefined'
+    ? new Set<string>(JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]'))
+    : new Set<string>();
 
-  const stored = localStorage.getItem('dyna_packages');
-  if (stored) {
-    try {
-      data = JSON.parse(stored) || [];
-    } catch (e) {
-      data = [];
+  const isDeleted = (pkg: any) => {
+    if (!pkg) return true;
+    const pkgId = pkg.id ? String(pkg.id).trim() : '';
+    const pkgSlug = pkg.slug ? String(pkg.slug).trim() : normalizeSlug(pkg.title || pkg.id || '');
+    const normTitle = normalizeSlug(pkg.title || '');
+    return (
+      (pkgId && deletedIds.has(pkgId)) ||
+      (pkgId && deletedIds.has(pkgId.toLowerCase())) ||
+      (pkgId && deletedIds.has(normalizeSlug(pkgId))) ||
+      (pkgSlug && deletedIds.has(pkgSlug)) ||
+      (pkgSlug && deletedIds.has(pkgSlug.toLowerCase())) ||
+      (normTitle && deletedIds.has(normTitle))
+    );
+  };
+
+  const registerAndAdd = (pkg: any) => {
+    if (isDeleted(pkg)) return false;
+    const p = mapPackage(pkg);
+    const idKey = p.id ? String(p.id).toLowerCase().trim() : '';
+    const slugKey = p.slug ? String(p.slug).toLowerCase().trim() : '';
+    const titleKey = p.title ? normalizeSlug(p.title) : '';
+
+    if (idKey && seenKeys.has(idKey)) return false;
+    if (slugKey && seenKeys.has(slugKey)) return false;
+    if (titleKey && seenKeys.has(titleKey)) return false;
+
+    if (idKey) seenKeys.add(idKey);
+    if (slugKey) seenKeys.add(slugKey);
+    if (titleKey) seenKeys.add(titleKey);
+
+    merged.push(p);
+    return true;
+  };
+
+  // 1. If server DB returned packages, server DB is authoritative
+  if (Array.isArray(dbPackages) && dbPackages.length > 0) {
+    dbPackages.forEach((pkg: any) => {
+      const p = mapPackage(pkg);
+      const idKey = p.id ? String(p.id).toLowerCase().trim() : '';
+      const slugKey = p.slug ? String(p.slug).toLowerCase().trim() : '';
+      const titleKey = p.title ? normalizeSlug(p.title) : '';
+
+      if (idKey && seenKeys.has(idKey)) return;
+      if (slugKey && seenKeys.has(slugKey)) return;
+      if (titleKey && seenKeys.has(titleKey)) return;
+
+      if (idKey) seenKeys.add(idKey);
+      if (slugKey) seenKeys.add(slugKey);
+      if (titleKey) seenKeys.add(titleKey);
+
+      merged.push(p);
+    });
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dyna_packages', JSON.stringify(merged));
+    }
+  } else {
+    // 2. Fallback mode: Server is offline or empty, use localStorage + static toursData
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('dyna_packages');
+      if (stored) {
+        try {
+          const localList: any[] = JSON.parse(stored) || [];
+          localList.forEach(registerAndAdd);
+        } catch (e) {}
+      }
+
+      const { toursData } = await import('@/data/toursData');
+      toursData.forEach(registerAndAdd);
+      localStorage.setItem('dyna_packages', JSON.stringify(merged));
+    } else {
+      const { toursData } = await import('@/data/toursData');
+      toursData.forEach(registerAndAdd);
     }
   }
 
-  // Merge with static toursData only for items that have not been explicitly deleted
-  const { toursData } = await import('@/data/toursData');
-  const existingIds = new Set(data.map((p: any) => p.id || p.slug));
-  toursData.forEach((pkg: any) => {
-    const pkgId = pkg.id;
-    const pkgSlug = pkg.slug || normalizeSlug(pkg.title || pkg.id);
-    const normTitle = normalizeSlug(pkg.title || '');
-
-    const isDeleted = deletedIds.has(pkgId) || 
-                      deletedIds.has(pkgSlug) || 
-                      deletedIds.has(normTitle) ||
-                      deletedIds.has(pkg.id?.toLowerCase());
-
-    if (!isDeleted && !existingIds.has(pkgId) && !existingIds.has(pkgSlug)) {
-      data.push(pkg);
-    }
-  });
-
-  // Filter out any deleted items from storage as well
-  data = data.filter((pkg: any) => {
-    const pkgId = pkg.id;
-    const pkgSlug = pkg.slug || normalizeSlug(pkg.title || pkg.id);
-    const normTitle = normalizeSlug(pkg.title || '');
-
-    return !deletedIds.has(pkgId) && 
-           !deletedIds.has(pkgSlug) && 
-           !deletedIds.has(normTitle) &&
-           !deletedIds.has(pkg.id?.toLowerCase());
-  });
-
-  // Ensure all standard quickInfo items are applied to all packages
+  // Ensure all standard quickInfo items and fallbacks are applied
   const standardQuickInfo = [
     {icon:"🍽", text:"Breakfast Included"},
     {icon:"🏨", text:"Hotel Stay"},
@@ -1615,8 +1658,10 @@ export const getPackages = async (): Promise<any[]> => {
     {icon:"📞", text:"Tour Assistance 24x7"}
   ];
 
-  return data.map((pkg: any) => {
-    pkg.quickInfo = [...standardQuickInfo];
+  return merged.map((pkg: any) => {
+    if (!pkg.quickInfo || pkg.quickInfo.length === 0) {
+      pkg.quickInfo = [...standardQuickInfo];
+    }
     if (!pkg.image || !pkg.image.trim()) {
       if (pkg.gallery && pkg.gallery.length > 0 && pkg.gallery[0]) {
         pkg.image = pkg.gallery[0];
@@ -1666,6 +1711,30 @@ export const getPackageById = async (id: string): Promise<any | null> => {
   return found || null;
 };
 
+const safeSavePackagesToLocalStorage = (pkgs: any[]) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('dyna_packages', JSON.stringify(pkgs));
+  } catch (quotaErr) {
+    console.warn('localStorage quota exceeded while saving dyna_packages, saving stripped version:', quotaErr);
+    try {
+      const stripped = pkgs.map(p => ({
+        ...p,
+        image: p.image && p.image.startsWith('data:') ? '' : p.image,
+        gallery: Array.isArray(p.gallery) ? p.gallery.filter((g: any) => typeof g === 'string' && !g.startsWith('data:')) : [],
+        itinerary: Array.isArray(p.itinerary) ? p.itinerary.map((d: any) => ({
+          ...d,
+          image: d.image && d.image.startsWith('data:') ? '' : d.image,
+          gallery: Array.isArray(d.gallery) ? d.gallery.filter((g: any) => typeof g === 'string' && !g.startsWith('data:')) : []
+        })) : []
+      }));
+      localStorage.setItem('dyna_packages', JSON.stringify(stripped));
+    } catch (innerErr) {
+      console.warn('Could not save stripped packages to localStorage:', innerErr);
+    }
+  }
+};
+
 export const createPackage = async (data: Omit<any, 'id'>): Promise<any> => {
   const defaultImg = data.gallery && data.gallery.length > 0 && data.gallery[0]
     ? data.gallery[0]
@@ -1694,7 +1763,13 @@ export const createPackage = async (data: Omit<any, 'id'>): Promise<any> => {
       method: 'POST',
       body: JSON.stringify(payload)
     }).catch(() => null);
-    if (res && res.package) return res.package;
+    if (res && res.package) {
+      // Also sync to local cache safely
+      const packages = await getPackages();
+      const updated = [res.package, ...packages.filter(p => p.id !== cleanSlug && p.slug !== cleanSlug)];
+      safeSavePackagesToLocalStorage(updated);
+      return res.package;
+    }
   } catch (err) {
     console.warn('Backend createPackage endpoint failed, saving locally:', err);
   }
@@ -1702,10 +1777,14 @@ export const createPackage = async (data: Omit<any, 'id'>): Promise<any> => {
   const packages = await getPackages();
   const updated = [payload, ...packages.filter(p => p.id !== cleanSlug && p.slug !== cleanSlug)];
   if (typeof window !== 'undefined') {
-    localStorage.setItem('dyna_packages', JSON.stringify(updated));
-    const deletedIds: string[] = JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]');
-    const filteredDeleted = deletedIds.filter(d => d !== cleanSlug && d !== data.id && d !== normalizeSlug(data.title || ''));
-    localStorage.setItem('dyna_deleted_packages', JSON.stringify(filteredDeleted));
+    safeSavePackagesToLocalStorage(updated);
+    try {
+      const deletedIds: string[] = JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]');
+      const filteredDeleted = deletedIds.filter(d => d !== cleanSlug && d !== data.id && d !== normalizeSlug(data.title || ''));
+      localStorage.setItem('dyna_deleted_packages', JSON.stringify(filteredDeleted));
+    } catch (e) {
+      console.warn('Error updating deleted packages cache:', e);
+    }
   }
 
   return payload;
@@ -1734,7 +1813,17 @@ export const updatePackage = async (id: string, data: Partial<any>): Promise<any
       method: 'PUT',
       body: JSON.stringify(payload)
     }).catch(() => null);
-    if (res && res.package) return res.package;
+    if (res && res.package) {
+      const packages = await getPackages();
+      const index = packages.findIndex(p => p.id === id || p.slug === id || normalizeSlug(p.id) === normId || normalizeSlug(p.slug) === normId);
+      if (index !== -1) {
+        packages[index] = res.package;
+      } else {
+        packages.unshift(res.package);
+      }
+      safeSavePackagesToLocalStorage(packages);
+      return res.package;
+    }
   } catch (err) {
     console.warn('Backend updatePackage endpoint failed, saving locally:', err);
   }
@@ -1757,34 +1846,61 @@ export const updatePackage = async (id: string, data: Partial<any>): Promise<any
     } else {
       packages.unshift(updatedPackage);
     }
-    localStorage.setItem('dyna_packages', JSON.stringify(packages));
+    safeSavePackagesToLocalStorage(packages);
   }
 
   return updatedPackage;
 };
 
 export const deletePackage = async (id: string): Promise<void> => {
-  try {
-    await apiFetch(`/tour-packages/${id}`, { method: 'DELETE' }).catch(() => null);
-    await apiFetch(`/packages/${id}`, { method: 'DELETE' }).catch(() => null);
-  } catch (err) {
-    console.warn('Backend deletePackage endpoint error:', err);
-  }
+  if (!id) return;
+  const normId = normalizeSlug(id);
 
   if (typeof window !== 'undefined') {
-    const packages = await getPackages();
-    const normId = normalizeSlug(id);
-    const targetPkg = packages.find(p => p.id === id || p.slug === id || normalizeSlug(p.id) === normId || normalizeSlug(p.slug) === normId);
-
-    const updated = packages.filter(p => p.id !== id && p.slug !== id && normalizeSlug(p.id) !== normId && normalizeSlug(p.slug) !== normId);
-    localStorage.setItem('dyna_packages', JSON.stringify(updated));
-
+    // 1. Immediately record in deletedIds list in localStorage
     const deletedIds: string[] = JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]');
-    if (id) deletedIds.push(id);
+    deletedIds.push(id);
     if (normId) deletedIds.push(normId);
-    if (targetPkg?.slug) deletedIds.push(targetPkg.slug);
-    if (targetPkg?.title) deletedIds.push(normalizeSlug(targetPkg.title));
+
+    // Also remove from dyna_packages cache and add any matching slug/title
+    try {
+      const stored = localStorage.getItem('dyna_packages');
+      if (stored) {
+        const localList: any[] = JSON.parse(stored) || [];
+        const match = localList.find((p: any) => 
+          p.id === id || 
+          p.slug === id || 
+          normalizeSlug(p.id) === normId || 
+          normalizeSlug(p.slug) === normId ||
+          (p.title && normalizeSlug(p.title) === normId)
+        );
+        if (match) {
+          if (match.id) deletedIds.push(match.id);
+          if (match.slug) deletedIds.push(match.slug);
+          if (match.title) deletedIds.push(normalizeSlug(match.title));
+        }
+        const updated = localList.filter((p: any) => 
+          p.id !== id && 
+          p.slug !== id && 
+          normalizeSlug(p.id) !== normId && 
+          normalizeSlug(p.slug) !== normId &&
+          (!p.title || normalizeSlug(p.title) !== normId)
+        );
+        localStorage.setItem('dyna_packages', JSON.stringify(updated));
+      }
+    } catch (e) {}
+
     localStorage.setItem('dyna_deleted_packages', JSON.stringify(Array.from(new Set(deletedIds))));
+  }
+
+  // 2. Call backend delete endpoints
+  try {
+    await apiFetch(`/tour-packages/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => null);
+    if (normId && normId !== id) {
+      await apiFetch(`/tour-packages/${encodeURIComponent(normId)}`, { method: 'DELETE' }).catch(() => null);
+    }
+  } catch (err) {
+    console.warn('Backend deletePackage endpoint error:', err);
   }
 };
 

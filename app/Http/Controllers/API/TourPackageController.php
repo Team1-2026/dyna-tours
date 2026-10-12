@@ -215,16 +215,15 @@ class TourPackageController extends Controller
      */
     public function destroy(string $id)
     {
-        $package = TourPackage::where('id', $id)->orWhere('slug', $id)->first();
+        $packages = TourPackage::where('id', $id)
+            ->orWhere('slug', $id)
+            ->orWhereRaw('LOWER(id) = ?', [strtolower($id)])
+            ->orWhereRaw('LOWER(slug) = ?', [strtolower($id)])
+            ->get();
 
-        if (!$package) {
-            // Even if not found by exact ID, return success message so client state stays clean
-            return response()->json([
-                'message' => 'Tour package deleted successfully'
-            ]);
+        foreach ($packages as $pkg) {
+            $pkg->delete();
         }
-
-        $package->delete();
 
         return response()->json([
             'message' => 'Tour package deleted successfully'

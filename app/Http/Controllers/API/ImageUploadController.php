@@ -11,7 +11,7 @@ class ImageUploadController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:1024',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:20480',
         ]);
 
         if ($request->hasFile('image')) {
@@ -23,7 +23,8 @@ class ImageUploadController extends Controller
 
             return response()->json([
                 'message' => 'Image uploaded successfully',
-                'url' => $url
+                'url' => $url,
+                'full_url' => url($url),
             ], 200);
         }
 
