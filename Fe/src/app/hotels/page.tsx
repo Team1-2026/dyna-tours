@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { api, Hotel, getImageUrl } from '@/lib/api';
 import styles from './hotels.module.css';
 import Pagination from '@/components/Pagination';
+import DestinationAutocomplete from '@/components/DestinationAutocomplete';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -108,12 +109,11 @@ function HotelsDirectoryContent() {
           <form className={styles.searchForm} onSubmit={handleSearchSubmit}>
             <div className={styles.inputGroup}>
               <label className={styles.inputLabel}>Destination</label>
-              <input 
-                type="text" 
+              <DestinationAutocomplete 
                 placeholder="e.g. Munnar, Kerala..." 
                 className={styles.searchInput}
                 value={searchDestination}
-                onChange={(e) => setSearchDestination(e.target.value)}
+                onChange={setSearchDestination}
               />
             </div>
             

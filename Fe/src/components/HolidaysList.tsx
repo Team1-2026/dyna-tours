@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import styles from '@/app/holidays/holidays.module.css';
 import { getPackages } from '@/lib/api';
 import TourCard from '@/components/TourCard';
+import DestinationAutocomplete from '@/components/DestinationAutocomplete';
 
 const HOLIDAY_CATEGORIES = [
   'All Packages',
@@ -121,11 +122,10 @@ export default function HolidaysList({ initialCategory }: HolidaysListProps) {
         <div className={styles.filterInputs}>
           <div className={styles.filterGroup}>
             <label>Destination</label>
-            <input 
-              type="text" 
+            <DestinationAutocomplete 
               placeholder="Where to?" 
               value={searchDest} 
-              onChange={(e) => setSearchDest(e.target.value)}
+              onChange={setSearchDest}
               className={styles.filterInput}
             />
           </div>

@@ -25,6 +25,7 @@ class EnquiryController extends Controller
         $validated = $request->validate([
             'type' => 'required|string|in:destination,hotel,package,flight,visa,cruise,custom',
             'target_id' => 'nullable|string',
+            'page_url' => 'nullable|string|max:1000',
             'name' => 'required|string|max:255',
             'phone' => ['required', 'string', 'min:6', 'max:50', 'regex:/^[0-9+\s\-\(\)]+$/'],
             'email' => 'required|email|max:255',

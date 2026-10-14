@@ -171,6 +171,24 @@
   padding-left: 4px;
 }
 
+.viewAllLink {
+  color: var(--color-primary-red) !important;
+  font-weight: 700 !important;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.viewAllLink:hover {
+  color: #b91c1c !important;
+  padding-left: 6px !important;
+}
+
+.mobileViewAllLink {
+  color: var(--color-primary-red) !important;
+  font-weight: 700 !important;
+}
+
 /* Navigation Actions */
 .navActions {
   display: flex;

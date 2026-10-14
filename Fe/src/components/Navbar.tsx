@@ -42,7 +42,7 @@ export default function Navbar() {
     { name: 'Karnataka', path: '/destinations/karnataka' },
     { name: 'Goa', path: '/destinations/goa' },
     { name: 'Delhi', path: '/destinations/delhi' },
-    { name: 'Other Domestic', path: '/destinations/other-domestic' },
+    { name: 'View All', path: '/destinations/other-domestic' },
   ];
 
   const internationalDestinations = [
@@ -51,7 +51,7 @@ export default function Navbar() {
     { name: 'Malaysia', path: '/destinations/malaysia' },
     { name: 'UAE', path: '/destinations/uae' },
     { name: 'Europe', path: '/destinations/europe' },
-    { name: 'Other International', path: '/destinations/other-international' },
+    { name: 'View All', path: '/destinations/other-international' },
   ];
 
   const holidayCategories = [
@@ -93,8 +93,13 @@ export default function Navbar() {
                   <span className={styles.submenuHeader}>Domestic</span>
                   <div className={styles.submenuList}>
                     {domesticDestinations.map((dest) => (
-                      <Link key={dest.path} href={dest.path}>
+                      <Link 
+                        key={dest.path} 
+                        href={dest.path}
+                        className={dest.name === 'View All' ? styles.viewAllLink : undefined}
+                      >
                         {dest.name}
+                        {dest.name === 'View All' && <span style={{ marginLeft: '4px' }}>→</span>}
                       </Link>
                     ))}
                   </div>
@@ -103,8 +108,13 @@ export default function Navbar() {
                   <span className={styles.submenuHeader}>International</span>
                   <div className={styles.submenuList}>
                     {internationalDestinations.map((dest) => (
-                      <Link key={dest.path} href={dest.path}>
+                      <Link 
+                        key={dest.path} 
+                        href={dest.path}
+                        className={dest.name === 'View All' ? styles.viewAllLink : undefined}
+                      >
                         {dest.name}
+                        {dest.name === 'View All' && <span style={{ marginLeft: '4px' }}>→</span>}
                       </Link>
                     ))}
                   </div>
@@ -222,16 +232,26 @@ export default function Navbar() {
               <div className={styles.mobileSubmenuHeader}>Domestic</div>
               <div className={styles.mobileSubmenuGrid}>
                 {domesticDestinations.map((dest) => (
-                  <Link key={dest.path} href={dest.path} className={styles.mobileSubmenuLink}>
+                  <Link 
+                    key={dest.path} 
+                    href={dest.path} 
+                    className={`${styles.mobileSubmenuLink} ${dest.name === 'View All' ? styles.mobileViewAllLink : ''}`}
+                  >
                     {dest.name}
+                    {dest.name === 'View All' && <span style={{ marginLeft: '4px' }}>→</span>}
                   </Link>
                 ))}
               </div>
               <div className={styles.mobileSubmenuHeader} style={{ marginTop: '0.75rem' }}>International</div>
               <div className={styles.mobileSubmenuGrid}>
                 {internationalDestinations.map((dest) => (
-                  <Link key={dest.path} href={dest.path} className={styles.mobileSubmenuLink}>
+                  <Link 
+                    key={dest.path} 
+                    href={dest.path} 
+                    className={`${styles.mobileSubmenuLink} ${dest.name === 'View All' ? styles.mobileViewAllLink : ''}`}
+                  >
                     {dest.name}
+                    {dest.name === 'View All' && <span style={{ marginLeft: '4px' }}>→</span>}
                   </Link>
                 ))}
               </div>

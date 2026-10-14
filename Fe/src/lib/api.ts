@@ -212,6 +212,7 @@ export interface Enquiry {
   id?: number;
   type: 'destination' | 'hotel' | 'package' | 'flight' | string;
   target_id: string;
+  page_url?: string;
   name: string;
   email: string;
   phone: string;
@@ -667,9 +668,13 @@ export const api = {
 
   // Enquiry operations
   submitEnquiry: async (data: Enquiry): Promise<{ message: string; enquiry: Enquiry }> => {
+    const payload = {
+      ...data,
+      page_url: data.page_url || (typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : undefined),
+    };
     return await apiFetch<{ message: string; enquiry: Enquiry }>('/enquiries', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
   },
 

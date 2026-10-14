@@ -481,6 +481,130 @@ export default function AdminDashboard() {
     return Math.max(0, ...list.map(d => Number(d.order_no) || 0)) + 1;
   };
 
+  const getEnquiryPageUrl = (enq: Enquiry) => {
+    if (enq.page_url && enq.page_url.trim()) {
+      return enq.page_url;
+    }
+    const type = (enq.type || '').toLowerCase();
+    const target = (enq.target_id || '').trim();
+
+    if (type === 'package') {
+      if (target && target !== 'package_service') {
+        const slug = target.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        return `/tour-packages/${slug}`;
+      }
+      return '/holidays';
+    }
+    if (type === 'hotel') {
+      if (target && target !== 'hotel_service') {
+        const found = hotels.find(h => String(h.id) === target || h.name?.toLowerCase() === target.toLowerCase());
+        if (found) return `/hotels/${found.id}`;
+        return `/hotels/${target}`;
+      }
+      return '/hotels';
+    }
+    if (type === 'destination') {
+      if (target && target !== 'destination_service') {
+        const found = destinations.find(d => String(d.id) === target || d.url_slug === target || d.name?.toLowerCase() === target.toLowerCase());
+        if (found) return `/destinations/${found.url_slug || found.id}`;
+        return `/destinations/${target}`;
+      }
+      return '/destinations';
+    }
+    if (type === 'cruise') {
+      if (target && target !== 'general-cruise-enquiry' && target !== 'cruise_service') {
+        return `/cruise/${target}`;
+      }
+      return '/cruise';
+    }
+    if (type === 'visa') {
+      if (target && target !== 'visa_service') {
+        return `/visa/${target.toLowerCase()}`;
+      }
+      return '/visa';
+    }
+    if (type === 'flight') {
+      return '/flights';
+    }
+    if (type === 'group' || type === 'group_tour') {
+      if (target && target !== 'group_service') {
+        return `/group-tours/${target}`;
+      }
+      return '/group-tours';
+    }
+    return target ? `/${target}` : '/';
+  };
+
+  const downloadCustomerEnquiriesCSV = () => {
+    if (!enquiries || enquiries.length === 0) return;
+
+    const headers = [
+      'ID',
+      'Date & Time',
+      'Type',
+      'Page URL',
+      'Customer Name',
+      'Email',
+      'Phone',
+      'Travel Date / Check-In',
+      'Check-Out / Return Date',
+      'Adults / People',
+      'Children',
+      'Children Ages',
+      'Specific Details',
+      'Message'
+    ];
+
+    const escapeCSV = (val: any) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const rows = enquiries.map((enq) => {
+      const pageUrl = getEnquiryPageUrl(enq);
+      const dateTime = enq.created_at
+        ? `${new Date(enq.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${new Date(enq.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`
+        : '';
+
+      let specificDetails = '';
+      if (enq.type === 'flight') {
+        specificDetails = `Route: ${enq.from || ''} -> ${enq.to || ''} | Trip: ${enq.trip_type || ''} | Class: ${enq.cabin_class || ''} | Airline: ${enq.preferred_airline || ''}`;
+      } else if (enq.type === 'hotel') {
+        specificDetails = `In: ${enq.check_in || ''} | Out: ${enq.check_out || ''}`;
+      }
+
+      return [
+        escapeCSV(enq.id),
+        escapeCSV(dateTime),
+        escapeCSV(enq.type?.toUpperCase() || ''),
+        escapeCSV(pageUrl),
+        escapeCSV(enq.name),
+        escapeCSV(enq.email),
+        escapeCSV(enq.phone),
+        escapeCSV(enq.travel_date || enq.check_in || enq.departure_date || ''),
+        escapeCSV(enq.check_out || enq.return_date || ''),
+        escapeCSV(enq.num_people || enq.num_adults || ''),
+        escapeCSV(enq.num_children || ''),
+        escapeCSV(enq.children_ages || ''),
+        escapeCSV(specificDetails),
+        escapeCSV(enq.message || ''),
+      ].join(',');
+    });
+
+    const csvContent = '\uFEFF' + [headers.map(escapeCSV).join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute('download', `customer_enquiries_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // Auto-populate default order_no for new hotel if empty or upon data load
   useEffect(() => {
     if (isCreatingHotel && hotels.length > 0) {
@@ -1649,66 +1773,140 @@ export default function AdminDashboard() {
              ========================================== */}
           {activeTab === 'enquiries' && (
             <div className={styles.panelCard}>
-              <h2 className={styles.panelTitle}>Customer Enquiry Submissions</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h2 className={styles.panelTitle} style={{ margin: 0 }}>Customer Enquiry Submissions</h2>
+                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
+                    Total: {enquiries.length} {enquiries.length === 1 ? 'submission' : 'submissions'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <button 
+                    onClick={downloadCustomerEnquiriesCSV} 
+                    className={styles.saveBtn} 
+                    disabled={enquiries.length === 0}
+                    style={{ 
+                      marginTop: 0, 
+                      backgroundColor: '#059669', 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '0.5rem',
+                      opacity: enquiries.length === 0 ? 0.6 : 1,
+                      cursor: enquiries.length === 0 ? 'not-allowed' : 'pointer',
+                      fontWeight: 600,
+                      color: '#ffffff'
+                    }}
+                    title="Export customer enquiries to CSV"
+                  >
+                    <span>📥 Download CSV</span>
+                  </button>
+                  <button 
+                    onClick={refreshData} 
+                    className={styles.saveBtn} 
+                    style={{ marginTop: 0, backgroundColor: 'var(--color-secondary-navy)', color: '#ffffff' }}
+                    title="Refresh enquiries list"
+                  >
+                    <span>🔄 Refresh</span>
+                  </button>
+                </div>
+              </div>
               
               {enquiries.length > 0 ? (
                 <div className={styles.tableContainer}>
                   <table className={styles.adminTable}>
                     <thead>
                       <tr>
-                        <th>Date</th>
+                        <th style={{ width: '135px' }}>Date & Time</th>
                         <th>Type</th>
-                        <th>Target ID</th>
+                        <th style={{ width: '220px' }}>Page URL</th>
                         <th>Contact Info</th>
                         <th>Details</th>
                         <th>Message</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {enquiries.map((enq) => (
-                        <tr key={enq.id}>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            {enq.created_at ? new Date(enq.created_at).toLocaleDateString() : 'N/A'}
-                          </td>
-                          <td>
-                            <span className={`${styles.badge} ${enq.type === 'hotel' ? styles.badgeHotel : styles.badgeDestination}`}>
-                              {enq.type === 'package' ? 'PACKAGE' : enq.type.toUpperCase()}
-                            </span>
-                          </td>
-                          <td style={{ fontWeight: 600 }}>{enq.target_id}</td>
-                          <td>
-                            <div style={{ fontWeight: 750 }}>{enq.name}</div>
-                            <div>✉ {enq.email}</div>
-                            <div>📞 {enq.phone}</div>
-                          </td>
-                          <td>
-                            {enq.type === 'flight' ? (
-                              <div>
-                                <div>🛫 Route: {enq.from} &rarr; {enq.to}</div>
-                                <div>✈️ Type: {enq.trip_type} • Class: {enq.cabin_class}</div>
-                                <div>📅 Dep: {enq.departure_date} {enq.return_date ? `• Ret: ${enq.return_date}` : ''}</div>
-                                <div>🧑 Adults: {enq.num_adults} • Child: {enq.num_children} • Infants: {enq.num_infants}</div>
-                                {enq.preferred_airline && <div>Airline: {enq.preferred_airline}</div>}
-                              </div>
-                            ) : enq.type === 'hotel' ? (
-                              <div>
-                                {enq.check_in && <div>📅 In: {enq.check_in}</div>}
-                                {enq.check_out && <div>📅 Out: {enq.check_out}</div>}
-                                <div>🧑 Adults: {enq.num_adults || 1}, Child: {enq.num_children || 0}</div>
-                              </div>
-                            ) : (
-                              <div>
-                                <div>🧑 Peoples: {enq.num_people || enq.num_adults || 'N/A'}</div>
-                                {enq.num_children !== undefined && enq.num_children > 0 && (
-                                  <div>👶 Child: {enq.num_children} {enq.children_ages ? `(Ages: ${enq.children_ages})` : ''}</div>
-                                )}
-                                <div>📅 Date: {enq.travel_date || 'N/A'}</div>
-                              </div>
-                            )}
-                          </td>
-                          <td style={{ maxWidth: '350px', whiteSpace: 'pre-wrap' }}>{enq.message || '—'}</td>
-                        </tr>
-                      ))}
+                      {enquiries.map((enq) => {
+                        const pageUrl = getEnquiryPageUrl(enq);
+                        return (
+                          <tr key={enq.id}>
+                            <td style={{ whiteSpace: 'nowrap' }}>
+                              {enq.created_at ? (
+                                <div>
+                                  <div style={{ fontWeight: 600, color: 'var(--color-secondary-navy)' }}>
+                                    {new Date(enq.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                  </div>
+                                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                                    {new Date(enq.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                  </div>
+                                </div>
+                              ) : (
+                                'N/A'
+                              )}
+                            </td>
+                            <td>
+                              <span className={`${styles.badge} ${enq.type === 'hotel' ? styles.badgeHotel : styles.badgeDestination}`}>
+                                {enq.type === 'package' ? 'PACKAGE' : enq.type.toUpperCase()}
+                              </span>
+                            </td>
+                            <td style={{ maxWidth: '240px' }}>
+                              {pageUrl ? (
+                                <a 
+                                  href={pageUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  style={{ 
+                                    color: '#2563eb', 
+                                    textDecoration: 'underline', 
+                                    fontWeight: 600,
+                                    fontSize: '0.85rem',
+                                    display: 'inline-flex', 
+                                    alignItems: 'center', 
+                                    gap: '3px',
+                                    wordBreak: 'break-all'
+                                  }}
+                                  title={`Open ${pageUrl}`}
+                                >
+                                  <span>{pageUrl}</span>
+                                  <span style={{ fontSize: '10px', textDecoration: 'none' }}>↗</span>
+                                </a>
+                              ) : (
+                                <span style={{ color: '#94a3b8' }}>—</span>
+                              )}
+                            </td>
+                            <td>
+                              <div style={{ fontWeight: 750 }}>{enq.name}</div>
+                              <div>✉ {enq.email}</div>
+                              <div>📞 {enq.phone}</div>
+                            </td>
+                            <td>
+                              {enq.type === 'flight' ? (
+                                <div>
+                                  <div>🛫 Route: {enq.from} &rarr; {enq.to}</div>
+                                  <div>✈️ Type: {enq.trip_type} • Class: {enq.cabin_class}</div>
+                                  <div>📅 Dep: {enq.departure_date} {enq.return_date ? `• Ret: ${enq.return_date}` : ''}</div>
+                                  <div>🧑 Adults: {enq.num_adults} • Child: {enq.num_children} • Infants: {enq.num_infants}</div>
+                                  {enq.preferred_airline && <div>Airline: {enq.preferred_airline}</div>}
+                                </div>
+                              ) : enq.type === 'hotel' ? (
+                                <div>
+                                  {enq.check_in && <div>📅 In: {enq.check_in}</div>}
+                                  {enq.check_out && <div>📅 Out: {enq.check_out}</div>}
+                                  <div>🧑 Adults: {enq.num_adults || 1}, Child: {enq.num_children || 0}</div>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div>🧑 Peoples: {enq.num_people || enq.num_adults || 'N/A'}</div>
+                                  {enq.num_children !== undefined && enq.num_children > 0 && (
+                                    <div>👶 Child: {enq.num_children} {enq.children_ages ? `(Ages: ${enq.children_ages})` : ''}</div>
+                                  )}
+                                  <div>📅 Date: {enq.travel_date || 'N/A'}</div>
+                                </div>
+                              )}
+                            </td>
+                            <td style={{ maxWidth: '350px', whiteSpace: 'pre-wrap' }}>{enq.message || '—'}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

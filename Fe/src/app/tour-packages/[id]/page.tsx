@@ -34,8 +34,11 @@ export default function TourDetailsPage({ params }: PageProps) {
     ]).then(([data, allPackages]) => {
       setTour(data);
       if (data && data.relatedTours && data.relatedTours.length > 0) {
-        const related = allPackages.filter(p => data.relatedTours.includes(p.id));
+        const relIds = data.relatedTours.map(String);
+        const related = (allPackages || []).filter(p => relIds.includes(String(p.id)) && String(p.id) !== String(id));
         setRelatedToursData(related);
+      } else {
+        setRelatedToursData([]);
       }
       setIsLoading(false);
     });
@@ -841,20 +844,18 @@ export default function TourDetailsPage({ params }: PageProps) {
       </div>
 
       {/* Related Tour Packages Section */}
-      <div className="container" style={{ marginTop: '4rem', marginBottom: '4rem' }}>
-        <h2 style={{ fontSize: '1.75rem', color: 'var(--color-secondary-navy)', marginBottom: '1.5rem', fontWeight: 700 }}>
-          Related Tour Packages
-        </h2>
-        {relatedToursData && relatedToursData.length > 0 ? (
+      {relatedToursData && relatedToursData.length > 0 && (
+        <div className="container" style={{ marginTop: '4rem', marginBottom: '4rem' }}>
+          <h2 style={{ fontSize: '1.75rem', color: 'var(--color-secondary-navy)', marginBottom: '1.5rem', fontWeight: 700 }}>
+            Related Tour Packages
+          </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
             {relatedToursData.map((relTour) => (
               <TourCard key={relTour.id} tour={relTour} layout="vertical" />
             ))}
           </div>
-        ) : (
-          <p style={{ color: 'var(--color-text-secondary)' }}>No related tour packages have been selected for this tour yet. You can add them from the Admin Panel.</p>
-        )}
-      </div>
+        </div>
+      )}
 
       <ImageZoomModal
         isOpen={isZoomOpen}

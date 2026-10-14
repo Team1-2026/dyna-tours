@@ -12,6 +12,7 @@ class Enquiry extends Model
     protected $fillable = [
         'type',
         'target_id',
+        'page_url',
         'name',
         'phone',
         'email',

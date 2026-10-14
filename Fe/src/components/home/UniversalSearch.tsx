@@ -17,6 +17,7 @@ import {
   Globe,
   Tag
 } from 'lucide-react';
+import DestinationAutocomplete from '@/components/DestinationAutocomplete';
 
 const fieldStyle: React.CSSProperties = {
   height: '44px',
@@ -171,7 +172,7 @@ export const UniversalSearch: React.FC = () => {
 
   return (
     <div className="relative z-30 mx-auto max-w-6xl px-4 sm:px-6 -mt-20 sm:-mt-24 pb-6 sm:pb-8">
-      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5">
+      <div className="relative rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5">
         
         {/* Navigation Tabs */}
         <div className="flex overflow-x-auto gap-1.5 border-b border-slate-100 pb-3 no-scrollbar">
@@ -214,16 +215,13 @@ export const UniversalSearch: React.FC = () => {
                   <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Destination
                   </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500 z-10 pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder="Where to? (e.g. Europe, Bali)"
-                      value={holidayDest}
-                      onChange={(e) => setHolidayDest(e.target.value)}
-                      style={inputStyle}
-                    />
-                  </div>
+                  <DestinationAutocomplete
+                    value={holidayDest}
+                    onChange={setHolidayDest}
+                    placeholder="Where to? (e.g. Europe, Bali)"
+                    icon={<MapPin className="h-4 w-4 text-red-500" />}
+                    style={inputStyle}
+                  />
                 </div>
 
                 <div>
@@ -315,16 +313,13 @@ export const UniversalSearch: React.FC = () => {
                   <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Destination / Hotel Name
                   </label>
-                  <div className="relative">
-                    <Hotel className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-600 z-10 pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder="City or Hotel Name"
-                      value={hotelDest}
-                      onChange={(e) => setHotelDest(e.target.value)}
-                      style={inputStyle}
-                    />
-                  </div>
+                  <DestinationAutocomplete
+                    value={hotelDest}
+                    onChange={setHotelDest}
+                    placeholder="City or Hotel Name"
+                    icon={<Hotel className="h-4 w-4 text-teal-600" />}
+                    style={inputStyle}
+                  />
                 </div>
 
                 <div>
@@ -551,16 +546,13 @@ export const UniversalSearch: React.FC = () => {
                   <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                     Group Tour Destination
                   </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600 z-10 pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder="Destination (e.g. Europe, Kashmir)"
-                      value={groupDest}
-                      onChange={(e) => setGroupDest(e.target.value)}
-                      style={inputStyle}
-                    />
-                  </div>
+                  <DestinationAutocomplete
+                    value={groupDest}
+                    onChange={setGroupDest}
+                    placeholder="Destination (e.g. Europe, Kashmir)"
+                    icon={<MapPin className="h-4 w-4 text-emerald-600" />}
+                    style={inputStyle}
+                  />
                 </div>
 
                 <div>
