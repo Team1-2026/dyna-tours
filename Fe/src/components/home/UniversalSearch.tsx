@@ -18,6 +18,7 @@ import {
   Tag
 } from 'lucide-react';
 import DestinationAutocomplete from '@/components/DestinationAutocomplete';
+import { getTodayDateString } from '@/lib/dateUtils';
 
 const fieldStyle: React.CSSProperties = {
   height: '44px',
@@ -279,8 +280,17 @@ export const UniversalSearch: React.FC = () => {
                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
                     <input
                       type="date"
+                      min={getTodayDateString()}
                       value={holidayDate}
-                      onChange={(e) => setHolidayDate(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const today = getTodayDateString();
+                        if (val && val < today) {
+                          setHolidayDate(today);
+                        } else {
+                          setHolidayDate(val);
+                        }
+                      }}
                       style={dateStyle}
                     />
                   </div>
@@ -330,8 +340,17 @@ export const UniversalSearch: React.FC = () => {
                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
                     <input
                       type="date"
+                      min={getTodayDateString()}
                       value={checkIn}
-                      onChange={(e) => setCheckIn(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const today = getTodayDateString();
+                        const chosen = (val && val < today) ? today : val;
+                        setCheckIn(chosen);
+                        if (checkOut && checkOut < chosen) {
+                          setCheckOut(chosen);
+                        }
+                      }}
                       style={dateStyle}
                     />
                   </div>
@@ -345,8 +364,17 @@ export const UniversalSearch: React.FC = () => {
                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
                     <input
                       type="date"
+                      min={checkIn || getTodayDateString()}
                       value={checkOut}
-                      onChange={(e) => setCheckOut(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const minAllowed = checkIn || getTodayDateString();
+                        if (val && val < minAllowed) {
+                          setCheckOut(minAllowed);
+                        } else {
+                          setCheckOut(val);
+                        }
+                      }}
                       style={dateStyle}
                     />
                   </div>

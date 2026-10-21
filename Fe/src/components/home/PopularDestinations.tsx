@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, ArrowRight, MapPin } from 'lucide-react';
 import ResolvedImage from '@/components/ResolvedImage';
+import { isDestinationDeleted } from '@/lib/api';
 
 interface DestinationItem {
   id: string;
@@ -156,10 +157,13 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
   ];
 
   const activeDestinations = (destinations && destinations.length > 0)
-    ? destinations.filter(d => !('status' in d) || !(d as any).status || (d as any).status.toLowerCase() !== 'inactive')
+    ? destinations
+        .filter(d => !('status' in d) || !(d as any).status || (d as any).status.toLowerCase() !== 'inactive')
+        .filter(d => !isDestinationDeleted(d.id))
     : [];
 
-  const sourceData = activeDestinations.length >= 4 ? activeDestinations : defaultDestinations;
+  const sanitizedDefaults = defaultDestinations.filter(d => !isDestinationDeleted(d.id));
+  const sourceData = activeDestinations.length >= 4 ? activeDestinations : (activeDestinations.length > 0 ? activeDestinations : sanitizedDefaults);
 
   const filtered = sourceData.filter((d) => {
     if (!d.type) return true;

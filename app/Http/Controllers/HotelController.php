@@ -294,17 +294,92 @@ class HotelController extends Controller
     }
 
     /**
+     * Remove hotel references from related_hotels across Destinations and Hotels.
+     */
+    public static function cleanupDeletedHotelReferences(array $identifiers): void
+    {
+        $identifiers = array_unique(array_filter(array_map(function ($val) {
+            return strtolower(trim((string)$val));
+        }, $identifiers)));
+
+        if (empty($identifiers)) {
+            return;
+        }
+
+        // 1. Clean up Destination related_hotels
+        try {
+            $destinations = \App\Models\Destination::whereNotNull('related_hotels')->get();
+            foreach ($destinations as $dest) {
+                if (is_array($dest->related_hotels) && !empty($dest->related_hotels)) {
+                    $originalCount = count($dest->related_hotels);
+                    $filtered = array_values(array_filter($dest->related_hotels, function ($hId) use ($identifiers) {
+                        return !in_array(strtolower(trim((string)$hId)), $identifiers, true);
+                    }));
+                    if (count($filtered) !== $originalCount) {
+                        $dest->related_hotels = $filtered;
+                        $dest->save();
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error cleaning related_hotels from destinations: ' . $e->getMessage());
+        }
+
+        // 2. Clean up Hotel related_hotels
+        try {
+            $hotels = Hotel::whereNotNull('related_hotels')->get();
+            foreach ($hotels as $otherHotel) {
+                if (is_array($otherHotel->related_hotels) && !empty($otherHotel->related_hotels)) {
+                    $originalCount = count($otherHotel->related_hotels);
+                    $filtered = array_values(array_filter($otherHotel->related_hotels, function ($hId) use ($identifiers) {
+                        return !in_array(strtolower(trim((string)$hId)), $identifiers, true);
+                    }));
+                    if (count($filtered) !== $originalCount) {
+                        $otherHotel->related_hotels = $filtered;
+                        $otherHotel->save();
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error cleaning related_hotels from hotels: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $hotel = Hotel::find($id);
+        $hotels = Hotel::where('id', $id)
+            ->orWhere('url_slug', $id)
+            ->orWhereRaw('LOWER(id) = ?', [strtolower($id)])
+            ->orWhereRaw('LOWER(url_slug) = ?', [strtolower($id)])
+            ->get();
 
-        if (!$hotel) {
-            return response()->json(['message' => 'Hotel not found'], 404);
+        $identifiers = [
+            $id,
+            strtolower($id),
+            \Illuminate\Support\Str::slug($id),
+        ];
+
+        foreach ($hotels as $hotel) {
+            if ($hotel->id) {
+                $identifiers[] = (string)$hotel->id;
+                $identifiers[] = strtolower((string)$hotel->id);
+            }
+            if ($hotel->url_slug) {
+                $identifiers[] = (string)$hotel->url_slug;
+                $identifiers[] = strtolower((string)$hotel->url_slug);
+            }
+            if ($hotel->name) {
+                $identifiers[] = (string)$hotel->name;
+                $identifiers[] = strtolower((string)$hotel->name);
+                $identifiers[] = \Illuminate\Support\Str::slug($hotel->name);
+            }
+            $hotel->delete();
         }
 
-        $hotel->delete();
+        self::cleanupDeletedHotelReferences($identifiers);
 
         return response()->json([
             'message' => 'Hotel deleted successfully'

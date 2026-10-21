@@ -5,6 +5,8 @@ import styles from '../../app/visa/page.module.css';
 import { VisaCountry } from '@/data/visaData';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 
 interface VisaEnquiryFormProps {
   destinations: VisaCountry[];
@@ -28,7 +30,7 @@ export default function VisaEnquiryForm({ destinations, preselectedCountry = '',
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -144,7 +146,13 @@ export default function VisaEnquiryForm({ destinations, preselectedCountry = '',
 
             <div className={styles.inputGroupFull}>
               <label htmlFor="travelDate">Tentative Travel Date</label>
-              <input type="date" id="travelDate" name="travelDate" value={formData.travelDate} onChange={handleChange} required />
+              <DatePicker 
+                id="travelDate" 
+                name="travelDate" 
+                value={formData.travelDate} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
             <div className={styles.inputGroupFull}>

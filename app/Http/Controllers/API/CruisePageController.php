@@ -19,10 +19,10 @@ class CruisePageController extends Controller
             $page = CruisePage::create([
                 'banner_title' => 'Cruise Holidays',
                 'banner_tagline' => "Sail in Luxury – Discover the World's Most Spectacular Cruise Journeys",
-                'banner_image' => 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1920&q=80',
+                'banner_image' => '/images/cruise_banner.jpg',
                 'overview_heading' => 'Experience Unrivalled Luxury on the High Seas',
                 'overview_description' => 'Embark on unforgettable ocean and river cruise journeys tailored for comfort, romance, and adventure. From dramatic Mediterranean coastlines to pristine Caribbean beaches and exotic Asian rivers, Dyna Tours offers handpicked cruise experiences with world-class dining, opulent cabins, and curated shore excursions.',
-                'overview_image' => 'https://images.unsplash.com/photo-1505852679233-d9fd70aff56d?auto=format&fit=crop&w=1000&q=80',
+                'overview_image' => '/images/cruise_overview.jpg',
                 'overview_cta_text' => 'View Cruise Packages',
                 'cta_heading' => 'Ready to Set Sail?',
                 'cta_description' => 'Book your dream cruise holiday with Dyna Tours India and enjoy exclusive perks, onboard credits, and 24x7 travel assistance.',
@@ -44,6 +44,21 @@ class CruisePageController extends Controller
                     ]
                 ]
             ]);
+        }
+
+        if ($page) {
+            $dirty = false;
+            if (empty($page->banner_image) || str_contains($page->banner_image ?? '', '1548574505') || str_contains($page->banner_image ?? '', 'unsplash')) {
+                $page->banner_image = '/images/cruise_banner.jpg';
+                $dirty = true;
+            }
+            if (empty($page->overview_image) || str_contains($page->overview_image ?? '', '1505852679233') || str_contains($page->overview_image ?? '', 'unsplash')) {
+                $page->overview_image = '/images/cruise_overview.jpg';
+                $dirty = true;
+            }
+            if ($dirty) {
+                $page->save();
+            }
         }
 
         return response()->json($page);

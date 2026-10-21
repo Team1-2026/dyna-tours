@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { api, Destination, Hotel, BASE_URL, getImageUrl } from '@/lib/api';
+import { api, Destination, Hotel, BASE_URL, getImageUrl, getPackages, isPackageDeleted, isHotelDeleted } from '@/lib/api';
 import { toursData } from '@/data/toursData';
 import TourCard from '@/components/TourCard';
 import ImageZoomModal from '@/components/ImageZoomModal';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 import styles from './destination.module.css';
 
 const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
@@ -103,14 +105,98 @@ const getSubBannerUrl = (sub: any) => {
   return img;
 };
 
+const getHotelImageUrl = (hotel: any): string => {
+  if (!hotel) return '/images/default_hotel.png';
+
+  // 1. Check if gallery contains section === 'featured' or 'banner'
+  if (Array.isArray(hotel.gallery) && hotel.gallery.length > 0) {
+    const featuredObj = hotel.gallery.find(
+      (img: any) => typeof img === 'object' && img !== null && img.section === 'featured' && img.url
+    );
+    if (featuredObj && (featuredObj as any).url) {
+      return getImageUrl((featuredObj as any).url);
+    }
+
+    const bannerObj = hotel.gallery.find(
+      (img: any) => typeof img === 'object' && img !== null && img.section === 'banner' && img.url
+    );
+    if (bannerObj && (bannerObj as any).url) {
+      return getImageUrl((bannerObj as any).url);
+    }
+
+    const firstImg = hotel.gallery[0];
+    const url = typeof firstImg === 'string' ? firstImg : firstImg?.url;
+    if (url) return getImageUrl(url);
+  }
+
+  // 2. Direct featured_image, banner_image, or image
+  if (hotel.featured_image && typeof hotel.featured_image === 'string') {
+    return getImageUrl(hotel.featured_image);
+  }
+  if (hotel.banner_image && typeof hotel.banner_image === 'string') {
+    return getImageUrl(hotel.banner_image);
+  }
+  if (hotel.image && typeof hotel.image === 'string') {
+    return getImageUrl(hotel.image);
+  }
+
+  // 3. Fallback to room images if any
+  if (Array.isArray(hotel.rooms) && hotel.rooms.length > 0) {
+    for (const room of hotel.rooms) {
+      if (room.image) return getImageUrl(room.image);
+      if (Array.isArray(room.images) && room.images.length > 0 && room.images[0]) {
+        return getImageUrl(room.images[0]);
+      }
+    }
+  }
+
+  return '/images/default_hotel.png';
+};
+
 interface DestinationPageClientProps {
   initialDestination: Destination;
+  initialPackages?: any[];
   slug: string;
 }
 
-export default function DestinationPageClient({ initialDestination, slug }: DestinationPageClientProps) {
+export default function DestinationPageClient({ initialDestination, initialPackages, slug }: DestinationPageClientProps) {
   const [destination] = useState<Destination>(initialDestination);
+  const [livePackages, setLivePackages] = useState<any[]>(initialPackages || []);
   const [countryCode, setCountryCode] = useState('+91');
+  const [mounted, setMounted] = useState(false);
+  const [, setTriggerUpdate] = useState(0);
+
+  useEffect(() => {
+    setMounted(true);
+    const handlePackageChange = () => {
+      setTriggerUpdate(n => n + 1);
+      getPackages().then(pkgs => {
+        if (Array.isArray(pkgs)) {
+          setLivePackages(pkgs.filter(p => !isPackageDeleted(p.id) && !isPackageDeleted(p.slug) && !isPackageDeleted(p.title)));
+        }
+      }).catch(() => {});
+    };
+    const handleHotelChange = () => {
+      setTriggerUpdate(n => n + 1);
+    };
+
+    window.addEventListener('dyna:packages-changed', handlePackageChange);
+    window.addEventListener('dyna:hotels-changed', handleHotelChange);
+    return () => {
+      window.removeEventListener('dyna:packages-changed', handlePackageChange);
+      window.removeEventListener('dyna:hotels-changed', handleHotelChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!initialPackages || initialPackages.length === 0) {
+      getPackages().then(pkgs => {
+        if (Array.isArray(pkgs) && pkgs.length > 0) {
+          setLivePackages(pkgs.filter(p => !isPackageDeleted(p.id) && !isPackageDeleted(p.slug) && !isPackageDeleted(p.title)));
+        }
+      }).catch(() => {});
+    }
+  }, [initialPackages]);
 
   // Lightbox Zoom states
   const [isZoomOpen, setIsZoomOpen] = useState(false);
@@ -141,22 +227,48 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
     (d.overview && d.overview.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  // Candidate packages:
+  // 1. If destination.tour_packages from server is present and non-empty, use it
+  // 2. Otherwise livePackages from server API
+  // 3. Fallback to toursData
+  const rawPackages = (destination.tour_packages && destination.tour_packages.length > 0)
+    ? destination.tour_packages
+    : (livePackages.length > 0 ? livePackages : toursData);
+
+  const availablePackages = (rawPackages || []).filter((tour: any) => 
+    tour && (!mounted || (!isPackageDeleted(tour.id) && !isPackageDeleted(tour.slug) && !isPackageDeleted(tour.title)))
+  );
+
   // Filter tours matching this destination
-  const destinationTours = toursData.filter(tour => {
+  const destinationTours = availablePackages.filter((tour: any) => {
+    if (mounted && (isPackageDeleted(tour.id) || isPackageDeleted(tour.slug) || isPackageDeleted(tour.title))) {
+      return false;
+    }
     // 1. Check explicit related_tours mapping from Admin
     if (destination.related_tours && Array.isArray(destination.related_tours) && destination.related_tours.length > 0) {
-      if (destination.related_tours.includes(tour.id) || destination.related_tours.includes(tour.title)) {
-        return true;
-      }
+      const tourIdStr = String(tour.id || '');
+      const tourSlugStr = String(tour.slug || '');
+      const tourTitleStr = String(tour.title || '');
+      const isExplicit = destination.related_tours.some((mappedId: string) => {
+        if (mounted && isPackageDeleted(mappedId)) return false;
+        const m = String(mappedId).trim().toLowerCase();
+        return m === tourIdStr.toLowerCase() || m === tourSlugStr.toLowerCase() || m === tourTitleStr.toLowerCase();
+      });
+      if (isExplicit) return true;
     }
     // 2. Fallback to name/location matching
-    const titleLower = tour.title.toLowerCase();
-    const destLower = destination.name.toLowerCase();
-    return titleLower.includes(destLower) || (destLower === 'kerala' && (titleLower.includes('munnar') || titleLower.includes('alleppey') || titleLower.includes('wayanad')));
+    const titleLower = (tour.title || '').toLowerCase();
+    const destNameLower = (destination.name || '').toLowerCase();
+    const tourDestLower = (tour.destination || '').toLowerCase();
+    return tourDestLower.includes(destNameLower) || titleLower.includes(destNameLower) || 
+      (destNameLower === 'kerala' && (tourDestLower.includes('munnar') || tourDestLower.includes('alleppey') || tourDestLower.includes('thekkady') || titleLower.includes('munnar') || titleLower.includes('alleppey')));
   });
 
   // Filter hotels matching this destination from Laravel
-  const matchedHotels = destination.hotels || [];
+  const rawHotels = destination.hotels || [];
+  const matchedHotels = rawHotels.filter((hotel: any) => 
+    hotel && (!mounted || (!isHotelDeleted(hotel.id) && !isHotelDeleted(hotel.url_slug) && !isHotelDeleted(hotel.name)))
+  );
   const [expandedHotels, setExpandedHotels] = useState<string[]>([]);
 
   // Check toggles for packages & hotels
@@ -170,7 +282,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
   };
 
   // Handle Enquiry submission
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -387,14 +499,13 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
 
                 <div className={styles.formGroup}>
                   <label htmlFor="travel_date">Travel Date</label>
-                  <input
-                    type="date"
-                    name="travel_date"
+                  <DatePicker
                     id="travel_date"
+                    name="travel_date"
                     required
-                    className={styles.darkInput}
                     value={formData.travel_date}
                     onChange={handleInputChange}
+                    align="right"
                   />
                 </div>
               </div>
@@ -571,9 +682,12 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                 <div key={hotel.id} className={styles.hotelCard}>
                   <div className={styles.hotelImgWrapper}>
                     <img 
-                      src={(typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : (hotel.gallery?.[0] as any)?.url) || '/images/default_hotel.png'} 
+                      src={getHotelImageUrl(hotel)} 
                       alt={hotel.name}
                       className={styles.hotelImg}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/default_hotel.png';
+                      }}
                     />
                     <span className={styles.hotelBadge}>{hotel.category}</span>
                   </div>
@@ -613,7 +727,7 @@ export default function DestinationPageClient({ initialDestination, slug }: Dest
                       >
                         {expandedHotels.includes(hotel.id) ? 'Hide Description' : 'Show Description'}
                       </button>
-                      <Link href={`/hotels/${hotel.id}`} className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>
+                      <Link href={`/hotels/${hotel.url_slug || hotel.id}`} className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>
                         View Hotel
                       </Link>
                     </div>

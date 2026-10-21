@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getPackages, createPackage, updatePackage, deletePackage, uploadImage, getImageUrl } from '@/lib/api';
+import { getPackages, createPackage, updatePackage, deletePackage, uploadImage, getImageUrl, isPackageDeleted } from '@/lib/api';
 import styles from './admin.module.css';
 import ResolvedImage from '@/components/ResolvedImage';
 
@@ -153,9 +153,12 @@ export default function PackagesAdmin() {
     };
     window.addEventListener('admin:add-new-package', onAddNew);
     window.addEventListener('admin:view-packages', onViewAll);
+    const onPackagesChanged = () => fetchPackages();
+    window.addEventListener('dyna:packages-changed', onPackagesChanged);
     return () => {
       window.removeEventListener('admin:add-new-package', onAddNew);
       window.removeEventListener('admin:view-packages', onViewAll);
+      window.removeEventListener('dyna:packages-changed', onPackagesChanged);
     };
   }, []);
 
@@ -238,7 +241,8 @@ export default function PackagesAdmin() {
 
   const handleDelete = async (id: string, title: string) => {
     if (confirm(`Are you sure you want to delete ${title}?`)) {
-      await deletePackage(id);
+      const match = packages.find(p => p.id === id);
+      await deletePackage(id, match?.slug, title);
       await fetchPackages();
     }
   };
@@ -1238,6 +1242,7 @@ export default function PackagesAdmin() {
             <div className={styles.checklistGrid}>
               {packages
                 .filter(p => String(p.id) !== String(formData.id) && String(p.id) !== String(editingId))
+                .filter(p => !isPackageDeleted(p.id) && !isPackageDeleted(p.slug) && !isPackageDeleted(p.title))
                 .filter(p => !relatedSearch || p.title?.toLowerCase().includes(relatedSearch.toLowerCase()) || p.destination?.toLowerCase().includes(relatedSearch.toLowerCase()))
                 .map(tour => {
                   const isChecked = (formData.relatedTours || []).map(String).includes(String(tour.id));

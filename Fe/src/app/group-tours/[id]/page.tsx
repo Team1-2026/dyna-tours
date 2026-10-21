@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { groupToursApi, GroupTour, GroupTourDetails, getImageUrl } from '@/lib/api';
+import { groupToursApi, GroupTour, GroupTourDetails, getImageUrl, isPackageDeleted } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 import styles from './group-tour-details.module.css';
 
 const parseDetails = (tour: GroupTour | null): GroupTourDetails => {
@@ -60,7 +62,7 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
         setTour(currentTour);
         if (currentTour.related_tours && currentTour.related_tours.length > 0) {
           const relIds = currentTour.related_tours.map(String);
-          const matched = allTours.filter(t => String(t.id) !== String(id) && relIds.includes(String(t.id)));
+          const matched = allTours.filter(t => String(t.id) !== String(id) && relIds.includes(String(t.id)) && !isPackageDeleted(t.id) && !isPackageDeleted(t.url_slug) && !isPackageDeleted(t.name));
           setRelatedTours(matched);
         } else {
           setRelatedTours([]);
@@ -802,12 +804,11 @@ export default function GroupTourDetailsPage({ params }: PageProps) {
 
                       <div className={styles.formGroup} style={{ marginBottom: 0 }}>
                         <label>Departure Date</label>
-                        <input 
-                          type="date" 
-                          className={styles.formControl} 
-                          style={{ marginBottom: 0 }}
+                        <DatePicker 
+                          name="travel_date"
                           value={formData.travel_date} 
                           onChange={e => setFormData({ ...formData, travel_date: e.target.value })} 
+                          align="right"
                         />
                       </div>
                     </div>

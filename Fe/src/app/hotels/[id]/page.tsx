@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { api, Hotel } from '@/lib/api';
+import { api, Hotel, isHotelDeleted } from '@/lib/api';
 import HotelPageClient from './HotelPageClient';
 
 export const dynamic = 'force-dynamic';
@@ -13,12 +13,12 @@ export default async function HotelDetailPage({ params }: Props) {
   const resolvedParams = await params;
   const id = resolvedParams?.id;
 
-  if (!id) {
+  if (!id || isHotelDeleted(id)) {
     return (
       <div className="container" style={{ padding: '6rem 0', textAlign: 'center' }}>
         <h2 style={{ color: 'var(--color-primary-red)' }}>Hotel Not Found</h2>
         <p style={{ marginTop: '1rem', color: 'var(--color-text-secondary)' }}>
-          Invalid request parameters.
+          The requested hotel is not available.
         </p>
         <Link href="/hotels" className="btn btn-primary" style={{ marginTop: '2.5rem' }}>
           Back to Directory
@@ -34,10 +34,21 @@ export default async function HotelDetailPage({ params }: Props) {
     // Fetch hotel details
     hotel = await api.getHotel(id);
 
+    if (hotel && (isHotelDeleted(hotel.id) || isHotelDeleted(hotel.url_slug) || isHotelDeleted(hotel.name))) {
+      hotel = null;
+    }
+
     if (hotel && hotel.related_hotels && hotel.related_hotels.length > 0) {
-      const relatedIds = hotel.related_hotels;
+      const relatedIds = hotel.related_hotels.map((r: any) => String(r).toLowerCase().trim());
       const allHotels = await api.getHotels();
-      relatedHotels = allHotels.filter(h => relatedIds.includes(h.id));
+      relatedHotels = allHotels.filter(h => {
+        if (!h) return false;
+        if (isHotelDeleted(h.id) || isHotelDeleted(h.url_slug) || isHotelDeleted(h.name)) return false;
+        if (String(h.id) === String(id) || String(h.url_slug) === String(id)) return false;
+        const hid = String(h.id || '').toLowerCase().trim();
+        const hslug = String(h.url_slug || '').toLowerCase().trim();
+        return relatedIds.includes(hid) || relatedIds.includes(hslug);
+      });
     }
   } catch (error) {
     console.error('Error fetching hotel details on server:', error);

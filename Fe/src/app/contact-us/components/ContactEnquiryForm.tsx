@@ -5,6 +5,8 @@ import styles from '../contact.module.css';
 import { contactPageApi } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 
 export default function ContactEnquiryForm() {
   const [countryCode, setCountryCode] = useState('+91');
@@ -20,7 +22,7 @@ export default function ContactEnquiryForm() {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -143,12 +145,10 @@ export default function ContactEnquiryForm() {
 
         <div className={styles.formField}>
           <label className={styles.label}>Preferred Travel Dates</label>
-          <input 
-            type="date" 
+          <DatePicker 
             name="travel_date" 
             value={formData.travel_date} 
             onChange={handleInputChange} 
-            className={styles.input} 
           />
         </div>
 

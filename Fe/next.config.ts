@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'flagcdn.com' },
+      { protocol: 'https', hostname: 'api.dynatours.com' },
+      { protocol: 'https', hostname: 'dynatours.com' },
       { protocol: 'https', hostname: 'backdyna.logiclabz.in' },
     ],
   },

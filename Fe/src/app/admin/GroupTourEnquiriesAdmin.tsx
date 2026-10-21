@@ -8,6 +8,8 @@ export default function GroupTourEnquiriesAdmin() {
   const [enquiries, setEnquiries] = useState<GroupTourEnquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   useEffect(() => {
     loadEnquiries();
@@ -27,8 +29,23 @@ export default function GroupTourEnquiriesAdmin() {
     }
   };
 
+  const filteredEnquiries = enquiries.filter((enq) => {
+    if (!fromDate && !toDate) return true;
+    if (!enq.created_at) return false;
+    const d = new Date(enq.created_at);
+    if (isNaN(d.getTime())) return false;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const enqDateStr = `${year}-${month}-${day}`;
+
+    if (fromDate && enqDateStr < fromDate) return false;
+    if (toDate && enqDateStr > toDate) return false;
+    return true;
+  });
+
   const downloadCSV = () => {
-    if (!enquiries || enquiries.length === 0) return;
+    if (!filteredEnquiries || filteredEnquiries.length === 0) return;
 
     const headers = [
       'ID',
@@ -49,7 +66,7 @@ export default function GroupTourEnquiriesAdmin() {
       return `"${str}"`;
     };
 
-    const rows = enquiries.map((enq) => {
+    const rows = filteredEnquiries.map((enq) => {
       const tourName = enq.group_tour?.name || enq.message?.match(/Interested in ([^\n|]+)/)?.[1]?.trim() || 'General / Unsure';
       const pageUrl = enq.group_tour ? `/group-tours/${enq.group_tour.id}` : '/group-tours';
       const dateTime = enq.created_at
@@ -76,7 +93,15 @@ export default function GroupTourEnquiriesAdmin() {
     const link = document.createElement('a');
     link.href = url;
     const dateStr = new Date().toISOString().split('T')[0];
-    link.setAttribute('download', `group_tour_enquiries_${dateStr}.csv`);
+    let downloadFileName = `group_tour_enquiries_${dateStr}.csv`;
+    if (fromDate && toDate) {
+      downloadFileName = `group_tour_enquiries_${fromDate}_to_${toDate}.csv`;
+    } else if (fromDate) {
+      downloadFileName = `group_tour_enquiries_from_${fromDate}.csv`;
+    } else if (toDate) {
+      downloadFileName = `group_tour_enquiries_to_${toDate}.csv`;
+    }
+    link.setAttribute('download', downloadFileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -91,15 +116,85 @@ export default function GroupTourEnquiriesAdmin() {
         <div>
           <h2 style={{ margin: 0, color: 'var(--color-secondary-navy)' }}>Group Tour Enquiries</h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-            Total: {enquiries.length} {enquiries.length === 1 ? 'enquiry' : 'enquiries'}
+            {fromDate || toDate ? (
+              <>
+                Showing <strong>{filteredEnquiries.length}</strong> of {enquiries.length} {enquiries.length === 1 ? 'enquiry' : 'enquiries'}
+              </>
+            ) : (
+              <>
+                Total: {enquiries.length} {enquiries.length === 1 ? 'enquiry' : 'enquiries'}
+              </>
+            )}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Date range filter */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8fafc', padding: '0.35rem 0.65rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <label htmlFor="gtEnquiryFromDate" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>From:</label>
+              <input 
+                id="gtEnquiryFromDate"
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                style={{
+                  fontSize: '0.825rem',
+                  padding: '0.3rem 0.5rem',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  color: 'var(--color-secondary-navy)',
+                  backgroundColor: '#ffffff',
+                  outline: 'none'
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <label htmlFor="gtEnquiryToDate" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>To:</label>
+              <input 
+                id="gtEnquiryToDate"
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                style={{
+                  fontSize: '0.825rem',
+                  padding: '0.3rem 0.5rem',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  color: 'var(--color-secondary-navy)',
+                  backgroundColor: '#ffffff',
+                  outline: 'none'
+                }}
+              />
+            </div>
+            {(fromDate || toDate) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFromDate('');
+                  setToDate('');
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#dc2626',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: '0.2rem 0.4rem',
+                  borderRadius: '4px'
+                }}
+                title="Clear date filter"
+              >
+                ✕ Clear
+              </button>
+            )}
+          </div>
+
           <button 
             onClick={downloadCSV} 
             className={styles.saveBtn} 
-            disabled={enquiries.length === 0}
+            disabled={filteredEnquiries.length === 0}
             style={{ 
               marginTop: 0, 
               backgroundColor: '#059669', 
@@ -107,13 +202,13 @@ export default function GroupTourEnquiriesAdmin() {
               display: 'inline-flex', 
               alignItems: 'center', 
               gap: '6px',
-              opacity: enquiries.length === 0 ? 0.6 : 1,
-              cursor: enquiries.length === 0 ? 'not-allowed' : 'pointer',
+              opacity: filteredEnquiries.length === 0 ? 0.6 : 1,
+              cursor: filteredEnquiries.length === 0 ? 'not-allowed' : 'pointer',
               fontWeight: 600
             }}
-            title="Download group tour enquiries as CSV"
+            title={filteredEnquiries.length === 0 ? 'No enquiries to download' : 'Download group tour enquiries'}
           >
-            <span>📥 Download CSV</span>
+            <span>📥 Download</span>
           </button>
           <button onClick={loadEnquiries} className={styles.saveBtn} style={{ marginTop: 0, backgroundColor: 'var(--color-secondary-navy)', color: '#ffffff' }}>
             🔄 Refresh
@@ -139,10 +234,39 @@ export default function GroupTourEnquiriesAdmin() {
             </tr>
           </thead>
           <tbody>
-            {enquiries.length === 0 && (
-              <tr><td colSpan={5} style={{ textAlign: 'center', padding: '2.5rem', color: '#64748b' }}>No enquiries found.</td></tr>
-            )}
-            {enquiries.map(enq => {
+            {filteredEnquiries.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ textAlign: 'center', padding: '2.5rem', color: '#64748b' }}>
+                  {enquiries.length === 0 ? (
+                    'No enquiries found.'
+                  ) : (
+                    <div>
+                      <div>No enquiries found matching the selected date range.</div>
+                      <button
+                        onClick={() => {
+                          setFromDate('');
+                          setToDate('');
+                        }}
+                        style={{
+                          marginTop: '0.75rem',
+                          background: 'var(--color-secondary-navy)',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '0.4rem 0.85rem',
+                          borderRadius: '6px',
+                          fontSize: '0.825rem',
+                          cursor: 'pointer',
+                          fontWeight: 600
+                        }}
+                      >
+                        Clear Date Filter
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ) : (
+              filteredEnquiries.map(enq => {
               const pageUrl = enq.group_tour ? `/group-tours/${enq.group_tour.id}` : '/group-tours';
               return (
                 <tr key={enq.id}>
@@ -224,7 +348,8 @@ export default function GroupTourEnquiriesAdmin() {
                   </td>
                 </tr>
               );
-            })}
+            })
+          )}
           </tbody>
         </table>
       </div>

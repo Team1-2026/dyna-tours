@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { api, Destination } from '@/lib/api';
+import { api, Destination, getPackages } from '@/lib/api';
 import DestinationPageClient from './DestinationPageClient';
 
 export const dynamic = 'force-dynamic';
@@ -28,8 +28,14 @@ export default async function DestinationPage({ params }: Props) {
   }
 
   let destination: Destination | null = null;
+  let serverPackages: any[] = [];
   try {
-    destination = await api.getDestination(slug);
+    const [fetchedDest, fetchedPkgs] = await Promise.all([
+      api.getDestination(slug),
+      getPackages().catch(() => [])
+    ]);
+    destination = fetchedDest;
+    serverPackages = fetchedPkgs || [];
   } catch (error) {
     console.error('Error loading destination details on server:', error);
   }
@@ -48,5 +54,5 @@ export default async function DestinationPage({ params }: Props) {
     );
   }
 
-  return <DestinationPageClient initialDestination={destination} slug={slug} />;
+  return <DestinationPageClient initialDestination={destination} initialPackages={serverPackages} slug={slug} />;
 }

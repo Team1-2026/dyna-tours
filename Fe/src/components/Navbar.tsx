@@ -5,16 +5,30 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Navbar.module.css';
 
+import { api, isDestinationDeleted, Destination } from '@/lib/api';
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileDestOpen, setMobileDestOpen] = useState(false);
   const [mobileHolidaysOpen, setMobileHolidaysOpen] = useState(false);
+  const [liveDestinations, setLiveDestinations] = useState<Destination[]>([]);
   const pathname = usePathname();
 
   if (pathname && pathname.startsWith('/admin')) {
     return null;
   }
+
+  useEffect(() => {
+    let isMounted = true;
+    api.getDestinations().then(data => {
+      if (isMounted && Array.isArray(data)) {
+        setLiveDestinations(data);
+      }
+    }).catch(() => {});
+
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,22 +50,100 @@ export default function Navbar() {
     setMobileHolidaysOpen(false);
   }, [pathname]);
 
-  const domesticDestinations = [
-    { name: 'Kerala', path: '/destinations/kerala' },
-    { name: 'Tamil Nadu', path: '/destinations/tamil-nadu' },
-    { name: 'Karnataka', path: '/destinations/karnataka' },
-    { name: 'Goa', path: '/destinations/goa' },
-    { name: 'Delhi', path: '/destinations/delhi' },
-    { name: 'View All', path: '/destinations/other-domestic' },
+  const defaultDomestic = [
+    { name: 'Kerala', path: '/destinations/kerala', slug: 'kerala' },
+    { name: 'Tamil Nadu', path: '/destinations/tamil-nadu', slug: 'tamil-nadu' },
+    { name: 'Karnataka', path: '/destinations/karnataka', slug: 'karnataka' },
+    { name: 'Goa', path: '/destinations/goa', slug: 'goa' },
+    { name: 'Delhi', path: '/destinations/delhi', slug: 'delhi' },
   ];
 
+  const defaultInternational = [
+    { name: 'Thailand', path: '/destinations/thailand', slug: 'thailand' },
+    { name: 'Singapore', path: '/destinations/singapore', slug: 'singapore' },
+    { name: 'Malaysia', path: '/destinations/malaysia', slug: 'malaysia' },
+    { name: 'UAE', path: '/destinations/uae', slug: 'uae' },
+    { name: 'Europe', path: '/destinations/europe', slug: 'europe' },
+  ];
+
+  const sortByOrder = (a: { order_no?: number | null }, b: { order_no?: number | null }) => {
+    const hasA = a.order_no !== null && a.order_no !== undefined;
+    const hasB = b.order_no !== null && b.order_no !== undefined;
+    if (hasA && hasB) return Number(a.order_no) - Number(b.order_no);
+    if (hasA) return -1;
+    if (hasB) return 1;
+    return 0;
+  };
+
+  // 1. Domestic Destinations:
+  const domesticMap = new Map<string, { name: string; path: string; order_no?: number | null }>();
+  defaultDomestic
+    .filter(d => !isDestinationDeleted(d.slug) && !isDestinationDeleted(d.name))
+    .forEach(d => {
+      domesticMap.set(d.slug.toLowerCase(), { name: d.name, path: d.path });
+    });
+
+  const liveDomestic = liveDestinations.filter(d => 
+    (!d.type || d.type.toLowerCase() === 'domestic') && 
+    d.id !== 'other-domestic' && 
+    d.url_slug !== 'other-domestic' &&
+    !isDestinationDeleted(d.id) && 
+    !isDestinationDeleted(d.url_slug) &&
+    (!d.status || d.status.toLowerCase() !== 'inactive')
+  );
+
+  const domesticPrimary = liveDomestic.filter(d => !d.parent_id || d.parent_id === 'other-domestic');
+
+  for (const d of domesticPrimary) {
+    const key = (d.url_slug || d.id || '').trim().toLowerCase();
+    if (!key) continue;
+    domesticMap.set(key, {
+      name: d.name,
+      path: `/destinations/${d.url_slug || d.id}`,
+      order_no: d.order_no,
+    });
+  }
+
+  const domesticDestinations = [
+    ...Array.from(domesticMap.values()).sort(sortByOrder),
+    { name: 'View All', path: '/destinations/other-domestic' }
+  ];
+
+  // 2. International Destinations:
+  const internationalMap = new Map<string, { name: string; path: string; order_no?: number | null }>();
+  defaultInternational
+    .filter(d => !isDestinationDeleted(d.slug) && !isDestinationDeleted(d.name))
+    .forEach(d => {
+      internationalMap.set(d.slug.toLowerCase(), { name: d.name, path: d.path });
+    });
+
+  const liveInternational = liveDestinations.filter(d => 
+    d.type && 
+    d.type.toLowerCase() === 'international' && 
+    d.id !== 'other-international' && 
+    d.url_slug !== 'other-international' &&
+    !isDestinationDeleted(d.id) && 
+    !isDestinationDeleted(d.url_slug) &&
+    (!d.status || d.status.toLowerCase() !== 'inactive')
+  );
+
+  const internationalPrimary = liveInternational.filter(
+    d => !d.parent_id || d.parent_id === 'other-international'
+  );
+
+  for (const d of internationalPrimary) {
+    const key = (d.url_slug || d.id || '').trim().toLowerCase();
+    if (!key) continue;
+    internationalMap.set(key, {
+      name: d.name,
+      path: `/destinations/${d.url_slug || d.id}`,
+      order_no: d.order_no,
+    });
+  }
+
   const internationalDestinations = [
-    { name: 'Thailand', path: '/destinations/thailand' },
-    { name: 'Singapore', path: '/destinations/singapore' },
-    { name: 'Malaysia', path: '/destinations/malaysia' },
-    { name: 'UAE', path: '/destinations/uae' },
-    { name: 'Europe', path: '/destinations/europe' },
-    { name: 'View All', path: '/destinations/other-international' },
+    ...Array.from(internationalMap.values()).sort(sortByOrder),
+    { name: 'View All', path: '/destinations/other-international' }
   ];
 
   const holidayCategories = [
@@ -82,12 +174,15 @@ export default function Navbar() {
 
             {/* Destinations Dropdown */}
             <li className={styles.dropdown}>
-              <span className={`${styles.navLink} ${pathname.startsWith('/destinations') ? styles.active : ''}`}>
+              <Link 
+                href="/destinations" 
+                className={`${styles.navLink} ${pathname.startsWith('/destinations') ? styles.active : ''}`}
+              >
                 Destinations
                 <svg className={styles.dropdownIcon} viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
-              </span>
+              </Link>
               <div className={styles.dropdownMenu}>
                 <div className={styles.submenu}>
                   <span className={styles.submenuHeader}>Domestic</span>
@@ -229,11 +324,20 @@ export default function Navbar() {
               </svg>
             </button>
             <div className={`${styles.mobileSubmenuContainer} ${mobileDestOpen ? styles.submenuOpen : ''}`}>
+              <div style={{ marginBottom: '0.75rem' }}>
+                <Link 
+                  href="/destinations" 
+                  className={styles.mobileSubmenuLink}
+                  style={{ fontWeight: 700, color: 'var(--color-primary-red)' }}
+                >
+                  All Destinations →
+                </Link>
+              </div>
               <div className={styles.mobileSubmenuHeader}>Domestic</div>
               <div className={styles.mobileSubmenuGrid}>
                 {domesticDestinations.map((dest) => (
                   <Link 
-                    key={dest.path} 
+                    key={`m-${dest.path}`} 
                     href={dest.path} 
                     className={`${styles.mobileSubmenuLink} ${dest.name === 'View All' ? styles.mobileViewAllLink : ''}`}
                   >
@@ -246,7 +350,7 @@ export default function Navbar() {
               <div className={styles.mobileSubmenuGrid}>
                 {internationalDestinations.map((dest) => (
                   <Link 
-                    key={dest.path} 
+                    key={`m-${dest.path}`} 
                     href={dest.path} 
                     className={`${styles.mobileSubmenuLink} ${dest.name === 'View All' ? styles.mobileViewAllLink : ''}`}
                   >

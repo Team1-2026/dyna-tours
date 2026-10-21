@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Cruise, CruisePageData, api } from '@/lib/api';
+import { Cruise, CruisePageData, api, getImageUrl } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 import styles from './cruise.module.css';
 
 interface Props {
@@ -15,6 +17,11 @@ interface Props {
 export default function CruisePageClient({ initialPageData, initialCruises }: Props) {
   const [pageData] = useState<CruisePageData>(initialPageData);
   const [cruises] = useState<Cruise[]>(initialCruises);
+
+  // Fallback for broken/missing banner image
+  const bannerImage = (!pageData.banner_image || pageData.banner_image.includes('1548574505') || pageData.banner_image.includes('unsplash'))
+    ? '/images/cruise_banner.jpg'
+    : getImageUrl(pageData.banner_image);
 
   // Enquiry Form State
   const [countryCode, setCountryCode] = useState('+91');
@@ -30,7 +37,7 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -79,7 +86,7 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
       {/* 1. Hero Banner */}
       <section
         className={styles.heroBanner}
-        style={{ backgroundImage: `url(${pageData.banner_image || 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1920&q=80'})` }}
+        style={{ backgroundImage: `url(${bannerImage})` }}
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
@@ -109,8 +116,8 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
 
             <div className={styles.overviewImgWrapper}>
               <img
-                src={pageData.overview_image || 'https://images.unsplash.com/photo-1505852679233-d9fd70aff56d?auto=format&fit=crop&w=1000&q=80'}
-                alt="Travellers on a Cruise Ship Deck"
+                src={pageData.overview_image && !pageData.overview_image.includes('1505852679233') ? getImageUrl(pageData.overview_image) : '/images/cruise_overview.jpg'}
+                alt="Luxury Cruise Ship"
                 className={styles.overviewImg}
               />
             </div>
@@ -131,7 +138,9 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
               <div key={cruise.id} className={styles.cruiseCard}>
                 <div className={styles.cardImageWrapper}>
                   <img
-                    src={cruise.banner_image || 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=800&q=80'}
+                    src={cruise.banner_image && !cruise.banner_image.includes('1548574505') && !cruise.banner_image.includes('unsplash')
+                      ? getImageUrl(cruise.banner_image)
+                      : '/images/cruise_banner.jpg'}
                     alt={cruise.name}
                     className={styles.cardImage}
                   />
@@ -235,7 +244,7 @@ export default function CruisePageClient({ initialPageData, initialCruises }: Pr
 
                 <div className="formGroup">
                   <label htmlFor="travel_date">Travel Date</label>
-                  <input type="date" id="travel_date" name="travel_date" value={formData.travel_date} onChange={handleInputChange} />
+                  <DatePicker id="travel_date" name="travel_date" value={formData.travel_date} onChange={handleInputChange} />
                 </div>
 
                 <div className="formGroup">

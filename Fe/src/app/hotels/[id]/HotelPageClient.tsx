@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { api, Hotel, Room, Facility, BASE_URL, getImageUrl } from '@/lib/api';
+import { api, Hotel, Room, Facility, BASE_URL, getImageUrl, isHotelDeleted } from '@/lib/api';
 import ImageZoomModal from '@/components/ImageZoomModal';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 import styles from '../hotels.module.css';
 import { AmenityIcon } from '@/components/AmenityIcon';
 
@@ -86,7 +88,16 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
   // Lightbox Zoom states
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [zoomedIndex, setZoomedIndex] = useState(0);
-  const relatedHotels = initialRelatedHotels;
+  const [relatedHotels, setRelatedHotels] = useState<Hotel[]>(initialRelatedHotels || []);
+
+  useEffect(() => {
+    setRelatedHotels((initialRelatedHotels || []).filter(h => h && !isHotelDeleted(h.id) && !isHotelDeleted(h.url_slug) && !isHotelDeleted(h.name)));
+    const handleHotelChange = () => {
+      setRelatedHotels((initialRelatedHotels || []).filter(h => h && !isHotelDeleted(h.id) && !isHotelDeleted(h.url_slug) && !isHotelDeleted(h.name)));
+    };
+    window.addEventListener('dyna:hotels-changed', handleHotelChange);
+    return () => window.removeEventListener('dyna:hotels-changed', handleHotelChange);
+  }, [initialRelatedHotels]);
   const [isTermsOpen, setIsTermsOpen] = useState(true);
   const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
@@ -107,7 +118,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
   const [formSuccess, setFormSuccess] = useState(false);
   const [showAboutDescription, setShowAboutDescription] = useState(true);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
 
     if (name === 'check_in') {
@@ -662,13 +673,11 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     <label htmlFor="check_in" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
                       Check-in Date
                     </label>
-                    <input
-                      type="date"
-                      name="check_in"
+                    <DatePicker
                       id="check_in"
+                      name="check_in"
                       required
-                      min={new Date().toISOString().split('T')[0]}
-                      className={styles.formInput}
+                      minDate={getTodayDateString()}
                       value={formData.check_in}
                       onChange={handleInputChange}
                     />
@@ -677,15 +686,14 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                     <label htmlFor="check_out" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
                       Check-out Date
                     </label>
-                    <input
-                      type="date"
-                      name="check_out"
+                    <DatePicker
                       id="check_out"
+                      name="check_out"
                       required
-                      min={formData.check_in || new Date().toISOString().split('T')[0]}
-                      className={styles.formInput}
+                      minDate={formData.check_in || getTodayDateString()}
                       value={formData.check_out}
                       onChange={handleInputChange}
+                      align="right"
                     />
                   </div>
                 </div>

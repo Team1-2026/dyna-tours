@@ -21,16 +21,20 @@ export const getBaseUrl = () => {
       return `http://${hostname}:8000/api`;
     }
     if (
-      hostname.endsWith('logiclabz.in') || 
-      hostname.endsWith('prds.in.net') || 
       hostname.endsWith('dynatours.com') ||
       hostname === 'dynatours.com'
     ) {
-      return 'https://backdyna.logiclabz.in/api';
+      return 'https://api.dynatours.com/api';
+    }
+    if (
+      hostname.endsWith('logiclabz.in') || 
+      hostname.endsWith('prds.in.net')
+    ) {
+      return 'https://api.dynatours.com/api';
     }
   }
   if (process.env.NODE_ENV === 'production') {
-    return 'https://backdyna.logiclabz.in/api';
+    return 'https://api.dynatours.com/api';
   }
   return 'http://127.0.0.1:8000/api';
 };
@@ -124,6 +128,7 @@ export interface Destination {
   // Related items mapping
   related_tours?: string[] | null;
   related_hotels?: string[] | null;
+  tour_packages?: any[] | null;
 }
 
 export interface Room {
@@ -328,6 +333,166 @@ const authHelper = {
   }
 };
 
+export const normalizeSlug = (str: string): string => {
+  if (!str) return '';
+  return str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
+const DELETED_DESTINATIONS_KEY = 'dyna_deleted_destinations';
+
+export const getDeletedDestinationIds = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(DELETED_DESTINATIONS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return new Set();
+  }
+};
+
+export const recordDeletedDestination = (id?: string | null, slug?: string | null, name?: string | null) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const set = getDeletedDestinationIds();
+    if (id) {
+      set.add(String(id).trim());
+      set.add(String(id).trim().toLowerCase());
+      const norm = normalizeSlug(String(id));
+      if (norm) set.add(norm);
+    }
+    if (slug) {
+      set.add(String(slug).trim());
+      set.add(String(slug).trim().toLowerCase());
+      const norm = normalizeSlug(String(slug));
+      if (norm) set.add(norm);
+    }
+    if (name) {
+      set.add(String(name).trim().toLowerCase());
+      const norm = normalizeSlug(String(name));
+      if (norm) set.add(norm);
+    }
+    localStorage.setItem(DELETED_DESTINATIONS_KEY, JSON.stringify(Array.from(set)));
+  } catch (e) {
+    console.warn('Could not record deleted destination:', e);
+  }
+};
+
+export const isDestinationDeleted = (idOrSlug?: string | null): boolean => {
+  if (!idOrSlug) return false;
+  const deleted = getDeletedDestinationIds();
+  const raw = String(idOrSlug).trim();
+  const lower = raw.toLowerCase();
+  const norm = normalizeSlug(raw);
+  return deleted.has(raw) || deleted.has(lower) || (Boolean(norm) && deleted.has(norm));
+};
+
+// --- Package Deletion Tracking ---
+const DELETED_PACKAGES_KEY = 'dyna_deleted_packages';
+
+export const getDeletedPackageIds = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(DELETED_PACKAGES_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return new Set();
+  }
+};
+
+export const recordDeletedPackage = (id?: string | number | null, slug?: string | null, title?: string | null) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const set = getDeletedPackageIds();
+    if (id !== undefined && id !== null && id !== '') {
+      set.add(String(id).trim());
+      set.add(String(id).trim().toLowerCase());
+      const norm = normalizeSlug(String(id));
+      if (norm) set.add(norm);
+    }
+    if (slug) {
+      set.add(String(slug).trim());
+      set.add(String(slug).trim().toLowerCase());
+      const norm = normalizeSlug(String(slug));
+      if (norm) set.add(norm);
+    }
+    if (title) {
+      set.add(String(title).trim().toLowerCase());
+      const norm = normalizeSlug(String(title));
+      if (norm) set.add(norm);
+    }
+    localStorage.setItem(DELETED_PACKAGES_KEY, JSON.stringify(Array.from(set)));
+  } catch (e) {
+    console.warn('Could not record deleted package:', e);
+  }
+};
+
+export const isPackageDeleted = (idOrSlugOrTitle?: string | number | null): boolean => {
+  if (idOrSlugOrTitle === undefined || idOrSlugOrTitle === null || idOrSlugOrTitle === '') return false;
+  const deleted = getDeletedPackageIds();
+  const raw = String(idOrSlugOrTitle).trim();
+  const lower = raw.toLowerCase();
+  const norm = normalizeSlug(raw);
+  return deleted.has(raw) || deleted.has(lower) || (Boolean(norm) && deleted.has(norm));
+};
+
+// --- Hotel Deletion Tracking ---
+const DELETED_HOTELS_KEY = 'dyna_deleted_hotels';
+
+export const getDeletedHotelIds = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(DELETED_HOTELS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return new Set();
+  }
+};
+
+export const recordDeletedHotel = (id?: string | number | null, slug?: string | null, name?: string | null) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const set = getDeletedHotelIds();
+    if (id !== undefined && id !== null && id !== '') {
+      set.add(String(id).trim());
+      set.add(String(id).trim().toLowerCase());
+      const norm = normalizeSlug(String(id));
+      if (norm) set.add(norm);
+    }
+    if (slug) {
+      set.add(String(slug).trim());
+      set.add(String(slug).trim().toLowerCase());
+      const norm = normalizeSlug(String(slug));
+      if (norm) set.add(norm);
+    }
+    if (name) {
+      set.add(String(name).trim().toLowerCase());
+      const norm = normalizeSlug(String(name));
+      if (norm) set.add(norm);
+    }
+    localStorage.setItem(DELETED_HOTELS_KEY, JSON.stringify(Array.from(set)));
+  } catch (e) {
+    console.warn('Could not record deleted hotel:', e);
+  }
+};
+
+export const isHotelDeleted = (idOrSlugOrName?: string | number | null): boolean => {
+  if (idOrSlugOrName === undefined || idOrSlugOrName === null || idOrSlugOrName === '') return false;
+  const deleted = getDeletedHotelIds();
+  const raw = String(idOrSlugOrName).trim();
+  const lower = raw.toLowerCase();
+  const norm = normalizeSlug(raw);
+  return deleted.has(raw) || deleted.has(lower) || (Boolean(norm) && deleted.has(norm));
+};
+
 // Helper for fetch wrapper
 async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${getBaseUrl()}${endpoint}`;
@@ -418,6 +583,8 @@ export const uploadImage = async (file: File): Promise<{ message: string; url: s
   return await res.json();
 };
 
+const mockEnquiries: Enquiry[] = [];
+
 export const api = {
   // Image Upload helper
   uploadImage,
@@ -456,44 +623,78 @@ export const api = {
 
   // Destination operations
   getDestinations: async (params?: { status?: string }): Promise<Destination[]> => {
+    const deleted = getDeletedDestinationIds();
+    const filterNotDeleted = (d: Destination) => {
+      if (!d) return false;
+      const idKey = d.id ? String(d.id).trim().toLowerCase() : '';
+      const slugKey = d.url_slug ? String(d.url_slug).trim().toLowerCase() : '';
+      if (idKey && (deleted.has(idKey) || deleted.has(d.id))) return false;
+      if (slugKey && (deleted.has(slugKey) || deleted.has(d.url_slug!))) return false;
+      return true;
+    };
+
     try {
       const query = params?.status ? `?status=${params.status}` : '';
       const list = await apiFetch<Destination[]>(`/destinations${query}`);
-      if (params?.status === 'all') return list;
-      return list
+      const filtered = (Array.isArray(list) ? list : []).filter(filterNotDeleted);
+      if (params?.status === 'all') return filtered;
+      return filtered
         .filter(d => !d.status || d.status.toLowerCase() !== 'inactive')
         .map(d => ({
           ...d,
           sub_destinations: d.sub_destinations
-            ? d.sub_destinations.filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive')
+            ? d.sub_destinations.filter(filterNotDeleted).filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive')
             : d.sub_destinations,
         }));
     } catch {
-      if (params?.status === 'all') return mockDestinations;
-      return mockDestinations
+      const filteredMocks = mockDestinations.filter(filterNotDeleted);
+      if (params?.status === 'all') return filteredMocks;
+      return filteredMocks
         .filter(d => !d.status || d.status.toLowerCase() !== 'inactive')
         .map(d => ({
           ...d,
           sub_destinations: d.sub_destinations
-            ? d.sub_destinations.filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive')
+            ? d.sub_destinations.filter(filterNotDeleted).filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive')
             : d.sub_destinations,
         }));
     }
   },
 
   getDestination: async (id: string): Promise<Destination> => {
+    if (isDestinationDeleted(id)) {
+      throw new Error('Destination not found');
+    }
+
     try {
-      const dest = await apiFetch<Destination>(`/destinations/${id}`);
+      const dest = await apiFetch<Destination>(`/destinations/${encodeURIComponent(id)}`);
+      if (isDestinationDeleted(dest?.id) || isDestinationDeleted(dest?.url_slug)) {
+        throw new Error('Destination not found');
+      }
       if (dest && dest.sub_destinations) {
-        dest.sub_destinations = dest.sub_destinations.filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive');
+        dest.sub_destinations = dest.sub_destinations
+          .filter(sub => !isDestinationDeleted(sub.id) && !isDestinationDeleted(sub.url_slug))
+          .filter(sub => !sub.status || sub.status.toLowerCase() !== 'inactive');
       }
       return dest;
-    } catch {
-      const found = mockDestinations.find(d => (d.id === id || String(d.id) === String(id)) && (!d.status || d.status.toLowerCase() !== 'inactive'));
+    } catch (err: any) {
+      if (err?.status === 404 || err?.message?.includes('404') || err?.message === 'Destination not found') {
+        throw new Error('Destination not found');
+      }
+      const found = mockDestinations.find(d => 
+        (d.id === id || String(d.id).toLowerCase() === String(id).toLowerCase() || d.url_slug === id) &&
+        !isDestinationDeleted(d.id) &&
+        !isDestinationDeleted(d.url_slug) &&
+        (!d.status || d.status.toLowerCase() !== 'inactive')
+      );
       if (!found) throw new Error('Destination not found');
       return {
         ...found,
-        sub_destinations: mockDestinations.filter(d => (d.parent_id === id || String(d.parent_id) === String(id)) && (!d.status || d.status.toLowerCase() !== 'inactive')),
+        sub_destinations: mockDestinations.filter(d => 
+          (d.parent_id === id || String(d.parent_id).toLowerCase() === String(id).toLowerCase()) &&
+          !isDestinationDeleted(d.id) &&
+          !isDestinationDeleted(d.url_slug) &&
+          (!d.status || d.status.toLowerCase() !== 'inactive')
+        ),
         hotels: mockHotels.filter(h => h.destination_id === id || String(h.destination_id) === String(id)).sort((a, b) => {
           const orderA = a.order_no ?? Infinity;
           const orderB = b.order_no ?? Infinity;
@@ -504,7 +705,7 @@ export const api = {
   },
 
   updateDestination: async (id: string, data: Partial<Destination>): Promise<{ message: string; destination: Destination }> => {
-    return await apiFetch<{ message: string; destination: Destination }>(`/destinations/${id}`, {
+    return await apiFetch<{ message: string; destination: Destination }>(`/destinations/${encodeURIComponent(id)}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
@@ -517,10 +718,29 @@ export const api = {
     });
   },
 
-  deleteDestination: async (id: string): Promise<{ message: string }> => {
-    return await apiFetch<{ message: string }>(`/destinations/${id}`, {
-      method: 'DELETE',
-    });
+  deleteDestination: async (id: string, slug?: string | null): Promise<{ message: string }> => {
+    // 1. Immediately record in deleted tracking so UI removes it permanently
+    recordDeletedDestination(id, slug);
+
+    // 2. Call backend delete endpoint
+    try {
+      return await apiFetch<{ message: string }>(`/destinations/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+    } catch (err: any) {
+      if (slug && slug !== id) {
+        try {
+          return await apiFetch<{ message: string }>(`/destinations/${encodeURIComponent(slug)}`, {
+            method: 'DELETE',
+          });
+        } catch (_) {}
+      }
+      // If 404 or already deleted, treat as success
+      if (err?.status === 404 || err?.message?.includes('404')) {
+        return { message: 'Destination deleted successfully' };
+      }
+      throw err;
+    }
   },
 
   // Hotel operations
@@ -535,9 +755,12 @@ export const api = {
         if (params.featured !== undefined) urlParams.append('featured', String(params.featured));
         query = `?${urlParams.toString()}`;
       }
-      return await apiFetch<Hotel[]>(`/hotels${query}`);
+      const data = await apiFetch<Hotel[]>(`/hotels${query}`);
+      const valid = Array.isArray(data) ? data : [];
+      return valid.filter(h => !isHotelDeleted(h.id) && !isHotelDeleted(h.url_slug) && !isHotelDeleted(h.name));
     } catch {
       let filtered = [...mockHotels];
+      filtered = filtered.filter(h => !isHotelDeleted(h.id) && !isHotelDeleted(h.url_slug) && !isHotelDeleted(h.name));
       if (params) {
         if (params.destination_id) filtered = filtered.filter(h => h.destination_id === params.destination_id);
         if (params.category) filtered = filtered.filter(h => h.category === params.category);
@@ -554,10 +777,17 @@ export const api = {
   },
 
   getHotel: async (id: string): Promise<Hotel> => {
+    if (isHotelDeleted(id)) {
+      throw new Error('Hotel not found (deleted)');
+    }
     try {
-      return await apiFetch<Hotel>(`/hotels/${id}`);
+      const data = await apiFetch<Hotel>(`/hotels/${encodeURIComponent(id)}`);
+      if (data && (isHotelDeleted(data.id) || isHotelDeleted(data.url_slug) || isHotelDeleted(data.name))) {
+        throw new Error('Hotel not found (deleted)');
+      }
+      return data;
     } catch {
-      const found = mockHotels.find(h => h.id === id || String(h.id) === String(id));
+      const found = mockHotels.find(h => (h.id === id || String(h.id) === String(id) || h.url_slug === id) && !isHotelDeleted(h.id) && !isHotelDeleted(h.url_slug) && !isHotelDeleted(h.name));
       if (!found) throw new Error('Hotel not found');
       return found;
     }
@@ -577,8 +807,12 @@ export const api = {
     });
   },
 
-  deleteHotel: async (id: string): Promise<{ message: string }> => {
-    return await apiFetch<{ message: string }>(`/hotels/${id}`, {
+  deleteHotel: async (id: string | number, slug?: string | null, name?: string | null): Promise<{ message: string }> => {
+    recordDeletedHotel(id, slug, name);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('dyna:hotels-changed', { detail: { id, slug, name } }));
+    }
+    return await apiFetch<{ message: string }>(`/hotels/${encodeURIComponent(String(id))}`, {
       method: 'DELETE',
     });
   },
@@ -1527,19 +1761,7 @@ const mockFacilities: Facility[] = [
   { id: 15, name: 'sight seeing', icon: 'sight seeing', description: 'Guided local sightseeing tours and scenic viewpoint excursions' }
 ];
 
-const mockEnquiries: Enquiry[] = [];
 // --- Holiday Packages ---
-const normalizeSlug = (str: string): string => {
-  if (!str) return '';
-  return str
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-};
-
 export const getPackages = async (): Promise<any[]> => {
   let dbPackages: any[] = [];
   try {
@@ -1574,23 +1796,9 @@ export const getPackages = async (): Promise<any[]> => {
   const merged: any[] = [];
   const seenKeys = new Set<string>();
 
-  const deletedIds = typeof window !== 'undefined'
-    ? new Set<string>(JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]'))
-    : new Set<string>();
-
   const isDeleted = (pkg: any) => {
     if (!pkg) return true;
-    const pkgId = pkg.id ? String(pkg.id).trim() : '';
-    const pkgSlug = pkg.slug ? String(pkg.slug).trim() : normalizeSlug(pkg.title || pkg.id || '');
-    const normTitle = normalizeSlug(pkg.title || '');
-    return (
-      (pkgId && deletedIds.has(pkgId)) ||
-      (pkgId && deletedIds.has(pkgId.toLowerCase())) ||
-      (pkgId && deletedIds.has(normalizeSlug(pkgId))) ||
-      (pkgSlug && deletedIds.has(pkgSlug)) ||
-      (pkgSlug && deletedIds.has(pkgSlug.toLowerCase())) ||
-      (normTitle && deletedIds.has(normTitle))
-    );
+    return isPackageDeleted(pkg.id) || isPackageDeleted(pkg.slug) || isPackageDeleted(pkg.title);
   };
 
   const registerAndAdd = (pkg: any) => {
@@ -1615,6 +1823,7 @@ export const getPackages = async (): Promise<any[]> => {
   // 1. If server DB returned packages, server DB is authoritative
   if (Array.isArray(dbPackages) && dbPackages.length > 0) {
     dbPackages.forEach((pkg: any) => {
+      if (isDeleted(pkg)) return;
       const p = mapPackage(pkg);
       const idKey = p.id ? String(p.id).toLowerCase().trim() : '';
       const slugKey = p.slug ? String(p.slug).toLowerCase().trim() : '';
@@ -1663,29 +1872,35 @@ export const getPackages = async (): Promise<any[]> => {
     {icon:"📞", text:"Tour Assistance 24x7"}
   ];
 
-  return merged.map((pkg: any) => {
-    if (!pkg.quickInfo || pkg.quickInfo.length === 0) {
-      pkg.quickInfo = [...standardQuickInfo];
-    }
-    if (!pkg.image || !pkg.image.trim()) {
-      if (pkg.gallery && pkg.gallery.length > 0 && pkg.gallery[0]) {
-        pkg.image = pkg.gallery[0];
-      } else {
-        pkg.image = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
+  return merged
+    .filter(p => !isDeleted(p))
+    .map((pkg: any) => {
+      if (!pkg.quickInfo || pkg.quickInfo.length === 0) {
+        pkg.quickInfo = [...standardQuickInfo];
       }
-    }
-    if (!pkg.slug) {
-      pkg.slug = normalizeSlug(pkg.title || pkg.id);
-    }
-    return mapPackage(pkg);
-  });
+      if (!pkg.image || !pkg.image.trim()) {
+        if (pkg.gallery && pkg.gallery.length > 0 && pkg.gallery[0]) {
+          pkg.image = pkg.gallery[0];
+        } else {
+          pkg.image = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80';
+        }
+      }
+      if (!pkg.slug) {
+        pkg.slug = normalizeSlug(pkg.title || pkg.id);
+      }
+      return mapPackage(pkg);
+    });
 };
 
 export const getPackageById = async (id: string): Promise<any | null> => {
+  if (isPackageDeleted(id)) return null;
   const target = decodeURIComponent(id || '').trim();
   try {
     const serverPkg = await apiFetch<any>(`/tour-packages/${target}`).catch(() => null);
     if (serverPkg && serverPkg.id) {
+      if (isPackageDeleted(serverPkg.id) || isPackageDeleted(serverPkg.slug) || isPackageDeleted(serverPkg.title)) {
+        return null;
+      }
       return {
         ...serverPkg,
         durationDays: serverPkg.duration_days ?? serverPkg.durationDays ?? 1,
@@ -1711,6 +1926,10 @@ export const getPackageById = async (id: string): Promise<any | null> => {
       normalizeSlug(p.slug) === normTarget ||
       normalizeSlug(p.title) === normTarget
     );
+  }
+
+  if (found && (isPackageDeleted(found.id) || isPackageDeleted(found.slug) || isPackageDeleted(found.title))) {
+    return null;
   }
 
   return found || null;
@@ -1857,15 +2076,18 @@ export const updatePackage = async (id: string, data: Partial<any>): Promise<any
   return updatedPackage;
 };
 
-export const deletePackage = async (id: string): Promise<void> => {
+export const deletePackage = async (id: string, slug?: string, title?: string): Promise<void> => {
   if (!id) return;
   const normId = normalizeSlug(id);
+  recordDeletedPackage(id, slug, title);
 
   if (typeof window !== 'undefined') {
     // 1. Immediately record in deletedIds list in localStorage
     const deletedIds: string[] = JSON.parse(localStorage.getItem('dyna_deleted_packages') || '[]');
     deletedIds.push(id);
     if (normId) deletedIds.push(normId);
+    if (slug) deletedIds.push(slug);
+    if (title) deletedIds.push(normalizeSlug(title));
 
     // Also remove from dyna_packages cache and add any matching slug/title
     try {
@@ -1875,27 +2097,26 @@ export const deletePackage = async (id: string): Promise<void> => {
         const match = localList.find((p: any) => 
           p.id === id || 
           p.slug === id || 
+          (slug && (p.id === slug || p.slug === slug)) ||
           normalizeSlug(p.id) === normId || 
           normalizeSlug(p.slug) === normId ||
           (p.title && normalizeSlug(p.title) === normId)
         );
         if (match) {
+          recordDeletedPackage(match.id, match.slug, match.title);
           if (match.id) deletedIds.push(match.id);
           if (match.slug) deletedIds.push(match.slug);
           if (match.title) deletedIds.push(normalizeSlug(match.title));
         }
         const updated = localList.filter((p: any) => 
-          p.id !== id && 
-          p.slug !== id && 
-          normalizeSlug(p.id) !== normId && 
-          normalizeSlug(p.slug) !== normId &&
-          (!p.title || normalizeSlug(p.title) !== normId)
+          !isPackageDeleted(p.id) && !isPackageDeleted(p.slug) && !isPackageDeleted(p.title)
         );
         localStorage.setItem('dyna_packages', JSON.stringify(updated));
       }
     } catch (e) {}
 
     localStorage.setItem('dyna_deleted_packages', JSON.stringify(Array.from(new Set(deletedIds))));
+    window.dispatchEvent(new CustomEvent('dyna:packages-changed', { detail: { id, slug, title } }));
   }
 
   // 2. Call backend delete endpoints
@@ -1903,6 +2124,9 @@ export const deletePackage = async (id: string): Promise<void> => {
     await apiFetch(`/tour-packages/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => null);
     if (normId && normId !== id) {
       await apiFetch(`/tour-packages/${encodeURIComponent(normId)}`, { method: 'DELETE' }).catch(() => null);
+    }
+    if (slug && slug !== id && slug !== normId) {
+      await apiFetch(`/tour-packages/${encodeURIComponent(slug)}`, { method: 'DELETE' }).catch(() => null);
     }
   } catch (err) {
     console.warn('Backend deletePackage endpoint error:', err);

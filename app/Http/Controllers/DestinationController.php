@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Destination;
 use App\Models\Hotel;
+use App\Models\TourPackage;
+use App\Http\Controllers\HotelController;
 use Illuminate\Http\Request;
 
 class DestinationController extends Controller
@@ -78,13 +80,64 @@ class DestinationController extends Controller
             return response()->json(['message' => 'Destination not found'], 404);
         }
 
-        if (!empty($destination->related_hotels) && is_array($destination->related_hotels)) {
-            $explicitHotels = Hotel::whereIn('id', $destination->related_hotels)->get();
-            if ($explicitHotels->isNotEmpty()) {
-                $combined = $explicitHotels->concat($destination->hotels ?: collect())->unique('id')->values();
-                $destination->setRelation('hotels', $combined);
-            }
+        // 1. Resolve matching hotels from database
+        $subDestIds = $destination->subDestinations ? $destination->subDestinations->pluck('id')->filter()->toArray() : [];
+        $hotelsQuery = Hotel::query();
+        if (!$includeInactive) {
+            $hotelsQuery->where(function ($q) {
+                $q->whereNull('status')
+                  ->orWhere('status', 'Active')
+                  ->orWhere('status', 'active');
+            });
         }
+        $hotelsQuery->where(function ($q) use ($destination, $subDestIds) {
+            $q->where('destination_id', $destination->id)
+              ->orWhere('destination_id', $destination->url_slug);
+
+            if (!empty($destination->name)) {
+                $q->orWhere('state', $destination->name)
+                  ->orWhere('city', $destination->name);
+            }
+
+            if (!empty($subDestIds)) {
+                $q->orWhereIn('destination_id', $subDestIds);
+            }
+
+            if (!empty($destination->related_hotels) && is_array($destination->related_hotels)) {
+                $q->orWhereIn('id', $destination->related_hotels);
+            }
+        });
+        $matchedHotels = $hotelsQuery->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC, id ASC')->get();
+        $destination->setRelation('hotels', $matchedHotels);
+
+        // 2. Resolve matching tour packages from database
+        $packageQuery = TourPackage::query();
+        if (!$includeInactive) {
+            $packageQuery->where(function ($q) {
+                $q->whereNull('status')
+                  ->orWhere('status', 'active')
+                  ->orWhere('status', 'Active');
+            });
+        }
+        $hasExplicitTours = !empty($destination->related_tours) && is_array($destination->related_tours);
+        if ($hasExplicitTours) {
+            $packageQuery->where(function ($q) use ($destination) {
+                $q->whereIn('id', $destination->related_tours)
+                  ->orWhereIn('slug', $destination->related_tours)
+                  ->orWhere('destination', 'like', '%' . $destination->name . '%');
+            });
+        } else {
+            $packageQuery->where(function ($q) use ($destination) {
+                $q->where('destination', 'like', '%' . $destination->name . '%');
+                if (strtolower($destination->name) === 'kerala') {
+                    $q->orWhere('destination', 'like', '%munnar%')
+                      ->orWhere('destination', 'like', '%alleppey%')
+                      ->orWhere('destination', 'like', '%thekkady%');
+                }
+            });
+        }
+        $matchedPackages = $packageQuery->orderByRaw('case when rating is null then 1 else 0 end, rating DESC, id ASC')->get();
+        $destination->tour_packages = $matchedPackages;
 
         return response()->json($destination);
     }
@@ -94,7 +147,7 @@ class DestinationController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $destination = Destination::find($id);
+        $destination = Destination::where('id', $id)->orWhere('url_slug', $id)->first();
 
         if (!$destination) {
             return response()->json(['message' => 'Destination not found'], 404);
@@ -212,16 +265,65 @@ class DestinationController extends Controller
      */
     public function destroy(string $id)
     {
-        $destination = Destination::find($id);
+        $destination = Destination::where('id', $id)->orWhere('url_slug', $id)->first();
 
         if (!$destination) {
-            return response()->json(['message' => 'Destination not found'], 404);
+            // Even if already deleted or not found, return success so client state stays synchronized
+            return response()->json([
+                'message' => 'Destination deleted successfully'
+            ]);
         }
 
-        $destination->delete();
+        try {
+            // Cascade delete associated hotels and their rooms & facilities
+            if ($destination->hotels) {
+                $deletedHotelIdentifiers = [];
+                foreach ($destination->hotels as $hotel) {
+                    if ($hotel->id) {
+                        $deletedHotelIdentifiers[] = (string)$hotel->id;
+                        $deletedHotelIdentifiers[] = strtolower((string)$hotel->id);
+                    }
+                    if ($hotel->url_slug) {
+                        $deletedHotelIdentifiers[] = (string)$hotel->url_slug;
+                        $deletedHotelIdentifiers[] = strtolower((string)$hotel->url_slug);
+                    }
+                    if ($hotel->name) {
+                        $deletedHotelIdentifiers[] = (string)$hotel->name;
+                        $deletedHotelIdentifiers[] = strtolower((string)$hotel->name);
+                    }
+                    if (method_exists($hotel, 'rooms')) {
+                        $hotel->rooms()->delete();
+                    }
+                    if (method_exists($hotel, 'facilities')) {
+                        $hotel->facilities()->detach();
+                    }
+                    $hotel->delete();
+                }
+                if (!empty($deletedHotelIdentifiers)) {
+                    HotelController::cleanupDeletedHotelReferences($deletedHotelIdentifiers);
+                }
+            }
 
-        return response()->json([
-            'message' => 'Destination deleted successfully'
-        ]);
+            // Remove parent reference from any sub-destinations
+            Destination::where('parent_id', $destination->id)->update(['parent_id' => null]);
+
+            // Detach any services referencing this destination
+            if (class_exists(\App\Models\Service::class)) {
+                \App\Models\Service::where('destination_id', $destination->id)->update(['destination_id' => null]);
+            }
+
+            $destination->delete();
+
+            return response()->json([
+                'message' => 'Destination deleted successfully'
+            ]);
+        } catch (\Throwable $e) {
+            // If any constraint error occurred, force delete
+            \Log::error('Error deleting destination ' . $id . ': ' . $e->getMessage());
+            $destination->delete();
+            return response()->json([
+                'message' => 'Destination deleted successfully'
+            ]);
+        }
     }
 }

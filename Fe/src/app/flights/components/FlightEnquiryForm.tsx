@@ -7,6 +7,8 @@ import { api } from '@/lib/api';
 
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 
 export default function FlightEnquiryForm() {
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export default function FlightEnquiryForm() {
     message: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     if (name === 'departure_date') {
       setFormData(prev => ({
@@ -165,11 +167,25 @@ export default function FlightEnquiryForm() {
         <div className={styles.formRowGrid}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Departure Date *</label>
-            <input required min={new Date().toISOString().split('T')[0]} type="date" name="departure_date" value={formData.departure_date} onChange={handleChange} className={styles.darkInput} />
+            <DatePicker 
+              name="departure_date" 
+              required 
+              minDate={getTodayDateString()}
+              value={formData.departure_date} 
+              onChange={handleChange} 
+            />
           </div>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Return Date {formData.trip_type === 'One Way' ? '' : '*'}</label>
-            <input required={formData.trip_type !== 'One Way'} disabled={formData.trip_type === 'One Way'} min={formData.departure_date || new Date().toISOString().split('T')[0]} type="date" name="return_date" value={formData.return_date} onChange={handleChange} className={styles.darkInput} />
+            <DatePicker 
+              name="return_date" 
+              required={formData.trip_type !== 'One Way'} 
+              disabled={formData.trip_type === 'One Way'} 
+              minDate={formData.departure_date || getTodayDateString()} 
+              value={formData.return_date} 
+              onChange={handleChange} 
+              align="right"
+            />
           </div>
         </div>
 

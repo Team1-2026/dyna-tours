@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import styles from './tour-details.module.css';
 import { toursData } from '@/data/toursData';
 import { isPriceEnabled } from '@/lib/api';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -389,10 +391,9 @@ export default function TourDetailsPage({ params }: PageProps) {
               <div className={styles.formRowGrid}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Select Travel Date</label>
-                  <input 
-                    type="date" 
+                  <DatePicker 
+                    name="travel_date"
                     required 
-                    min={new Date().toISOString().split('T')[0]} 
                     value={travelDate}
                     onChange={(e) => setTravelDate(e.target.value)}
                   />

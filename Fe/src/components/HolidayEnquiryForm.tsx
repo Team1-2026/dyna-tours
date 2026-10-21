@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { api } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 
 export default function HolidayEnquiryForm({ categoryName }: { categoryName: string }) {
   const [countryCode, setCountryCode] = useState('+91');
@@ -21,7 +23,7 @@ export default function HolidayEnquiryForm({ categoryName }: { categoryName: str
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string } }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -89,7 +91,7 @@ export default function HolidayEnquiryForm({ categoryName }: { categoryName: str
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem' }}>
         <div>
           <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Travel Date</label>
-          <input required type="date" name="travel_date" value={formData.travel_date} onChange={handleChange} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', width: '100%', outline: 'none' }} />
+          <DatePicker required name="travel_date" value={formData.travel_date} onChange={handleChange} />
         </div>
         <div>
           <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '0.25rem' }}>No: of Guests</label>

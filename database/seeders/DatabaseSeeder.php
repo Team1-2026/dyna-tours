@@ -73,8 +73,8 @@ class DatabaseSeeder extends Seeder
             'meta_title' => 'Kerala Travel Guide: Backwaters & Hill Stations | Dyna Tours',
             'meta_description' => 'Plan your trip to God\'s Own Country. Explore backwaters, beaches, Ayurveda, and top attractions.',
             'url_slug' => 'kerala',
-            'canonical_url' => 'http://localhost:3000/destinations/kerala',
-            'related_tours' => ['kerala-backwater-tour', 'hills-of-munnar-tour'],
+            'related_tours' => ['kerala-delight-tour', 'kerala-hills-lakes-backwater-escape'],
+            'related_hotels' => ['blanket-hotel-spa-munnar'],
         ]);
 
         Destination::create([
@@ -387,10 +387,10 @@ class DatabaseSeeder extends Seeder
             'show_price' => true,
             'short_description' => 'Experience a breathtaking ocean voyage from Kochi to the white sand lagoons of Maldives and the vibrant city of Colombo.',
             'about' => 'Set sail on a luxurious cruise across the Indian Ocean. Enjoy world-class dining, poolside relaxation, Broadway-style entertainment, and curated island shore excursions.',
-            'banner_image' => 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1200&q=80',
+            'banner_image' => '/images/cruise_banner.jpg',
             'gallery' => [
-                'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80',
+                '/images/cruise_banner.jpg',
+                '/images/cruise_overview.jpg',
                 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
             ],
             'highlights' => [

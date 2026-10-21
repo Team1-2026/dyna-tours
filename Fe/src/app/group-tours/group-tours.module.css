@@ -635,6 +635,134 @@
   font-weight: 600;
 }
 
+/* Skeleton Loading Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeletonCard {
+  pointer-events: none;
+  background: #ffffff;
+}
+
+.skeletonImage {
+  height: 200px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonTitle {
+  height: 22px;
+  width: 85%;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonMeta {
+  height: 16px;
+  width: 55%;
+  border-radius: 4px;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonPrice {
+  height: 24px;
+  width: 40%;
+  border-radius: 4px;
+  margin-top: auto;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonActions {
+  height: 38px;
+  width: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Empty State */
+.noToursState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px dashed #cbd5e1;
+}
+
+.noToursIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.noToursTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.noToursText {
+  color: #64748b;
+  max-width: 500px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.resetFilterBtn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.resetFilterBtn:hover {
+  background: #b91c1c;
+}
+
+.upcomingCardBg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.2;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.statusBadgeUpcoming {
+  padding: 0.35rem 0.85rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ffffff;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
 @media (max-width: 1024px) {
   .packagesGrid {
     grid-template-columns: repeat(2, 1fr);

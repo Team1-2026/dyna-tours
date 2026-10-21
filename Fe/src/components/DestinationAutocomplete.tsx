@@ -12,7 +12,7 @@ import {
   Compass,
   ArrowRight
 } from 'lucide-react';
-import { api, getPackages, Destination } from '@/lib/api';
+import { api, getPackages, Destination, isDestinationDeleted } from '@/lib/api';
 
 export interface DestinationSuggestion {
   id: string;
@@ -120,8 +120,9 @@ export const DestinationAutocomplete: React.FC<DestinationAutocompleteProps> = (
 
         const mergedMap = new Map<string, DestinationSuggestion>();
 
-        // 1. Add curated fallbacks
+        // 1. Add curated fallbacks (excluding deleted)
         FALLBACK_DESTINATIONS.forEach(d => {
+          if (isDestinationDeleted(d.id) || isDestinationDeleted(d.name)) return;
           mergedMap.set(d.name.toLowerCase().trim(), d);
         });
 
@@ -131,6 +132,7 @@ export const DestinationAutocomplete: React.FC<DestinationAutocompleteProps> = (
           const s = str.trim().toLowerCase();
           if (s.length < 2) return false;
           if (['dsfds', 'sdfsd', 'test', 'asdf'].includes(s)) return false;
+          if (isDestinationDeleted(s) || isDestinationDeleted(str)) return false;
           return true;
         };
 

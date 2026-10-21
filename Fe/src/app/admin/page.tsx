@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, groupToursApi, Destination, Hotel, Enquiry, GroupTourEnquiry, Room, GalleryImage, Facility, getImageUrl } from '@/lib/api';
+import { api, groupToursApi, Destination, Hotel, Enquiry, GroupTourEnquiry, Room, GalleryImage, Facility, getImageUrl, getPackages, isPackageDeleted, isHotelDeleted } from '@/lib/api';
 import { toursData } from '@/data/toursData';
 import { AmenityIcon } from '@/components/AmenityIcon';
 import styles from './admin.module.css';
@@ -78,10 +78,35 @@ export default function AdminDashboard() {
 
   // Core data states
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+  const [enquiryFromDate, setEnquiryFromDate] = useState('');
+  const [enquiryToDate, setEnquiryToDate] = useState('');
   const [groupTourEnquiries, setGroupTourEnquiries] = useState<GroupTourEnquiry[]>([]);
+
+  // Filtered customer enquiries based on selected date range
+  const filteredEnquiries = useMemo(() => {
+    return enquiries.filter((enq) => {
+      if (!enquiryFromDate && !enquiryToDate) return true;
+      if (!enq.created_at) return false;
+      const d = new Date(enq.created_at);
+      if (isNaN(d.getTime())) return false;
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const enqDateStr = `${year}-${month}-${day}`;
+
+      if (enquiryFromDate && enqDateStr < enquiryFromDate) {
+        return false;
+      }
+      if (enquiryToDate && enqDateStr > enquiryToDate) {
+        return false;
+      }
+      return true;
+    });
+  }, [enquiries, enquiryFromDate, enquiryToDate]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [packagesList, setPackagesList] = useState<any[]>([]);
 
   // Facilities admin states
   const [isCreatingFacility, setIsCreatingFacility] = useState(false);
@@ -197,7 +222,8 @@ export default function AdminDashboard() {
     if (!confirm(`Are you absolutely sure you want to delete the hotel "${hotelName}"?`)) return;
     setSaveStatus('Deleting hotel...');
     try {
-      await api.deleteHotel(hotelId);
+      const hotelObj = hotels.find(h => h.id === hotelId);
+      await api.deleteHotel(hotelId, hotelObj?.url_slug, hotelName);
       setSaveStatus('✓ Hotel deleted successfully!');
       if (selectedHotelId === hotelId) {
         setSelectedHotelId('');
@@ -212,21 +238,26 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteDestDirect = async (destId: string, destName: string) => {
+  const handleDeleteDestDirect = async (destId: string, destName: string, destSlug?: string | null) => {
     if (!confirm(`Are you absolutely sure you want to delete the destination "${destName}"? All associated hotels will be deleted.`)) return;
     setSaveStatus('Deleting destination...');
+
+    // Optimistic removal from UI immediately
+    setDestinations(prev => prev.filter(d => d.id !== destId && d.url_slug !== destId && (!destSlug || d.id !== destSlug)));
+    if (selectedDestId === destId || selectedDestId === destSlug) {
+      setSelectedDestId('');
+      setSelectedDest(null);
+    }
+
     try {
-      await api.deleteDestination(destId);
+      await api.deleteDestination(destId, destSlug);
       setSaveStatus('✓ Destination deleted successfully!');
-      if (selectedDestId === destId) {
-        setSelectedDestId('');
-        setSelectedDest(null);
-      }
       refreshData();
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('❌ Failed to delete destination.');
+      setSaveStatus(`❌ ${err?.message || 'Failed to delete destination.'}`);
+      refreshData();
       setTimeout(() => setSaveStatus(null), 4000);
     }
   };
@@ -418,19 +449,32 @@ export default function AdminDashboard() {
     refreshData();
   }, [router]);
 
+  useEffect(() => {
+    const handlePackageChange = () => refreshData();
+    const handleHotelChange = () => refreshData();
+    window.addEventListener('dyna:packages-changed', handlePackageChange);
+    window.addEventListener('dyna:hotels-changed', handleHotelChange);
+    return () => {
+      window.removeEventListener('dyna:packages-changed', handlePackageChange);
+      window.removeEventListener('dyna:hotels-changed', handleHotelChange);
+    };
+  }, []);
+
   const refreshData = () => {
     Promise.all([
       api.getEnquiries(),
       api.getDestinations({ status: 'all' }),
       api.getHotels(),
       api.getFacilities(),
-      groupToursApi.getEnquiries().catch(() => [])
-    ]).then(([enqData, destData, hotelData, facData, gtEnqData]) => {
+      groupToursApi.getEnquiries().catch(() => []),
+      getPackages().catch(() => [])
+    ]).then(([enqData, destData, hotelData, facData, gtEnqData, pkgData]) => {
       setEnquiries(enqData);
       setDestinations(destData);
       setHotels(hotelData);
       setFacilities(facData);
       setGroupTourEnquiries(gtEnqData || []);
+      setPackagesList(Array.isArray(pkgData) && pkgData.length > 0 ? pkgData : toursData);
 
       const nextHotelOrder = (hotelData && hotelData.length > 0)
         ? Math.max(0, ...hotelData.map(h => Number(h.order_no) || 0)) + 1
@@ -536,7 +580,7 @@ export default function AdminDashboard() {
   };
 
   const downloadCustomerEnquiriesCSV = () => {
-    if (!enquiries || enquiries.length === 0) return;
+    if (!filteredEnquiries || filteredEnquiries.length === 0) return;
 
     const headers = [
       'ID',
@@ -561,7 +605,7 @@ export default function AdminDashboard() {
       return `"${str}"`;
     };
 
-    const rows = enquiries.map((enq) => {
+    const rows = filteredEnquiries.map((enq) => {
       const pageUrl = getEnquiryPageUrl(enq);
       const dateTime = enq.created_at
         ? `${new Date(enq.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${new Date(enq.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`
@@ -598,7 +642,15 @@ export default function AdminDashboard() {
     const link = document.createElement('a');
     link.href = url;
     const dateStr = new Date().toISOString().split('T')[0];
-    link.setAttribute('download', `customer_enquiries_${dateStr}.csv`);
+    let downloadFileName = `customer_enquiries_${dateStr}.csv`;
+    if (enquiryFromDate && enquiryToDate) {
+      downloadFileName = `customer_enquiries_${enquiryFromDate}_to_${enquiryToDate}.csv`;
+    } else if (enquiryFromDate) {
+      downloadFileName = `customer_enquiries_from_${enquiryFromDate}.csv`;
+    } else if (enquiryToDate) {
+      downloadFileName = `customer_enquiries_to_${enquiryToDate}.csv`;
+    }
+    link.setAttribute('download', downloadFileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -859,19 +911,28 @@ export default function AdminDashboard() {
 
   const deleteDestination = async () => {
     if (!selectedDestId) return;
-    if (!confirm(`Are you absolutely sure you want to delete the destination "${selectedDest?.name}"? All associated hotels will be deleted.`)) return;
+    const destName = selectedDest?.name || 'this destination';
+    const destSlug = selectedDest?.url_slug || null;
+    const idToDelete = selectedDestId;
+
+    if (!confirm(`Are you absolutely sure you want to delete the destination "${destName}"? All associated hotels will be deleted.`)) return;
 
     setSaveStatus('Deleting destination...');
+
+    // Optimistic removal from UI immediately
+    setDestinations(prev => prev.filter(d => d.id !== idToDelete && d.url_slug !== idToDelete && (!destSlug || d.id !== destSlug)));
+    setSelectedDestId('');
+    setSelectedDest(null);
+
     try {
-      await api.deleteDestination(selectedDestId);
+      await api.deleteDestination(idToDelete, destSlug);
       setSaveStatus('✓ Destination deleted successfully!');
-      setSelectedDestId('');
-      setSelectedDest(null);
       refreshData();
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('❌ Failed to delete destination.');
+      setSaveStatus(`❌ ${err?.message || 'Failed to delete destination.'}`);
+      refreshData();
       setTimeout(() => setSaveStatus(null), 4000);
     }
   };
@@ -1272,7 +1333,7 @@ export default function AdminDashboard() {
 
     setSaveStatus('Deleting hotel...');
     try {
-      await api.deleteHotel(selectedHotelId);
+      await api.deleteHotel(selectedHotelId, selectedHotel?.url_slug, selectedHotel?.name);
       setSaveStatus('✓ Hotel deleted successfully!');
       setSelectedHotelId('');
       setSelectedHotel(null);
@@ -1311,12 +1372,15 @@ export default function AdminDashboard() {
   const hotelCities = COUNTRIES_DATA[hotelCountry]?.cities?.[hotelState] || [];
 
   // Filter lists for checkboxes
-  const filteredTours = toursData.filter(tour => 
-    tour.title.toLowerCase().includes(tourSearchQuery.toLowerCase()) ||
-    tour.destination.toLowerCase().includes(tourSearchQuery.toLowerCase())
+  const availableTours = (packagesList && packagesList.length > 0) ? packagesList : toursData;
+  const filteredTours = availableTours.filter(tour => 
+    !isPackageDeleted(tour.id) && !isPackageDeleted(tour.slug) && !isPackageDeleted(tour.title) &&
+    ((tour.title || '').toLowerCase().includes(tourSearchQuery.toLowerCase()) ||
+     (tour.destination || '').toLowerCase().includes(tourSearchQuery.toLowerCase()))
   );
 
   const filteredHotels = hotels.filter(h => 
+    !isHotelDeleted(h.id) && !isHotelDeleted(h.url_slug) && !isHotelDeleted(h.name) &&
     h.id !== (isCreatingHotel ? '' : selectedHotelId) &&
     (h.name.toLowerCase().includes(hotelSearchQuery.toLowerCase()) ||
      h.location.toLowerCase().includes(hotelSearchQuery.toLowerCase()))
@@ -1777,28 +1841,98 @@ export default function AdminDashboard() {
                 <div>
                   <h2 className={styles.panelTitle} style={{ margin: 0 }}>Customer Enquiry Submissions</h2>
                   <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-                    Total: {enquiries.length} {enquiries.length === 1 ? 'submission' : 'submissions'}
+                    {enquiryFromDate || enquiryToDate ? (
+                      <>
+                        Showing <strong>{filteredEnquiries.length}</strong> of {enquiries.length} {enquiries.length === 1 ? 'submission' : 'submissions'}
+                      </>
+                    ) : (
+                      <>
+                        Total: {enquiries.length} {enquiries.length === 1 ? 'submission' : 'submissions'}
+                      </>
+                    )}
                   </p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  {/* Date range filter for downloading/viewing enquiries */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8fafc', padding: '0.35rem 0.65rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <label htmlFor="enquiryFromDate" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>From:</label>
+                      <input 
+                        id="enquiryFromDate"
+                        type="date"
+                        value={enquiryFromDate}
+                        onChange={(e) => setEnquiryFromDate(e.target.value)}
+                        style={{
+                          fontSize: '0.825rem',
+                          padding: '0.3rem 0.5rem',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '6px',
+                          color: 'var(--color-secondary-navy)',
+                          backgroundColor: '#ffffff',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <label htmlFor="enquiryToDate" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>To:</label>
+                      <input 
+                        id="enquiryToDate"
+                        type="date"
+                        value={enquiryToDate}
+                        onChange={(e) => setEnquiryToDate(e.target.value)}
+                        style={{
+                          fontSize: '0.825rem',
+                          padding: '0.3rem 0.5rem',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '6px',
+                          color: 'var(--color-secondary-navy)',
+                          backgroundColor: '#ffffff',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+                    {(enquiryFromDate || enquiryToDate) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEnquiryFromDate('');
+                          setEnquiryToDate('');
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#dc2626',
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '4px'
+                        }}
+                        title="Clear date filter"
+                      >
+                        ✕ Clear
+                      </button>
+                    )}
+                  </div>
+
                   <button 
                     onClick={downloadCustomerEnquiriesCSV} 
                     className={styles.saveBtn} 
-                    disabled={enquiries.length === 0}
+                    disabled={filteredEnquiries.length === 0}
                     style={{ 
                       marginTop: 0, 
                       backgroundColor: '#059669', 
                       display: 'inline-flex', 
                       alignItems: 'center', 
                       gap: '0.5rem',
-                      opacity: enquiries.length === 0 ? 0.6 : 1,
-                      cursor: enquiries.length === 0 ? 'not-allowed' : 'pointer',
+                      opacity: filteredEnquiries.length === 0 ? 0.6 : 1,
+                      cursor: filteredEnquiries.length === 0 ? 'not-allowed' : 'pointer',
                       fontWeight: 600,
                       color: '#ffffff'
                     }}
-                    title="Export customer enquiries to CSV"
+                    title={filteredEnquiries.length === 0 ? 'No enquiries to download' : 'Download customer enquiries'}
                   >
-                    <span>📥 Download CSV</span>
+                    <span>📥 Download</span>
                   </button>
                   <button 
                     onClick={refreshData} 
@@ -1825,88 +1959,115 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {enquiries.map((enq) => {
-                        const pageUrl = getEnquiryPageUrl(enq);
-                        return (
-                          <tr key={enq.id}>
-                            <td style={{ whiteSpace: 'nowrap' }}>
-                              {enq.created_at ? (
-                                <div>
-                                  <div style={{ fontWeight: 600, color: 'var(--color-secondary-navy)' }}>
-                                    {new Date(enq.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {filteredEnquiries.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} style={{ textAlign: 'center', padding: '2.5rem', color: '#64748b' }}>
+                            <div>No enquiries found for the selected date range.</div>
+                            <button
+                              onClick={() => {
+                                setEnquiryFromDate('');
+                                setEnquiryToDate('');
+                              }}
+                              style={{
+                                marginTop: '0.75rem',
+                                background: 'var(--color-secondary-navy)',
+                                color: '#ffffff',
+                                border: 'none',
+                                padding: '0.4rem 0.85rem',
+                                borderRadius: '6px',
+                                fontSize: '0.825rem',
+                                cursor: 'pointer',
+                                fontWeight: 600
+                              }}
+                            >
+                              Clear Date Filter
+                            </button>
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredEnquiries.map((enq) => {
+                          const pageUrl = getEnquiryPageUrl(enq);
+                          return (
+                            <tr key={enq.id}>
+                              <td style={{ whiteSpace: 'nowrap' }}>
+                                {enq.created_at ? (
+                                  <div>
+                                    <div style={{ fontWeight: 600, color: 'var(--color-secondary-navy)' }}>
+                                      {new Date(enq.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                                      {new Date(enq.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                    </div>
                                   </div>
-                                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
-                                    {new Date(enq.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                ) : (
+                                  'N/A'
+                                )}
+                              </td>
+                              <td>
+                                <span className={`${styles.badge} ${enq.type === 'hotel' ? styles.badgeHotel : styles.badgeDestination}`}>
+                                  {enq.type === 'package' ? 'PACKAGE' : enq.type.toUpperCase()}
+                                </span>
+                              </td>
+                              <td style={{ maxWidth: '240px' }}>
+                                {pageUrl ? (
+                                  <a 
+                                    href={pageUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ 
+                                      color: '#2563eb', 
+                                      textDecoration: 'underline', 
+                                      fontWeight: 600,
+                                      fontSize: '0.85rem',
+                                      display: 'inline-flex', 
+                                      alignItems: 'center', 
+                                      gap: '3px',
+                                      wordBreak: 'break-all'
+                                    }}
+                                    title={`Open ${pageUrl}`}
+                                  >
+                                    <span>{pageUrl}</span>
+                                    <span style={{ fontSize: '10px', textDecoration: 'none' }}>↗</span>
+                                  </a>
+                                ) : (
+                                  <span style={{ color: '#94a3b8' }}>—</span>
+                                )}
+                              </td>
+                              <td>
+                                <div style={{ fontWeight: 750 }}>{enq.name}</div>
+                                <div>✉ {enq.email}</div>
+                                <div>📞 {enq.phone}</div>
+                              </td>
+                              <td>
+                                {enq.type === 'flight' ? (
+                                  <div>
+                                    <div>🛫 Route: {enq.from} &rarr; {enq.to}</div>
+                                    <div>✈️ Type: {enq.trip_type} • Class: {enq.cabin_class}</div>
+                                    <div>📅 Dep: {enq.departure_date} {enq.return_date ? `• Ret: ${enq.return_date}` : ''}</div>
+                                    <div>🧑 Adults: {enq.num_adults} • Child: {enq.num_children} • Infants: {enq.num_infants}</div>
+                                    {enq.preferred_airline && <div>Airline: {enq.preferred_airline}</div>}
                                   </div>
-                                </div>
-                              ) : (
-                                'N/A'
-                              )}
-                            </td>
-                            <td>
-                              <span className={`${styles.badge} ${enq.type === 'hotel' ? styles.badgeHotel : styles.badgeDestination}`}>
-                                {enq.type === 'package' ? 'PACKAGE' : enq.type.toUpperCase()}
-                              </span>
-                            </td>
-                            <td style={{ maxWidth: '240px' }}>
-                              {pageUrl ? (
-                                <a 
-                                  href={pageUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  style={{ 
-                                    color: '#2563eb', 
-                                    textDecoration: 'underline', 
-                                    fontWeight: 600,
-                                    fontSize: '0.85rem',
-                                    display: 'inline-flex', 
-                                    alignItems: 'center', 
-                                    gap: '3px',
-                                    wordBreak: 'break-all'
-                                  }}
-                                  title={`Open ${pageUrl}`}
-                                >
-                                  <span>{pageUrl}</span>
-                                  <span style={{ fontSize: '10px', textDecoration: 'none' }}>↗</span>
-                                </a>
-                              ) : (
-                                <span style={{ color: '#94a3b8' }}>—</span>
-                              )}
-                            </td>
-                            <td>
-                              <div style={{ fontWeight: 750 }}>{enq.name}</div>
-                              <div>✉ {enq.email}</div>
-                              <div>📞 {enq.phone}</div>
-                            </td>
-                            <td>
-                              {enq.type === 'flight' ? (
-                                <div>
-                                  <div>🛫 Route: {enq.from} &rarr; {enq.to}</div>
-                                  <div>✈️ Type: {enq.trip_type} • Class: {enq.cabin_class}</div>
-                                  <div>📅 Dep: {enq.departure_date} {enq.return_date ? `• Ret: ${enq.return_date}` : ''}</div>
-                                  <div>🧑 Adults: {enq.num_adults} • Child: {enq.num_children} • Infants: {enq.num_infants}</div>
-                                  {enq.preferred_airline && <div>Airline: {enq.preferred_airline}</div>}
-                                </div>
-                              ) : enq.type === 'hotel' ? (
-                                <div>
-                                  {enq.check_in && <div>📅 In: {enq.check_in}</div>}
-                                  {enq.check_out && <div>📅 Out: {enq.check_out}</div>}
-                                  <div>🧑 Adults: {enq.num_adults || 1}, Child: {enq.num_children || 0}</div>
-                                </div>
-                              ) : (
-                                <div>
-                                  <div>🧑 Peoples: {enq.num_people || enq.num_adults || 'N/A'}</div>
-                                  {enq.num_children !== undefined && enq.num_children > 0 && (
-                                    <div>👶 Child: {enq.num_children} {enq.children_ages ? `(Ages: ${enq.children_ages})` : ''}</div>
-                                  )}
-                                  <div>📅 Date: {enq.travel_date || 'N/A'}</div>
-                                </div>
-                              )}
-                            </td>
-                            <td style={{ maxWidth: '350px', whiteSpace: 'pre-wrap' }}>{enq.message || '—'}</td>
-                          </tr>
-                        );
-                      })}
+                                ) : enq.type === 'hotel' ? (
+                                  <div>
+                                    {enq.check_in && <div>📅 In: {enq.check_in}</div>}
+                                    {enq.check_out && <div>📅 Out: {enq.check_out}</div>}
+                                    <div>🧑 Adults: {enq.num_adults || 1}, Child: {enq.num_children || 0}</div>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <div>🧑 Peoples: {enq.num_people || enq.num_adults || 'N/A'}</div>
+                                    {enq.num_children !== undefined && enq.num_children > 0 && (
+                                      <div>👶 Child: {enq.num_children} {enq.children_ages ? `(Ages: ${enq.children_ages})` : ''}</div>
+                                    )}
+                                    <div>📅 Date: {enq.travel_date || 'N/A'}</div>
+                                  </div>
+                                )}
+                              </td>
+                              <td style={{ maxWidth: '350px', whiteSpace: 'pre-wrap' }}>{enq.message || '—'}</td>
+                            </tr>
+                          );
+                        })
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -2905,7 +3066,7 @@ export default function AdminDashboard() {
                                 </button>
                                 <button 
                                   type="button" 
-                                  onClick={() => handleDeleteDestDirect(dest.id, dest.name)} 
+                                  onClick={() => handleDeleteDestDirect(dest.id, dest.name, dest.url_slug)} 
                                   className={`${styles.tableActionBtn} ${styles.actionDelete}`}
                                 >
                                   Delete
@@ -3320,7 +3481,7 @@ export default function AdminDashboard() {
                                 checked={isChecked}
                                 onChange={() => handleDestRelatedHotelToggle(hotel.id)}
                               />
-                              <span>{hotel.name} ({hotel.location})</span>
+                              <span>{hotel.name} ({[hotel.location, hotel.city, hotel.state].filter(Boolean).join(', ') || 'General'})</span>
                             </label>
                           );
                         })}

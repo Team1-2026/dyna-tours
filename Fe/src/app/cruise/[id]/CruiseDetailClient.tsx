@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Cruise, api } from '@/lib/api';
+import { Cruise, api, getImageUrl } from '@/lib/api';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 import styles from './cruiseDetail.module.css';
 
 interface Props {
@@ -13,6 +15,10 @@ interface Props {
 }
 
 export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
+  const bannerImage = (!cruise.banner_image || cruise.banner_image.includes('1548574505') || cruise.banner_image.includes('unsplash'))
+    ? '/images/cruise_banner.jpg'
+    : getImageUrl(cruise.banner_image);
+
   const [openDay, setOpenDay] = useState<number | null>(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -29,7 +35,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -77,7 +83,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
       {/* 1. Banner */}
       <section
         className={styles.heroBanner}
-        style={{ backgroundImage: `url(${cruise.banner_image || 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=1920&q=80'})` }}
+        style={{ backgroundImage: `url(${bannerImage})` }}
       >
         <div className={styles.heroOverlay} />
         <div className="container">
@@ -241,7 +247,13 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.25rem' }}>
                   {relatedCruises.map((rel) => (
                     <div key={rel.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-                      <img src={rel.banner_image || 'https://images.unsplash.com/photo-1548574505-5e2386903d8f?auto=format&fit=crop&w=400&q=80'} alt={rel.name} style={{ width: '100%', height: '120px', objectFit: 'cover' }} />
+                      <img
+                        src={rel.banner_image && !rel.banner_image.includes('1548574505') && !rel.banner_image.includes('unsplash')
+                          ? getImageUrl(rel.banner_image)
+                          : '/images/cruise_banner.jpg'}
+                        alt={rel.name}
+                        style={{ width: '100%', height: '120px', objectFit: 'cover' }}
+                      />
                       <div style={{ padding: '1rem' }}>
                         <h4 style={{ fontSize: '0.95rem', color: '#0f172a', marginBottom: '0.25rem' }}>{rel.name}</h4>
                         <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '0.75rem' }}>{rel.duration}</span>
@@ -300,7 +312,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
 
                   <div className="formGroup" style={{ marginBottom: '0.85rem' }}>
                     <label htmlFor="travel_date" style={{ fontSize: '0.85rem' }}>Travel Date</label>
-                    <input type="date" id="travel_date" name="travel_date" value={formData.travel_date} onChange={handleInputChange} style={{ padding: '0.6rem' }} />
+                    <DatePicker id="travel_date" name="travel_date" value={formData.travel_date} onChange={handleInputChange} />
                   </div>
 
                   <div className="formGroup" style={{ marginBottom: '0.85rem' }}>

@@ -7,8 +7,10 @@ import ImageZoomModal from '@/components/ImageZoomModal';
 import TourCard from '@/components/TourCard';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 import styles from './tour-details.module.css';
-import { getPackageById, getPackages, api, isPriceEnabled } from '@/lib/api';
+import { getPackageById, getPackages, api, isPriceEnabled, isPackageDeleted } from '@/lib/api';
 
 import ResolvedImage from '@/components/ResolvedImage';
 
@@ -28,14 +30,29 @@ export default function TourDetailsPage({ params }: PageProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    const handlePackageChange = () => {
+      setRelatedToursData(prev => prev.filter(p => !isPackageDeleted(p.id) && !isPackageDeleted(p.slug) && !isPackageDeleted(p.title)));
+    };
+    window.addEventListener('dyna:packages-changed', handlePackageChange);
+    return () => window.removeEventListener('dyna:packages-changed', handlePackageChange);
+  }, []);
+
+  useEffect(() => {
     Promise.all([
       getPackageById(id),
       getPackages()
     ]).then(([data, allPackages]) => {
       setTour(data);
       if (data && data.relatedTours && data.relatedTours.length > 0) {
-        const relIds = data.relatedTours.map(String);
-        const related = (allPackages || []).filter(p => relIds.includes(String(p.id)) && String(p.id) !== String(id));
+        const relIds = data.relatedTours.map((r: any) => String(r).toLowerCase().trim());
+        const related = (allPackages || []).filter(p => {
+          if (!p) return false;
+          if (isPackageDeleted(p.id) || isPackageDeleted(p.slug) || isPackageDeleted(p.title)) return false;
+          if (String(p.id) === String(id) || String(p.slug) === String(id)) return false;
+          const pid = String(p.id || '').toLowerCase().trim();
+          const pslug = String(p.slug || '').toLowerCase().trim();
+          return relIds.includes(pid) || relIds.includes(pslug);
+        });
         setRelatedToursData(related);
       } else {
         setRelatedToursData([]);
@@ -701,10 +718,9 @@ export default function TourDetailsPage({ params }: PageProps) {
               <div className={styles.formRowGrid}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Select Travel Date</label>
-                  <input 
-                    type="date" 
+                  <DatePicker 
+                    name="travel_date"
                     required 
-                    min={new Date().toISOString().split('T')[0]} 
                     value={travelDate}
                     onChange={(e) => setTravelDate(e.target.value)}
                   />

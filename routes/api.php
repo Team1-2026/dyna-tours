@@ -59,13 +59,20 @@ Route::delete('/packages/{id}', [TourPackageController::class, 'destroy']);
 
 Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/destinations/{id}', [DestinationController::class, 'show']);
+Route::post('/destinations', [DestinationController::class, 'store']);
+Route::put('/destinations/{id}', [DestinationController::class, 'update']);
+Route::delete('/destinations/{id}', [DestinationController::class, 'destroy']);
 
 Route::get('/visas', [VisaController::class, 'index']);
 Route::get('/visas/{id}', [VisaController::class, 'show']);
 
 Route::get('/group-tours/page', [GroupTourPageController::class, 'show']);
+Route::post('/group-tours/page', [GroupTourPageController::class, 'update']);
 Route::get('/group-tours', [GroupTourController::class, 'index']);
 Route::get('/group-tours/{id}', [GroupTourController::class, 'show'])->whereNumber('id');
+Route::post('/group-tours', [GroupTourController::class, 'store']);
+Route::put('/group-tours/{id}', [GroupTourController::class, 'update'])->whereNumber('id');
+Route::delete('/group-tours/{id}', [GroupTourController::class, 'destroy'])->whereNumber('id');
 Route::post('/group-tours/enquiries', [GroupTourEnquiryController::class, 'store']);
 
 Route::get('/flights/page', [FlightPageController::class, 'get']);

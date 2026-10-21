@@ -16,76 +16,13 @@ const parseDetails = (tour: GroupTour | null): GroupTourDetails => {
   }
 };
 
-const defaultTours: GroupTour[] = [
-  {
-    id: 1,
-    name: 'Panoramic Europe – Alpine Grandeur & Cultural Treasures',
-    type: 'international',
-    destination: 'France • Switzerland • Italy',
-    duration: '7 Nights / 8 Days',
-    starting_price: 199999,
-    status: 'Filling Fast',
-    is_featured: true,
-    featured_order: 1,
-    departure_date: '2026-09-15',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=1000',
-    is_visible: true,
-    created_at: '',
-    updated_at: ''
-  },
-  {
-    id: 2,
-    name: 'Swiss Alps Explorer',
-    type: 'international',
-    destination: 'Switzerland',
-    duration: '7 Nights / 8 Days',
-    starting_price: 179999,
-    status: 'Filling Fast',
-    is_featured: true,
-    featured_order: 2,
-    departure_date: '2026-07-15',
-    image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&q=80&w=1000',
-    is_visible: true,
-    created_at: '',
-    updated_at: ''
-  },
-  {
-    id: 3,
-    name: 'Thailand Discovery',
-    type: 'international',
-    destination: 'Thailand',
-    duration: '6 Nights / 7 Days',
-    starting_price: 59999,
-    status: 'Limited Seats',
-    is_featured: true,
-    featured_order: 3,
-    departure_date: '2026-09-18',
-    image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=1000',
-    is_visible: true,
-    created_at: '',
-    updated_at: ''
-  },
-  {
-    id: 4,
-    name: 'Dubai Explorer',
-    type: 'international',
-    destination: 'Dubai',
-    duration: '5 Nights / 6 Days',
-    starting_price: 45999,
-    status: 'Sold Out',
-    is_featured: false,
-    featured_order: 4,
-    departure_date: '2026-11-05',
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=1000',
-    is_visible: true,
-    created_at: '',
-    updated_at: ''
-  }
-];
+
 
 import { useSearchParams } from 'next/navigation';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { isValidPhone, validatePhoneByCountry } from '@/lib/phoneValidation';
+import { getTodayDateString } from '@/lib/dateUtils';
+import DatePicker from '@/components/DatePicker';
 
 const formatDepartureDate = (dateStr: string) => {
   if (!dateStr) return '';
@@ -147,10 +84,10 @@ function GroupToursContent() {
           groupToursApi.getTours({ visible_only: true })
         ]);
         setPageData(pData);
-        setTours(tData && tData.length > 0 ? tData : defaultTours);
+        setTours(Array.isArray(tData) ? tData : []);
       } catch (err) {
         console.error('Failed to load group tours data:', err);
-        setTours(defaultTours);
+        setTours([]);
       } finally {
         setLoading(false);
       }
@@ -158,16 +95,25 @@ function GroupToursContent() {
     fetchData();
   }, []);
 
-  const displayTours = tours.length > 0 ? tours : defaultTours;
+  const displayTours = tours;
   const filteredTours = displayTours.filter(t => {
     if (destFilter && !t.destination.toLowerCase().includes(destFilter.toLowerCase())) return false;
     if (typeFilter && t.type !== typeFilter) return false;
     return true;
   });
 
-  const uniqueDestinations = Array.from(new Set(displayTours.map(t => t.destination)));
+  const uniqueDestinations = Array.from(
+    new Set(
+      displayTours
+        .map(t => t.destination)
+        .flatMap(d => d.includes('•') ? d.split('•').map(s => s.trim()) : d.includes(',') ? d.split(',').map(s => s.trim()) : [d.trim()])
+        .filter(Boolean)
+    )
+  );
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const upcomingTour = tours.find(t => t.is_featured) || (tours.length > 0 ? tours[0] : null);
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -253,9 +199,10 @@ function GroupToursContent() {
           <select 
             className={styles.searchSelect} 
             value={destFilter} 
-            onChange={e => setDestFilter(e.target.value)}
+            onChange={e => { setDestFilter(e.target.value); setCurrentPage(1); }}
+            disabled={loading}
           >
-            <option value="">Where do you want to go?</option>
+            <option value="">{loading ? 'Loading destinations...' : 'Where do you want to go?'}</option>
             {uniqueDestinations.map(dest => (
               <option key={dest} value={dest}>{dest}</option>
             ))}
@@ -267,7 +214,7 @@ function GroupToursContent() {
           <select 
             className={styles.searchSelect} 
             value={typeFilter} 
-            onChange={e => setTypeFilter(e.target.value)}
+            onChange={e => { setTypeFilter(e.target.value); setCurrentPage(1); }}
           >
             <option value="">All Types</option>
             <option value="domestic">Domestic</option>
@@ -341,111 +288,168 @@ function GroupToursContent() {
         </div>
 
         <div className={styles.packagesGrid}>
-          {filteredTours
-            .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
-            .map(tour => {
-              const det = parseDetails(tour);
-              const isShowPrice = det.show_price !== false;
-
-              return (
-                <div key={tour.id} className={styles.tourCard}>
-                  <div 
-                    className={styles.tourCardImage} 
-                    style={{ backgroundImage: `url(${tour.image || defaultBanner})` }}
-                  >
-                    <span className={`${styles.statusBadge} ${getStatusClass(tour.status)}`}>
-                      {tour.status}
-                    </span>
-                  </div>
-                  <div className={styles.tourCardContent}>
-                    <h3 className={styles.tourTitle}>{tour.name}</h3>
-                    <div className={styles.tourMeta}>
-                      <span className={styles.tourMetaItem}>⏱️ {tour.duration}</span>
-                      {tour.departure_date && (
-                        <span className={styles.tourMetaItem} suppressHydrationWarning>📅 {formatDepartureDate(tour.departure_date)}</span>
-                      )}
-                    </div>
-                    <div className={styles.tourPriceRow}>
-                      <span className={styles.priceLabel}>{isShowPrice ? 'From' : 'Price'}</span>
-                      {isShowPrice ? (
-                        <span className={styles.priceValue}>₹{Number(tour.starting_price).toLocaleString('en-IN')}/-</span>
-                      ) : (
-                        <span className={styles.priceValue} style={{ fontSize: '1.05rem', color: '#2563eb' }}>On Request</span>
-                      )}
-                    </div>
-                  
-                    <div className={styles.cardActionsRow}>
-                      <Link href={`/group-tours/${tour.id}`} className={styles.btnViewDetails}>
-                        View Details
-                      </Link>
-                      <button className={styles.btnEnquireNow} onClick={() => openEnquiryModal(tour)}>
-                        Enquire Now
-                      </button>
-                      <a 
-                        href={`https://wa.me/919746470555?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour.name)}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className={styles.btnWhatsappIcon}
-                        title="Chat on WhatsApp"
-                      >
-                        💬
-                      </a>
-                    </div>
-                  </div>
+          {loading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={`${styles.tourCard} ${styles.skeletonCard}`}>
+                <div className={styles.skeletonImage} />
+                <div className={styles.tourCardContent}>
+                  <div className={styles.skeletonTitle} />
+                  <div className={styles.skeletonMeta} />
+                  <div className={styles.skeletonPrice} />
+                  <div className={styles.skeletonActions} />
                 </div>
-              );
-            })}
+              </div>
+            ))
+          ) : filteredTours.length > 0 ? (
+            filteredTours
+              .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+              .map(tour => {
+                const det = parseDetails(tour);
+                const isShowPrice = det.show_price !== false;
+
+                return (
+                  <div key={tour.id} className={styles.tourCard}>
+                    <div 
+                      className={styles.tourCardImage} 
+                      style={{ backgroundImage: `url(${tour.image || defaultBanner})` }}
+                    >
+                      <span className={`${styles.statusBadge} ${getStatusClass(tour.status)}`}>
+                        {tour.status}
+                      </span>
+                    </div>
+                    <div className={styles.tourCardContent}>
+                      <h3 className={styles.tourTitle}>{tour.name}</h3>
+                      <div className={styles.tourMeta}>
+                        <span className={styles.tourMetaItem}>⏱️ {tour.duration}</span>
+                        {tour.departure_date && (
+                          <span className={styles.tourMetaItem} suppressHydrationWarning>📅 {formatDepartureDate(tour.departure_date)}</span>
+                        )}
+                      </div>
+                      <div className={styles.tourPriceRow}>
+                        <span className={styles.priceLabel}>{isShowPrice ? 'From' : 'Price'}</span>
+                        {isShowPrice ? (
+                          <span className={styles.priceValue}>₹{Number(tour.starting_price).toLocaleString('en-IN')}/-</span>
+                        ) : (
+                          <span className={styles.priceValue} style={{ fontSize: '1.05rem', color: '#2563eb' }}>On Request</span>
+                        )}
+                      </div>
+                    
+                      <div className={styles.cardActionsRow}>
+                        <Link href={`/group-tours/${tour.url_slug || tour.id}`} className={styles.btnViewDetails}>
+                          View Details
+                        </Link>
+                        <button className={styles.btnEnquireNow} onClick={() => openEnquiryModal(tour)}>
+                          Enquire Now
+                        </button>
+                        <a 
+                          href={`https://wa.me/919746470555?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(tour.name)}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={styles.btnWhatsappIcon}
+                          title="Chat on WhatsApp"
+                        >
+                          💬
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+          ) : (
+            <div className={styles.noToursState}>
+              <div className={styles.noToursIcon}>✈️</div>
+              <h3 className={styles.noToursTitle}>No Group Tours Found</h3>
+              <p className={styles.noToursText}>
+                {destFilter || typeFilter
+                  ? 'No packages match your chosen filters. Try clearing the filters to view all available tours.'
+                  : 'Currently there are no active group tours. Check back soon or contact us to plan a private group tour.'}
+              </p>
+              {(destFilter || typeFilter) && (
+                <button
+                  className={styles.resetFilterBtn}
+                  onClick={() => {
+                    setDestFilter('');
+                    setTypeFilter('');
+                    setCurrentPage(1);
+                  }}
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(filteredTours.length / ITEMS_PER_PAGE)}
-          onPageChange={setCurrentPage}
-          totalItems={filteredTours.length}
-          itemsPerPage={ITEMS_PER_PAGE}
-        />
+        {!loading && filteredTours.length > ITEMS_PER_PAGE && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredTours.length / ITEMS_PER_PAGE)}
+            onPageChange={setCurrentPage}
+            totalItems={filteredTours.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
+        )}
       </section>
 
-      {/* 5. Upcoming Group Departures Banner Carousel */}
-      <section className={styles.upcomingBannerSection}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <span className={styles.upcomingTag}>UPCOMING GROUP DEPARTURES</span>
-        </div>
+      {/* 5. Upcoming Group Departures Banner */}
+      {!loading && upcomingTour && (
+        <section className={styles.upcomingBannerSection}>
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <span className={styles.upcomingTag}>UPCOMING GROUP DEPARTURES</span>
+          </div>
 
-        <div className={styles.upcomingCard}>
-          <div className={styles.upcomingCardBg} />
-          <div className={styles.upcomingContent}>
-            <div className={styles.upcomingLeft}>
-              <div className={styles.upcomingTitleBadge}>Europe</div>
-              <h3 className={styles.upcomingHeading}>8D | 7N GROUP TOUR</h3>
-              <p className={styles.upcomingSub}>Panoramic Europe – Alpine Grandeur & Cultural Treasures</p>
-              
-              <div className={styles.upcomingFeatures}>
-                <span>🏨 Premium Hotels</span>
-                <span>🍛 Indian Meals</span>
-                <span>👨‍💼 Expert Tour Manager</span>
-                <span>🏞️ All Major Sightseeing</span>
-              </div>
-            </div>
-
-            <div className={styles.upcomingRight}>
-              <div className={styles.depDateLabel}>DEPARTURE DATE</div>
-              <div className={styles.depDateValue}>15 SEP 2026</div>
-              <span className={styles.statusFilling}>FILLING FAST</span>
-              
-              <div className={styles.priceBlock}>
-                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>STARTING FROM</span>
-                <div className={styles.bigPrice}>₹1,99,999/-</div>
-                <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>PER PERSON</span>
+          <div className={styles.upcomingCard}>
+            <div 
+              className={styles.upcomingCardBg} 
+              style={{ backgroundImage: `url(${upcomingTour.image || defaultBanner})` }}
+            />
+            <div className={styles.upcomingContent}>
+              <div className={styles.upcomingLeft}>
+                <div className={styles.upcomingTitleBadge}>
+                  {upcomingTour.destination.split('•')[0].split(',')[0].trim()}
+                </div>
+                <h3 className={styles.upcomingHeading}>
+                  {upcomingTour.duration ? `${upcomingTour.duration.toUpperCase()} GROUP TOUR` : 'GROUP TOUR'}
+                </h3>
+                <p className={styles.upcomingSub}>{upcomingTour.name}</p>
+                
+                <div className={styles.upcomingFeatures}>
+                  <span>🏨 Premium Hotels</span>
+                  <span>🍛 Curated Meals</span>
+                  <span>👨‍💼 Expert Tour Manager</span>
+                  <span>🏞️ All Major Sightseeing</span>
+                </div>
               </div>
 
-              <Link href="/group-tours/1" className={styles.btnUpcomingDetails}>
-                View Details
-              </Link>
+              <div className={styles.upcomingRight}>
+                {upcomingTour.departure_date && (
+                  <>
+                    <div className={styles.depDateLabel}>DEPARTURE DATE</div>
+                    <div className={styles.depDateValue} suppressHydrationWarning>
+                      {formatDepartureDate(upcomingTour.departure_date).toUpperCase()}
+                    </div>
+                  </>
+                )}
+                <span className={`${styles.statusBadgeUpcoming} ${getStatusClass(upcomingTour.status)}`}>
+                  {upcomingTour.status.toUpperCase()}
+                </span>
+                
+                <div className={styles.priceBlock}>
+                  <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>STARTING FROM</span>
+                  <div className={styles.bigPrice}>
+                    ₹{Number(upcomingTour.starting_price).toLocaleString('en-IN')}/-
+                  </div>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>PER PERSON</span>
+                </div>
+
+                <Link href={`/group-tours/${upcomingTour.url_slug || upcomingTour.id}`} className={styles.btnUpcomingDetails}>
+                  View Details
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 6. Plan Your Next Group Adventure Section & Enquiry Form */}
       <section className={styles.enquirySection} ref={enquiryFormRef}>
@@ -563,12 +567,12 @@ function GroupToursContent() {
 
                   <div className={styles.formGroup}>
                     <label>Preferred Departure Date *</label>
-                    <input 
-                      type="date" 
+                    <DatePicker 
                       name="preferred_date" 
+                      required
                       value={formData.preferred_date} 
                       onChange={handleFormChange} 
-                      className={styles.formInput} 
+                      align="right"
                     />
                   </div>
                 </div>

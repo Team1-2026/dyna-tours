@@ -211,6 +211,58 @@ class TourPackageController extends Controller
     }
 
     /**
+     * Remove package references from related_tours across Destinations and Tour Packages.
+     */
+    public static function cleanupDeletedPackageReferences(array $identifiers): void
+    {
+        $identifiers = array_unique(array_filter(array_map(function ($val) {
+            return strtolower(trim((string)$val));
+        }, $identifiers)));
+
+        if (empty($identifiers)) {
+            return;
+        }
+
+        // 1. Clean up Destination related_tours
+        try {
+            $destinations = \App\Models\Destination::whereNotNull('related_tours')->get();
+            foreach ($destinations as $dest) {
+                if (is_array($dest->related_tours) && !empty($dest->related_tours)) {
+                    $originalCount = count($dest->related_tours);
+                    $filtered = array_values(array_filter($dest->related_tours, function ($tId) use ($identifiers) {
+                        return !in_array(strtolower(trim((string)$tId)), $identifiers, true);
+                    }));
+                    if (count($filtered) !== $originalCount) {
+                        $dest->related_tours = $filtered;
+                        $dest->save();
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error cleaning related_tours from destinations: ' . $e->getMessage());
+        }
+
+        // 2. Clean up TourPackage related_tours
+        try {
+            $otherPackages = TourPackage::whereNotNull('related_tours')->get();
+            foreach ($otherPackages as $otherPkg) {
+                if (is_array($otherPkg->related_tours) && !empty($otherPkg->related_tours)) {
+                    $originalCount = count($otherPkg->related_tours);
+                    $filtered = array_values(array_filter($otherPkg->related_tours, function ($tId) use ($identifiers) {
+                        return !in_array(strtolower(trim((string)$tId)), $identifiers, true);
+                    }));
+                    if (count($filtered) !== $originalCount) {
+                        $otherPkg->related_tours = $filtered;
+                        $otherPkg->save();
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error cleaning related_tours from tour_packages: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Remove the specified tour package.
      */
     public function destroy(string $id)
@@ -221,9 +273,30 @@ class TourPackageController extends Controller
             ->orWhereRaw('LOWER(slug) = ?', [strtolower($id)])
             ->get();
 
+        $identifiers = [
+            $id,
+            strtolower($id),
+            Str::slug($id),
+        ];
+
         foreach ($packages as $pkg) {
+            if ($pkg->id) {
+                $identifiers[] = (string)$pkg->id;
+                $identifiers[] = strtolower((string)$pkg->id);
+            }
+            if ($pkg->slug) {
+                $identifiers[] = (string)$pkg->slug;
+                $identifiers[] = strtolower((string)$pkg->slug);
+            }
+            if ($pkg->title) {
+                $identifiers[] = (string)$pkg->title;
+                $identifiers[] = strtolower((string)$pkg->title);
+                $identifiers[] = Str::slug($pkg->title);
+            }
             $pkg->delete();
         }
+
+        self::cleanupDeletedPackageReferences($identifiers);
 
         return response()->json([
             'message' => 'Tour package deleted successfully'
