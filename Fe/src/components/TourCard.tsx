@@ -154,7 +154,7 @@ export default function TourCard({ tour, layout = 'vertical' }: TourCardProps) {
             View Details
           </Link>
           <a 
-            href={`https://wa.me/919746470555?text=${encodeURIComponent(`Hi, I am interested in ${tour.name || 'this tour package'}.`)}`} 
+            href={`https://wa.me/919746470555?text=${encodeURIComponent(`Hi, I am interested in ${tour.title || 'this tour package'}.`)}`} 
             target="_blank" 
             rel="noreferrer" 
             className="btn btn-primary" 
