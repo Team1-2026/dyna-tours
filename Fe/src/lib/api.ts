@@ -506,12 +506,30 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     headers.set('Authorization', `Bearer ${token}`);
   }
 
+  const isServer = typeof window === 'undefined';
+  const isMutation = Boolean(options.method && options.method.toUpperCase() !== 'GET');
+  const isAdminOrAuth = Boolean(token) || endpoint.includes('/admin') || endpoint.includes('/login');
+
+  const fetchConfig: RequestInit = {
+    ...options,
+    headers,
+  };
+
+  // Optimize caching:
+  // For public GET requests on the server, enable Next.js ISR (revalidate: 60s).
+  // For mutations or authenticated admin requests, enforce cache: 'no-store'.
+  if (!options.cache && !(options as any)?.next) {
+    if (!isMutation && !isAdminOrAuth) {
+      if (isServer) {
+        (fetchConfig as any).next = { revalidate: 60 };
+      }
+    } else {
+      fetchConfig.cache = 'no-store';
+    }
+  }
+
   try {
-    const res = await fetch(url, {
-      cache: 'no-store',
-      ...options,
-      headers
-    });
+    const res = await fetch(url, fetchConfig);
 
     if (res.status === 401) {
       // Clear token and redirect if on client side

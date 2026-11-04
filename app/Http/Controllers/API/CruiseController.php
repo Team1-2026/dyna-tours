@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cruise;
+use App\Services\ImageStorageService;
 use Illuminate\Http\Request;
 
 class CruiseController extends Controller
@@ -29,6 +30,32 @@ class CruiseController extends Controller
 
         $cruises = $query->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC, id ASC')->get();
 
+        // Sanitize and auto-migrate any base64 images so payloads are light
+        foreach ($cruises as $cruise) {
+            $changed = false;
+            if (ImageStorageService::isBase64Image($cruise->banner_image)) {
+                $cruise->banner_image = ImageStorageService::saveBase64ToFile($cruise->banner_image, 'cruise_banner');
+                $changed = true;
+            }
+            if (is_array($cruise->gallery)) {
+                $hasBase64 = false;
+                foreach ($cruise->gallery as $item) {
+                    $u = is_string($item) ? $item : ($item['url'] ?? '');
+                    if (ImageStorageService::isBase64Image($u)) {
+                        $hasBase64 = true;
+                        break;
+                    }
+                }
+                if ($hasBase64) {
+                    $cruise->gallery = ImageStorageService::cleanGallery($cruise->gallery, 'cruise_gallery');
+                    $changed = true;
+                }
+            }
+            if ($changed) {
+                $cruise->save();
+            }
+        }
+
         return response()->json($cruises);
     }
 
@@ -43,6 +70,29 @@ class CruiseController extends Controller
 
         if (!$cruise) {
             return response()->json(['message' => 'Cruise package not found'], 404);
+        }
+
+        $changed = false;
+        if (ImageStorageService::isBase64Image($cruise->banner_image)) {
+            $cruise->banner_image = ImageStorageService::saveBase64ToFile($cruise->banner_image, 'cruise_banner');
+            $changed = true;
+        }
+        if (is_array($cruise->gallery)) {
+            $hasBase64 = false;
+            foreach ($cruise->gallery as $item) {
+                $u = is_string($item) ? $item : ($item['url'] ?? '');
+                if (ImageStorageService::isBase64Image($u)) {
+                    $hasBase64 = true;
+                    break;
+                }
+            }
+            if ($hasBase64) {
+                $cruise->gallery = ImageStorageService::cleanGallery($cruise->gallery, 'cruise_gallery');
+                $changed = true;
+            }
+        }
+        if ($changed) {
+            $cruise->save();
         }
 
         return response()->json($cruise);
@@ -116,6 +166,13 @@ class CruiseController extends Controller
             Cruise::where('order_no', '>=', $newOrder)->increment('order_no');
         }
 
+        if (isset($validated['banner_image'])) {
+            $validated['banner_image'] = ImageStorageService::saveBase64ToFile($validated['banner_image'], 'cruise_banner');
+        }
+        if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+            $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'cruise_gallery');
+        }
+
         $cruise = Cruise::create($validated);
 
         return response()->json([
@@ -168,6 +225,13 @@ class CruiseController extends Controller
         if (isset($validated['order_no']) && $validated['order_no'] !== null && $validated['order_no'] != $cruise->order_no) {
             $newOrder = (int) $validated['order_no'];
             Cruise::where('id', '!=', $id)->where('order_no', '>=', $newOrder)->increment('order_no');
+        }
+
+        if (isset($validated['banner_image'])) {
+            $validated['banner_image'] = ImageStorageService::saveBase64ToFile($validated['banner_image'], 'cruise_banner');
+        }
+        if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+            $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'cruise_gallery');
         }
 
         $cruise->update($validated);

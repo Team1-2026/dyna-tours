@@ -2,7 +2,7 @@ import React from 'react';
 import { api, Cruise, CruisePageData } from '@/lib/api';
 import CruisePageClient from './CruisePageClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata = {
   title: 'Cruise Holidays | Luxury Cruise Packages | Dyna Tours India',

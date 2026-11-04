@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { groupToursApi, GroupTour, GroupTourDetails, getImageUrl } from '@/lib/api';
+import { api, groupToursApi, GroupTour, GroupTourDetails, getImageUrl } from '@/lib/api';
 import styles from './admin.module.css';
 import RichTextEditor from '@/components/RichTextEditor';
 
@@ -329,53 +329,53 @@ export default function GroupToursAdmin() {
     setEditingTour({ ...editingTour, [name]: parsedValue });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editingTour) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setEditingTour({ ...editingTour, image: event.target.result as string });
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const res = await api.uploadImage(file);
+      setEditingTour({ ...editingTour, image: res.url });
+    } catch (err: any) {
+      console.error('Failed to upload image:', err);
+      alert('Failed to upload image: ' + (err.message || 'Unknown error'));
+    } finally {
+      e.target.value = '';
+    }
   };
 
-  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editingTour) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setEditingTour({ ...editingTour, banner_image: event.target.result as string });
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const res = await api.uploadImage(file);
+      setEditingTour({ ...editingTour, banner_image: res.url });
+    } catch (err: any) {
+      console.error('Failed to upload banner:', err);
+      alert('Failed to upload banner: ' + (err.message || 'Unknown error'));
+    } finally {
+      e.target.value = '';
+    }
   };
 
-  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0 || !editingTour) return;
     
-    const newImages: string[] = [];
-    let readCount = 0;
-
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          newImages.push(event.target.result as string);
-        }
-        readCount++;
-        if (readCount === files.length) {
-          setEditingTour((prev) => prev ? ({
-            ...prev,
-            gallery: [...(Array.isArray(prev.gallery) ? prev.gallery : []), ...newImages]
-          }) : null);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    try {
+      const uploads = await Promise.all(
+        Array.from(files).map(f => api.uploadImage(f))
+      );
+      const newUrls = uploads.map(u => u.url);
+      setEditingTour((prev) => prev ? ({
+        ...prev,
+        gallery: [...(Array.isArray(prev.gallery) ? prev.gallery : []), ...newUrls]
+      }) : null);
+    } catch (err: any) {
+      console.error('Failed to upload gallery images:', err);
+      alert('Failed to upload some images: ' + (err.message || 'Unknown error'));
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const handleRemoveGalleryImage = (idxToRemove: number) => {

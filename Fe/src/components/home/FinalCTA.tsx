@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MessageSquare, PhoneCall, ArrowRight, Sparkles } from 'lucide-react';
+import { getImageUrl } from '@/lib/api';
 
 interface FinalCTAProps {
   heading?: string;
@@ -16,16 +17,17 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
   heading = 'Ready to Plan Your Next Adventure?',
   description = 'Connect with our expert travel consultants for tailor-made itineraries, VIP hotel upgrades, and instant visa assistance.',
   bgImage = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=85',
-  whatsappNumber = '919876543210',
+  whatsappNumber = '919746470555',
 }) => {
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello Dyna Tours India! I would like to inquire about a holiday package.')}`;
+  const cleanNumber = (whatsappNumber || '919746470555').replace(/\D/g, '') || '919746470555';
+  const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent('Hello Dyna Tours India! I would like to inquire about a holiday package.')}`;
 
   return (
     <section className="relative py-28 text-white overflow-hidden bg-[#0C2745]">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('${bgImage}')` }}
+        style={{ backgroundImage: `url('${getImageUrl(bgImage)}')` }}
       />
       
       {/* Dark Overlay Gradient */}

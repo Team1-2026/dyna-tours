@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Quote, ChevronLeft, ChevronRight, CheckCircle2, MapPin } from 'lucide-react';
+import { Star, Quote, ChevronLeft, ChevronRight, CheckCircle2, MapPin, X, ZoomIn } from 'lucide-react';
 import { Testimonial, defaultTestimonials } from '@/data/homeData';
+import { getImageUrl } from '@/lib/api';
 
 interface TestimonialsSectionProps {
   testimonials?: Testimonial[];
@@ -13,6 +14,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
   const list = (testimonials && testimonials.length > 0) ? testimonials : defaultTestimonials;
   const [startIndex, setStartIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [selectedModalImage, setSelectedModalImage] = useState<string | null>(null);
 
   const CARDS_PER_VIEW = 3;
 
@@ -42,10 +44,14 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
 
   return (
     <section 
-      className="bg-slate-50 py-24 text-slate-900 relative overflow-hidden"
+      id="client-reviews"
+      className="bg-slate-50 py-24 text-slate-900 relative overflow-hidden scroll-mt-20 sm:scroll-mt-24"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
+      {/* Anchor alias IDs */}
+      <span id="testimonials" className="absolute -top-24 pointer-events-none" />
+      <span id="reviews" className="absolute -top-24 pointer-events-none" />
       {/* Background Decorative Subtle Gradient Accents */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 -right-20 w-96 h-96 bg-red-100/30 rounded-full blur-3xl pointer-events-none" />
@@ -128,29 +134,52 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
                   )}
 
                   {/* Review Text */}
-                  <p className="text-slate-700 text-[0.95rem] leading-relaxed italic mb-6 relative z-10 line-clamp-4">
+                  <p className="text-slate-700 text-[0.95rem] leading-relaxed italic mb-5 relative z-10 line-clamp-4">
                     "{testimonial.review}"
                   </p>
+
+                  {/* Optional Review Content Image (e.g. WhatsApp review screenshot or customer tour photo) */}
+                  {testimonial.photo && !testimonial.photo.includes('unsplash.com') && (
+                    <div className="mb-4 relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm group/img">
+                      <img
+                        src={getImageUrl(testimonial.photo)}
+                        alt={`Review by ${testimonial.name}`}
+                        className="w-full h-44 object-cover object-top hover:scale-105 transition-transform duration-300 cursor-pointer"
+                        onClick={() => setSelectedModalImage(getImageUrl(testimonial.photo))}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (!target.dataset.triedProduction && testimonial.photo?.startsWith('/storage')) {
+                            target.dataset.triedProduction = 'true';
+                            target.src = `https://api.dynatours.com${testimonial.photo}`;
+                          } else {
+                            target.style.display = 'none';
+                          }
+                        }}
+                      />
+                      <div 
+                        onClick={() => setSelectedModalImage(getImageUrl(testimonial.photo))}
+                        className="absolute inset-0 bg-black/25 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center cursor-pointer gap-1.5"
+                      >
+                        <span className="bg-white/95 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-sm flex items-center gap-1.5">
+                          <ZoomIn className="h-3.5 w-3.5 text-amber-500" />
+                          View Image
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Bottom User Profile */}
-                <div className="pt-5 border-t border-slate-100 flex items-center gap-4 relative z-10">
-                  <div className="relative shrink-0">
-                    <img
-                      src={testimonial.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
-                      alt={testimonial.name}
-                      className="h-12 w-12 rounded-full object-cover border-2 border-amber-400 shadow-sm"
-                    />
-                  </div>
-
+                {/* Bottom Reviewer Information (No avatar circle) */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3 relative z-10">
                   <div className="min-w-0 flex-1">
                     <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-amber-600 transition-colors">
                       {testimonial.name}
                     </h3>
-                    <p className="text-xs text-slate-500 truncate mt-0.5">
-                      {testimonial.location} {testimonial.date ? `• ${testimonial.date}` : ''}
-                    </p>
                   </div>
+                  <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1 shrink-0">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    Verified Customer
+                  </span>
                 </div>
               </motion.div>
             ))}
@@ -172,6 +201,32 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
                 aria-label={`Go to review ${idx + 1}`}
               />
             ))}
+          </div>
+        )}
+
+        {/* Full Image Preview Modal */}
+        {selectedModalImage && (
+          <div 
+            className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-sm"
+            onClick={() => setSelectedModalImage(null)}
+          >
+            <div 
+              className="relative max-w-3xl max-h-[90vh] bg-white rounded-2xl overflow-hidden p-2 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setSelectedModalImage(null)}
+                className="absolute top-4 right-4 z-10 bg-black/70 text-white rounded-full p-2 hover:bg-black transition-colors"
+                aria-label="Close Preview"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <img 
+                src={selectedModalImage} 
+                alt="Review attachment preview" 
+                className="max-h-[82vh] w-auto max-w-full object-contain rounded-xl mx-auto" 
+              />
+            </div>
           </div>
         )}
 

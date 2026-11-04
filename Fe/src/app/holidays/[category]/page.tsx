@@ -74,10 +74,10 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
               Fill out the form and our travel experts will get back to you with a customized itinerary and quote within 24 hours.
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <a href="https://wa.me/12345678900" target="_blank" rel="noreferrer" className="btn btn-outline" style={{ borderColor: 'var(--color-secondary-navy)', color: 'var(--color-secondary-navy)', background: 'transparent' }}>
+              <a href="https://wa.me/919746470555" target="_blank" rel="noreferrer" className="btn btn-outline" style={{ borderColor: 'var(--color-secondary-navy)', color: 'var(--color-secondary-navy)', background: 'transparent' }}>
                 WhatsApp Now
               </a>
-              <a href="tel:+12345678900" className="btn btn-outline" style={{ borderColor: 'var(--color-secondary-navy)', color: 'var(--color-secondary-navy)', background: 'transparent' }}>
+              <a href="tel:+919746470555" className="btn btn-outline" style={{ borderColor: 'var(--color-secondary-navy)', color: 'var(--color-secondary-navy)', background: 'transparent' }}>
                 Call Us
               </a>
             </div>

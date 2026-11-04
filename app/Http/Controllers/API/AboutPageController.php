@@ -212,7 +212,7 @@ class AboutPageController extends Controller
                 'cta_primary_btn_text' => 'Enquire Now',
                 'cta_primary_btn_url' => '/#enquiry',
                 'cta_secondary_btn_text' => 'WhatsApp Us',
-                'cta_secondary_btn_url' => 'https://wa.me/919946461999'
+                'cta_secondary_btn_url' => 'https://wa.me/919746470555'
             ]);
         }
 

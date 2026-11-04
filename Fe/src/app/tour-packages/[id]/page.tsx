@@ -313,7 +313,7 @@ export default function TourDetailsPage({ params }: PageProps) {
                       <div style={{ color: '#dc2626', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
                         Introduction
                       </div>
-                      <p className={styles.overviewText} style={{ whiteSpace: 'pre-wrap' }}>
+                      <p className={`${styles.overviewText} adminRichContent`} style={{ whiteSpace: 'pre-wrap' }}>
                         {introText}
                       </p>
                     </div>
@@ -327,7 +327,7 @@ export default function TourDetailsPage({ params }: PageProps) {
                           Package Summary
                         </div>
                       )}
-                      <p className={styles.overviewText} style={{ whiteSpace: 'pre-wrap' }}>
+                      <p className={`${styles.overviewText} adminRichContent`} style={{ whiteSpace: 'pre-wrap' }}>
                         {summaryText || tour.description}
                       </p>
                     </div>
@@ -659,13 +659,13 @@ export default function TourDetailsPage({ params }: PageProps) {
                             ))}
                           </ul>
                         ) : (
-                          <p className={styles.overviewText} style={{ whiteSpace: 'pre-wrap' }}>
+                          <p className={`${styles.overviewText} adminRichContent`} style={{ whiteSpace: 'pre-wrap' }}>
                             {tour.termsAndConditions}
                           </p>
                         )}
                       </>
                     ) : (
-                      <p className={styles.overviewText}>Please contact us for detailed terms and conditions for this tour.</p>
+                      <p className={`${styles.overviewText} adminRichContent`}>Please contact us for detailed terms and conditions for this tour.</p>
                     )}
                   </div>
                 )}
@@ -688,12 +688,12 @@ export default function TourDetailsPage({ params }: PageProps) {
                           ))}
                         </ul>
                       ) : (
-                        <p className={styles.overviewText} style={{ whiteSpace: 'pre-wrap' }}>
+                        <p className={`${styles.overviewText} adminRichContent`} style={{ whiteSpace: 'pre-wrap' }}>
                           {tour.cancellationPolicy}
                         </p>
                       )
                     ) : (
-                      <p className={styles.overviewText}>Please contact us for detailed cancellation policy for this tour.</p>
+                      <p className={`${styles.overviewText} adminRichContent`}>Please contact us for detailed cancellation policy for this tour.</p>
                     )}
                   </div>
                 )}

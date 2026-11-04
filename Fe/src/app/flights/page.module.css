@@ -143,12 +143,21 @@
 }
 
 .overviewDescription {
-  font-size: 1.125rem;
-  line-height: 1.85;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
   color: #475569;
   max-width: 840px;
   margin: 0 auto;
-  text-align: left;
+  text-align: justify;
+  text-justify: inter-word;
+  font-family: var(--font-manrope), sans-serif !important;
+}
+
+.overviewDescription * {
+  font-family: var(--font-manrope), sans-serif !important;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
+  text-align: justify;
 }
 
 .overviewDescription p {
@@ -156,6 +165,10 @@
   position: relative;
   padding-left: 0;
   border-left: none;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .overviewDescription p:last-child {
@@ -573,10 +586,13 @@
 }
 
 .introParagraph {
-  font-size: 1.05rem;
-  line-height: 1.75;
+  font-size: 0.95rem;
+  line-height: 1.7;
   color: #475569;
   margin-bottom: 1.5rem;
+  text-align: justify;
+  text-justify: inter-word;
+  font-family: var(--font-manrope), sans-serif;
 }
 
 .overviewFeaturesGrid {

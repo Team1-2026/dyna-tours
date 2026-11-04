@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Play, Award, Smile, Globe, ThumbsUp, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { VideoModal } from './VideoModal';
 import { StatCounter } from '@/data/homeData';
+import { getImageUrl } from '@/lib/api';
 
 interface AboutSectionProps {
   stats: StatCounter[];
@@ -79,7 +80,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               >
                 <div
                   className="h-[420px] sm:h-[500px] w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                  style={{ backgroundImage: `url('${displayThumbnail}')` }}
+                  style={{ backgroundImage: `url('${getImageUrl(displayThumbnail)}')` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-950/30 to-transparent" />
 
@@ -121,30 +122,33 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                 {title}
               </h2>
 
-              <p className="mt-4 text-base text-neutral-300 leading-relaxed font-light">
+              <p className="mt-4 text-[0.95rem] text-slate-300 leading-[1.7] font-normal" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
                 {description1}
               </p>
 
-              <p className="mt-3 text-sm text-neutral-400 leading-relaxed font-light">
+              <p className="mt-3 text-[0.95rem] text-slate-300 leading-[1.7] font-normal" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
                 {description2}
               </p>
 
               {/* Highlights */}
-              <div className="mt-6 grid grid-cols-2 gap-3 text-xs font-medium text-neutral-300">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-teal-400" />
+              <div 
+                className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-[0.95rem] font-medium text-slate-200"
+                style={{ fontFamily: 'var(--font-manrope), sans-serif' }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-teal-400" />
                   <span>Customized Itineraries</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-teal-400" />
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-teal-400" />
                   <span>24/7 On-Trip Assistance</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-teal-400" />
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-teal-400" />
                   <span>Best Price Guarantee</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-teal-400" />
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-teal-400" />
                   <span>Handpicked Luxury Stays</span>
                 </div>
               </div>

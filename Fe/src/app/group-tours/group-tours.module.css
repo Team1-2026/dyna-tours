@@ -173,10 +173,17 @@
 }
 
 .overviewText {
-  font-size: 1.05rem;
-  line-height: 1.7;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
   color: #475569;
   margin-bottom: 1.25rem;
+  font-family: var(--font-manrope), sans-serif !important;
+}
+
+.overviewText * {
+  font-family: var(--font-manrope), sans-serif !important;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
 }
 
 .overviewDescriptionClamped {
@@ -361,14 +368,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   background: #25d366;
   color: #ffffff;
   border-radius: 8px;
   text-decoration: none;
-  font-size: 1rem;
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.btnWhatsappIcon:hover {
+  background: #1eb856;
+  transform: translateY(-1px);
 }
 
 /* 5. Upcoming Group Departures Banner */
@@ -404,7 +416,7 @@
 }
 
 .upcomingTitleBadge {
-  font-family: var(--font-playfair, serif);
+  font-family: var(--font-manrope), sans-serif;
   font-size: 3rem;
   font-style: italic;
   color: #f87171;

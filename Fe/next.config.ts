@@ -1,3 +1,4 @@
+import './node-compat.js';
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -10,6 +11,26 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'dynatours.com' },
       { protocol: 'https', hostname: 'backdyna.logiclabz.in' },
     ],
+  },
+
+  async redirects() {
+    return [
+      {
+        source: '/blog',
+        destination: 'https://dynatours.blogspot.com/',
+        permanent: false,
+      },
+      {
+        source: '/blogs',
+        destination: 'https://dynatours.blogspot.com/',
+        permanent: false,
+      },
+      {
+        source: '/blogs/:slug*',
+        destination: 'https://dynatours.blogspot.com/',
+        permanent: false,
+      },
+    ];
   },
 };
 

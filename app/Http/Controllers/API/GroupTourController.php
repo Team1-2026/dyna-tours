@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\GroupTour;
+use App\Services\ImageStorageService;
 use Illuminate\Http\Request;
 
 class GroupTourController extends Controller
@@ -30,7 +31,39 @@ class GroupTourController extends Controller
             $query->where('is_visible', true);
         }
 
-        return response()->json($query->get());
+        $tours = $query->get();
+
+        // Sanitize and auto-migrate base64 images
+        foreach ($tours as $tour) {
+            $changed = false;
+            if (ImageStorageService::isBase64Image($tour->image)) {
+                $tour->image = ImageStorageService::saveBase64ToFile($tour->image, 'grouptour_img');
+                $changed = true;
+            }
+            if (ImageStorageService::isBase64Image($tour->banner_image)) {
+                $tour->banner_image = ImageStorageService::saveBase64ToFile($tour->banner_image, 'grouptour_banner');
+                $changed = true;
+            }
+            if (is_array($tour->gallery)) {
+                $hasBase64 = false;
+                foreach ($tour->gallery as $item) {
+                    $u = is_string($item) ? $item : ($item['url'] ?? '');
+                    if (ImageStorageService::isBase64Image($u)) {
+                        $hasBase64 = true;
+                        break;
+                    }
+                }
+                if ($hasBase64) {
+                    $tour->gallery = ImageStorageService::cleanGallery($tour->gallery, 'grouptour_gallery');
+                    $changed = true;
+                }
+            }
+            if ($changed) {
+                $tour->save();
+            }
+        }
+
+        return response()->json($tours);
     }
 
     private function sanitizeArrayInputs(Request $request): void
@@ -78,6 +111,16 @@ class GroupTourController extends Controller
             'structured_data' => 'nullable|string',
         ]);
 
+        if (isset($validated['image'])) {
+            $validated['image'] = ImageStorageService::saveBase64ToFile($validated['image'], 'grouptour_img');
+        }
+        if (isset($validated['banner_image'])) {
+            $validated['banner_image'] = ImageStorageService::saveBase64ToFile($validated['banner_image'], 'grouptour_banner');
+        }
+        if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+            $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'grouptour_gallery');
+        }
+
         $tour = GroupTour::create($validated);
         return response()->json(['message' => 'Group Tour created successfully', 'tour' => $tour], 201);
     }
@@ -119,6 +162,16 @@ class GroupTourController extends Controller
             'canonical_url' => 'nullable|string|max:255',
             'structured_data' => 'nullable|string',
         ]);
+
+        if (isset($validated['image'])) {
+            $validated['image'] = ImageStorageService::saveBase64ToFile($validated['image'], 'grouptour_img');
+        }
+        if (isset($validated['banner_image'])) {
+            $validated['banner_image'] = ImageStorageService::saveBase64ToFile($validated['banner_image'], 'grouptour_banner');
+        }
+        if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+            $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'grouptour_gallery');
+        }
 
         $tour->update($validated);
         return response()->json(['message' => 'Group Tour updated successfully', 'tour' => $tour]);

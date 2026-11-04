@@ -485,6 +485,7 @@ export default function HotelPageClient({ initialHotel, initialRelatedHotels, id
                 {showAboutDescription ? (
                   <div>
                     <div 
+                      className="adminRichContent"
                       style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', fontSize: '0.95rem' }}
                       dangerouslySetInnerHTML={{ __html: hotel.about }}
                     />

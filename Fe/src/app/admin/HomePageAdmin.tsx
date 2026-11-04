@@ -49,7 +49,7 @@ export default function HomePageAdmin() {
     heading: 'Ready to Plan Your Next Adventure?',
     description: 'Connect with our expert travel consultants for tailor-made itineraries, VIP hotel upgrades, and instant visa assistance.',
     bgImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=85',
-    whatsappNumber: '919876543210',
+    whatsappNumber: '919746470555',
   });
 
   const [reviewsContentData, setReviewsContentData] = useState({
@@ -139,19 +139,25 @@ export default function HomePageAdmin() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image file size must be less than 5MB.');
+    if (file.size > 20 * 1024 * 1024) {
+      alert('Image file size must be less than 20MB.');
       return;
     }
 
+    // Instant local preview so it is visible immediately while uploading
+    const previewUrl = URL.createObjectURL(file);
+    const withPreview = [...testimonials];
+    withPreview[tIdx].photo = previewUrl;
+    setTestimonials(withPreview);
+
     setUploadingTestimonialIdx(tIdx);
-    setSaveStatus(`Uploading photo for Traveler #${tIdx + 1}...`);
+    setSaveStatus(`Uploading content image for Review #${tIdx + 1}...`);
     try {
       const uploaded = await api.uploadImage(file);
       const updated = [...testimonials];
       updated[tIdx].photo = uploaded.url;
       setTestimonials(updated);
-      setSaveStatus(`✓ Traveler #${tIdx + 1} photo uploaded successfully!`);
+      setSaveStatus(`✓ Review #${tIdx + 1} content image uploaded successfully!`);
       setTimeout(() => setSaveStatus(null), 3000);
     } catch (err: any) {
       alert(err.message || 'Failed to upload photo file');
@@ -160,6 +166,14 @@ export default function HomePageAdmin() {
       setUploadingTestimonialIdx(null);
       e.target.value = '';
     }
+  };
+
+  const handleRemoveTestimonialPhoto = (tIdx: number) => {
+    const updated = [...testimonials];
+    updated[tIdx].photo = '';
+    setTestimonials(updated);
+    setSaveStatus(`Removed image for Review #${tIdx + 1}`);
+    setTimeout(() => setSaveStatus(null), 2500);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -691,49 +705,76 @@ export default function HomePageAdmin() {
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', marginBottom: '0.75rem' }}
                 />
 
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Traveler Photo</label>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>Review Content Image (Optional)</label>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                   {t.photo && (
-                    <div style={{ position: 'relative', width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', border: '1px solid #cbd5e1', flexShrink: 0 }}>
+                    <div style={{ position: 'relative', width: '70px', height: '50px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', background: '#f8fafc', flexShrink: 0 }}>
                       <img
                         src={getImageUrl(t.photo)}
                         alt={t.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (!target.dataset.triedProduction && t.photo?.startsWith('/storage')) {
+                            target.dataset.triedProduction = 'true';
+                            target.src = `https://api.dynatours.com${t.photo}`;
+                          }
+                        }}
                       />
                     </div>
                   )}
 
-                  <input
-                    type="file"
-                    id={`testimonial-file-${idx}`}
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => handleTestimonialPhotoUpload(e, idx)}
-                  />
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <input
+                      type="file"
+                      id={`testimonial-file-${idx}`}
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => handleTestimonialPhotoUpload(e, idx)}
+                    />
 
-                  <button
-                    type="button"
-                    disabled={uploadingTestimonialIdx === idx}
-                    onClick={() => document.getElementById(`testimonial-file-${idx}`)?.click()}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.35rem',
-                      padding: '0.55rem 0.9rem',
-                      background: uploadingTestimonialIdx === idx ? '#94a3b8' : '#0C2745',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontWeight: 600,
-                      fontSize: '0.8rem',
-                      cursor: uploadingTestimonialIdx === idx ? 'not-allowed' : 'pointer',
-                      whiteSpace: 'nowrap',
-                      flex: 1,
-                    }}
-                  >
-                    <span>{uploadingTestimonialIdx === idx ? '⏳ Uploading...' : (t.photo ? '📤 Change Photo' : '📁 Upload Photo')}</span>
-                  </button>
+                    <button
+                      type="button"
+                      disabled={uploadingTestimonialIdx === idx}
+                      onClick={() => document.getElementById(`testimonial-file-${idx}`)?.click()}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.35rem',
+                        padding: '0.55rem 0.9rem',
+                        background: uploadingTestimonialIdx === idx ? '#94a3b8' : '#0C2745',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontWeight: 600,
+                        fontSize: '0.8rem',
+                        cursor: uploadingTestimonialIdx === idx ? 'not-allowed' : 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <span>{uploadingTestimonialIdx === idx ? '⏳ Uploading...' : (t.photo ? '📤 Change Content Image' : '📁 Upload Content Image')}</span>
+                    </button>
+
+                    {t.photo && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTestimonialPhoto(idx)}
+                        style={{
+                          padding: '0.55rem 0.75rem',
+                          background: '#fee2e2',
+                          color: '#b91c1c',
+                          border: '1px solid #fecaca',
+                          borderRadius: '6px',
+                          fontWeight: 600,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 

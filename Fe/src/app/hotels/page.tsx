@@ -9,8 +9,6 @@ import DestinationAutocomplete from '@/components/DestinationAutocomplete';
 
 import { useSearchParams } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
 function HotelsDirectoryContent() {
   const searchParams = useSearchParams();
   const [hotels, setHotels] = useState<Hotel[]>([]);
@@ -185,6 +183,8 @@ function HotelsDirectoryContent() {
                       <img 
                         src={getImageUrl((typeof hotel.gallery?.[0] === 'string' ? hotel.gallery[0] : (hotel.gallery?.[0] as any)?.url) || '') || '/images/default_hotel.png'} 
                         alt={hotel.name}
+                        loading="lazy"
+                        decoding="async"
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                       <span style={{ 

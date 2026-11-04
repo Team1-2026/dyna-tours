@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\TourPackage;
+use App\Services\ImageStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -134,6 +135,13 @@ class TourPackageController extends Controller
         $validated['id'] = $id;
         $validated['slug'] = $slug;
 
+        if (isset($validated['image'])) {
+            $validated['image'] = ImageStorageService::saveBase64ToFile($validated['image'], 'pkg_img');
+        }
+        if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+            $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'pkg_gallery');
+        }
+
         // Ensure unique ID
         if (TourPackage::where('id', $id)->exists()) {
             $id = $id . '-' . time();
@@ -200,6 +208,13 @@ class TourPackageController extends Controller
 
         if (isset($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['slug']);
+        }
+
+        if (isset($validated['image'])) {
+            $validated['image'] = ImageStorageService::saveBase64ToFile($validated['image'], 'pkg_img');
+        }
+        if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+            $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'pkg_gallery');
         }
 
         $package->update($validated);

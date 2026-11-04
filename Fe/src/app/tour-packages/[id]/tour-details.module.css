@@ -200,9 +200,24 @@
 
 .overviewText {
   color: var(--color-text-secondary);
-  line-height: 1.7;
-  font-size: 1rem;
+  line-height: 1.7 !important;
+  font-size: 0.95rem !important;
   margin-bottom: 2rem;
+  font-family: var(--font-manrope), sans-serif !important;
+}
+
+.overviewText * {
+  font-family: var(--font-manrope), sans-serif !important;
+}
+
+.overviewText p,
+.overviewText span,
+.overviewText div:not([class]),
+.overviewText li {
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
+  color: var(--color-text-secondary) !important;
+  font-family: var(--font-manrope), sans-serif !important;
 }
 
 /* Highlights List */
@@ -326,8 +341,15 @@
 
 .accordionDesc {
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
+  font-family: var(--font-manrope), sans-serif !important;
+}
+
+.accordionDesc * {
+  font-family: var(--font-manrope), sans-serif !important;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
 }
 
 /* Inclusions Grid */
@@ -381,9 +403,9 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: var(--color-text-secondary);
-  line-height: 1.4;
+  line-height: 1.6;
 }
 
 .incItem svg {

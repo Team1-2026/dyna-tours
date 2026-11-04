@@ -4,7 +4,7 @@ import Link from 'next/link';
 import styles from './about.module.css';
 import { getBaseUrl, AboutPage as IAboutPage } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'About Us | Dyna Tours India - 16+ Years of Travel Excellence',
@@ -236,7 +236,7 @@ export default async function AboutUsPage() {
 
   // Default image fallbacks from local public folder
   const heroBg = (!data?.hero_bg_image || data.hero_bg_image.includes('unsplash')) ? '/images/about_banner.jpg' : data.hero_bg_image;
-  const circlePhoto = (!data?.overview_image_1 || data.overview_image_1.includes('unsplash')) ? '/images/story_circle.jpg' : data.overview_image_1;
+  const circlePhoto = (!data?.overview_image_1 || data.overview_image_1.includes('unsplash')) ? '/images/story_circle.png' : data.overview_image_1;
 
   const partnerImg1 = (!data?.partner_image_1 || data.partner_image_1.includes('unsplash')) ? '/images/partner_1.jpg' : data.partner_image_1;
   const partnerImg2 = (!data?.partner_image_2 || data.partner_image_2.includes('unsplash')) ? '/images/partner_2.jpg' : data.partner_image_2;
@@ -354,7 +354,7 @@ export default async function AboutUsPage() {
           <div className={styles.storyGrid}>
             
             {/* Left Column: Text & Badges */}
-            <div className={styles.storyContent}>
+            <div className={`${styles.storyContent} adminRichContent`}>
               <div className={styles.sectionLabelLeft}>
                 <span className={styles.dashLineRed}></span>
                 <span>OUR STORY</span>
@@ -599,13 +599,13 @@ export default async function AboutUsPage() {
             {/* Left Column: 3 Overlapping Vertical Images */}
             <div className={styles.partnerImagesWrapper}>
               <div className={styles.partnerImgCard1}>
-                <img src={partnerImg1} alt="Family Beach Vacation" />
+                <img src={partnerImg1} alt="Scenic Alpine Town - Hallstatt" />
               </div>
               <div className={styles.partnerImgCard2}>
-                <img src={partnerImg2} alt="Luxury Cruise Ship" />
+                <img src={partnerImg2} alt="Mountain Fjord Adventure" />
               </div>
               <div className={styles.partnerImgCard3}>
-                <img src={partnerImg3} alt="Flight Sunset Flight" />
+                <img src={partnerImg3} alt="Luxury Ocean Cruise Ship" />
               </div>
             </div>
 
@@ -716,26 +716,46 @@ export default async function AboutUsPage() {
 
           <div className={styles.certLogosRow}>
             <div className={styles.certBadgeCard}>
-              <div className={styles.certLogoText}>IATA</div>
+              <img 
+                src="/images/cert_iata.png" 
+                alt="IATA Accredited" 
+                className={styles.certBadgeImg} 
+              />
             </div>
             <div className={styles.certBadgeCard}>
-              <div className={styles.certLogoText} style={{ color: '#047857' }}>KTM</div>
-              <span className={styles.certSublabel}>KERALA TRAVEL MART</span>
+              <img 
+                src="/images/cert_ktm.png" 
+                alt="Kerala Travel Mart (KTM)" 
+                className={styles.certBadgeImg} 
+              />
             </div>
             <div className={styles.certBadgeCard}>
-              <div className={styles.certLogoText} style={{ color: '#0284c7' }}>TAFI</div>
-              <span className={styles.certSublabel}>THE WAY FORWARD</span>
+              <img 
+                src="/images/cert_kttc.png" 
+                alt="KTTC - Keralaites Travels & Tours Consortium" 
+                className={styles.certBadgeImg} 
+              />
             </div>
             <div className={styles.certBadgeCard}>
-              <div className={styles.certLogoText} style={{ color: '#b45309' }}>Ministry of Tourism</div>
-              <span className={styles.certSublabel}>Government of India</span>
+              <img 
+                src="/images/cert_tourism.png" 
+                alt="Ministry of Tourism - Government of India" 
+                className={styles.certBadgeImg} 
+              />
             </div>
             <div className={styles.certBadgeCard}>
-              <div className={styles.certLogoText} style={{ color: '#059669' }}>kerala</div>
-              <span className={styles.certSublabel}>God's Own Country</span>
+              <img 
+                src="/images/cert_kerala.png" 
+                alt="Kerala Tourism - God's Own Country" 
+                className={styles.certBadgeImg} 
+              />
             </div>
             <div className={styles.certBadgeCard}>
-              <div className={styles.certLogoText} style={{ color: '#dc2626' }}>Incredible India</div>
+              <img 
+                src="/images/cert_incredible_india.png" 
+                alt="Incredible India" 
+                className={styles.certBadgeImg} 
+              />
             </div>
           </div>
 
@@ -763,7 +783,7 @@ export default async function AboutUsPage() {
               </Link>
               
               <a 
-                href="https://wa.me/919946461999" 
+                href={data?.cta_secondary_btn_url || "https://wa.me/919746470555"} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className={styles.btnCtaGreen}

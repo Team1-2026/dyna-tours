@@ -2,6 +2,37 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 
+const cleanPastedHtml = (rawHtml: string): string => {
+  if (typeof window === 'undefined') return rawHtml;
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawHtml, 'text/html');
+
+    // Clean font tags and inline font-family / font-size styles
+    const allEls = doc.body.querySelectorAll('*');
+    allEls.forEach((el) => {
+      if (el.tagName.toLowerCase() === 'font') {
+        const span = doc.createElement('span');
+        span.innerHTML = el.innerHTML;
+        el.parentNode?.replaceChild(span, el);
+        return;
+      }
+      if (el instanceof HTMLElement) {
+        el.style.removeProperty('font-family');
+        el.style.removeProperty('font-size');
+        el.style.removeProperty('line-height');
+        if (!el.getAttribute('style')?.trim()) {
+          el.removeAttribute('style');
+        }
+      }
+    });
+
+    return doc.body.innerHTML;
+  } catch (err) {
+    return rawHtml;
+  }
+};
+
 interface RichTextEditorProps {
   value: string;
   onChange: (html: string) => void;
@@ -35,6 +66,20 @@ export default function RichTextEditor({
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML);
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const html = e.clipboardData.getData('text/html');
+    const text = e.clipboardData.getData('text/plain');
+
+    if (html) {
+      const cleaned = cleanPastedHtml(html);
+      document.execCommand('insertHTML', false, cleaned);
+    } else if (text) {
+      document.execCommand('insertText', false, text);
+    }
+    handleInput();
   };
 
   const execCommand = (command: string, value: string | undefined = undefined) => {
@@ -292,12 +337,14 @@ export default function RichTextEditor({
         contentEditable
         onInput={handleInput}
         onBlur={handleInput}
+        onPaste={handlePaste}
         style={{
           minHeight,
           padding: '1rem 1.25rem',
           outline: 'none',
+          fontFamily: 'var(--font-manrope), sans-serif',
           fontSize: '0.95rem',
-          lineHeight: '1.75',
+          lineHeight: '1.7',
           color: '#1e293b',
         }}
         data-placeholder={placeholder}

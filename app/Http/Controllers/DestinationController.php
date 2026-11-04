@@ -6,6 +6,7 @@ use App\Models\Destination;
 use App\Models\Hotel;
 use App\Models\TourPackage;
 use App\Http\Controllers\HotelController;
+use App\Services\ImageStorageService;
 use Illuminate\Http\Request;
 
 class DestinationController extends Controller
@@ -192,6 +193,13 @@ class DestinationController extends Controller
                 ->increment('order_no');
         }
 
+        if (isset($validated['banner_image'])) {
+            $validated['banner_image'] = ImageStorageService::saveBase64ToFile($validated['banner_image'], 'dest_banner');
+        }
+        if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+            $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'dest_gallery');
+        }
+
         $destination->update($validated);
 
         return response()->json([
@@ -238,6 +246,13 @@ class DestinationController extends Controller
 
         if (empty($validated['parent_id'])) {
             $validated['parent_id'] = null;
+        }
+
+        if (isset($validated['banner_image'])) {
+            $validated['banner_image'] = ImageStorageService::saveBase64ToFile($validated['banner_image'], 'dest_banner');
+        }
+        if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+            $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'dest_gallery');
         }
 
         if (!isset($validated['overview'])) $validated['overview'] = '';

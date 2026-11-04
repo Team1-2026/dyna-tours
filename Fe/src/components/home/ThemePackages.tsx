@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, Heart, Users, Crown, Palmtree, Landmark, Sun, Binoculars, Briefcase, ArrowRight, Globe, MapPin, Sparkles } from 'lucide-react';
 import { TravelTheme } from '@/data/homeData';
+import { getImageUrl } from '@/lib/api';
 
 interface ThemePackagesProps {
   themes: TravelTheme[];
@@ -167,7 +168,7 @@ export const ThemePackages: React.FC<ThemePackagesProps> = ({
                   {/* Background Image with Hover Scale */}
                   <div
                     className="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                    style={{ backgroundImage: `url('${theme.image}')` }}
+                    style={{ backgroundImage: `url('${getImageUrl(theme.image)}')` }}
                   />
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-slate-950/20" />

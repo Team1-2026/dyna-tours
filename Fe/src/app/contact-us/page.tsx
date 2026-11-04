@@ -4,7 +4,7 @@ import styles from './contact.module.css';
 import { getBaseUrl, ContactPage as IContactPage } from '@/lib/api';
 import ContactEnquiryForm from './components/ContactEnquiryForm';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Contact Us | Dyna Tours India - Changanassery, Kottayam, Kerala',

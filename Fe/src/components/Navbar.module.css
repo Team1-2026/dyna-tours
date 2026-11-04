@@ -31,7 +31,10 @@
   align-items: center;
   justify-content: space-between;
   height: 76px;
-  padding: 0 2.5rem;
+  width: 100%;
+  max-width: 1340px !important;
+  margin: 0 auto;
+  padding: 0 2rem;
   transition: height var(--transition-normal);
 }
 
@@ -39,6 +42,7 @@
 .logo {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .logoImg {
@@ -51,13 +55,13 @@
 /* Navigation List */
 .desktopNav {
   display: block;
-  margin-left: auto;
+  margin-left: 4.25rem;
 }
 
 .navList {
   display: flex;
   list-style: none;
-  gap: 1.5rem;
+  gap: 1.35rem;
   align-items: center;
 }
 
@@ -194,7 +198,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-left: 1.75rem;
+  margin-left: auto;
 }
 
 .menuButton {
@@ -323,6 +327,18 @@
 }
 
 /* Responsive Breakpoints */
+@media (max-width: 1200px) {
+  .desktopNav {
+    margin-left: 1.25rem;
+  }
+  .navList {
+    gap: 1rem;
+  }
+  .navLink {
+    font-size: 0.875rem;
+  }
+}
+
 @media (max-width: 768px) {
   .header {
     top: 0;

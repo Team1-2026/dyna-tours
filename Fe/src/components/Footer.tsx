@@ -4,7 +4,18 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Footer.module.css';
-import { contactPageApi } from '@/lib/api';
+import { contactPageApi, api } from '@/lib/api';
+
+const DEFAULT_POPULAR_DESTINATIONS = [
+  { name: 'Kerala', path: '/destinations/kerala' },
+  { name: 'Thailand', path: '/destinations/thailand' },
+  { name: 'Singapore', path: '/destinations/singapore' },
+  { name: 'Malaysia', path: '/destinations/malaysia' },
+  { name: 'UAE', path: '/destinations/uae' },
+  { name: 'Europe', path: '/destinations/europe' },
+  { name: 'Goa', path: '/destinations/goa' },
+  { name: 'Tamil Nadu', path: '/destinations/tamil-nadu' },
+];
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -13,6 +24,7 @@ export default function Footer() {
   const [contactEmail, setContactEmail] = useState('info@dynatoursindia.com');
   const [address, setAddress] = useState('First Floor, Marks Square Building, M C Road, Changanassery, Kerala – 686103');
   const [mapsUrl, setMapsUrl] = useState('https://maps.google.com/?q=Dyna+Tours+India+Changanassery');
+  const [popularDestinations, setPopularDestinations] = useState<{ name: string; path: string }[]>(DEFAULT_POPULAR_DESTINATIONS);
 
   const pathname = usePathname();
 
@@ -37,6 +49,56 @@ export default function Footer() {
       }
     }).catch((err) => {
       console.error('Failed to fetch footer contact details', err);
+    });
+
+    api.getDestinations().then((dests) => {
+      if (Array.isArray(dests) && dests.length > 0) {
+        const valid = dests.filter(d => 
+          !d.parent_id && 
+          !['other-domestic', 'other-international'].includes((d.url_slug || d.id || '').toLowerCase()) &&
+          d.status?.toLowerCase() !== 'inactive'
+        );
+
+        if (valid.length > 0) {
+          const priorityOrder: Record<string, number> = {
+            'kerala': 1,
+            'thailand': 2,
+            'singapore': 3,
+            'malaysia': 4,
+            'uae': 5,
+            'europe': 6,
+            'goa': 7,
+            'tamil-nadu': 8,
+            'karnataka': 9,
+            'delhi': 10,
+          };
+
+          const sorted = [...valid].sort((a, b) => {
+            const hasA = a.order_no !== null && a.order_no !== undefined;
+            const hasB = b.order_no !== null && b.order_no !== undefined;
+            if (hasA && hasB) return (a.order_no as number) - (b.order_no as number);
+            if (hasA) return -1;
+            if (hasB) return 1;
+
+            const keyA = (a.url_slug || a.id || '').toLowerCase();
+            const keyB = (b.url_slug || b.id || '').toLowerCase();
+            const pA = priorityOrder[keyA] ?? 99;
+            const pB = priorityOrder[keyB] ?? 99;
+            return pA - pB;
+          });
+
+          const mapped = sorted.slice(0, 8).map(d => ({
+            name: d.name,
+            path: `/destinations/${d.url_slug || d.id}`,
+          }));
+
+          if (mapped.length > 0) {
+            setPopularDestinations(mapped);
+          }
+        }
+      }
+    }).catch((err) => {
+      console.error('Failed to load destinations in footer', err);
     });
   }, []);
 
@@ -94,11 +156,11 @@ export default function Footer() {
         <div className={styles.linksCol}>
           <h3 className={styles.colTitle}>Popular Destinations</h3>
           <ul className={styles.linksList}>
-            <li><Link href="/tours?search=Switzerland">Swiss Alps, Switzerland</Link></li>
-            <li><Link href="/tours?search=Kyoto">Kyoto Zen Temple, Japan</Link></li>
-            <li><Link href="/tours?search=Italy">Amalfi Coast, Italy</Link></li>
-            <li><Link href="/tours?search=Tanzania">Serengeti Safari, Tanzania</Link></li>
-            <li><Link href="/tours?search=Paris">Paris Romance, France</Link></li>
+            {popularDestinations.map((dest) => (
+              <li key={dest.path}>
+                <Link href={dest.path}>{dest.name}</Link>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -108,11 +170,28 @@ export default function Footer() {
           <ul className={styles.linksList}>
             <li><Link href="/about">About Us</Link></li>
             <li><Link href="/contact-us">Contact Us</Link></li>
-            <li><Link href="/tours">All Tour Packages</Link></li>
-            <li><Link href="/dashboard">Track My Booking</Link></li>
+            <li><Link href="/holidays">All Tour Packages</Link></li>
+            <li><a href="https://dynatours.blogspot.com/" target="_blank" rel="noopener noreferrer">Travel Blog</a></li>
+            {/* <li><Link href="/dashboard">Track My Booking</Link></li> */}
             <li><Link href="/visa">Visa</Link></li>
             <li><Link href="/about#services">Why Choose Us</Link></li>
-            <li><Link href="/#testimonials">Client Reviews</Link></li>
+            <li>
+              <Link 
+                href="/#client-reviews"
+                onClick={(e) => {
+                  if (typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === '')) {
+                    const el = document.getElementById('client-reviews') || document.getElementById('testimonials');
+                    if (el) {
+                      e.preventDefault();
+                      el.scrollIntoView({ behavior: 'smooth' });
+                      window.history.pushState(null, '', '#client-reviews');
+                    }
+                  }
+                }}
+              >
+                Client Reviews
+              </Link>
+            </li>
             <li><Link href="/#faq">FAQs & Help</Link></li>
           </ul>
         </div>

@@ -59,7 +59,7 @@
 }
 
 .title {
-  font-family: var(--font-headings), serif;
+  font-family: var(--font-headings), sans-serif;
   font-size: 1.35rem;
   line-height: 1.2;
   margin-bottom: 0.25rem;

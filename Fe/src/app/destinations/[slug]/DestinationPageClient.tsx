@@ -421,7 +421,7 @@ export default function DestinationPageClient({ initialDestination, initialPacka
           {/* Left 6 Columns: Overview */}
           <div className={styles.overviewCard}>
             <h2 className={styles.blockTitle}>{destination.name} Overview</h2>
-            <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.overview }} />
+            <div className={`${styles.textParagraph} adminRichContent`} dangerouslySetInnerHTML={{ __html: destination.overview }} />
           </div>
 
           {/* Right 6 Columns: Plan Your Trip Form (Matching Hotel Enquiry Form Background & Size) */}
@@ -599,7 +599,7 @@ export default function DestinationPageClient({ initialDestination, initialPacka
           {destination.how_to_reach && (
             <div className={styles.contentBlock}>
               <h2 className={styles.blockTitle}>How to Reach</h2>
-              <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.how_to_reach }} />
+              <div className={`${styles.textParagraph} adminRichContent`} dangerouslySetInnerHTML={{ __html: destination.how_to_reach }} />
             </div>
           )}
 
@@ -607,7 +607,7 @@ export default function DestinationPageClient({ initialDestination, initialPacka
           {destination.best_time_to_visit && (
             <div className={styles.contentBlock}>
               <h2 className={styles.blockTitle}>Best Time to Visit</h2>
-              <div className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: destination.best_time_to_visit }} />
+              <div className={`${styles.textParagraph} adminRichContent`} dangerouslySetInnerHTML={{ __html: destination.best_time_to_visit }} />
             </div>
           )}
 

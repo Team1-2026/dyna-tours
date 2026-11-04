@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Tag, ArrowRight, Clock, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { ExclusiveOffer } from '@/data/homeData';
+import { getImageUrl } from '@/lib/api';
 
 interface ExclusiveDealsProps {
   offers: ExclusiveOffer[];
@@ -83,7 +84,7 @@ export const ExclusiveDeals: React.FC<ExclusiveDealsProps> = ({ offers }) => {
                 <Link href={targetUrl} className="block relative h-64 w-full overflow-hidden cursor-pointer">
                   <div
                     className="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                    style={{ backgroundImage: `url('${offer.bgImage}')` }}
+                    style={{ backgroundImage: `url('${getImageUrl(offer.bgImage)}')` }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/60 to-transparent" />
 

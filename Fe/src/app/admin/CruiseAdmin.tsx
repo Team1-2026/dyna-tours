@@ -46,22 +46,24 @@ export default function CruiseAdmin() {
     canonical_url: '',
   });
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 1 * 1024 * 1024) {
-      alert('File size exceeds the 1 MB limit. Please select a smaller image.');
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size exceeds the 10 MB limit. Please select a smaller image.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        callback(event.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const res = await api.uploadImage(file);
+      callback(res.url);
+    } catch (err: any) {
+      console.error('Failed to upload image:', err);
+      alert('Failed to upload image: ' + (err.message || 'Unknown error'));
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const fetchData = async () => {

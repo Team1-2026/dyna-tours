@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { api, Destination, getPackages } from '@/lib/api';
 import DestinationPageClient from './DestinationPageClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 type Props = {
   params: Promise<{ slug: string }>;

@@ -48,16 +48,16 @@ export const HomeBottomContent: React.FC<HomeBottomContentProps> = ({
 
         {/* Rich HTML Content Container */}
         <div
-          className="prose prose-slate max-w-none 
+          className="adminRichContent prose prose-slate max-w-none 
             prose-headings:font-bold prose-headings:text-slate-900
             prose-h1:text-3xl prose-h1:sm:text-4xl prose-h1:mb-4 prose-h1:mt-6
             prose-h2:text-2xl prose-h2:sm:text-3xl prose-h2:mb-4 prose-h2:mt-6 prose-h2:text-red-700
             prose-h3:text-xl prose-h3:sm:text-2xl prose-h3:mb-3 prose-h3:mt-5
             prose-h4:text-lg prose-h4:font-bold prose-h4:mb-2 prose-h4:mt-4
-            prose-p:text-slate-700 prose-p:leading-relaxed prose-p:mb-4
+            prose-p:text-slate-700 prose-p:text-[0.95rem] prose-p:leading-[1.7] prose-p:mb-4
             prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-4 prose-ul:space-y-2
             prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-4 prose-ol:space-y-2
-            prose-li:text-slate-700
+            prose-li:text-slate-700 prose-li:text-[0.95rem] prose-li:leading-[1.7]
             prose-a:text-red-600 prose-a:font-semibold prose-a:underline hover:prose-a:text-red-700
             prose-strong:text-slate-900 prose-strong:font-bold"
           dangerouslySetInnerHTML={{ __html: htmlToRender }}

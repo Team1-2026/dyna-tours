@@ -77,10 +77,17 @@
 }
 
 .overviewText {
-  font-size: 1.05rem;
-  color: var(--color-text-secondary, #475569);
-  line-height: 1.8;
+  font-size: 0.95rem !important;
+  color: var(--color-text-secondary, #475569) !important;
+  line-height: 1.7 !important;
   margin-bottom: 2rem;
+  font-family: var(--font-manrope), sans-serif !important;
+}
+
+.overviewText * {
+  font-family: var(--font-manrope), sans-serif !important;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
 }
 
 .overviewImgWrapper {

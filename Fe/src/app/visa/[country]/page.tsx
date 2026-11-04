@@ -7,12 +7,12 @@ import VisaFAQ from '@/components/visa/VisaFAQ';
 import VisaEnquiryForm from '@/components/visa/VisaEnquiryForm';
 import VisaFlag from '@/components/visa/VisaFlag';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 interface CountryVisaPageProps {
-  params: {
+  params: Promise<{
     country: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: CountryVisaPageProps): Promise<Metadata> {
@@ -148,7 +148,8 @@ export default async function CountryVisaPage({ params }: CountryVisaPageProps) 
               {countryData.description && (
                 <section>
                   <div 
-                    style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem', lineHeight: 1.7 }}
+                    className="adminRichContent"
+                    style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem', lineHeight: 1.7 }}
                     dangerouslySetInnerHTML={{ __html: countryData.description }}
                   />
                 </section>

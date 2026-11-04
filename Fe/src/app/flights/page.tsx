@@ -5,7 +5,7 @@ import FlightEnquiryForm from './components/FlightEnquiryForm';
 import FaqAccordion from './components/FaqAccordion';
 import FlightGallery from './components/FlightGallery';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Flight Booking Services | Dyna Tours India',
@@ -107,7 +107,7 @@ export default async function FlightPage() {
                 <span className={styles.airlineChip}>⏱️ 24x7 Support</span>
               </div>
 
-              <div className={styles.overviewDescription}>
+              <div className={`${styles.overviewDescription} adminRichContent`}>
                 {overview_description ? (
                   <div dangerouslySetInnerHTML={{ __html: overview_description }} />
                 ) : (

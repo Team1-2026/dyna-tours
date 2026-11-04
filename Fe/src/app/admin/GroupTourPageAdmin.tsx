@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { groupToursApi, GroupTourPage, getImageUrl } from '@/lib/api';
+import { api, groupToursApi, GroupTourPage, getImageUrl } from '@/lib/api';
 import styles from './admin.module.css';
 import RichTextEditor from '@/components/RichTextEditor';
 
@@ -43,16 +43,18 @@ export default function GroupTourPageAdmin() {
     if (pageData) setPageData({ ...pageData, [name]: value });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'banner_image' | 'overview_image') => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'banner_image' | 'overview_image') => {
     const file = e.target.files?.[0];
     if (!file || !pageData) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setPageData({ ...pageData, [fieldName]: event.target.result as string });
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const res = await api.uploadImage(file);
+      setPageData({ ...pageData, [fieldName]: res.url });
+    } catch (err: any) {
+      console.error('Failed to upload image:', err);
+      alert('Failed to upload image: ' + (err.message || 'Unknown error'));
+    } finally {
+      e.target.value = '';
+    }
   };
 
   if (loading) return <div>Loading...</div>;

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
 import { HeroSlide } from '@/data/homeData';
+import { getImageUrl } from '@/lib/api';
 
 interface HeroBannerProps {
   slides: HeroSlide[];
@@ -57,12 +58,12 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
               muted
               playsInline
               className="h-full w-full object-cover"
-              src={currentSlide.bgVideo}
+              src={getImageUrl(currentSlide.bgVideo)}
             />
           ) : (
             <div
               className="h-full w-full bg-cover bg-center bg-no-repeat transition-all duration-1000"
-              style={{ backgroundImage: `url('${currentSlide.bgImage}')` }}
+              style={{ backgroundImage: `url('${getImageUrl(currentSlide.bgImage)}')` }}
             />
           )}
           {/* Multi-layered Premium Dark Gradient Overlay */}

@@ -107,7 +107,7 @@ export default function CruiseDetailClient({ cruise, relatedCruises }: Props) {
             {/* 2. Cruise Overview */}
             <section className={styles.sectionBlock}>
               <h2 className={styles.blockTitle}>Cruise Overview</h2>
-              <p style={{ fontSize: '1.05rem', color: '#475569', lineHeight: 1.8 }}>
+              <p className="adminRichContent" style={{ fontSize: '0.95rem', color: '#475569', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
                 {cruise.about || cruise.short_description}
               </p>
 

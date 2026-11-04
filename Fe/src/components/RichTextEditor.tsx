@@ -5,6 +5,39 @@ import { api } from '@/lib/api';
 import { toursData } from '@/data/toursData';
 import styles from './RichTextEditor.module.css';
 
+const stripHtml = (html: string) => html ? html.replace(/<[^>]*>/g, '') : '';
+
+const cleanPastedHtml = (rawHtml: string): string => {
+  if (typeof window === 'undefined') return rawHtml;
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawHtml, 'text/html');
+
+    // Clean font tags and inline font-family / font-size styles
+    const allEls = doc.body.querySelectorAll('*');
+    allEls.forEach((el) => {
+      if (el.tagName.toLowerCase() === 'font') {
+        const span = doc.createElement('span');
+        span.innerHTML = el.innerHTML;
+        el.parentNode?.replaceChild(span, el);
+        return;
+      }
+      if (el instanceof HTMLElement) {
+        el.style.removeProperty('font-family');
+        el.style.removeProperty('font-size');
+        el.style.removeProperty('line-height');
+        if (!el.getAttribute('style')?.trim()) {
+          el.removeAttribute('style');
+        }
+      }
+    });
+
+    return doc.body.innerHTML;
+  } catch (err) {
+    return rawHtml;
+  }
+};
+
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -89,6 +122,20 @@ export default function RichTextEditor({ value, onChange, placeholder, label, id
     if (editorRef.current) {
       editorRef.current.focus();
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const html = e.clipboardData.getData('text/html');
+    const text = e.clipboardData.getData('text/plain');
+
+    if (html) {
+      const cleaned = cleanPastedHtml(html);
+      document.execCommand('insertHTML', false, cleaned);
+    } else if (text) {
+      document.execCommand('insertText', false, text);
+    }
+    handleInput();
   };
 
   if (!isMounted) {
@@ -278,6 +325,7 @@ export default function RichTextEditor({ value, onChange, placeholder, label, id
           onInput={handleInput}
           onBlur={handleInput}
           onKeyUp={handleInput}
+          onPaste={handlePaste}
           data-placeholder={placeholder || 'Start typing details...'}
         />
       </div>

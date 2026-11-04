@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { api, Cruise } from '@/lib/api';
 import CruiseDetailClient from './CruiseDetailClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 type Props = {
   params: Promise<{ id: string }>;

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Hotel;
 use App\Models\Room;
+use App\Services\ImageStorageService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class HotelController extends Controller
@@ -36,7 +38,30 @@ class HotelController extends Controller
             $query->where('featured', filter_var($request->featured, FILTER_VALIDATE_BOOLEAN));
         }
 
-        $hotels = $query->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC, id ASC')->with(['destination', 'facilities', 'rooms'])->get();
+        // Optimize list query: do not eager load rooms to avoid massive payload bloat.
+        // Only eager load minimal destination and facility columns needed for list cards.
+        $hotels = $query->orderByRaw('case when order_no is null then 1 else 0 end, order_no ASC, id ASC')
+            ->with(['destination:id,name', 'facilities:id,name'])
+            ->get();
+
+        // Sanitize and auto-migrate any base64 images in gallery so payloads remain small and fast
+        foreach ($hotels as $hotel) {
+            if (is_array($hotel->gallery)) {
+                $hasBase64 = false;
+                foreach ($hotel->gallery as $item) {
+                    $u = is_string($item) ? $item : ($item['url'] ?? '');
+                    if (ImageStorageService::isBase64Image($u)) {
+                        $hasBase64 = true;
+                        break;
+                    }
+                }
+                if ($hasBase64) {
+                    $hotel->gallery = ImageStorageService::cleanGallery($hotel->gallery, 'hotel_gallery');
+                    $hotel->save();
+                }
+            }
+        }
+
         return response()->json($hotels);
     }
 
@@ -52,6 +77,21 @@ class HotelController extends Controller
 
         if (!$hotel) {
             return response()->json(['message' => 'Hotel not found'], 404);
+        }
+
+        if (is_array($hotel->gallery)) {
+            $hasBase64 = false;
+            foreach ($hotel->gallery as $item) {
+                $u = is_string($item) ? $item : ($item['url'] ?? '');
+                if (ImageStorageService::isBase64Image($u)) {
+                    $hasBase64 = true;
+                    break;
+                }
+            }
+            if ($hasBase64) {
+                $hotel->gallery = ImageStorageService::cleanGallery($hotel->gallery, 'hotel_gallery');
+                $hotel->save();
+            }
         }
 
         return response()->json($hotel);
@@ -125,6 +165,9 @@ class HotelController extends Controller
             if (array_key_exists('location', $validated) && $validated['location'] === null) $validated['location'] = '';
             if (array_key_exists('category', $validated) && $validated['category'] === null) $validated['category'] = '4-Star';
             if (array_key_exists('gallery', $validated) && $validated['gallery'] === null) $validated['gallery'] = [];
+            if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+                $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'hotel_gallery');
+            }
             if (array_key_exists('facilities', $validated) && $validated['facilities'] === null) $validated['facilities'] = [];
 
             $rooms = $validated['rooms'] ?? null;
@@ -235,6 +278,9 @@ class HotelController extends Controller
             if (!isset($validated['location'])) $validated['location'] = '';
             if (!isset($validated['category'])) $validated['category'] = '4-Star';
             if (!isset($validated['gallery'])) $validated['gallery'] = [];
+            if (isset($validated['gallery']) && is_array($validated['gallery'])) {
+                $validated['gallery'] = ImageStorageService::cleanGallery($validated['gallery'], 'hotel_gallery');
+            }
             if (!isset($validated['facilities'])) $validated['facilities'] = [];
 
             if (!isset($validated['order_no']) || $validated['order_no'] === null) {
