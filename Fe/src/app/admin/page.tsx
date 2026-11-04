@@ -25,8 +25,8 @@ import SectionVisibilityToggle from '@/components/admin/SectionVisibilityToggle'
 
 type TabType = 'dashboard' | 'homePage' | 'seo' | 'enquiries' | 'crm' | 'destinations' | 'hotels' | 'bookings' | 'offers' | 'settings' | 'facilities' | 'packages' | 'visas' | 'flights' | 'groupTours' | 'groupTourPage' | 'groupTourEnquiries' | 'aboutPage' | 'contactPage' | 'staff' | 'cruise';
 
-// Hierarchical location data
-const COUNTRIES_DATA: Record<string, { states: string[]; cities: Record<string, string[]> }> = {
+// Default hierarchical location data
+const DEFAULT_COUNTRIES_DATA: Record<string, { states: string[]; cities: Record<string, string[]> }> = {
   India: {
     states: ['Kerala', 'Tamil Nadu', 'Karnataka', 'Goa', 'Delhi', 'Maharashtra', 'Rajasthan'],
     cities: {
@@ -134,7 +134,20 @@ export default function AdminDashboard() {
   const [isCreatingDest, setIsCreatingDest] = useState(false);
   const [isCreatingHotel, setIsCreatingHotel] = useState(false);
 
-  // Restore editor view state from sessionStorage on mount (client-side only)
+  // Dynamic hierarchical location state (Country > State > City)
+  const [countriesData, setCountriesData] = useState<Record<string, { states: string[]; cities: Record<string, string[]> }>>(DEFAULT_COUNTRIES_DATA);
+
+  // Location Modal State
+  const [locationModal, setLocationModal] = useState<{
+    type: 'country' | 'state' | 'city';
+    target: 'hotel' | 'dest';
+    parentCountry: string;
+    parentState: string;
+  } | null>(null);
+  const [newLocationInput, setNewLocationInput] = useState('');
+  const [locationError, setLocationError] = useState('');
+
+  // Restore editor view state and custom locations from storage on mount (client-side only)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedTab = sessionStorage.getItem('admin_active_tab');
@@ -148,6 +161,42 @@ export default function AdminDashboard() {
       if (savedHotelId) setSelectedHotelId(savedHotelId);
       if (savedCreatingDest) setIsCreatingDest(savedCreatingDest === 'true');
       if (savedCreatingHotel) setIsCreatingHotel(savedCreatingHotel === 'true');
+
+      try {
+        const savedLocs = localStorage.getItem('dyna_admin_locations');
+        if (savedLocs) {
+          const parsed = JSON.parse(savedLocs);
+          if (parsed && typeof parsed === 'object') {
+            setCountriesData(prev => {
+              const merged = { ...prev };
+              Object.keys(parsed).forEach(country => {
+                if (!merged[country]) {
+                  merged[country] = parsed[country];
+                } else {
+                  const stateSet = new Set([...(merged[country].states || []), ...(parsed[country].states || [])]);
+                  merged[country].states = Array.from(stateSet);
+                  merged[country].cities = {
+                    ...(merged[country].cities || {}),
+                    ...(parsed[country].cities || {})
+                  };
+                  if (parsed[country].cities) {
+                    Object.keys(parsed[country].cities).forEach(st => {
+                      const citySet = new Set([
+                        ...(merged[country].cities[st] || []),
+                        ...(parsed[country].cities[st] || [])
+                      ]);
+                      merged[country].cities[st] = Array.from(citySet);
+                    });
+                  }
+                }
+              });
+              return merged;
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Error reading saved locations:', e);
+      }
     }
   }, []);
 
@@ -476,6 +525,50 @@ export default function AdminDashboard() {
       setGroupTourEnquiries(gtEnqData || []);
       setPackagesList(Array.isArray(pkgData) && pkgData.length > 0 ? pkgData : toursData);
 
+      // Dynamically sync any custom countries/states/cities from database into countriesData
+      setCountriesData(prev => {
+        const next = { ...prev };
+        let hasChanges = false;
+        const mergeItem = (country?: string | null, state?: string | null, city?: string | null) => {
+          if (!country || !country.trim()) return;
+          const c = country.trim();
+          if (!next[c]) {
+            next[c] = { states: [], cities: {} };
+            hasChanges = true;
+          }
+          if (state && state.trim()) {
+            const s = state.trim();
+            if (!next[c].states.includes(s)) {
+              next[c].states.push(s);
+              hasChanges = true;
+            }
+            if (!next[c].cities) next[c].cities = {};
+            if (!next[c].cities[s]) {
+              next[c].cities[s] = [];
+              hasChanges = true;
+            }
+            if (city && city.trim()) {
+              const ct = city.trim();
+              if (!next[c].cities[s].includes(ct)) {
+                next[c].cities[s].push(ct);
+                hasChanges = true;
+              }
+            }
+          }
+        };
+
+        (destData || []).forEach(d => mergeItem(d.country, d.state, d.city));
+        (hotelData || []).forEach(h => mergeItem(h.country, h.state, h.city));
+
+        if (hasChanges && typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('dyna_admin_locations', JSON.stringify(next));
+          } catch (_) {}
+        }
+
+        return next;
+      });
+
       const nextHotelOrder = (hotelData && hotelData.length > 0)
         ? Math.max(0, ...hotelData.map(h => Number(h.order_no) || 0)) + 1
         : 1;
@@ -711,15 +804,169 @@ export default function AdminDashboard() {
   };
 
   // ----------------------------------------------------
+  // LOCATION MANAGEMENT (Country > State > City)
+  // ----------------------------------------------------
+  const openLocationModal = (type: 'country' | 'state' | 'city', target: 'hotel' | 'dest') => {
+    setLocationError('');
+    setNewLocationInput('');
+
+    const activeObj = target === 'hotel' 
+      ? (isCreatingHotel ? newHotel : selectedHotel) 
+      : (isCreatingDest ? newDest : selectedDest);
+    
+    const currentCountry = activeObj?.country || '';
+    const currentState = activeObj?.state || '';
+
+    if (type === 'state' && !currentCountry) {
+      alert('Please select or add a Country first before adding a State.');
+      return;
+    }
+    if (type === 'city' && !currentCountry) {
+      alert('Please select or add a Country and State first before adding a City.');
+      return;
+    }
+
+    setLocationModal({
+      type,
+      target,
+      parentCountry: currentCountry,
+      parentState: currentState,
+    });
+  };
+
+  const handleSaveNewLocation = () => {
+    if (!locationModal) return;
+    const value = newLocationInput.trim();
+    if (!value) {
+      setLocationError(`Please enter a valid ${locationModal.type} name.`);
+      return;
+    }
+
+    const { type, target, parentCountry, parentState } = locationModal;
+
+    setCountriesData(prev => {
+      const next: Record<string, { states: string[]; cities: Record<string, string[]> }> = { ...prev };
+
+      if (type === 'country') {
+        if (!next[value]) {
+          next[value] = { states: [], cities: {} };
+        }
+      } else if (type === 'state') {
+        if (!next[parentCountry]) {
+          next[parentCountry] = { states: [], cities: {} };
+        }
+        if (!next[parentCountry].states) {
+          next[parentCountry].states = [];
+        }
+        if (!next[parentCountry].states.includes(value)) {
+          next[parentCountry].states = [...next[parentCountry].states, value];
+        }
+        if (!next[parentCountry].cities) {
+          next[parentCountry].cities = {};
+        }
+        if (!next[parentCountry].cities[value]) {
+          next[parentCountry].cities[value] = [];
+        }
+      } else if (type === 'city') {
+        if (!next[parentCountry]) {
+          next[parentCountry] = { states: [], cities: {} };
+        }
+        const stateKey = parentState || (next[parentCountry].states && next[parentCountry].states[0]) || 'General';
+        if (!next[parentCountry].states.includes(stateKey)) {
+          next[parentCountry].states = [...next[parentCountry].states, stateKey];
+        }
+        if (!next[parentCountry].cities) {
+          next[parentCountry].cities = {};
+        }
+        if (!next[parentCountry].cities[stateKey]) {
+          next[parentCountry].cities[stateKey] = [];
+        }
+        if (!next[parentCountry].cities[stateKey].includes(value)) {
+          next[parentCountry].cities[stateKey] = [...next[parentCountry].cities[stateKey], value];
+        }
+      }
+
+      try {
+        localStorage.setItem('dyna_admin_locations', JSON.stringify(next));
+      } catch (err) {
+        console.warn('Failed to save locations to localStorage:', err);
+      }
+
+      return next;
+    });
+
+    // Automatically set and select the newly created item in the active form
+    if (target === 'hotel') {
+      if (isCreatingHotel) {
+        setNewHotel(prev => ({
+          ...prev,
+          ...(type === 'country' ? { country: value, state: '', city: '' } : {}),
+          ...(type === 'state' ? { state: value, city: '' } : {}),
+          ...(type === 'city' ? { city: value } : {}),
+        }));
+      } else if (selectedHotel) {
+        setSelectedHotel(prev => prev ? ({
+          ...prev,
+          ...(type === 'country' ? { country: value, state: '', city: '' } : {}),
+          ...(type === 'state' ? { state: value, city: '' } : {}),
+          ...(type === 'city' ? { city: value } : {}),
+        }) : null);
+      }
+    } else if (target === 'dest') {
+      if (isCreatingDest) {
+        setNewDest(prev => ({
+          ...prev,
+          ...(type === 'country' ? { country: value, state: '', city: '' } : {}),
+          ...(type === 'state' ? { state: value, city: '' } : {}),
+          ...(type === 'city' ? { city: value } : {}),
+        }));
+      } else if (selectedDest) {
+        setSelectedDest(prev => prev ? ({
+          ...prev,
+          ...(type === 'country' ? { country: value, state: '', city: '' } : {}),
+          ...(type === 'state' ? { state: value, city: '' } : {}),
+          ...(type === 'city' ? { city: value } : {}),
+        }) : null);
+      }
+    }
+
+    setLocationModal(null);
+    setNewLocationInput('');
+    setLocationError('');
+  };
+
+  // ----------------------------------------------------
   // DESTINATIONS MANAGEMENT
   // ----------------------------------------------------
   const handleDestTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+
+    // Check for Add New triggers from select options
+    if (name === 'country' && value === '__ADD_NEW_COUNTRY__') {
+      openLocationModal('country', 'dest');
+      return;
+    }
+    if (name === 'state' && value === '__ADD_NEW_STATE__') {
+      openLocationModal('state', 'dest');
+      return;
+    }
+    if (name === 'city' && value === '__ADD_NEW_CITY__') {
+      openLocationModal('city', 'dest');
+      return;
+    }
+
     const parsedValue = name === 'order_no' ? (value === '' ? null : Math.max(0, Number(value))) : value;
 
     if (isCreatingDest) {
       setNewDest(prev => {
-        const updated = { ...prev, [name]: parsedValue };
+        const updated: any = { ...prev, [name]: parsedValue };
+        if (name === 'country') {
+          updated.state = '';
+          updated.city = '';
+        }
+        if (name === 'state') {
+          updated.city = '';
+        }
         if (name === 'name') {
           const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
           const prevAutoSlug = (prev.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -743,7 +990,18 @@ export default function AdminDashboard() {
         return updated;
       });
     } else if (selectedDest) {
-      setSelectedDest(prev => prev ? { ...prev, [name]: parsedValue } : null);
+      setSelectedDest(prev => {
+        if (!prev) return null;
+        const updated: any = { ...prev, [name]: parsedValue };
+        if (name === 'country') {
+          updated.state = '';
+          updated.city = '';
+        }
+        if (name === 'state') {
+          updated.city = '';
+        }
+        return updated;
+      });
     }
   };
 
@@ -942,12 +1200,34 @@ export default function AdminDashboard() {
   // ----------------------------------------------------
   const handleHotelTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+
+    // Check for Add New triggers from select options
+    if (name === 'country' && value === '__ADD_NEW_COUNTRY__') {
+      openLocationModal('country', 'hotel');
+      return;
+    }
+    if (name === 'state' && value === '__ADD_NEW_STATE__') {
+      openLocationModal('state', 'hotel');
+      return;
+    }
+    if (name === 'city' && value === '__ADD_NEW_CITY__') {
+      openLocationModal('city', 'hotel');
+      return;
+    }
+
     const isNum = name === 'price' || name === 'order_no';
     const parsedVal = isNum ? (value !== '' ? Math.max(0, Number(value)) : null) : value;
 
     if (isCreatingHotel) {
       setNewHotel(prev => {
-        const updated = { ...prev, [name]: parsedVal };
+        const updated: any = { ...prev, [name]: parsedVal };
+        if (name === 'country') {
+          updated.state = '';
+          updated.city = '';
+        }
+        if (name === 'state') {
+          updated.city = '';
+        }
         if (name === 'name') {
           const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
           const prevAutoSlug = (prev.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -971,7 +1251,18 @@ export default function AdminDashboard() {
         return updated;
       });
     } else if (selectedHotel) {
-      setSelectedHotel(prev => prev ? { ...prev, [name]: parsedVal } : null);
+      setSelectedHotel(prev => {
+        if (!prev) return null;
+        const updated: any = { ...prev, [name]: parsedVal };
+        if (name === 'country') {
+          updated.state = '';
+          updated.city = '';
+        }
+        if (name === 'state') {
+          updated.city = '';
+        }
+        return updated;
+      });
     }
   };
 
@@ -1362,14 +1653,34 @@ export default function AdminDashboard() {
   const destCountry = activeDestObj?.country || '';
   const hotelCountry = activeHotelObj?.country || '';
 
-  const destStates = COUNTRIES_DATA[destCountry]?.states || [];
-  const hotelStates = COUNTRIES_DATA[hotelCountry]?.states || [];
+  const availableCountries = Array.from(new Set([
+    ...Object.keys(countriesData),
+    ...(hotelCountry ? [hotelCountry] : []),
+    ...(destCountry ? [destCountry] : []),
+  ])).filter(Boolean).sort();
 
   const destState = activeDestObj?.state || '';
   const hotelState = activeHotelObj?.state || '';
 
-  const destCities = COUNTRIES_DATA[destCountry]?.cities?.[destState] || [];
-  const hotelCities = COUNTRIES_DATA[hotelCountry]?.cities?.[hotelState] || [];
+  const destStates = Array.from(new Set([
+    ...(countriesData[destCountry]?.states || []),
+    ...(destState ? [destState] : [])
+  ])).filter(Boolean);
+
+  const hotelStates = Array.from(new Set([
+    ...(countriesData[hotelCountry]?.states || []),
+    ...(hotelState ? [hotelState] : [])
+  ])).filter(Boolean);
+
+  const destCities = Array.from(new Set([
+    ...(countriesData[destCountry]?.cities?.[destState] || []),
+    ...(activeDestObj?.city ? [activeDestObj.city] : [])
+  ])).filter(Boolean);
+
+  const hotelCities = Array.from(new Set([
+    ...(countriesData[hotelCountry]?.cities?.[hotelState] || []),
+    ...(activeHotelObj?.city ? [activeHotelObj.city] : [])
+  ])).filter(Boolean);
 
   // Filter lists for checkboxes
   const availableTours = (packagesList && packagesList.length > 0) ? packagesList : toursData;
@@ -2289,7 +2600,17 @@ export default function AdminDashboard() {
 
                       <div className={styles.formRow}>
                         <div className="formGroup">
-                          <label htmlFor="country">Country <span className="required-star">*</span></label>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                            <label htmlFor="country" style={{ margin: 0 }}>Country <span className="required-star">*</span></label>
+                            <button
+                              type="button"
+                              onClick={() => openLocationModal('country', 'hotel')}
+                              className={styles.btnAddLocationSmall}
+                              title="Add a new country"
+                            >
+                              <span style={{ color: '#dc2626', fontWeight: 800 }}>+</span> Add New
+                            </button>
+                          </div>
                           <select
                             name="country"
                             id="country"
@@ -2297,14 +2618,25 @@ export default function AdminDashboard() {
                             onChange={handleHotelTextChange}
                           >
                             <option value="">Select country</option>
-                            {Object.keys(COUNTRIES_DATA).map(c => (
+                            {availableCountries.map(c => (
                               <option key={c} value={c}>{c}</option>
                             ))}
+                            <option value="__ADD_NEW_COUNTRY__" style={{ fontWeight: 'bold', color: '#dc2626' }}>+ Add New Country...</option>
                           </select>
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="state">State / Country Name <span className="required-star">*</span></label>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                            <label htmlFor="state" style={{ margin: 0 }}>State / Country Name <span className="required-star">*</span></label>
+                            <button
+                              type="button"
+                              onClick={() => openLocationModal('state', 'hotel')}
+                              className={styles.btnAddLocationSmall}
+                              title="Add a new state/province"
+                            >
+                              <span style={{ color: '#dc2626', fontWeight: 800 }}>+</span> Add New
+                            </button>
+                          </div>
                           <select
                             name="state"
                             id="state"
@@ -2315,11 +2647,22 @@ export default function AdminDashboard() {
                             {hotelStates.map(s => (
                               <option key={s} value={s}>{s}</option>
                             ))}
+                            <option value="__ADD_NEW_STATE__" style={{ fontWeight: 'bold', color: '#dc2626' }}>+ Add New State...</option>
                           </select>
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="city">City (Optional)</label>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                            <label htmlFor="city" style={{ margin: 0 }}>City (Optional)</label>
+                            <button
+                              type="button"
+                              onClick={() => openLocationModal('city', 'hotel')}
+                              className={styles.btnAddLocationSmall}
+                              title="Add a new city"
+                            >
+                              <span style={{ color: '#dc2626', fontWeight: 800 }}>+</span> Add New
+                            </button>
+                          </div>
                           <select
                             name="city"
                             id="city"
@@ -2330,6 +2673,7 @@ export default function AdminDashboard() {
                             {hotelCities.map(ct => (
                               <option key={ct} value={ct}>{ct}</option>
                             ))}
+                            <option value="__ADD_NEW_CITY__" style={{ fontWeight: 'bold', color: '#dc2626' }}>+ Add New City...</option>
                           </select>
                         </div>
                       </div>
@@ -3191,7 +3535,17 @@ export default function AdminDashboard() {
 
                       <div className={styles.formRow} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
                         <div className="formGroup">
-                          <label htmlFor="country">Country</label>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                            <label htmlFor="country" style={{ margin: 0 }}>Country</label>
+                            <button
+                              type="button"
+                              onClick={() => openLocationModal('country', 'dest')}
+                              className={styles.btnAddLocationSmall}
+                              title="Add a new country"
+                            >
+                              <span style={{ color: '#dc2626', fontWeight: 800 }}>+</span> Add New
+                            </button>
+                          </div>
                           <select
                             name="country"
                             id="country"
@@ -3199,14 +3553,25 @@ export default function AdminDashboard() {
                             onChange={handleDestTextChange}
                           >
                             <option value="">-- Select Country --</option>
-                            {Object.keys(COUNTRIES_DATA).map(c => (
+                            {availableCountries.map(c => (
                               <option key={c} value={c}>{c}</option>
                             ))}
+                            <option value="__ADD_NEW_COUNTRY__" style={{ fontWeight: 'bold', color: '#dc2626' }}>+ Add New Country...</option>
                           </select>
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="state">State / Province</label>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                            <label htmlFor="state" style={{ margin: 0 }}>State / Province</label>
+                            <button
+                              type="button"
+                              onClick={() => openLocationModal('state', 'dest')}
+                              className={styles.btnAddLocationSmall}
+                              title="Add a new state/province"
+                            >
+                              <span style={{ color: '#dc2626', fontWeight: 800 }}>+</span> Add New
+                            </button>
+                          </div>
                           <select
                             name="state"
                             id="state"
@@ -3217,11 +3582,22 @@ export default function AdminDashboard() {
                             {destStates.map(s => (
                               <option key={s} value={s}>{s}</option>
                             ))}
+                            <option value="__ADD_NEW_STATE__" style={{ fontWeight: 'bold', color: '#dc2626' }}>+ Add New State...</option>
                           </select>
                         </div>
 
                         <div className="formGroup">
-                          <label htmlFor="city">City (Optional)</label>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                            <label htmlFor="city" style={{ margin: 0 }}>City (Optional)</label>
+                            <button
+                              type="button"
+                              onClick={() => openLocationModal('city', 'dest')}
+                              className={styles.btnAddLocationSmall}
+                              title="Add a new city"
+                            >
+                              <span style={{ color: '#dc2626', fontWeight: 800 }}>+</span> Add New
+                            </button>
+                          </div>
                           <select
                             name="city"
                             id="city"
@@ -3232,6 +3608,7 @@ export default function AdminDashboard() {
                             {destCities.map(ct => (
                               <option key={ct} value={ct}>{ct}</option>
                             ))}
+                            <option value="__ADD_NEW_CITY__" style={{ fontWeight: 'bold', color: '#dc2626' }}>+ Add New City...</option>
                           </select>
                         </div>
                       </div>
@@ -4126,6 +4503,109 @@ export default function AdminDashboard() {
                 onClick={saveRoomCategory}
               >
                 Save Room Type
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ADD LOCATION MODAL (Country / State / City) */}
+      {locationModal && (
+        <div className={styles.modalOverlay} onClick={() => setLocationModal(null)} style={{ zIndex: 1100 }}>
+          <div 
+            className={styles.modalContent} 
+            style={{ maxWidth: '460px', width: '90%' }} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>
+                {locationModal.type === 'country' && 'Add New Country'}
+                {locationModal.type === 'state' && 'Add New State / Province'}
+                {locationModal.type === 'city' && 'Add New City'}
+              </h3>
+              <button 
+                type="button" 
+                className={styles.modalCloseBtn} 
+                onClick={() => setLocationModal(null)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody} style={{ padding: '1.5rem' }}>
+              {locationModal.type === 'state' && (
+                <div style={{ marginBottom: '1rem', padding: '0.6rem 0.85rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.85rem', color: '#475569' }}>
+                  Adding State to Country: <strong style={{ color: '#0f172a' }}>{locationModal.parentCountry}</strong>
+                </div>
+              )}
+
+              {locationModal.type === 'city' && (
+                <div style={{ marginBottom: '1rem', padding: '0.6rem 0.85rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.85rem', color: '#475569' }}>
+                  Country: <strong style={{ color: '#0f172a' }}>{locationModal.parentCountry}</strong>
+                  {locationModal.parentState ? (
+                    <> &bull; State: <strong style={{ color: '#0f172a' }}>{locationModal.parentState}</strong></>
+                  ) : ''}
+                </div>
+              )}
+
+              <label style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem', display: 'block' }}>
+                {locationModal.type === 'country' && 'Country Name *'}
+                {locationModal.type === 'state' && 'State / Province Name *'}
+                {locationModal.type === 'city' && 'City Name *'}
+              </label>
+
+              <input
+                type="text"
+                autoFocus
+                value={newLocationInput}
+                onChange={(e) => {
+                  setNewLocationInput(e.target.value);
+                  if (locationError) setLocationError('');
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSaveNewLocation();
+                  }
+                }}
+                placeholder={
+                  locationModal.type === 'country' ? 'e.g. Maldives, France, Vietnam' :
+                  locationModal.type === 'state' ? 'e.g. Male Atoll, Bavaria, Texas' :
+                  'e.g. Male, Munich, Austin'
+                }
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 0.9rem',
+                  fontSize: '0.95rem',
+                  border: locationError ? '1.5px solid #ef4444' : '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+
+              {locationError && (
+                <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.4rem', fontWeight: 600 }}>
+                  {locationError}
+                </p>
+              )}
+            </div>
+
+            <div className={styles.modalFooter} style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => setLocationModal(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSaveNewLocation}
+                style={{ background: '#0f172a', borderColor: '#0f172a', color: '#fff' }}
+              >
+                Add {locationModal.type === 'country' ? 'Country' : locationModal.type === 'state' ? 'State' : 'City'}
               </button>
             </div>
           </div>
