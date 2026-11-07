@@ -124,7 +124,7 @@
 /* Destinations Grid */
 .destGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 2rem;
   padding-bottom: 5rem;
 }
@@ -257,5 +257,9 @@
   }
   .searchBox {
     max-width: 100%;
+  }
+  .destGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }

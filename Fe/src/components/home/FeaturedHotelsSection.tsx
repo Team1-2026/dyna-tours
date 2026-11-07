@@ -207,7 +207,10 @@ export const FeaturedHotelsSection: React.FC<FeaturedHotelsSectionProps> = ({ ho
           </div>
 
           {/* Star Rating Tabs */}
-          <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
+          <div 
+            className="flex overflow-x-auto gap-2 pb-2 no-scrollbar"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             {tabs.map((tab) => (
               <button
                 key={tab}

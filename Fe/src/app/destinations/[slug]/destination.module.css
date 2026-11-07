@@ -409,7 +409,8 @@
 }
 
 @media (max-width: 640px) {
-  .packagesGrid {
+  .packagesGrid,
+  .hotelsGrid {
     grid-template-columns: 1fr;
   }
 }
@@ -423,7 +424,7 @@
 
 .hotelsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 2rem;
   margin-top: 2rem;
 }

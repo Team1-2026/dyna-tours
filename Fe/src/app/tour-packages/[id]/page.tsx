@@ -865,7 +865,7 @@ export default function TourDetailsPage({ params }: PageProps) {
           <h2 style={{ fontSize: '1.75rem', color: 'var(--color-secondary-navy)', marginBottom: '1.5rem', fontWeight: 700 }}>
             Related Tour Packages
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
             {relatedToursData.map((relTour) => (
               <TourCard key={relTour.id} tour={relTour} layout="vertical" />
             ))}

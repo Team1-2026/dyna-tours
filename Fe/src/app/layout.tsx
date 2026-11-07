@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -12,6 +12,13 @@ const manrope = Manrope({
   variable: '--font-manrope',
   weight: ['300', '400', '500', '600', '700', '800'],
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+};
 
 export const metadata: Metadata = {
   title: 'Dyna Tours | Luxury Tours & Curated Travel Experiences',
@@ -35,20 +42,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${manrope.variable}`} suppressHydrationWarning>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
       <body style={{ 
         display: 'flex', 
         flexDirection: 'column', 
         minHeight: '100vh',
+        width: '100%',
+        maxWidth: '100vw',
+        overflowX: 'hidden',
         fontFamily: 'var(--font-manrope), sans-serif',
         // Define Font Variables mapping
         ['--font-sans' as any]: 'var(--font-manrope), sans-serif',
         ['--font-headings' as any]: 'var(--font-manrope), sans-serif'
       }}>
         <Navbar />
-        <main style={{ flex: '1 0 auto', paddingTop: '80px' }}>
+        <main className="main-content" style={{ flex: '1 0 auto' }}>
           {children}
         </main>
         <Footer />

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { groupToursApi, GroupTour, GroupTourPage, GroupTourDetails } from '@/lib/api';
+import { groupToursApi, GroupTour, GroupTourPage, GroupTourDetails, getImageUrl } from '@/lib/api';
 import styles from './group-tours.module.css';
 import Pagination from '@/components/Pagination';
 
@@ -176,7 +176,7 @@ function GroupToursContent() {
       {/* 1. Hero Section */}
       <section 
         className={styles.hero} 
-        style={{ backgroundImage: `url(${(!pageData?.banner_image || pageData.banner_image.includes('unsplash.com')) ? defaultBanner : pageData.banner_image})` }}
+        style={{ backgroundImage: `url('${getImageUrl((!pageData?.banner_image || pageData.banner_image.includes('unsplash.com')) ? defaultBanner : pageData.banner_image)}')` }}
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
@@ -232,7 +232,7 @@ function GroupToursContent() {
       <section className={styles.overviewSection}>
         <div className={styles.overviewImageWrapper}>
           <img 
-            src={pageData?.overview_image || defaultOverviewImage} 
+            src={getImageUrl(pageData?.overview_image || defaultOverviewImage)} 
             alt="The Ultimate Way to Experience Global Adventures" 
             className={styles.overviewImage} 
           />
@@ -309,7 +309,7 @@ function GroupToursContent() {
                   <div key={tour.id} className={styles.tourCard}>
                     <div 
                       className={styles.tourCardImage} 
-                      style={{ backgroundImage: `url(${tour.image || defaultBanner})` }}
+                      style={{ backgroundImage: `url('${getImageUrl(tour.image || defaultBanner)}')` }}
                     >
                       <span className={`${styles.statusBadge} ${getStatusClass(tour.status)}`}>
                         {tour.status}
@@ -402,7 +402,7 @@ function GroupToursContent() {
           <div className={styles.upcomingCard}>
             <div 
               className={styles.upcomingCardBg} 
-              style={{ backgroundImage: `url(${upcomingTour.image || defaultBanner})` }}
+              style={{ backgroundImage: `url('${getImageUrl(upcomingTour.image || defaultBanner)}')` }}
             />
             <div className={styles.upcomingContent}>
               <div className={styles.upcomingLeft}>

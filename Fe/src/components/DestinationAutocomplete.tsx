@@ -397,7 +397,7 @@ export const DestinationAutocomplete: React.FC<DestinationAutocompleteProps> = (
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.98 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute left-0 top-full mt-2 w-full min-w-[300px] sm:min-w-[340px] max-w-[420px] bg-white rounded-2xl shadow-2xl border border-slate-200/90 z-[100] overflow-hidden backdrop-blur-md"
+            className="absolute left-0 top-full mt-2 w-full min-w-[min(100%,300px)] sm:min-w-[340px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200/90 z-[100] overflow-hidden backdrop-blur-md"
             style={{
               boxShadow: '0 20px 35px -5px rgba(15, 23, 42, 0.2), 0 8px 16px -6px rgba(15, 23, 42, 0.15)',
             }}

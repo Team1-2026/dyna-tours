@@ -79,7 +79,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                 className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl group cursor-pointer"
               >
                 <div
-                  className="h-[420px] sm:h-[500px] w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                  className="h-[260px] sm:h-[400px] md:h-[500px] w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                   style={{ backgroundImage: `url('${getImageUrl(displayThumbnail)}')` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-950/30 to-transparent" />
@@ -90,16 +90,16 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                     e.stopPropagation();
                     setIsVideoOpen(true);
                   }}
-                  className="absolute inset-0 m-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-600/90 text-white shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-115 hover:bg-red-500 group-hover:shadow-red-600/40"
+                  className="absolute inset-0 m-auto flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-red-600/90 text-white shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-115 hover:bg-red-500 group-hover:shadow-red-600/40"
                   aria-label="Play Brand Video"
                 >
-                  <Play className="h-8 w-8 fill-white ml-1" />
+                  <Play className="h-6 w-6 sm:h-8 sm:w-8 fill-white ml-0.5 sm:ml-1" />
                 </button>
 
                 {/* Experience Badge */}
-                <div className="absolute bottom-6 left-6 flex items-center gap-3 rounded-2xl bg-neutral-900/90 p-4 border border-white/10 backdrop-blur-md">
-                  <span className="text-4xl font-extrabold text-amber-400">{yearsExperience}+</span>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300 leading-snug">
+                <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2.5 sm:gap-3 rounded-2xl bg-neutral-900/90 p-3 sm:p-4 border border-white/10 backdrop-blur-md">
+                  <span className="text-2xl sm:text-4xl font-extrabold text-amber-400">{yearsExperience}+</span>
+                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-300 leading-snug">
                     Years of Travel<br />Excellence
                   </span>
                 </div>

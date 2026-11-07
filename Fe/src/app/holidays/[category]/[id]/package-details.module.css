@@ -508,7 +508,7 @@
 
 .similarGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 2rem;
 }
 
@@ -566,5 +566,12 @@
 @media (min-width: 768px) {
   .timelineLine {
     width: 80px;
+  }
+}
+
+@media (max-width: 640px) {
+  .similarGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }

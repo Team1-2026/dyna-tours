@@ -172,11 +172,14 @@ export const UniversalSearch: React.FC = () => {
   ] as const;
 
   return (
-    <div className="relative z-30 mx-auto max-w-6xl px-4 sm:px-6 -mt-20 sm:-mt-24 pb-6 sm:pb-8">
-      <div className="relative rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5">
+    <div className="relative z-30 mx-auto max-w-6xl px-3 sm:px-6 -mt-12 sm:-mt-20 lg:-mt-24 pb-6 sm:pb-8">
+      <div className="relative rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-5 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5">
         
         {/* Navigation Tabs */}
-        <div className="flex overflow-x-auto gap-1.5 border-b border-slate-100 pb-3 no-scrollbar">
+        <div 
+          className="flex overflow-x-auto gap-1.5 border-b border-slate-100 pb-3 no-scrollbar"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;

@@ -67,7 +67,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
       }}>
         {/* Light overlay for low image opacity */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255, 255, 255, 0.15)', zIndex: 1 }}></div>
-        <div className="container" style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
+        <div className="container" style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '2rem', alignItems: 'center' }}>
           <div>
             <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontFamily: 'var(--font-manrope)', color: 'var(--color-secondary-navy)', textShadow: '0 2px 10px rgba(255,255,255,0.8)' }}>Start Planning Your Dream {categoryName.replace(' Tour Packages', '')} Today</h2>
             <p style={{ fontSize: '1.1rem', color: 'var(--color-secondary-navy)', marginBottom: '2rem', fontWeight: 600, textShadow: '0 2px 10px rgba(255,255,255,0.8)' }}>

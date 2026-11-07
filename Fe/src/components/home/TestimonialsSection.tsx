@@ -15,21 +15,35 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
   const [startIndex, setStartIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [selectedModalImage, setSelectedModalImage] = useState<string | null>(null);
+  const [cardsPerView, setCardsPerView] = useState(3);
 
-  const CARDS_PER_VIEW = 3;
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setCardsPerView(1);
+      } else if (window.innerWidth < 1024) {
+        setCardsPerView(2);
+      } else {
+        setCardsPerView(3);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Auto-advance every 6 seconds when not hovered
   useEffect(() => {
-    if (list.length <= CARDS_PER_VIEW || isPaused) return;
+    if (list.length <= cardsPerView || isPaused) return;
     const interval = setInterval(() => {
       setStartIndex((prev) => (prev + 1) % list.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, [list.length, isPaused]);
+  }, [list.length, isPaused, cardsPerView]);
 
-  // Compute the 3 currently visible testimonials
+  // Compute currently visible testimonials
   const visibleTestimonials = [];
-  for (let i = 0; i < Math.min(CARDS_PER_VIEW, list.length); i++) {
+  for (let i = 0; i < Math.min(cardsPerView, list.length); i++) {
     const idx = (startIndex + i) % list.length;
     visibleTestimonials.push(list[idx]);
   }
@@ -73,7 +87,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
           </div>
 
           {/* Navigation Controls */}
-          {list.length > CARDS_PER_VIEW && (
+          {list.length > cardsPerView && (
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrev}
@@ -93,8 +107,8 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
           )}
         </div>
 
-        {/* 3-Cards in a Row Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Dynamic Responsive Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           <AnimatePresence mode="popLayout">
             {visibleTestimonials.map((testimonial, i) => (
               <motion.div
@@ -103,7 +117,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-amber-300"
+                className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-amber-300"
               >
                 {/* Background Quote Watermark */}
                 <Quote className="absolute top-6 right-6 h-12 w-12 text-slate-100 transition-colors group-hover:text-amber-100 pointer-events-none" />
@@ -187,7 +201,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testim
         </div>
 
         {/* Carousel Pagination Dots */}
-        {list.length > CARDS_PER_VIEW && (
+        {list.length > cardsPerView && (
           <div className="mt-12 flex justify-center items-center gap-2">
             {list.map((_, idx) => (
               <button

@@ -37,7 +37,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
 
   return (
     <section 
-      className="relative w-full h-[88vh] min-h-[640px] max-h-[920px] overflow-hidden bg-[#0C2745] text-white select-none"
+      className="relative w-full h-[85vh] sm:h-[88vh] min-h-[520px] sm:min-h-[640px] max-h-[920px] overflow-hidden bg-[#0C2745] text-white select-none"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -73,7 +73,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
       </AnimatePresence>
 
       {/* Hero Content Overlay */}
-      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8 pb-20 pt-16">
+      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8 pb-20 pt-10 sm:pb-20 sm:pt-16">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide.id + '-content'}
@@ -89,9 +89,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold tracking-wider text-amber-300 uppercase backdrop-blur-md"
+                className="mb-3 sm:mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3.5 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold tracking-wider text-amber-300 uppercase backdrop-blur-md"
               >
-                <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-400" />
                 <span>{currentSlide.badge}</span>
               </motion.div>
             )}
@@ -101,7 +101,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-xs font-bold tracking-[0.25em] text-teal-400 uppercase sm:text-sm"
+              className="text-[11px] font-bold tracking-[0.2em] sm:tracking-[0.25em] text-teal-400 uppercase sm:text-sm"
             >
               {currentSlide.subtitle}
             </motion.p>
@@ -111,7 +111,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]"
+              className="mt-2 sm:mt-3 text-2xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl leading-[1.15]"
             >
               {currentSlide.title}
             </motion.h1>
@@ -121,7 +121,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="mt-4 text-base text-neutral-300 sm:text-lg lg:text-xl font-light leading-relaxed max-w-2xl"
+              className="mt-3 sm:mt-4 text-sm text-neutral-300 sm:text-lg lg:text-xl font-light leading-relaxed max-w-2xl line-clamp-3 sm:line-clamp-none"
             >
               {currentSlide.description}
             </motion.p>
@@ -131,11 +131,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="mt-8 flex flex-wrap items-center gap-4"
+              className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto"
             >
               <Link
                 href={currentSlide.primaryCtaLink}
-                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-red-600 to-rose-700 px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-red-600/30 transition-all duration-300 hover:scale-105 hover:from-red-500 hover:to-rose-600 focus:outline-none"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-red-600 to-rose-700 px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-semibold text-white shadow-xl shadow-red-600/30 transition-all duration-300 hover:scale-105 hover:from-red-500 hover:to-rose-600 focus:outline-none"
               >
                 <span>{currentSlide.primaryCtaText}</span>
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -143,7 +143,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
 
               <Link
                 href={currentSlide.secondaryCtaLink}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-4 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/40 focus:outline-none"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 sm:px-7 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/40 focus:outline-none"
               >
                 <span>{currentSlide.secondaryCtaText}</span>
               </Link>
@@ -152,8 +152,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
         </AnimatePresence>
       </div>
 
-      {/* Navigation Controls */}
-      <div className="absolute bottom-10 right-8 z-20 flex items-center gap-4">
+      {/* Navigation Controls (Desktop/Tablet) */}
+      <div className="hidden sm:flex absolute bottom-10 right-8 z-20 items-center gap-4">
         {/* Navigation Arrows */}
         <div className="flex items-center gap-2">
           <button
@@ -179,15 +179,15 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ slides }) => {
       </div>
 
       {/* Pagination Dots */}
-      <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2.5">
+      <div className="absolute bottom-6 sm:bottom-10 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 sm:gap-2.5">
         {slides.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
-            className={`h-2.5 rounded-full transition-all duration-500 ${
+            className={`h-2 sm:h-2.5 rounded-full transition-all duration-500 ${
               idx === currentIndex
-                ? 'w-8 bg-gradient-to-r from-red-500 to-amber-400'
-                : 'w-2.5 bg-white/40 hover:bg-white/70'
+                ? 'w-7 sm:w-8 bg-gradient-to-r from-red-500 to-amber-400'
+                : 'w-2 sm:w-2.5 bg-white/40 hover:bg-white/70'
             }`}
             aria-label={`Go to slide ${idx + 1}`}
           />

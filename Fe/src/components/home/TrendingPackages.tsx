@@ -88,7 +88,10 @@ export const TrendingPackages: React.FC<TrendingPackagesProps> = ({
         </div>
 
         {/* Category Tabs */}
-        <div className="mt-10 flex overflow-x-auto justify-center gap-2 pb-4 no-scrollbar">
+        <div 
+          className="mt-8 sm:mt-10 flex overflow-x-auto justify-start sm:justify-center gap-2 pb-4 no-scrollbar px-2 sm:px-0"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           {tabs.map((tab) => {
             const isActive = activeTab === tab;
             return (

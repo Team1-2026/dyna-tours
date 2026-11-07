@@ -253,7 +253,7 @@ export const PopularDestinations: React.FC<PopularDestinationsProps> = ({
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
                   
                   {/* Card Content */}
-                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                  <div className="absolute inset-0 p-5 sm:p-8 flex flex-col justify-end">
                     <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-300 uppercase tracking-widest mb-1">
                       <MapPin className="h-3.5 w-3.5 text-red-500" />
                       <span>{item.type || activeTab}</span>

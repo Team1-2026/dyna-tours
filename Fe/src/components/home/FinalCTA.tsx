@@ -23,10 +23,10 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
   const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent('Hello Dyna Tours India! I would like to inquire about a holiday package.')}`;
 
   return (
-    <section className="relative py-28 text-white overflow-hidden bg-[#0C2745]">
+    <section className="relative py-20 sm:py-28 text-white overflow-hidden bg-[#0C2745]">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-fixed"
+        className="absolute inset-0 bg-cover bg-center bg-scroll sm:bg-fixed"
         style={{ backgroundImage: `url('${getImageUrl(bgImage)}')` }}
       />
       
@@ -42,23 +42,23 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-5 py-2 text-xs font-bold tracking-widest text-amber-300 uppercase backdrop-blur-md mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-4 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold tracking-widest text-amber-300 uppercase backdrop-blur-md mb-6">
             <Sparkles className="h-4 w-4 text-amber-400" />
             <span>LET'S CRAFT YOUR DREAM TRIP</span>
           </div>
 
-          <h2 className="text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-white leading-tight">
+          <h2 className="text-2xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-white leading-tight">
             {heading}
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-neutral-300 font-light max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-4 text-sm sm:text-lg text-neutral-300 font-light max-w-2xl mx-auto leading-relaxed">
             {description}
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-5">
+          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-5">
             <Link
               href="/contact-us"
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-red-600 to-rose-600 px-9 py-4 text-sm font-semibold text-white shadow-2xl shadow-red-600/40 transition-all hover:scale-105 hover:from-red-500 hover:to-rose-500"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-red-600 to-rose-600 px-8 sm:px-9 py-3.5 sm:py-4 text-xs sm:text-sm font-semibold text-white shadow-2xl shadow-red-600/40 transition-all hover:scale-105 hover:from-red-500 hover:to-rose-500 w-full sm:w-auto"
             >
               <PhoneCall className="h-4 w-4" />
               <span>Get Free Quote</span>
@@ -69,7 +69,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 rounded-full border border-emerald-500/40 bg-emerald-600/90 px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-emerald-600/30 backdrop-blur-md transition-all hover:scale-105 hover:bg-emerald-500"
+              className="inline-flex items-center justify-center gap-2.5 rounded-full border border-emerald-500/40 bg-emerald-600/90 px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-semibold text-white shadow-xl shadow-emerald-600/30 backdrop-blur-md transition-all hover:scale-105 hover:bg-emerald-500 w-full sm:w-auto"
             >
               <MessageSquare className="h-4 w-4 fill-white" />
               <span>Chat on WhatsApp</span>

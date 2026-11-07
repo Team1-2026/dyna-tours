@@ -261,6 +261,8 @@
   height: 200px;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f1f5f9;
   position: relative;
   padding: 1rem;
 }
